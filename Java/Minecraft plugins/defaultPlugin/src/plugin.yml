@@ -1,0 +1,17 @@
+name: Plate
+author: bullterrier292
+version: 1.0
+main: me.def.Plate.Main
+description: defPlate
+api-version: 1.15
+commands:
+   cord:
+     description: GIVES cord
+     usage:  /<command>
+   example:
+     description: test
+     usage: /<command>
+   moi:
+     description: test
+     usage: /<command> 
+      
