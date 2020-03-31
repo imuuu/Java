@@ -1,4 +1,4 @@
-package Commands;
+package imu.HomeTele.Commands;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import Other.ConfigMaker;
-import Other.Cooldowns;
-import Other.TeleChecks;
+import imu.HomeTele.Other.ConfigMaker;
+import imu.HomeTele.Other.Cooldowns;
+import imu.HomeTele.Other.TeleChecks;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

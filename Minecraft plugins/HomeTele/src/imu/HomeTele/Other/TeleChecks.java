@@ -1,4 +1,4 @@
-package Other;
+package imu.HomeTele.Other;
 
 import org.bukkit.Location;
 import org.bukkit.Particle;

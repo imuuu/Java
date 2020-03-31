@@ -4,8 +4,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import Commands.Commands;
-import Events.EventClass;
+import imu.HomeTele.Commands.Commands;
+import imu.HomeTele.Events.EventClass;
 
 
 public class Main extends JavaPlugin implements Listener 

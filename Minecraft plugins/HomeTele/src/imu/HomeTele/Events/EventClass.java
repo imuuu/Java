@@ -1,4 +1,4 @@
-package Events;
+package imu.HomeTele.Events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import Commands.Commands;
+import imu.HomeTele.Commands.Commands;
 
 public class EventClass implements Listener
 {
