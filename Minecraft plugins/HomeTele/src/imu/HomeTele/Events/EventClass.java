@@ -21,6 +21,7 @@ public class EventClass implements Listener
 	public void onJoin(PlayerLoginEvent e)
 	{
 		_cmd.setHomeToHash(e.getPlayer());
+		_cmd.updateNameConfig(e.getPlayer());
 	}
 	
 	@EventHandler

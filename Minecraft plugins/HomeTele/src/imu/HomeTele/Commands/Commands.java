@@ -15,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Consumer;
 
 import imu.HomeTele.Other.ConfigMaker;
 import imu.HomeTele.Other.Cooldowns;
@@ -37,7 +38,7 @@ public class Commands implements CommandExecutor
 	Plugin _plugin;
 	
 	HashMap<Player, Cooldowns> player_cds = new HashMap<Player, Cooldowns>();
-	HashMap<String, Location> allHomes = new HashMap<String, Location>();
+	HashMap<UUID, Location> allHomes = new HashMap<UUID, Location>();
 	
 	double teleport_castTime = 15;
 	double teleport_cooldown = 60*15; // 15min
@@ -68,7 +69,7 @@ public class Commands implements CommandExecutor
 			{
 				if(arg.length == 0)
 				{
-					if(hasHome(player))
+					if(hasHome(player.getUniqueId()))
 					{
 						if(!isCd(player, "home", teleport_cooldown))
 							playerChecks.put(player, new TeleChecks(player,_plugin));
@@ -77,9 +78,20 @@ public class Commands implements CommandExecutor
 				if(arg.length == 1 && player.isOp())
 				{
 					Player target_player = _plugin.getServer().getPlayer(arg[0]);
+					
+					
 					if(target_player != null)
 					{
-						teleportHome(player, target_player);
+						teleportHome(player.getUniqueId(), target_player.getUniqueId());
+					}else
+					{
+						try {
+							UUID uuid = UUID.fromString(arg[0]);
+							if(uuid != null)
+								teleportHome(player.getUniqueId(), uuid);
+						} catch (Exception e) {
+							System.out.println("HOME TELE: UUID FAILED");
+						}
 					}
 				}
 				
@@ -102,25 +114,44 @@ public class Commands implements CommandExecutor
 				
 	}
 	
+	
+	
 	void homeList(Player player)
 	{		
-		for(Map.Entry<String,Location> entry : allHomes.entrySet())
+		ConfigMaker cm = new ConfigMaker(_plugin, "homes.yml");
+		FileConfiguration config=cm.getConfig();
+		
+		for(Map.Entry<UUID, Location> entry : allHomes.entrySet())
 		{	
-			String player_name = entry.getKey();
+			UUID player_uuid = entry.getKey();
 
+			String lastName = config.getString("homes."+player_uuid+".name");
+						
 			BaseComponent message = new TextComponent("Teleport home of ");	
 			message.setColor( net.md_5.bungee.api.ChatColor.GRAY );
-			TextComponent pName = new TextComponent(player_name);
+			TextComponent pName = new TextComponent(lastName);
 			pName.setBold( true );
 			pName.setColor(net.md_5.bungee.api.ChatColor.AQUA);
 			message.addExtra(pName);
-			message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home "+player_name));
+			message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/home "+ player_uuid));
 			message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Teleport").create()));
 			player.spigot().sendMessage(message);
 		}
 		
 	}
 	
+	
+	public void updateNameConfig(Player player)
+	{
+		ConfigMaker cm = new ConfigMaker(_plugin, "homes.yml");
+		FileConfiguration config=cm.getConfig();
+		if(config.contains("homes."+player.getUniqueId())) 
+		{
+			config.set("homes."+player.getUniqueId()+".name", player.getName());
+			cm.saveConfig();
+		}
+		
+	}
 	void getSettings()
 	{
 		ConfigMaker cm = new ConfigMaker(_plugin, "settings.yml");
@@ -166,8 +197,7 @@ public class Commands implements CommandExecutor
 		{
 
 			loc = customConfig.getLocation("homes."+ uuid +".loc");
-			String player_name = customConfig.getString("homes."+ uuid +".name");
-			allHomes.put(player_name, loc);
+			allHomes.put(UUID.fromString(uuid), loc);
 		}
 		
 	}
@@ -191,30 +221,30 @@ public class Commands implements CommandExecutor
 		if(loc != null)
 		{
 			playerHomes.put(p, loc);
-			allHomes.put(p.getName(),loc);
+			allHomes.put(p.getUniqueId(),loc);
 		}
 			
 		
 	}
 	
-	boolean hasHome(Player p)
+	boolean hasHome(UUID uuid)
 	{
-		Location homeLoc = allHomes.get(p.getName());
+		Location homeLoc = allHomes.get(uuid);
 		if(homeLoc == null)
 		{
-			p.sendMessage("You don't have home!");
+			System.out.println("home not found by uuid"+uuid);
 			return false;
 		}
 		return true;
 	}
 	
-	void teleportHome(Player p, Player target_p)
+	void teleportHome(UUID uuid, UUID uuid_target)
 	{
-		if(!hasHome(p) || !hasHome(target_p))
+		if(!hasHome(uuid) || !hasHome(uuid_target))
 			return;
-		
+		Player p = Bukkit.getServer().getPlayer(uuid);
 		p.sendMessage("You have teleported to home!");
-		p.teleport(allHomes.get(target_p.getName()));
+		p.teleport(allHomes.get(uuid_target));
 	}
 	boolean isCd(Player p , String cd_name, double cd)
 	{
@@ -281,7 +311,7 @@ public class Commands implements CommandExecutor
 					
 					if(entry.getValue().drawAnimation(teleport_castTime))
 					{
-						teleportHome(player,player);
+						teleportHome(player.getUniqueId(), player.getUniqueId());
 						playerChecks.remove(player);
 					}
 										
