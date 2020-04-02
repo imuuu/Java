@@ -20,11 +20,11 @@ public class ExampleCmd implements CommandInterface
         
     	
     	Player p = (Player) sender;
-    	p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_HELMET));
-    	p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_CHESTPLATE));
-    	p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_LEGGINGS));
-    	p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_BOOTS));
-        p.sendMessage("DROPPED!");
+    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_HELMET));
+    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_CHESTPLATE));
+    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_LEGGINGS));
+    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_BOOTS));
+        //p.sendMessage("DROPPED!");
         return true;
     }
  

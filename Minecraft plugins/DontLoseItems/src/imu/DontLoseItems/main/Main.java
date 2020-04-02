@@ -20,7 +20,7 @@ public class Main extends JavaPlugin
 
         handler.registerCmd("drop", new ExampleCmd());       
         handler.registerSubCmd("drop", "ags", new ArgsCmd());
-        handler.setPermissionOnLastCmd("lol.lol");
+        handler.setPermissionOnLastCmd("dontloseitems.drop");
               
         getCommand("drop").setExecutor(handler);
    

@@ -1,0 +1,10 @@
+name: AccountBoundItems
+author: imu
+version: 1.0
+main: imu.AccountBoundItems.main.Main
+description: Account bound items
+api-version: 1.15
+commands:
+   acc:
+     description: GIVES cord
+     usage:  /<command>
