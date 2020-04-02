@@ -1,0 +1,10 @@
+name: DontLoseItems
+author: bullterrier292
+version: 1.0
+main: imu.DontLoseItems.main.Main
+description: Dont lose your items
+api-version: 1.15
+commands:
+   drop:
+     description: test
+     usage: /<command>

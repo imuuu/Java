@@ -40,8 +40,7 @@ public class ConfigMaker {
 	
 	public boolean isExists()
 	{
-		File b = new File(_plugin.getDataFolder(), _fileName);
-		System.out.println("B:"+b.exists());
+		File b = new File(_plugin.getDataFolder() + "/" + _fileName);
 		return b.exists();
 	}
 }

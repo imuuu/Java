@@ -3,7 +3,6 @@ package imu.def.main;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import imu.def.Commands.DefaultCommands;
 import imu.def.Commands.ExampleCmd;
 import imu.def.Commands.MoiCmd;
 import imu.def.Events.EventClass;

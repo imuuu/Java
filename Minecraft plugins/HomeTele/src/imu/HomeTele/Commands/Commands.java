@@ -38,6 +38,7 @@ public class Commands implements CommandExecutor
 	Plugin _plugin;
 	
 	HashMap<Player, Cooldowns> player_cds = new HashMap<Player, Cooldowns>();
+	
 	HashMap<UUID, Location> allHomes = new HashMap<UUID, Location>();
 	
 	double teleport_castTime = 15;
@@ -48,10 +49,12 @@ public class Commands implements CommandExecutor
 	public Commands(Plugin plugin)
 	{
 		_plugin = plugin;
+		
 		checkPlayerHomes();
 		runnable_checkTeles();
 		getSettings();
 		setAllHomes();
+		
 	}
 	
 	@Override
@@ -159,7 +162,7 @@ public class Commands implements CommandExecutor
 		if(!config.contains("settings.")) 
 		{
 			//default values
-			System.out.println("home teles: Default config made!");			
+			_plugin.getServer().getConsoleSender().sendMessage(ChatColor.AQUA +" home teles: Default config made!");	
 			config.set("settings.teleCastTime",teleport_castTime);
 			config.set("settings.teleCooldown",teleport_cooldown);
 			config.set("settings.setHomeCooldown",setHome_cooldown);		
@@ -192,13 +195,19 @@ public class Commands implements CommandExecutor
 		Location loc;
 		ConfigMaker conM = new ConfigMaker(_plugin, "homes.yml");
 		FileConfiguration customConfig = conM.getConfig();
+		if(!conM.isExists())
+			conM.saveConfig();
 		
-		for(final String uuid : customConfig.getConfigurationSection("homes.").getKeys(false))
+		if(customConfig.contains("homes."))
 		{
+			for(final String uuid : customConfig.getConfigurationSection("homes.").getKeys(false))
+			{
 
-			loc = customConfig.getLocation("homes."+ uuid +".loc");
-			allHomes.put(UUID.fromString(uuid), loc);
+				loc = customConfig.getLocation("homes."+ uuid +".loc");
+				allHomes.put(UUID.fromString(uuid), loc);
+			}
 		}
+		
 		
 	}
 	
@@ -284,6 +293,7 @@ public class Commands implements CommandExecutor
 		customConfig.set("homes." + p.getUniqueId()+".name", p.getName());
 		conM.saveConfig();
 		playerHomes.put(p, p.getLocation());
+		allHomes.put(p.getUniqueId(), p.getLocation());
 		
 	}
 	
