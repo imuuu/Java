@@ -19,7 +19,6 @@ public class Main extends JavaPlugin
         CommandHandler handler = new CommandHandler();
 
         handler.registerCmd("drop", new ExampleCmd());       
-        handler.registerSubCmd("drop", "ags", new ArgsCmd());
         handler.setPermissionOnLastCmd("dontloseitems.drop");
               
         getCommand("drop").setExecutor(handler);
