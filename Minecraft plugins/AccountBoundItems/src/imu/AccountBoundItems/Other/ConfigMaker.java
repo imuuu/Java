@@ -18,6 +18,7 @@ public class ConfigMaker {
 	{
 		_plugin=plugin;
 		_file = new File(_plugin.getDataFolder() + "/" + fileName);
+		_fileName = fileName;
 		_config = YamlConfiguration.loadConfiguration(_file);
 	}
 	
@@ -40,8 +41,7 @@ public class ConfigMaker {
 	
 	public boolean isExists()
 	{
-		File b = new File(_plugin.getDataFolder(), _fileName);
-		System.out.println("B:"+b.exists());
+		File b = new File(_plugin.getDataFolder() + "/" + _fileName);
 		return b.exists();
 	}
 }

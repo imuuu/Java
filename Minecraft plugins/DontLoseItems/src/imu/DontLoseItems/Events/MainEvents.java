@@ -3,17 +3,21 @@ package imu.DontLoseItems.Events;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.DontLoseItems.Other.ConfigMaker;
 
@@ -46,9 +50,7 @@ public class MainEvents implements Listener
 		PlayerInventory inv = player.getInventory();
 
 		ItemStack[] armors = copyItemStackArray(inv.getArmorContents());
-		
-		printItemStacks(inv.getContents());
-		
+				
 		ItemStack[] content = inv.getContents();
 		
 		if(saveTools || saveWeapons)
@@ -112,7 +114,6 @@ public class MainEvents implements Listener
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e)
 	{
-		System.out.println("RESPAWN");
 		Player player = e.getPlayer();
 		PlayerInventory inv = player.getInventory();
 		
@@ -120,29 +121,46 @@ public class MainEvents implements Listener
 		
 		if(armors != null)
 		{
-			printItemStacks(armors);
 			player.getInventory().setArmorContents(armors);
 		}
 		
 		if(toolItems.containsKey(player))
 		{
-			for(ItemStack t_stack : toolItems.get(player))
-			{
-				System.out.println("tool give: " + t_stack);
-				inv.addItem(t_stack);
-			}
-			toolItems.remove(player);
+			new BukkitRunnable() {
+				
+				@Override
+				public void run() 
+				{
+					for(ItemStack t_stack : toolItems.get(player))
+					{
+						//inv.addItem(t_stack);
+						moveItemFirstFreeSpaceInv(t_stack, player);
+					}
+					toolItems.remove(player);
+					
+				}
+			}.runTask(_plugin);
+			
 		}
 		
 		if(weaponItems.containsKey(player))
 		{
 			System.out.println("size: "+ weaponItems.get(player).size());
-			for(ItemStack w_stack : weaponItems.get(player))
+			new BukkitRunnable() 
 			{
-				System.out.println("weapon give: " + w_stack);
-				inv.addItem(w_stack);
-			}
-			weaponItems.remove(player);
+				
+				@Override
+				public void run() 
+				{
+					for(ItemStack w_stack : weaponItems.get(player))
+					{
+						//inv.addItem(w_stack);
+						moveItemFirstFreeSpaceInv(w_stack, player);
+					}
+					weaponItems.remove(player);
+				}
+			}.runTask(_plugin);
+			
 		}
 		
 		
@@ -216,5 +234,46 @@ public class MainEvents implements Listener
 		return clone;
 	}
 	
+	public void dropItem(ItemStack stack, Player player)
+	{
+		ItemStack copy = new ItemStack(stack);
+		stack.setAmount(0);
+		
+		player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
+		Item dropped = player.getWorld().dropItemNaturally(player.getLocation(), copy);
+		PlayerDropItemEvent event = new PlayerDropItemEvent(player, dropped);
+		Bukkit.getPluginManager().callEvent(event);
+	}
 	
+	/**
+	 * 
+	 * Put item to player inventory if there is free space.. if not drop it on ground.. can include hotbar
+	 * @return
+	 */
+	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player)
+	{
+		if(stack == null || stack.getType() == Material.AIR)
+		{
+			return;
+		}
+		ItemStack copy = new ItemStack(stack);
+		stack.setAmount(0);
+		
+		PlayerInventory inv = player.getInventory();
+		
+		int invSlot = inv.firstEmpty();
+		
+		if( invSlot != -1)
+		{
+			player.sendMessage(ChatColor.RED + "You got your item back: "+ ChatColor.AQUA + copy.getType().toString());
+			inv.setItem(invSlot, copy);
+		}else
+		{
+			player.sendMessage(ChatColor.RED + "You don't have space!");
+			dropItem(copy,player);
+			
+			
+		}
+		
+	}
 }

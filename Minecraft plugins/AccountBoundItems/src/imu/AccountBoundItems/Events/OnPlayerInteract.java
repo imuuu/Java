@@ -19,14 +19,12 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.AccountBoundItems.Other.ItemABI;
 import imu.AccountBoundItems.Other.ItemMetods;
-import net.minecraft.server.v1_15_R1.ItemArmor;
-import net.minecraft.server.v1_15_R1.ItemShield;
 
 public class OnPlayerInteract implements Listener
 {
 	
 	ItemABI itemAbi = new ItemABI();
-	ItemMetods itemM = new ItemMetods();
+	//ItemMetods itemM = new ItemMetods();
 	
 	@EventHandler
 	public void onDragInv(InventoryDragEvent e)
@@ -34,10 +32,19 @@ public class OnPlayerInteract implements Listener
 		if(e.getWhoClicked() instanceof Player)
 		{
 			ItemStack inMouse_stack = e.getOldCursor();
-			if(itemM.hasLore(inMouse_stack, itemAbi.brokenStr))
+			if(itemAbi.hasDurability(inMouse_stack))
 			{
-				e.setCancelled(true);
+				
+				if(itemAbi.isWaiting(inMouse_stack))
+				{
+					itemAbi.setBind(inMouse_stack, (Player)e.getWhoClicked(), true);
+				}
+				
+				{
+					e.setCancelled(true);
+				}
 			}
+			
 		}
 		
 		
@@ -47,7 +54,14 @@ public class OnPlayerInteract implements Listener
 	public void onSwapPlayer(PlayerSwapHandItemsEvent e)
 	{
 		ItemStack main_hand = e.getOffHandItem();
-		if(itemM.hasLore(main_hand, itemAbi.brokenStr))
+		
+		if(itemAbi.isWaiting(main_hand))
+		{
+			itemAbi.setBind(main_hand, e.getPlayer(), true);
+		}
+		
+		
+		if(itemAbi.isBroken(main_hand))
 		{
 			e.setCancelled(true);
 		}
@@ -58,7 +72,6 @@ public class OnPlayerInteract implements Listener
 	{
 		ItemStack hover_stack = e.getCurrentItem();
 		ItemStack inMouse_stack = e.getCursor();
-		
 		//System.out.println("====================");
 		//System.out.println("CLICK TYPE: " + e.getClick());
 		//System.out.println("ACTION: " + e.getAction());
@@ -74,12 +87,17 @@ public class OnPlayerInteract implements Listener
 			player = (Player)e.getWhoClicked();
 		}
 		
-		if(itemM.hasLore(hover_stack, itemAbi.boundStr))
+		if(itemAbi.isWaiting(hover_stack))
+		{
+			itemAbi.setBind(hover_stack, player, true);
+		}
+		
+		if(itemAbi.isBound(hover_stack))
 		{
 			if(player != null)
 			{
 				
-				if(!itemAbi.getBindersName(hover_stack).equalsIgnoreCase(player.getName()))
+				if(!itemAbi.getNameData(hover_stack).equalsIgnoreCase(player.getName()))
 				{
 					e.setCancelled(true);
 					player.closeInventory();
@@ -88,49 +106,52 @@ public class OnPlayerInteract implements Listener
 				
 			}
 		}
-		
+				
 		if(player != null && player.getOpenInventory().getType() == InventoryType.CRAFTING)
 		{
-			if(itemM.hasLore(inMouse_stack, itemAbi.brokenStr) || itemM.hasLore(hover_stack, itemAbi.brokenStr))
+			if(itemAbi.hasDurability(inMouse_stack) || itemAbi.hasDurability(hover_stack))
 			{
-				//System.out.println("HAS lore");
-				SlotType slot_type = e.getSlotType();
-					
-				if(e.getRawSlot() != e.getSlot() && e.getSlot() > 8 )
+				if(itemAbi.isBroken(inMouse_stack) || itemAbi.isBroken(hover_stack))
 				{
-					if(slot_type == SlotType.ARMOR || slot_type == SlotType.QUICKBAR)
-					{
-						//System.out.println("Armor: "+ itemM.isInArmor(hover_stack, player));
-						//System.out.println("Shield: " + itemM.isInShield(hover_stack, player) );
-						if(!itemM.isInArmor(hover_stack, player) && !itemM.isInShield(hover_stack, player))
-						{
-							e.setCancelled(true);
-							player.closeInventory();
-							sendWarningMessage(player);
-						}
+					SlotType slot_type = e.getSlotType();
 						
-						if(e.getAction() == InventoryAction.SWAP_WITH_CURSOR)
+					if(e.getRawSlot() != e.getSlot() && e.getSlot() > 8 )
+					{
+						if(slot_type == SlotType.ARMOR || slot_type == SlotType.QUICKBAR)
+						{
+
+							if(!itemAbi.isInArmorSlots(hover_stack, player) && !itemAbi.isInShieldSlot(hover_stack, player))
+							{
+								e.setCancelled(true);
+								player.closeInventory();
+								sendWarningMessage(player);
+							}
+							
+							if(e.getAction() == InventoryAction.SWAP_WITH_CURSOR)
+							{
+								e.setCancelled(true);
+								player.closeInventory();
+								sendWarningMessage(player);
+							}
+											
+						}
+					}
+					
+					
+					//System.out.println("CLICK TYPE: " + e.getClick());
+					if(!itemAbi.isTool(hover_stack) )
+					{
+						if(e.getClick() == ClickType.SHIFT_LEFT || e.getClick() == ClickType.SHIFT_RIGHT)
 						{
 							e.setCancelled(true);
 							player.closeInventory();
 							sendWarningMessage(player);
+
 						}
-										
 					}
+					
 				}
-				
-				
-				//System.out.println("CLICK TYPE: " + e.getClick());
-				if(e.getClick() == ClickType.SHIFT_LEFT || e.getClick() == ClickType.SHIFT_RIGHT)
-				{
-					e.setCancelled(true);
-					player.closeInventory();
-					sendWarningMessage(player);
-
-				}
-
-			
-				
+						
 			}
 			
 		}
@@ -141,7 +162,7 @@ public class OnPlayerInteract implements Listener
 	
 	void sendWarningMessage(Player player)
 	{
-		player.sendMessage(ChatColor.RED + "You can't use broken armor! Broken armor is fragile and in use it might drop on the ground in any reason!"+ ChatColor.DARK_RED +" BE CAREFULL" );
+		player.sendMessage(ChatColor.RED + "You can't use broken armor! Broken armor is fragile and in use it might drop on the ground!"+ ChatColor.DARK_RED +" BE CAREFUL" );
 	}
 	
 
@@ -153,16 +174,19 @@ public class OnPlayerInteract implements Listener
 		ItemStack main_stack = player.getInventory().getItemInMainHand();
 		ItemStack off_stack = player.getInventory().getItemInOffHand();
 		
-		if(CraftItemStack.asNMSCopy(main_stack).getItem() instanceof ItemArmor || CraftItemStack.asNMSCopy(main_stack).getItem() instanceof ItemShield)
+		if(itemAbi.hasDurability(main_stack))
 		{
-			if(itemM.hasLore(main_stack, itemAbi.brokenStr) || itemM.hasLore(off_stack, itemAbi.brokenStr))
+			if(itemAbi.isWaiting(main_stack))
+			{
+				itemAbi.setBind(main_stack, player, true);
+			}
+			
+			if(itemAbi.isBroken(main_stack) || itemAbi.isBroken(off_stack))
 			{
 				e.setCancelled(true);
 				itemAbi.moveItemFirstFreeSpaceInv(main_stack, player, false);
 				itemAbi.moveItemFirstFreeSpaceInv(off_stack, player, false);
-			}
-			
-			
+			}			
 		}
 		
 		

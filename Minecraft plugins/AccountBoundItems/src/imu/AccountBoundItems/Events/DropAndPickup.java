@@ -20,7 +20,7 @@ public class DropAndPickup implements Listener
 {
 	
 	ItemABI itemAbi = new ItemABI();
-	ItemMetods itemM = new ItemMetods();
+	//ItemMetods itemM = new ItemMetods();
 	
 	int pickUpDelay = 1; // seconds
 		
@@ -29,15 +29,27 @@ public class DropAndPickup implements Listener
 	{
 		ItemStack stack = e.getItemDrop().getItemStack();
 
-		boolean bound=itemM.hasLore(stack, itemAbi.boundStr);
-		boolean broken = itemM.hasLore(stack,itemAbi.brokenStr);
 		
-		if(bound || broken)
+		
+		if(itemAbi.hasDurability(stack))
 		{
-			e.getItemDrop().setPickupDelay(20*pickUpDelay);
-			e.getItemDrop().setGlowing(true);
+			boolean bound = itemAbi.isBound(stack);
+			boolean broken = itemAbi.isBroken(stack);
 			
+			if(itemAbi.isWaiting(stack))
+			{
+				itemAbi.setBind(stack, e.getPlayer(), true);
+			}
+			
+			if(bound || broken)
+			{
+				e.getItemDrop().setPickupDelay(20*pickUpDelay);
+				e.getItemDrop().setGlowing(true);
+				
+			}
 		}
+		
+		
 	}
 	
 	@EventHandler
@@ -47,18 +59,28 @@ public class DropAndPickup implements Listener
 		{
 			Player player = (Player) e.getEntity();
 			ItemStack stack = e.getItem().getItemStack();
-						
-			if(itemM.hasLore(stack, itemAbi.boundStr))
+			
+			if(itemAbi.hasDurability(stack))
 			{
-				if(!player.getName().equalsIgnoreCase(itemAbi.getBindersName(stack)) && !player.isOp())
+				if(itemAbi.isWaiting(stack))
 				{
-					player.sendMessage(ChatColor.RED + "This item doesn't belong to you!");
-					e.getItem().setPickupDelay(20 * (int)(pickUpDelay*0.5));
-					e.setCancelled(true);
-					return;
+					itemAbi.setBind(stack, player, true);
 				}
-								
+				
+				if(itemAbi.isBound(stack))
+				{
+					if(!player.getName().equalsIgnoreCase(itemAbi.getNameData(stack)) && !player.isOp())
+					{
+						player.sendMessage(ChatColor.RED + "This item doesn't belong to you!");
+						e.getItem().setPickupDelay(20 * (int)(pickUpDelay*0.5));
+						e.setCancelled(true);
+						return;
+					}
+									
+				}
 			}
+			
+			
 			
 		}
 	}

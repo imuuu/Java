@@ -11,7 +11,7 @@ import imu.AccountBoundItems.Other.ItemABI;
 import imu.AccountBoundItems.Other.ItemMetods;
 import imu.AccountBoundItems.Other.ServerMethods;
 
-public class subBoundCmd implements CommandInterface
+public class subBindOnUseWaitCmd implements CommandInterface
 {
 	ItemABI itemAbi = new ItemABI();
 	ItemMetods itemM = new ItemMetods();
@@ -23,16 +23,9 @@ public class subBoundCmd implements CommandInterface
     {
         player = (Player) sender;
 
-    	if(args.length == 2)
-    	{
-    		Player target_player = serverM.getPlayerOnServer(args[1]);
-    		if(target_player != null)
-    		{
-    			player = target_player;
-    		}
-    	}
-    	ItemStack stack = player.getInventory().getItemInMainHand();	
-    	itemAbi.setBind(stack, player,false);
+    	ItemStack stack = player.getInventory().getItemInMainHand();
+    	itemAbi.setOnUseWait(stack);
+    	//itemAbi.setBind(stack, player,false);
     	
         
     	return false;

@@ -18,6 +18,7 @@ public class ConfigMaker {
 	{
 		_plugin=plugin;
 		_file = new File(_plugin.getDataFolder() + "/" + fileName);
+		_fileName = fileName;
 		_config = YamlConfiguration.loadConfiguration(_file);
 	}
 	

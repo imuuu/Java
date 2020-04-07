@@ -9,57 +9,170 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import imu.AccountBoundItems.main.Main;
-
-public class ItemABI 
+public class ItemABI extends ItemPersistentDataMethods
 {
-	ItemMetods itemM = new ItemMetods();
 	
 	public String boundStr;
 	public String brokenStr;
-	
-	Main main = Main.getInstance();
-	
+		
 	public ItemABI() 
 	{
 		boundStr = main.loreNames.get("bound");
 		brokenStr = main.loreNames.get("broken");
 	}
 	
-	public void setBind(ItemStack stack, Player player, boolean forceIt)
+	/**
+	 * 
+	 * adds item bound lore, tag:bound,uuid
+	 * @return
+	 */
+	
+	public boolean setBind(ItemStack stack, Player player, boolean forceIt)
     {
-
-    	if(!itemM.hasLore(stack, boundStr))
-    	{ 		
-    		player.sendMessage("You have bind the item");
-    		itemM.addLore(stack, boundStr+ChatColor.AQUA+player.getName(), false);
-    	}
-    	else
-    	{
-    		if(forceIt)
-    		{
-    			itemM.removeLore(stack, boundStr);
-    			setBind(stack, player, false);
-    		}
-    		else 
-    		{
-    			player.sendMessage("You have bind on item already");
-    		}
-    	  		
-    	}
+		if(hasDurability(stack))
+		{
+			if(!hasLore(stack, boundStr))
+	    	{ 		
+	    		player.sendMessage("You have bind the item");
+	    		addLore(stack, boundStr+ChatColor.AQUA+player.getName(), false);
+	    		
+	    		setNameData(stack, player.getName());
+	    		setUUIDData(stack,  player.getUniqueId().toString());
+	    		setWaitData(stack, 0);
+	    		setOnUseWaitData(stack, 0);
+	    		setBoundData(stack, 1);
+	    		return true;
+	    	}
+	    	else
+	    	{
+	    		if(forceIt)
+	    		{
+	    			removeLore(stack, boundStr);
+	    			setBind(stack, player, false);
+	    		}
+	    		else 
+	    		{
+	    			player.sendMessage("You have bind on item already");
+	    		}
+	    	  		
+	    	}
+		}else
+		{
+			player.sendMessage(ChatColor.RED + "You can't bind that item");			
+		}
+		return false;
+    	
     }
-		
+	
+	/**
+	 * 
+	 * adds item bound lore, tag:bound,price,uuid
+	 * @return
+	 */
+	
+	public boolean setBind(ItemStack stack, Player player, double price, boolean forceIt,boolean overridePrice)
+    {
+		if(hasDurability(stack))
+		{
+			if(!hasLore(stack, boundStr))
+	    	{ 		
+	    		player.sendMessage("You have bind the item");
+	    		addLore(stack, boundStr+ChatColor.AQUA+player.getName(), false);
+	    		
+	    		setNameData(stack, player.getName());
+	    		setUUIDData(stack,  player.getUniqueId().toString());
+	    		setPriceData(stack, price,overridePrice);
+	    		setWaitData(stack, 0);
+	    		setOnUseWaitData(stack, 0);
+	    		setBoundData(stack, 1);
+	    		return true;
+	    		
+	    	}
+	    	else
+	    	{
+	    		if(forceIt)
+	    		{
+	    			removeLore(stack, boundStr);
+	    			setBind(stack, player, false);
+	    		}
+	    		else 
+	    		{
+	    			player.sendMessage("You have bind on item already");
+	    		}
+	    	  		
+	    	}
+		}
+    	
+    	return false;
+    }
+	
+	public boolean setWait(ItemStack stack)
+	{
+		if(hasDurability(stack))
+		{
+			if(!hasLore(stack, boundStr))
+	    	{ 		
+	    		addLore(stack, boundStr+ChatColor.MAGIC+"WAITING BIND", false);
+	    		
+	    		setWaitData(stack, 1);
+	    		return true;
+	    		
+	    	}
+	    	else
+	    	{	    		
+				removeLore(stack, boundStr);
+				setWait(stack);
+
+	    	}
+	    	
+		}
+		return false;
+	}
+	
+	public boolean setOnUseWait(ItemStack stack)
+	{
+		if(hasDurability(stack))
+		{
+			if(!hasLore(stack, boundStr))
+	    	{ 		
+	    		addLore(stack, boundStr+ChatColor.DARK_PURPLE+"BIND ON USE", false);
+	    		
+	    		setOnUseWaitData(stack, 1);
+	    		return true;
+	    		
+	    	}
+	    	else
+	    	{	    		
+				removeLore(stack, boundStr);
+				setOnUseWait(stack);
+
+	    	}
+	    	
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * adds item broken lore and tag
+	 * @return
+	 */
 	public void setBroken(ItemStack stack, boolean forceIt)
     {
-    	if(!itemM.hasLore(stack, brokenStr))
+    	if(!hasLore(stack, brokenStr))
     	{
     		//player.sendMessage(ChatColor.RED + "Your item: "+stack.getType().toString()+ " has broken!");
-    		itemM.addLore(stack, brokenStr, false);
+    		//addLore(stack, brokenStr, false);
+    		removeName(stack, brokenStr);
+    		addName(stack, brokenStr, true);
+    		setBrokenData(stack, 1);
+    		
     	}else
     	{
     		if(forceIt)
     		{
-    			itemM.removeLore(stack, brokenStr);
+    			//removeLore(stack, brokenStr);
+    			removeName(stack, brokenStr);
     			setBroken(stack, false);
     		}else
     		{
@@ -69,7 +182,64 @@ public class ItemABI
     	}
     		
     }
+		
+	public boolean isBound(ItemStack stack)
+	{
+		Integer value = getBoundData(stack);
+		if(value != null)
+		{
+			if(value > 0)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	public boolean isBroken(ItemStack stack)
+	{
+		Integer value = getBrokenData(stack);
+		if(value != null)
+		{
+			if(value > 0)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	
+	public boolean isWaiting(ItemStack stack)
+	{
+		Integer value = getWaitData(stack);
+		if(value != null)
+		{
+			if(value > 0)
+			{
+				System.out.println("its waiting");
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	public boolean isOnUse(ItemStack stack)
+	{
+		Integer value = getOnUseWaitData(stack);
+		if(value != null)
+		{
+			if(value > 0)
+			{
+				System.out.println("its use");
+				return true;
+			}
+		}
+		
+		return false;
+	}
 	public void repairAll(ItemStack[] stacks)
 	{
 		for(ItemStack stack : stacks)
@@ -80,38 +250,34 @@ public class ItemABI
 	
 	public void repair(ItemStack stack)
 	{
-		if(itemM.hasLore(stack, brokenStr))
+		if(isBroken(stack))
 		{
-			itemM.removeLore(stack, brokenStr);
+			//removeLore(stack, brokenStr);
+			removeName(stack, brokenStr);
+			setBrokenData(stack, 0);
 		}
 	}
 	
 	public void unBind(ItemStack stack)
 	{
-		if(itemM.hasLore(stack, boundStr))
+		if(hasLore(stack, boundStr))
 		{
-			itemM.removeLore(stack, boundStr);
+			removeLore(stack, boundStr);
+			setNameData(stack, "");
+    		setUUIDData(stack, "");
+    		setBoundData(stack, 0);
+    		setWaitData(stack, 0);
+    		setOnUseWaitData(stack, 0);
 		}
 	}
 	
+		
+
 	/**
 	 * 
 	 * returns name who bound the item as string
 	 * @return
-	 */
-	public String getBindersName(ItemStack stack)
-	{
-		String name="";
-		int idx = itemM.findLoreIndex(stack, boundStr);
-		if(idx > -1)
-		{
-			String lore = stack.getItemMeta().getLore().get(idx);
-			String str = lore.split(" ")[1];
-			name = str.substring(2, str.length());
-		}
-		return name;
-	}
-	
+	 */	
 	public int getFirstEmpty(ItemStack[] itemStacks)
 	{
 		for(int i = itemStacks.length-6; i > 8; --i) // armors lots and shield = -6, hotbar = 8
@@ -124,6 +290,11 @@ public class ItemABI
 		return -1;
 	}
 	
+	/**
+	 * 
+	 * Drops item to ground where player is gives text and adds it to dropevent
+	 * @return
+	 */
 	public void dropItem(ItemStack stack, Player player)
 	{
 		ItemStack copy = new ItemStack(stack);
@@ -135,6 +306,11 @@ public class ItemABI
 		Bukkit.getPluginManager().callEvent(event);
 	}
 	
+	/**
+	 * 
+	 * Put item to player inventory if there is free space.. if not drop it on ground.. can include hotbar
+	 * @return
+	 */
 	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
 	{
 		if(stack == null || stack.getType() == Material.AIR)
