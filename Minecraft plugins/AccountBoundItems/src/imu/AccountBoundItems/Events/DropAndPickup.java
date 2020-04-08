@@ -47,9 +47,7 @@ public class DropAndPickup implements Listener
 				e.getItemDrop().setGlowing(true);
 				
 			}
-		}
-		
-		
+		}	
 	}
 	
 	@EventHandler

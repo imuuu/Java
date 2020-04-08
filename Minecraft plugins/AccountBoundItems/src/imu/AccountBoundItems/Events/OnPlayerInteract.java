@@ -107,12 +107,13 @@ public class OnPlayerInteract implements Listener
 			}
 		}
 				
-		if(player != null && player.getOpenInventory().getType() == InventoryType.CRAFTING)
+		if(player != null && (player.getOpenInventory().getType() == InventoryType.CRAFTING || player.getOpenInventory().getType() == InventoryType.ANVIL))
 		{
 			if(itemAbi.hasDurability(inMouse_stack) || itemAbi.hasDurability(hover_stack))
 			{
 				if(itemAbi.isBroken(inMouse_stack) || itemAbi.isBroken(hover_stack))
 				{
+					
 					SlotType slot_type = e.getSlotType();
 						
 					if(e.getRawSlot() != e.getSlot() && e.getSlot() > 8 )
@@ -150,6 +151,13 @@ public class OnPlayerInteract implements Listener
 						}
 					}
 					
+					if(player.getOpenInventory().getType() == InventoryType.ANVIL)
+					{
+						e.setCancelled(true);
+						player.closeInventory();
+						sendWarningMessage(player);
+					}
+					
 				}
 						
 			}
@@ -162,7 +170,7 @@ public class OnPlayerInteract implements Listener
 	
 	void sendWarningMessage(Player player)
 	{
-		player.sendMessage(ChatColor.RED + "You can't use broken armor! Broken armor is fragile and in use it might drop on the ground!"+ ChatColor.DARK_RED +" BE CAREFUL" );
+		player.sendMessage(ChatColor.RED + "You can't use broken item! Broken item is fragile and in use it might drop on the ground!"+ ChatColor.DARK_RED +" BE CAREFUL" );
 	}
 	
 
@@ -184,8 +192,8 @@ public class OnPlayerInteract implements Listener
 			if(itemAbi.isBroken(main_stack) || itemAbi.isBroken(off_stack))
 			{
 				e.setCancelled(true);
-				itemAbi.moveItemFirstFreeSpaceInv(main_stack, player, false);
-				itemAbi.moveItemFirstFreeSpaceInv(off_stack, player, false);
+				itemAbi.moveItemFirstFreeSpaceInv(main_stack, player, false,true);
+				itemAbi.moveItemFirstFreeSpaceInv(off_stack, player, false,true);
 			}			
 		}
 		

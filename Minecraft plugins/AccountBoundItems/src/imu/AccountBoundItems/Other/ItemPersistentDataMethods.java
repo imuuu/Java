@@ -59,8 +59,8 @@ public class ItemPersistentDataMethods extends ItemMetods
 	
 	public boolean isOverridePrice(ItemStack stack)
 	{
-		int isOv=getPersistenData(stack, main.keyNames.get("overrideprice"),PersistentDataType.INTEGER);
-		if(isOv > 0)
+		Integer isOv = getPersistenData(stack, main.keyNames.get("overrideprice"),PersistentDataType.INTEGER);
+		if(isOv != null && isOv > 0)
 		{
 			return true;
 		}

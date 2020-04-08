@@ -1,13 +1,21 @@
 package imu.AccountBoundItems.Other;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+
+import net.milkbowl.vault.economy.EconomyResponse;
 
 public class ItemABI extends ItemPersistentDataMethods
 {
@@ -106,6 +114,11 @@ public class ItemABI extends ItemPersistentDataMethods
     	return false;
     }
 	
+	public void setPriceOverride(ItemStack stack, double price)
+	{
+		setPriceData(stack, price, true);
+	}
+	
 	public boolean setWait(ItemStack stack)
 	{
 		if(hasDurability(stack))
@@ -159,12 +172,13 @@ public class ItemABI extends ItemPersistentDataMethods
 	 */
 	public void setBroken(ItemStack stack, boolean forceIt)
     {
-    	if(!hasLore(stack, brokenStr))
+    	if(!isBroken(stack))
     	{
     		//player.sendMessage(ChatColor.RED + "Your item: "+stack.getType().toString()+ " has broken!");
     		//addLore(stack, brokenStr, false);
-    		removeName(stack, brokenStr);
-    		addName(stack, brokenStr, true);
+    		removeDisplayName(stack, brokenStr);
+    		//removeDisplayName(stack, ChatColor.RED+"");
+    		addDisplayName(stack, brokenStr, true);
     		setBrokenData(stack, 1);
     		
     	}else
@@ -172,11 +186,9 @@ public class ItemABI extends ItemPersistentDataMethods
     		if(forceIt)
     		{
     			//removeLore(stack, brokenStr);
-    			removeName(stack, brokenStr);
+    			removeDisplayName(stack, brokenStr);
+    			//removeDisplayName(stack, ChatColor.RED+"");
     			setBroken(stack, false);
-    		}else
-    		{
-    			System.out.println("already contains lore");
     		}
     		
     	}
@@ -217,7 +229,6 @@ public class ItemABI extends ItemPersistentDataMethods
 		{
 			if(value > 0)
 			{
-				System.out.println("its waiting");
 				return true;
 			}
 		}
@@ -233,13 +244,97 @@ public class ItemABI extends ItemPersistentDataMethods
 		{
 			if(value > 0)
 			{
-				System.out.println("its use");
 				return true;
 			}
 		}
 		
 		return false;
 	}
+	
+	public double repairCost(ItemStack stack)
+	{
+		Double cost = 0.0;
+		ArrayList<String> lores = getLores(stack);
+		if(!isOverridePrice(stack))
+		{
+			if(stack != null && stack.getType() != Material.AIR)
+	    	{
+				ItemMeta meta = stack.getItemMeta();
+				if(lores.size() > 0)
+				{
+					for(String lore : lores)
+					{
+						int firstL=getStringFirstUpperLetter(lore);
+						if(firstL > -1)
+						{
+							String pureName=lore.substring(firstL, lore.length()).toLowerCase();
+							if(main.lorePrices.containsKey(pureName))
+							{
+								cost += main.lorePrices.get(pureName);
+							}
+						}
+						
+					}
+				}
+							
+	    		for(Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet())
+	    		{
+	    			if(!main.enchExPrices.containsKey(entry.getKey()))
+	    			{
+	    				String enchName = entry.getKey().getKey().toString().split(":")[1]+" "+entry.getValue();
+	        			if(main.enchPrices.containsKey(enchName))
+	        			{
+	        				cost += main.enchPrices.get(enchName);
+	        			}
+	    			}
+	    			else
+	    			{
+	    				Double[] values=main.enchExPrices.get(entry.getKey()); // minlvl, maxlvl, minprice, maxprice
+	    				cost += priceCalculation(entry.getValue(), values[1], values[2], values[3]);
+	    				
+	    				
+	    			}
+	    			
+	    		}
+	    	
+				
+				if(main.materialPrices.containsKey(stack.getType()))
+				{
+					cost += main.materialPrices.get(stack.getType());
+				}
+	    	}
+		}else
+		{
+			cost = getPriceData(stack);
+			if(cost == null)
+			{
+				setPriceData(stack, 0, false);
+				System.out.println("REPAIR COST NULL. Item has override status 1 but not money set!");
+			}
+		}
+		
+
+		return cost;
+	}
+	
+	public double priceCalculation(double levelNow, double maxLevel, double minPrice, double maxPrice)
+	{
+		double price = 0;
+		double maxDmin = maxPrice / minPrice;
+		//System.out.println("1:" + maxDmin);
+		double top = minPrice;
+		//System.out.println("2:" + top);
+		double lower = Math.pow(maxDmin, 1/(maxLevel-1));
+		//System.out.println("3:" + lower);
+		double end = Math.pow(Math.pow(maxDmin, 1/(maxLevel-1)), levelNow);
+		//System.out.println("4:" + end);
+		price = (top/lower) * end;
+		//System.out.println("5:" + price);
+		
+		
+		return price;
+	}
+	
 	public void repairAll(ItemStack[] stacks)
 	{
 		for(ItemStack stack : stacks)
@@ -252,10 +347,46 @@ public class ItemABI extends ItemPersistentDataMethods
 	{
 		if(isBroken(stack))
 		{
-			//removeLore(stack, brokenStr);
-			removeName(stack, brokenStr);
+			removeDisplayName(stack, brokenStr);
 			setBrokenData(stack, 0);
 		}
+	}
+	
+	public ItemStack getMoneyItem(double price)
+	{
+		ItemStack stack = new ItemStack(Material.PAPER);
+		ItemMeta meta = stack.getItemMeta();
+		meta.setDisplayName(ChatColor.AQUA +"CHECK worth of "+ChatColor.GOLD +(int)price);
+		stack.setItemMeta(meta);
+		addLore(stack, ChatColor.DARK_PURPLE + "Redeem your reward from bank!", false);
+		setPriceData(stack, price, true);
+		setPersistenData(stack, main.keyNames.get("check"), PersistentDataType.INTEGER, 1);
+		return stack;
+	}
+	
+	public boolean withdrawPlayerHasMoney(Player player, double price)
+	{
+		double balance = econ.getBalance(player);
+		if(balance > price)
+		{
+			econ.withdrawPlayer(player, price);
+			return true;
+		}
+		player.sendMessage(ChatColor.RED + "You don't have enough money!");
+		return false;
+	}
+	
+	public boolean repair(ItemStack stack, Player player,double price)
+	{
+		if(isBroken(stack) && withdrawPlayerHasMoney(player, price))
+		{
+			// REMOVE PRICE cancel if not have
+			
+			removeDisplayName(stack, brokenStr);
+			setBrokenData(stack, 0);
+			return true;
+		}
+		return false;
 	}
 	
 	public void unBind(ItemStack stack)
@@ -295,12 +426,16 @@ public class ItemABI extends ItemPersistentDataMethods
 	 * Drops item to ground where player is gives text and adds it to dropevent
 	 * @return
 	 */
-	public void dropItem(ItemStack stack, Player player)
+	public void dropItem(ItemStack stack, Player player, boolean putText)
 	{
 		ItemStack copy = new ItemStack(stack);
 		stack.setAmount(0);
 		
-		player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
+		if(putText)
+		{
+			player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
+		}
+		
 		Item dropped = player.getWorld().dropItemNaturally(player.getLocation(), copy);
 		PlayerDropItemEvent event = new PlayerDropItemEvent(player, dropped);
 		Bukkit.getPluginManager().callEvent(event);
@@ -311,7 +446,7 @@ public class ItemABI extends ItemPersistentDataMethods
 	 * Put item to player inventory if there is free space.. if not drop it on ground.. can include hotbar
 	 * @return
 	 */
-	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
+	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar, boolean includeText)
 	{
 		if(stack == null || stack.getType() == Material.AIR)
 		{
@@ -333,12 +468,16 @@ public class ItemABI extends ItemPersistentDataMethods
 
 		if( invSlot != -1)
 		{
-			player.sendMessage(ChatColor.RED + "You can't use broken: "+ ChatColor.AQUA + copy.getType().toString());
+			if(includeText)
+			{
+				player.sendMessage(ChatColor.RED + "You can't use broken: "+ ChatColor.AQUA + copy.getType().toString());
+			}
+			
 			inv.setItem(invSlot, copy);
 		}else
 		{
 			player.sendMessage(ChatColor.RED + "You don't have space!");
-			dropItem(copy,player);
+			dropItem(copy,player,true);
 			
 			
 		}

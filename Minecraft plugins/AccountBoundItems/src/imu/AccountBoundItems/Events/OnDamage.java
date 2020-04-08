@@ -19,12 +19,13 @@ import org.bukkit.inventory.PlayerInventory;
 
 import imu.AccountBoundItems.Other.ItemABI;
 import imu.AccountBoundItems.Other.ItemMetods;
+import imu.AccountBoundItems.main.Main;
 
 public class OnDamage implements Listener
 {
 	
 	ItemABI itemAbi = new ItemABI();
-	//ItemMetods itemM = new ItemMetods();
+	Main main = Main.getInstance();
 	HashMap<Player, ItemStack[]> playerInv = new HashMap<Player, ItemStack[]>();
 	
 	@EventHandler
@@ -83,6 +84,13 @@ public class OnDamage implements Listener
 				
 				if(itemAbi.isBound(stack))
 				{
+					
+					double moneyAmount =itemAbi.repairCost(stack)*(main.deadDropPricePros/100);
+					if(moneyAmount > 0 && !itemAbi.isBroken(stack))
+					{
+						ItemStack moneyDrop = itemAbi.getMoneyItem(moneyAmount);
+						itemAbi.dropItem(moneyDrop, player, false);
+					}		
 					itemAbi.setBroken(stack, true);
 					saved.add(new ItemStack(stack));
 					stack.setAmount(0);
@@ -134,7 +142,7 @@ public class OnDamage implements Listener
 					continue;
 				}
 				
-				itemAbi.dropItem(stack, player);
+				itemAbi.dropItem(stack, player,true);
 			}
 		}
 		return weaponHasBroken;

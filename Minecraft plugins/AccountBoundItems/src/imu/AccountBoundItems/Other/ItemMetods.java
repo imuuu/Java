@@ -15,6 +15,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.AccountBoundItems.main.Main;
+import net.milkbowl.vault.economy.Economy;
 import net.minecraft.server.v1_15_R1.ItemArmor;
 import net.minecraft.server.v1_15_R1.ItemElytra;
 import net.minecraft.server.v1_15_R1.ItemShield;
@@ -25,6 +26,7 @@ public class ItemMetods
 {
 	
 	Main main = Main.getInstance();
+	Economy econ = Main.getEconomy();
 	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	
 	public boolean isDigit(String str)
@@ -92,6 +94,35 @@ public class ItemMetods
     	}
 	}
 	
+	public ArrayList<String> getLores(ItemStack stack)
+	{
+		ArrayList<String> lores = new ArrayList<String>();
+		
+		if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+    		if(meta.hasLore())
+    		{			
+    			lores.addAll(meta.getLore());
+    		}			
+    	}
+		return lores;
+	}
+	
+	public ArrayList<Enchantment> getEnchantsWithoutLvl(ItemStack stack)
+	{
+		ArrayList<Enchantment> enchs = new ArrayList<Enchantment>();
+		if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+    		for(Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet())
+    		{
+    			enchs.add(entry.getKey());
+    		}
+    	}
+		return enchs;
+	}
+	
 	public ItemStack removeLore(ItemStack stack, String lore)
 	{
 		int idx = findLoreIndex(stack, lore);
@@ -133,6 +164,28 @@ public class ItemMetods
     	}
 		return -1;
 	}
+	
+	public int getStringFirstUpperLetter(String str)
+	{
+		int i = -1;
+		
+		for(int j = 0 ; j < str.length(); ++j)
+		{
+			char c = str.charAt(j);
+			if(Character.isLetter(c))
+			{
+				if(Character.isUpperCase(c))
+				{
+					return j;
+				}
+				
+				
+			}
+		}
+		
+		return i;
+	}
+	
 	public boolean hasLore(ItemStack stack, String lore)
 	{
 		if(stack != null)
@@ -196,11 +249,12 @@ public class ItemMetods
 		}
 		return "";
 	}
-	public ItemStack removeName(ItemStack stack, String name)
+	public ItemStack removeDisplayName(ItemStack stack, String name)
 	{
 		if(stack != null && stack.getType() != Material.AIR)
 		{
 			ItemMeta meta = stack.getItemMeta();
+			
 			String dName=getDisplayName(stack);
 			dName = dName.replace(name, "");
 			meta.setDisplayName(dName);
@@ -210,7 +264,7 @@ public class ItemMetods
 		return stack;
 	}
 	
-	public ItemStack addName(ItemStack stack,String name, boolean front)
+	public ItemStack addDisplayName(ItemStack stack,String name, boolean front)
 	{
 		if(stack != null && stack.getType() != Material.AIR)
 		{
