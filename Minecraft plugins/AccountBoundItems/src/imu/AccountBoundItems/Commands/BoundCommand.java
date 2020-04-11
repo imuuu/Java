@@ -4,11 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 
 import imu.AccountBoundItems.Interfaces.CommandInterface;
 import imu.AccountBoundItems.Other.ItemABI;
-import imu.AccountBoundItems.Other.ItemMetods;
  
 public class BoundCommand implements CommandInterface
 {

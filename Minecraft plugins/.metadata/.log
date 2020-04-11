@@ -2075,3 +2075,1409 @@ Java Model Exception: Java Model Status [Unknown javadoc format for ChatColor [i
 	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
 !SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-09 01:15:52.308
 !MESSAGE Unknown javadoc format for ChatColor [in ChatColor.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]
+!SESSION 2020-04-09 13:23:08.952 -----------------------------------------------
+eclipse.buildId=4.14.0.I20191210-0610
+java.version=13.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fi_FI
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.mylyn.bugzilla.core 4 0 2020-04-09 13:23:09.922
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.core [273]
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+       org.eclipse.mylyn.commons.xmlrpc [290]
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+              org.apache.xmlrpc [60]
+                Unresolved requirement: Import-Package: javax.xml.bind
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.bugzilla.ui 4 0 2020-04-09 13:23:09.925
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.ui [275]
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.bugzilla.core; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.bugzilla.core; bundle-version="3.24.2.v20180905-0003"; singleton:="true"
+       org.eclipse.mylyn.bugzilla.core [273]
+         Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+           -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+              org.eclipse.mylyn.commons.xmlrpc [290]
+                Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+                  -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+                     org.apache.xmlrpc [60]
+                       Unresolved requirement: Import-Package: javax.xml.bind
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.commons.xmlrpc 4 0 2020-04-09 13:23:09.926
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.commons.xmlrpc [290]
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+       org.apache.xmlrpc [60]
+         Unresolved requirement: Import-Package: javax.xml.bind
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.tasks.core 4 0 2020-04-09 13:23:15.133
+!MESSAGE Unexpected error while loading repository template extensions
+!SUBENTRY 1 org.eclipse.mylyn.tasks.core 4 0 2020-04-09 13:23:15.133
+!MESSAGE Could not load repository template extension contributed by 'org.eclipse.mylyn.bugzilla.ide' with connectorKind 'bugzilla'
+
+!ENTRY org.eclipse.egit.ui 2 0 2020-04-09 13:23:23.808
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\villeeek'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-09 13:26:18.741
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getConsoleSender() {key=Lorg/bukkit/Server;.getConsoleSender()Lorg/bukkit/command/ConsoleCommandSender;} [in Server [in Server.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-09 13:26:18.741
+!MESSAGE Unknown javadoc format for getConsoleSender() {key=Lorg/bukkit/Server;.getConsoleSender()Lorg/bukkit/command/ConsoleCommandSender;} [in Server [in Server.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+!SESSION 2020-04-10 12:21:12.231 -----------------------------------------------
+eclipse.buildId=4.14.0.I20191210-0610
+java.version=13.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fi_FI
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.mylyn.bugzilla.core 4 0 2020-04-10 12:21:13.185
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.core [273]
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+       org.apache.xmlrpc [60]
+         Unresolved requirement: Import-Package: javax.xml.bind
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+       org.eclipse.mylyn.commons.xmlrpc [290]
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.bugzilla.ui 4 0 2020-04-10 12:21:13.187
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.ui [275]
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.bugzilla.core; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.bugzilla.core; bundle-version="3.24.2.v20180905-0003"; singleton:="true"
+       org.eclipse.mylyn.bugzilla.core [273]
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+              org.apache.xmlrpc [60]
+                Unresolved requirement: Import-Package: javax.xml.bind
+         Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+           -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+              org.eclipse.mylyn.commons.xmlrpc [290]
+                Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+                  -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.commons.xmlrpc 4 0 2020-04-10 12:21:13.188
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.commons.xmlrpc [290]
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+       org.apache.xmlrpc [60]
+         Unresolved requirement: Import-Package: javax.xml.bind
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.tasks.core 4 0 2020-04-10 12:22:10.946
+!MESSAGE Unexpected error while loading repository template extensions
+!SUBENTRY 1 org.eclipse.mylyn.tasks.core 4 0 2020-04-10 12:22:10.946
+!MESSAGE Could not load repository template extension contributed by 'org.eclipse.mylyn.bugzilla.ide' with connectorKind 'bugzilla'
+
+!ENTRY org.eclipse.egit.ui 2 0 2020-04-10 12:22:18.182
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\villeeek'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:29:31.455
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) {key=Lorg/bukkit/command/CommandSender;.sendMessage(Ljava/lang/String;)V} [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:29:31.455
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) {key=Lorg/bukkit/command/CommandSender;.sendMessage(Ljava/lang/String;)V} [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:33.018
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:33.018
+!MESSAGE Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:33.699
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:33.699
+!MESSAGE Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:34.509
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for get(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:34.509
+!MESSAGE Unknown javadoc format for get(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:40.352
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDefaults() [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:40.352
+!MESSAGE Unknown javadoc format for getDefaults() [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:41.636
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDoubleList(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:41.636
+!MESSAGE Unknown javadoc format for getDoubleList(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:41.857
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDouble(java.lang.String, double) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:41.857
+!MESSAGE Unknown javadoc format for getDouble(java.lang.String, double) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:46:42.030
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:46:42.030
+!MESSAGE Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:42.630
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:42.630
+!MESSAGE Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:45.151
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getCurrentPath() [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:45.151
+!MESSAGE Unknown javadoc format for getCurrentPath() [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:46.393
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:46.393
+!MESSAGE Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:46.565
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:46.565
+!MESSAGE Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:46.668
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:46.668
+!MESSAGE Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 12:47:47.495
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for set(java.lang.String, java.lang.Object) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 12:47:47.495
+!MESSAGE Unknown javadoc format for set(java.lang.String, java.lang.Object) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:03:51.306
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:03:51.306
+!MESSAGE Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:00.672
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for PersistentDataType {key=Lorg/bukkit/persistence/PersistentDataType<TT;TZ;>;} [in PersistentDataType.class [in org.bukkit.persistence [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getTypeDoc(JavadocContents.java:84)
+	at org.eclipse.jdt.internal.core.BinaryType.getAttachedJavadoc(BinaryType.java:981)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:00.672
+!MESSAGE Unknown javadoc format for PersistentDataType {key=Lorg/bukkit/persistence/PersistentDataType<TT;TZ;>;} [in PersistentDataType.class [in org.bukkit.persistence [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:16.886
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for containsEnchantment(org.bukkit.enchantments.Enchantment) [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:16.886
+!MESSAGE Unknown javadoc format for containsEnchantment(org.bukkit.enchantments.Enchantment) [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:16.941
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDurability() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:16.941
+!MESSAGE Unknown javadoc format for getDurability() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:16.967
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getType() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:16.967
+!MESSAGE Unknown javadoc format for getType() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:25.195
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ACACIA_BOAT [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:25.195
+!MESSAGE Unknown javadoc format for ACACIA_BOAT [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:25.467
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ACACIA_STAIRS [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:25.468
+!MESSAGE Unknown javadoc format for ACACIA_STAIRS [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:45.417
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:45.417
+!MESSAGE Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:19:47.499
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:19:47.499
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:20:12.678
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for AIR {key=Lorg/bukkit/Material;.AIR)Lorg/bukkit/Material;} [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.core.ResolvedBinaryField.getAttachedJavadoc(ResolvedBinaryField.java:1)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:20:12.678
+!MESSAGE Unknown javadoc format for AIR {key=Lorg/bukkit/Material;.AIR)Lorg/bukkit/Material;} [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:37:29.105
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ItemStack {key=Lorg/bukkit/inventory/ItemStack;} [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getTypeDoc(JavadocContents.java:84)
+	at org.eclipse.jdt.internal.core.BinaryType.getAttachedJavadoc(BinaryType.java:981)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:37:29.105
+!MESSAGE Unknown javadoc format for ItemStack {key=Lorg/bukkit/inventory/ItemStack;} [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:37:50.750
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:37:50.751
+!MESSAGE Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:37:51.761
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:37:51.761
+!MESSAGE Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:37:52.659
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:37:52.659
+!MESSAGE Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:37:53.566
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:37:53.566
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:58:18.784
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for LivingEntity [in LivingEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getTypeDoc(JavadocContents.java:84)
+	at org.eclipse.jdt.internal.core.BinaryType.getAttachedJavadoc(BinaryType.java:981)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:58:18.784
+!MESSAGE Unknown javadoc format for LivingEntity [in LivingEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 13:58:28.908
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 13:58:28.908
+!MESSAGE Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:02:32.191
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:02:32.191
+!MESSAGE Unknown javadoc format for getInventory() {key=Lorg/bukkit/entity/HumanEntity;.getInventory()Lorg/bukkit/inventory/PlayerInventory;} [in HumanEntity [in HumanEntity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:03:43.275
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:03:43.275
+!MESSAGE Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:03:43.662
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:03:43.662
+!MESSAGE Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:03:44.482
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:03:44.482
+!MESSAGE Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:03:45.512
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:03:45.513
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:04:08.865
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:04:08.866
+!MESSAGE Unknown javadoc format for abandonConversation(org.bukkit.conversations.Conversation) [in Conversable [in Conversable.class [in org.bukkit.conversations [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:04:09.409
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:04:09.409
+!MESSAGE Unknown javadoc format for sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:04:09.816
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:04:09.816
+!MESSAGE Unknown javadoc format for sendMap(org.bukkit.map.MapView) [in Player [in Player.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 14:04:10.773
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 14:04:10.773
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jface 2 0 2020-04-10 15:15:57.864
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2020-04-10 15:15:57.864
+!MESSAGE A conflict occurred for CTRL+SHIFT+F5:
+Binding(CTRL+SHIFT+F5,
+	ParameterizedCommand(Command(org.eclipse.ui.file.export,Export,
+		Export,
+		Category(org.eclipse.ui.category.file,File,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@30037b6c,
+		[Parameter(exportWizardId,Export Wizard,org.eclipse.ui.internal.registry.WizardParameterValues$Export@1f7ea4fb,true)],,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,user)
+Binding(CTRL+SHIFT+F5,
+	ParameterizedCommand(Command(org.eclipse.ui.file.export,Export,
+		Export,
+		Category(org.eclipse.ui.category.file,File,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@30037b6c,
+		[Parameter(exportWizardId,Export Wizard,org.eclipse.ui.internal.registry.WizardParameterValues$Export@1f7ea4fb,true)],,true),[org.eclipse.core.commands.Parameterization@f16eeaea]),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,user)
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:41:41.627
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for sendMessage(java.lang.String) {key=Lorg/bukkit/command/CommandSender;.sendMessage(Ljava/lang/String;)V} [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:41:41.627
+!MESSAGE Unknown javadoc format for sendMessage(java.lang.String) {key=Lorg/bukkit/command/CommandSender;.sendMessage(Ljava/lang/String;)V} [in CommandSender [in CommandSender.class [in org.bukkit.command [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:41:44.041
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ItemStack {key=Lorg/bukkit/inventory/ItemStack;} [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getTypeDoc(JavadocContents.java:84)
+	at org.eclipse.jdt.internal.core.BinaryType.getAttachedJavadoc(BinaryType.java:981)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:41:44.041
+!MESSAGE Unknown javadoc format for ItemStack {key=Lorg/bukkit/inventory/ItemStack;} [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:43:09.692
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for WOODEN_SWORD {key=Lorg/bukkit/Material;.WOODEN_SWORD)Lorg/bukkit/Material;} [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.core.ResolvedBinaryField.getAttachedJavadoc(ResolvedBinaryField.java:1)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:43:09.692
+!MESSAGE Unknown javadoc format for WOODEN_SWORD {key=Lorg/bukkit/Material;.WOODEN_SWORD)Lorg/bukkit/Material;} [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:18.445
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for containsEnchantment(org.bukkit.enchantments.Enchantment) [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:18.445
+!MESSAGE Unknown javadoc format for containsEnchantment(org.bukkit.enchantments.Enchantment) [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:18.863
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDurability() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:18.863
+!MESSAGE Unknown javadoc format for getDurability() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:19.110
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getType() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:19.110
+!MESSAGE Unknown javadoc format for getType() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:26.937
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ACACIA_BOAT [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:26.937
+!MESSAGE Unknown javadoc format for ACACIA_BOAT [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:27.405
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for ACACIA_STAIRS [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:27.405
+!MESSAGE Unknown javadoc format for ACACIA_STAIRS [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:28.565
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for AIR [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getFieldDoc(JavadocContents.java:148)
+	at org.eclipse.jdt.internal.core.BinaryField.getAttachedJavadoc(BinaryField.java:137)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:28.565
+!MESSAGE Unknown javadoc format for AIR [in Material [in Material.class [in org.bukkit [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 17:44:49.095
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for setGlowing(boolean) {key=Lorg/bukkit/entity/Entity;.setGlowing(Z)V} [in Entity [in Entity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 17:44:49.095
+!MESSAGE Unknown javadoc format for setGlowing(boolean) {key=Lorg/bukkit/entity/Entity;.setGlowing(Z)V} [in Entity [in Entity.class [in org.bukkit.entity [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 18:03:31.232
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getCursor() {key=Lorg/bukkit/event/inventory/InventoryClickEvent;.getCursor()Lorg/bukkit/inventory/ItemStack;} [in InventoryClickEvent [in InventoryClickEvent.class [in org.bukkit.event.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo(JavadocHover.java:760)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.internalGetHoverInfo(JavadocHover.java:678)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover.getHoverInfo2(JavadocHover.java:670)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:165)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:132)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$4.run(TextViewerHoverManager.java:169)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 18:03:31.233
+!MESSAGE Unknown javadoc format for getCursor() {key=Lorg/bukkit/event/inventory/InventoryClickEvent;.getCursor()Lorg/bukkit/inventory/ItemStack;} [in InventoryClickEvent [in InventoryClickEvent.class [in org.bukkit.event.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 18:11:55.056
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getAmount() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 18:11:55.056
+!MESSAGE Unknown javadoc format for getAmount() [in ItemStack [in ItemStack.class [in org.bukkit.inventory [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:34.064
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:34.064
+!MESSAGE Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:34.187
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:34.187
+!MESSAGE Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:34.367
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:34.367
+!MESSAGE Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:34.504
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:34.504
+!MESSAGE Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:55.601
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:55.601
+!MESSAGE Unknown javadoc format for addDefault(java.lang.String, java.lang.Object) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:55.739
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:55.739
+!MESSAGE Unknown javadoc format for addDefaults(org.bukkit.configuration.Configuration) [in MemoryConfiguration [in MemoryConfiguration.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:55.897
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:55.897
+!MESSAGE Unknown javadoc format for createSection(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:16:55.972
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:16:55.972
+!MESSAGE Unknown javadoc format for isSet(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:17:15.129
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:17:15.129
+!MESSAGE Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:17:59.172
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:17:59.172
+!MESSAGE Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:18:14.903
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:18:14.903
+!MESSAGE Unknown javadoc format for getDouble(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:20:22.754
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:20:22.754
+!MESSAGE Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:21:24.302
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:21:24.302
+!MESSAGE Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+
+!ENTRY org.eclipse.jdt.ui 4 10001 2020-04-10 19:22:03.604
+!MESSAGE Internal Error
+!STACK 1
+Java Model Exception: Java Model Status [Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]]
+	at org.eclipse.jdt.internal.core.JavadocContents.getMethodDoc(JavadocContents.java:176)
+	at org.eclipse.jdt.internal.core.BinaryMethod.getAttachedJavadoc(BinaryMethod.java:751)
+	at org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2.getHTMLContent(JavadocContentAccess2.java:542)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.extractJavadoc(ProposalInfo.java:93)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.computeInfo(ProposalInfo.java:78)
+	at org.eclipse.jdt.internal.ui.text.java.ProposalInfo.getInfo(ProposalInfo.java:63)
+	at org.eclipse.jdt.internal.ui.text.java.AbstractJavaCompletionProposal.getAdditionalProposalInfo(AbstractJavaCompletionProposal.java:590)
+	at org.eclipse.jface.text.contentassist.AdditionalInfoController$Timer$2$1.run(AdditionalInfoController.java:116)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+!SUBENTRY 1 org.eclipse.jdt.core 4 1009 2020-04-10 19:22:03.604
+!MESSAGE Unknown javadoc format for contains(java.lang.String) [in ConfigurationSection [in ConfigurationSection.class [in org.bukkit.configuration [in C:\Users\villeeek\Desktop\BuildTools\Spigot\Spigot-API\target\spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar]]]]
+!SESSION 2020-04-11 13:56:58.173 -----------------------------------------------
+eclipse.buildId=4.14.0.I20191210-0610
+java.version=13.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=fi_FI
+Framework arguments:  -product org.eclipse.epp.package.java.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product
+
+!ENTRY org.eclipse.mylyn.bugzilla.core 4 0 2020-04-11 13:56:59.023
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.core [273]
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+       org.apache.xmlrpc [60]
+         Unresolved requirement: Import-Package: javax.xml.bind
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+       org.eclipse.mylyn.commons.xmlrpc [290]
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.bugzilla.ui 4 0 2020-04-11 13:56:59.026
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.bugzilla.ui [275]
+  Unresolved requirement: Require-Bundle: org.eclipse.mylyn.bugzilla.core; bundle-version="[3.8.0,4.0.0)"
+    -> Bundle-SymbolicName: org.eclipse.mylyn.bugzilla.core; bundle-version="3.24.2.v20180905-0003"; singleton:="true"
+       org.eclipse.mylyn.bugzilla.core [273]
+         Unresolved requirement: Require-Bundle: org.apache.xmlrpc
+           -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+              org.apache.xmlrpc [60]
+                Unresolved requirement: Import-Package: javax.xml.bind
+         Unresolved requirement: Require-Bundle: org.eclipse.mylyn.commons.xmlrpc; bundle-version="[3.8.0,4.0.0)"
+           -> Bundle-SymbolicName: org.eclipse.mylyn.commons.xmlrpc; bundle-version="3.24.2.v20180904-2231"; singleton:="true"
+              org.eclipse.mylyn.commons.xmlrpc [290]
+                Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+                  -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.mylyn.commons.xmlrpc 4 0 2020-04-11 13:56:59.027
+!MESSAGE FrameworkEvent ERROR
+!STACK 0
+org.osgi.framework.BundleException: Could not resolve module: org.eclipse.mylyn.commons.xmlrpc [290]
+  Unresolved requirement: Require-Bundle: org.apache.xmlrpc; bundle-version="[3.0.0,4.0.0)"
+    -> Bundle-SymbolicName: org.apache.xmlrpc; bundle-version="3.0.0.v20100427-1100"
+       org.apache.xmlrpc [60]
+         Unresolved requirement: Import-Package: javax.xml.bind
+
+	at org.eclipse.osgi.container.Module.start(Module.java:462)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel$2.run(ModuleContainer.java:1844)
+	at org.eclipse.osgi.internal.framework.EquinoxContainerAdaptor$1$1.execute(EquinoxContainerAdaptor.java:136)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1837)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1778)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1742)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1664)
+	at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:234)
+	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:345)
+
+!ENTRY org.eclipse.jface 2 0 2020-04-11 13:57:03.910
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2020-04-11 13:57:03.910
+!MESSAGE A conflict occurred for CTRL+SHIFT+F5:
+Binding(CTRL+SHIFT+F5,
+	ParameterizedCommand(Command(org.eclipse.ui.file.export,Export,
+		Export,
+		Category(org.eclipse.ui.category.file,File,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2a9f8d47,
+		[Parameter(exportWizardId,Export Wizard,null,true)],,true),[org.eclipse.core.commands.Parameterization@f16eeaea]),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,user)
+Binding(CTRL+SHIFT+F5,
+	ParameterizedCommand(Command(org.eclipse.ui.file.export,Export,
+		Export,
+		Category(org.eclipse.ui.category.file,File,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@2a9f8d47,
+		[Parameter(exportWizardId,Export Wizard,null,true)],,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,user)
+
+!ENTRY org.eclipse.mylyn.tasks.core 4 0 2020-04-11 13:57:04.903
+!MESSAGE Unexpected error while loading repository template extensions
+!SUBENTRY 1 org.eclipse.mylyn.tasks.core 4 0 2020-04-11 13:57:04.903
+!MESSAGE Could not load repository template extension contributed by 'org.eclipse.mylyn.bugzilla.ide' with connectorKind 'bugzilla'
+
+!ENTRY org.eclipse.egit.ui 2 0 2020-04-11 13:57:12.563
+!MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
+user global configuration and to define the default location to store repositories: 'C:\Users\villeeek'. If this is
+not correct please set the HOME environment variable and restart Eclipse. Otherwise Git for Windows and
+EGit might behave differently since they see different configuration options.
+This warning can be switched off on the Team > Git > Confirmations and Warnings preference page.

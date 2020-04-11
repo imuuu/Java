@@ -21,6 +21,7 @@ public class subRepairCmd implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
     {
     	player = (Player) sender;
+    	
     	if(args.length == 2)
     	{
     		Player target_player = serverM.getPlayerOnServer(args[1]);
@@ -29,9 +30,18 @@ public class subRepairCmd implements CommandInterface
     			player = target_player;
     		}
     	}
-	
+    	
     	ItemStack stack = player.getInventory().getItemInMainHand();	
-    	itemAbi.repair(stack);
+    	if(itemAbi.isBroken(stack))
+    	{
+    		player.sendMessage("Item has been repaired!");
+    		itemAbi.repair(stack);
+    	}
+    	else
+    	{
+    		player.sendMessage("That item isn't broken!");
+    	}
+    	
     	
         return false;
     }

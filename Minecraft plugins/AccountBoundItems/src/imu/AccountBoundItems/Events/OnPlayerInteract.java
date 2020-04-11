@@ -1,12 +1,10 @@
 package imu.AccountBoundItems.Events;
 
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -18,7 +16,6 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
 import imu.AccountBoundItems.Other.ItemABI;
-import imu.AccountBoundItems.Other.ItemMetods;
 
 public class OnPlayerInteract implements Listener
 {
@@ -181,7 +178,6 @@ public class OnPlayerInteract implements Listener
 		Player player = (Player) e.getPlayer();
 		ItemStack main_stack = player.getInventory().getItemInMainHand();
 		ItemStack off_stack = player.getInventory().getItemInOffHand();
-		
 		if(itemAbi.hasDurability(main_stack))
 		{
 			if(itemAbi.isWaiting(main_stack))

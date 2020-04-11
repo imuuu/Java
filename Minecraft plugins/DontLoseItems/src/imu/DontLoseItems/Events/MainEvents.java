@@ -115,8 +115,7 @@ public class MainEvents implements Listener
 	public void onRespawn(PlayerRespawnEvent e)
 	{
 		Player player = e.getPlayer();
-		PlayerInventory inv = player.getInventory();
-		
+
 		ItemStack[] armors = armorItems.get(player);
 		
 		if(armors != null)

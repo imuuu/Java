@@ -19,6 +19,7 @@ import imu.AccountBoundItems.Events.OnPlayerInteract;
 import imu.AccountBoundItems.Handlers.CommandHandler;
 import imu.AccountBoundItems.Other.ConfigMaker;
 import imu.AccountBoundItems.Other.Cooldowns;
+import imu.AccountBoundItems.SubCommands.subBindCostCmd;
 import imu.AccountBoundItems.SubCommands.subBindOnUseWaitCmd;
 import imu.AccountBoundItems.SubCommands.subBindWaitCmd;
 import imu.AccountBoundItems.SubCommands.subBoundCmd;
@@ -50,6 +51,8 @@ public class Main extends JavaPlugin
 	
 	public double repairPricePros = 60;
 	public double deadDropPricePros = 50;
+	public double defaultPrice = 1000;
+	
 	
 	static Economy econ = null;
 	
@@ -68,19 +71,17 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "unbind", new subUnBoundCmd());
         handler.registerSubCmd(cmd1, "repair", new subRepairCmd());
         handler.registerSubCmd(cmd1, "repair all", new subRepairAllCmd());
-        handler.registerSubCmd(cmd1, "cost", new subRepairCostCmd());
+        handler.registerSubCmd(cmd1, "repair cost", new subRepairCostCmd());
+        handler.registerSubCmd(cmd1, "bind cost", new subBindCostCmd());
         handler.registerSubCmd(cmd1, "setprice", new subSetPriceCmd());
         handler.registerSubCmd(cmd1, "money", new subGetMoneyCmd());
         handler.registerSubCmd(cmd1, "redeem", new subRedeemCmd());
+        //handler.registerSubCmd(cmd1, "help", new subRedeemCmd());
         //handler.setPermissionOnLastCmd(cmd1+".bound");
         
         
         getCommand(cmd1).setExecutor(handler);
  
-        //TODO not implemented yet examples
-        //expamle player <> give ..
-        //expamle player <> get
-        //expamle player <> take ..
     }
 	
    
@@ -112,38 +113,39 @@ public class Main extends JavaPlugin
         return econ;
     }
 	
-	 private boolean setupEconomy() {
-	        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-	            return false;
-	        }
-	        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-	        if (rsp == null) {
-	            return false;
-	        }
-	        econ = rsp.getProvider();
-	        return econ != null;
-	    }
+	private boolean setupEconomy() 
+	{
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
 	    
-	    void registerkeyNames()
-	    {
-	    	keyNames.put("name","abi.Name");
-	    	keyNames.put("uuid","abi.Uuid");
-	    	keyNames.put("price","abi.Price");
-	    	keyNames.put("overrideprice","abi.Overrideprice");
-	    	keyNames.put("broken","abi.Broken");
-	    	keyNames.put("bound","abi.Bound");
-	    	keyNames.put("wait","abi.WaitBind");
-	    	keyNames.put("onuse","abi.OnUseBind");
-	    	keyNames.put("check","abi.Check");
-	    }
-	    
-	    void registerLoreNames()
-	    {
-	    	loreNames.put("bound", ChatColor.GRAY + "BOUND: ");
-	    	loreNames.put("broken",ChatColor.RED + "BROKEN ");
-	    	//loreNames.put("broken","BROKEN ");
-	    }
-	
+    void registerkeyNames()
+    {
+    	keyNames.put("name","abi.Name");
+    	keyNames.put("uuid","abi.Uuid");
+    	keyNames.put("price","abi.Price");
+    	keyNames.put("overrideprice","abi.Overrideprice");
+    	keyNames.put("broken","abi.Broken");
+    	keyNames.put("bound","abi.Bound");
+    	keyNames.put("wait","abi.WaitBind");
+    	keyNames.put("onuse","abi.OnUseBind");
+    	keyNames.put("check","abi.Check");
+    }
+    
+    void registerLoreNames()
+    {
+    	loreNames.put("bound", ChatColor.GRAY + "BOUND: ");
+    	loreNames.put("broken",ChatColor.RED + "BROKEN ");
+    	//loreNames.put("broken","BROKEN ");
+    }
+
 	
 	public void ConfigsSetup()
 	{
@@ -152,6 +154,52 @@ public class Main extends JavaPlugin
 		makeLoreConfig();
 		makeMaterialConfig();
 		makeEnchantExponentConfig();
+		makeSettingsConfig();
+	}
+	
+	
+	void makeSettingsConfig()
+	{
+		String dp = "defaultPrice";
+		String ddp="defaultDropProsent";
+		String drp="defaultRepairProsent";
+		ConfigMaker cm = new ConfigMaker(this, "settings.yml");
+		FileConfiguration config = cm.getConfig();
+		if(!cm.isExists())
+		{
+			
+			config.set(dp, defaultPrice);
+			config.set(ddp,deadDropPricePros);
+			config.set(drp,repairPricePros);
+			cm.saveConfig();
+		}
+		else
+		{
+			if(!config.contains(ddp))
+			{
+				System.out.println("not contain dead");
+				config.set(ddp,deadDropPricePros);
+			}
+			
+			if(!config.contains(drp))
+			{
+				System.out.println("not contain repair");
+				config.set(drp,repairPricePros);
+			}
+			
+			if(!config.contains(dp))
+			{
+				config.set(dp, defaultPrice);
+			}
+			cm.saveConfig();
+			
+			defaultPrice = config.getDouble(dp);
+			deadDropPricePros = config.getDouble(ddp);
+			repairPricePros = config.getDouble(drp);
+			
+		
+			
+		}
 	}
 	
 	void makeMaterialConfig()

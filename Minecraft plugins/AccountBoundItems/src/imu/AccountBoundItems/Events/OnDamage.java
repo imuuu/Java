@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import imu.AccountBoundItems.Other.ItemABI;
-import imu.AccountBoundItems.Other.ItemMetods;
 import imu.AccountBoundItems.main.Main;
 
 public class OnDamage implements Listener
@@ -85,7 +84,7 @@ public class OnDamage implements Listener
 				if(itemAbi.isBound(stack))
 				{
 					
-					double moneyAmount =itemAbi.repairCost(stack)*(main.deadDropPricePros/100);
+					double moneyAmount =itemAbi.getItemCost(stack,true)*(main.deadDropPricePros/100);
 					if(moneyAmount > 0 && !itemAbi.isBroken(stack))
 					{
 						ItemStack moneyDrop = itemAbi.getMoneyItem(moneyAmount);

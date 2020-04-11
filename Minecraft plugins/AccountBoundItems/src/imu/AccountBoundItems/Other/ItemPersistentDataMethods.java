@@ -3,8 +3,6 @@ package imu.AccountBoundItems.Other;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.AccountBoundItems.main.Main;
-
 public class ItemPersistentDataMethods extends ItemMetods
 {
 	/**

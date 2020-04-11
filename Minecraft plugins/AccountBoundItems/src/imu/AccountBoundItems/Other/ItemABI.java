@@ -15,8 +15,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import net.milkbowl.vault.economy.EconomyResponse;
-
 public class ItemABI extends ItemPersistentDataMethods
 {
 	
@@ -251,7 +249,7 @@ public class ItemABI extends ItemPersistentDataMethods
 		return false;
 	}
 	
-	public double repairCost(ItemStack stack)
+	public double getItemCost(ItemStack stack,boolean includeDefaultPrice)
 	{
 		Double cost = 0.0;
 		ArrayList<String> lores = getLores(stack);
@@ -303,7 +301,8 @@ public class ItemABI extends ItemPersistentDataMethods
 					cost += main.materialPrices.get(stack.getType());
 				}
 	    	}
-		}else
+		}
+		else
 		{
 			cost = getPriceData(stack);
 			if(cost == null)
@@ -313,7 +312,11 @@ public class ItemABI extends ItemPersistentDataMethods
 			}
 		}
 		
-
+		if(includeDefaultPrice && cost <= 0)
+		{
+			cost = main.defaultPrice;
+		}
+		
 		return cost;
 	}
 	
@@ -321,17 +324,10 @@ public class ItemABI extends ItemPersistentDataMethods
 	{
 		double price = 0;
 		double maxDmin = maxPrice / minPrice;
-		//System.out.println("1:" + maxDmin);
 		double top = minPrice;
-		//System.out.println("2:" + top);
 		double lower = Math.pow(maxDmin, 1/(maxLevel-1));
-		//System.out.println("3:" + lower);
 		double end = Math.pow(Math.pow(maxDmin, 1/(maxLevel-1)), levelNow);
-		//System.out.println("4:" + end);
-		price = (top/lower) * end;
-		//System.out.println("5:" + price);
-		
-		
+		price = (top/lower) * end;		
 		return price;
 	}
 	
@@ -380,8 +376,6 @@ public class ItemABI extends ItemPersistentDataMethods
 	{
 		if(isBroken(stack) && withdrawPlayerHasMoney(player, price))
 		{
-			// REMOVE PRICE cancel if not have
-			
 			removeDisplayName(stack, brokenStr);
 			setBrokenData(stack, 0);
 			return true;

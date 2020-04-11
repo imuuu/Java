@@ -356,43 +356,48 @@ public class ItemMetods
 	
 	public boolean isTool(ItemStack stack) 
 	{
-		switch(stack.getType()) 
+		if(stack != null && stack.getType()!= Material.AIR)
 		{
-			case WOODEN_PICKAXE: return true;
-			case WOODEN_SHOVEL: return true;
-			case WOODEN_AXE: return true;
-			case WOODEN_HOE: return true;
-			case WOODEN_SWORD: return true;
-	
-			case IRON_PICKAXE: return true;
-			case IRON_SHOVEL: return true;
-			case IRON_AXE: return true;
-			case IRON_HOE: return true;
-			case IRON_SWORD: return true;
-			
-			case GOLDEN_PICKAXE: return true;
-			case GOLDEN_SHOVEL: return true;
-			case GOLDEN_AXE: return true;
-			case GOLDEN_HOE: return true;
-			case GOLDEN_SWORD: return true;
-			
-			case DIAMOND_PICKAXE: return true;
-			case DIAMOND_SHOVEL: return true;
-			case DIAMOND_AXE: return true;
-			case DIAMOND_HOE: return true;
-			case DIAMOND_SWORD: return true;
-			
-			case SHIELD: return true;
-			
-			case BOW: return true;
-			case CROSSBOW: return true;
-			
-			case TRIDENT: return true;
-			
-			case FISHING_ROD: return true;
-			
-			default: return false;
+			switch(stack.getType()) 
+			{
+				case WOODEN_PICKAXE: return true;
+				case WOODEN_SHOVEL: return true;
+				case WOODEN_AXE: return true;
+				case WOODEN_HOE: return true;
+				case WOODEN_SWORD: return true;
+		
+				case IRON_PICKAXE: return true;
+				case IRON_SHOVEL: return true;
+				case IRON_AXE: return true;
+				case IRON_HOE: return true;
+				case IRON_SWORD: return true;
+				
+				case GOLDEN_PICKAXE: return true;
+				case GOLDEN_SHOVEL: return true;
+				case GOLDEN_AXE: return true;
+				case GOLDEN_HOE: return true;
+				case GOLDEN_SWORD: return true;
+				
+				case DIAMOND_PICKAXE: return true;
+				case DIAMOND_SHOVEL: return true;
+				case DIAMOND_AXE: return true;
+				case DIAMOND_HOE: return true;
+				case DIAMOND_SWORD: return true;
+				
+				case SHIELD: return true;
+				
+				case BOW: return true;
+				case CROSSBOW: return true;
+				
+				case TRIDENT: return true;
+				
+				case FISHING_ROD: return true;
+				
+				default: return false;
+			}
 		}
+		return false;
+		
 	}
 	
 	public <T> ItemStack setPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)

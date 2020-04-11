@@ -2,7 +2,8 @@ package imu.AccountBoundItems.Other;
 
 import java.util.HashMap;
 
-public class Cooldowns {
+public class Cooldowns 
+{
 
 	HashMap<String, Long> cooldowns = new HashMap<String, Long>();
 	

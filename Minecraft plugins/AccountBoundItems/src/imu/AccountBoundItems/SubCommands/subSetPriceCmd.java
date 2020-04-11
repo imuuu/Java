@@ -4,12 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 
 import imu.AccountBoundItems.Interfaces.CommandInterface;
 import imu.AccountBoundItems.Other.ItemABI;
-import imu.AccountBoundItems.Other.ItemMetods;
-import imu.AccountBoundItems.Other.ServerMethods;
 import net.md_5.bungee.api.ChatColor;
 
 public class subSetPriceCmd implements CommandInterface
@@ -34,6 +31,7 @@ public class subSetPriceCmd implements CommandInterface
         	return false;
         	
         }
+        player.sendMessage("Give amount of money you want");
 
     	return false;
     }

@@ -2,6 +2,7 @@ package imu.AccountBoundItems.SubCommands;
 
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,7 +12,7 @@ import imu.AccountBoundItems.Interfaces.CommandInterface;
 import imu.AccountBoundItems.Other.Cooldowns;
 import imu.AccountBoundItems.Other.ItemABI;
 import imu.AccountBoundItems.main.Main;
-import net.md_5.bungee.api.ChatColor;
+
 
 public class subRepairCostCmd implements CommandInterface
 {
@@ -30,7 +31,6 @@ public class subRepairCostCmd implements CommandInterface
     	player = (Player) sender;
     
     	ItemStack stack = player.getInventory().getItemInMainHand();	
-    	//itemAbi.repair(stack);
     	if(!itemAbi.isBroken(stack))
     	{
     		player.sendMessage("That item isn't broken!");
@@ -38,7 +38,8 @@ public class subRepairCostCmd implements CommandInterface
     	}
     	Cooldowns cd = main.playerCds.get(player);
     	
-    	double cost =itemAbi.repairCost(stack) * (main.repairPricePros/100);
+    	double cost = itemAbi.getItemCost(stack,true) * (main.repairPricePros/100);
+    	
     	if(cd == null)
     	{
     		Cooldowns cdNow = new Cooldowns();
@@ -52,7 +53,6 @@ public class subRepairCostCmd implements CommandInterface
     		if(!cd.isCooldownReady(cdName) && lastItem.get(player).isSimilar(stack))
     		{
     			
-    			System.out.println("COST: "+cost);
     			if(itemAbi.repair(stack, player, cost))
     			{
     				player.sendMessage(ChatColor.AQUA + "Item has been repaired!");
@@ -67,7 +67,7 @@ public class subRepairCostCmd implements CommandInterface
     		lastItem.put(player, stack);
     	}
     	player.sendMessage("This cost you: "+ Math.round(cost));
-    	player.sendMessage(ChatColor.GREEN + "Click me one more time to repair it!");
+    	player.sendMessage(ChatColor.GREEN + "Click me one more time to"+ChatColor.AQUA+" repair"+ChatColor.GREEN+" it!");
     	
     	
     	
