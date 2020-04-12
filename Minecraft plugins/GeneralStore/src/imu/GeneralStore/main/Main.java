@@ -3,7 +3,6 @@ package imu.GeneralStore.main;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,7 +53,6 @@ public class Main extends JavaPlugin
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
-		getServer().getPluginManager().registerEvents(shop1, this);
 	}
 	
 	public static Main getInstance()

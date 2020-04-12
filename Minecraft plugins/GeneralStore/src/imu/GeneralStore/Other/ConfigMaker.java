@@ -2,9 +2,12 @@ package imu.GeneralStore.Other;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public class ConfigMaker {
@@ -43,5 +46,31 @@ public class ConfigMaker {
 	{
 		File b = new File(_plugin.getDataFolder() + "/" + _fileName);
 		return b.exists();
+	}
+	
+	void saveInvTOconfig(Player player)
+	{
+		ConfigMaker cm = new ConfigMaker(_plugin, _fileName);
+		FileConfiguration config = cm.getConfig();
+		
+		config.set(player.getUniqueId().toString(), player.getInventory().getContents());
+		cm.saveConfig();
+	}
+	
+	ItemStack[] getSavedInvFromConfig(Player player)
+	{
+		ConfigMaker cm = new ConfigMaker(_plugin, _fileName);
+		FileConfiguration config = cm.getConfig();
+		if(config.contains(player.getUniqueId().toString()))
+		{
+			System.out.println("Player exist in invs");
+			@SuppressWarnings("unchecked")
+			List<ItemStack> stacks = (List<ItemStack>) config.getList(player.getUniqueId().toString());
+			ItemStack[] content = new ItemStack[stacks.size()];
+			stacks.toArray(content);
+			return content;
+			
+		}
+		return null;
 	}
 }
