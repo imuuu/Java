@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -413,6 +418,15 @@ public class ItemMetods
 		
 	}
 	
+	public ItemStack removePersistenData(ItemStack stack, String keyName)
+	{
+		NamespacedKey key = new NamespacedKey(main, keyName);
+		ItemMeta meta = stack.getItemMeta();
+		meta.getPersistentDataContainer().remove(key);
+		stack.setItemMeta(meta);
+		return stack;
+	}
+	
 	public <T> ItemStack setPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)
 	{
 		NamespacedKey key = new NamespacedKey(main, keyName);
@@ -442,7 +456,66 @@ public class ItemMetods
 		return value;
 	}
 	
+	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
+	{
+		if(stack == null || stack.getType() == Material.AIR)
+		{
+			return;
+		}
+		ItemStack copy = new ItemStack(stack);
+		stack.setAmount(0);
+		
+		PlayerInventory inv = player.getInventory();
+		
+		int invSlot;
+		if(includeHotbar)
+		{
+			invSlot = inv.firstEmpty();
+		}else
+		{
+			invSlot = getFirstEmpty(inv.getContents());
+		}
+
+		if( invSlot != -1)
+		{
+
+			inv.addItem(copy);
+		}else
+		{
+			player.sendMessage(ChatColor.RED + "You don't have space!");
+			dropItem(copy,player,true);
+			
+			
+		}
+		
+	}
 	
+	public int getFirstEmpty(ItemStack[] itemStacks)
+	{
+		for(int i = itemStacks.length-6; i > 8; --i) // armors lots and shield = -6, hotbar = 8
+		{
+			if(itemStacks[i] == null)
+			{
+				return i;
+			}			
+		}
+		return -1;
+	}
+	
+	public void dropItem(ItemStack stack, Player player, boolean putText)
+	{
+		ItemStack copy = new ItemStack(stack);
+		stack.setAmount(0);
+		
+		if(putText)
+		{
+			player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
+		}
+		
+		Item dropped = player.getWorld().dropItemNaturally(player.getLocation(), copy);
+		PlayerDropItemEvent event = new PlayerDropItemEvent(player, dropped);
+		Bukkit.getPluginManager().callEvent(event);
+	}
 	
 	
 }
