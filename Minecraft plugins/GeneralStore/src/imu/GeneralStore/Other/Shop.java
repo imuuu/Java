@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -29,12 +30,14 @@ import net.minecraft.server.v1_15_R1.Item;
 public class Shop implements Listener
 {
 	String _name = "";
-	String _displayName ="";
 	String _fileNameShop="";
 	int _size=9*6;
 	
 
 	HashMap<Player,Inventory> player_invs = new HashMap<>();
+	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
+	HashMap<Player,Integer> player_currentShopPage = new HashMap<>();
+	
 	
 	ItemMetods itemM= new ItemMetods();
 	Main _main = Main.getInstance();
@@ -56,14 +59,13 @@ public class Shop implements Listener
 	String pd_switcher= "gs.Switch";
 	String pd_text = "gs.text";
 	String pd_count = "gs.count";
+	String pd_shopSwitchButton= "gs.switchShopButton";
 	
-	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
-	int _currentLbel = LABELS.STUFF.getType();
+	
 	
 	public Shop(String shopName) 
 	{
-		_name = ChatColor.stripColor(shopName);
-		_displayName=shopName;
+		_name = shopName;
 		_fileNameShop = "shop_"+ChatColor.stripColor(shopName)+".yml";	
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 		setupConfig();
@@ -133,8 +135,7 @@ public class Shop implements Listener
 		}
 		
 	}
-	
-	
+		
 	public String getName()
 	{
 		return _name;
@@ -158,19 +159,39 @@ public class Shop implements Listener
 		//36-54 => player items
 	}
 	
+	public void closeShopInvs()
+	{
+		for(Player p : player_invs.keySet())
+		{
+			p.closeInventory();
+		}
+	}
+	
+	int shopPageCount()
+	{
+		int pages =(int) Math.round((shop_stuff_stacks.size()/(_firstMiddleSlot))+0.5);
+		return pages-1;
+	}
 	void setMiddleLINE(Inventory inv, int label)
 	{
-		ItemStack button = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		ItemStack button1 = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		ItemStack button2 = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		
+		itemM.setPersistenData(button1, pd_shopSwitchButton, PersistentDataType.INTEGER, (int)-1);
+		itemM.setPersistenData(button2, pd_shopSwitchButton, PersistentDataType.INTEGER, (int) 1);
+		
 		ItemStack label_icon = label_icons.get(label);
+		
 		inv.setItem((_firstMiddleSlot+35)/2, itemM.setDisplayName(label_icon,itemM.getPersistenData(label_icon, pd_text, PersistentDataType.STRING) ));
-		inv.setItem(_firstMiddleSlot, itemM.setDisplayName(button, ChatColor.AQUA + "GO LEFT"));
-		inv.setItem(35, itemM.setDisplayName(button, ChatColor.AQUA + "GO RIGHT"));
+		inv.setItem(_firstMiddleSlot, itemM.setDisplayName(button1, ChatColor.AQUA + "GO LEFT"));
+		inv.setItem(35, itemM.setDisplayName(button2, ChatColor.AQUA + "GO RIGHT"));
 	}
 	
 	public void openShopInv(Player player)
 	{
 		makeShop(player);
 		player.openInventory(player_invs.get(player));
+		System.out.println("pages: "+shopPageCount());
 	}
 	
 	@EventHandler
@@ -186,11 +207,26 @@ public class Shop implements Listener
 			{
 				System.out.println("Inv opened: " + _name);
 				player_currentLabel.put(player, LABELS.STUFF.getType());
+				player_currentShopPage.put(player, 0);
 				//_currentLabel=LABELS.STUFF.getType();
 				setStuffPlayerSlots(player, LABELS.STUFF.getType());			
 			}			
-		}
-		
+		}		
+	}
+	
+	@EventHandler
+	public void invClose(InventoryCloseEvent e)
+	{
+		if(e.getPlayer() instanceof Player)
+		{		
+			Player player = (Player) e.getPlayer();
+			InventoryView view = e.getView();
+			if(view.getTitle().equalsIgnoreCase(_name))
+			{
+				player_currentLabel.remove(player);
+				player_invs.remove(player);
+			}			
+		}		
 	}
 	
 	
@@ -247,7 +283,7 @@ public class Shop implements Listener
 					if(click == ClickType.LEFT)
 					{						
 						removeItemPlayerInv(player, stack, 1);
-						putItemToShop(stack, 1);
+						putItemToShop(player,stack, 1);
 						
 					}
 					
@@ -258,22 +294,64 @@ public class Shop implements Listener
 							c = stack_count;
 						
 						removeItemPlayerInv(player, stack, c);
-						putItemToShop(stack, c);
+						putItemToShop(player,stack, c);
 					}
 					
 					if(click == ClickType.MIDDLE)
 					{
 						removeItemPlayerInv(player, stack, stack_count);
-						putItemToShop(stack, stack_count);
+						putItemToShop(player,stack, stack_count);
 					}
 					
 				}
-				
-				Integer data = itemM.getPersistenData(stack, pd_switcher, PersistentDataType.INTEGER);
-				if(data != null && data == 1)
-				{					
-					setStuffPlayerSlots(player, switcher2000(player_currentLabel.get(player)));
+				if(raw_slot > _firstMiddleSlot-1 && raw_slot < _firstPlayerSlot)
+				{
+					//mid panel
+					Integer data = itemM.getPersistenData(stack, pd_switcher, PersistentDataType.INTEGER);
+					if(data != null && data == 1)
+					{					
+						setStuffPlayerSlots(player, switcher2000(player_currentLabel.get(player)));
+					}
+					
+					data = itemM.getPersistenData(stack, pd_shopSwitchButton, PersistentDataType.INTEGER);
+					if(data != null && data != 0)
+					{
+						int currentPage = player_currentShopPage.get(player);
+						if(data == -1)
+						{
+							System.out.println("left");
+							if(currentPage > 0)
+							{
+								System.out.println("Can go left");
+								int page_next = currentPage-1;
+								if(page_next < 0)
+								{
+									page_next = 0;
+								}
+								player_currentShopPage.put(player, page_next);
+								setStuffPlayerSlots(player, player_currentLabel.get(player));
+							}
+							
+						}
+						
+						if(data == 1)
+						{
+							if(shopPageCount() > currentPage)
+							{
+								int page_next = currentPage + 1;
+								if(page_next > shopPageCount())
+								{
+									page_next = shopPageCount();
+								}
+								player_currentShopPage.put(player, page_next);
+								setStuffPlayerSlots(player, player_currentLabel.get(player));
+							}
+						}
+					}
+					
+					
 				}
+				
 				
 				
 			}
@@ -389,12 +467,12 @@ public class Shop implements Listener
 		
 		return x;
 	}
-	public void setStuffShopSlots()
+	public void setStuffShopSlots(Player player)
 	{
 		ItemStack empty = new ItemStack(Material.AIR);
 		if(shop_stuff_stacks.isEmpty())
 		{
-			for(int i = _firstShopSlot; i < _firstMiddleSlot-1 ; ++i)
+			for(int i = _firstShopSlot; i < _firstMiddleSlot ; ++i)
 			{
 				for(Inventory inv : player_invs.values())
 				{
@@ -404,11 +482,11 @@ public class Shop implements Listener
 			}
 			return;
 		}
-		
+		int start =_firstShopSlot + player_currentShopPage.get(player) * _firstMiddleSlot;
 		int count = _firstShopSlot;
 		if(shop_stuff_stacks.size() > 0)
 		{
-			for(int i = 0 ; i < shop_stuff_stacks.size(); ++i)
+			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
 			{
 				ItemStack stack = shop_stuff_stacks.get(i);
 				ItemStack copy = new ItemStack(stack);
@@ -429,7 +507,7 @@ public class Shop implements Listener
 		}
 		
 		
-		for(int i = count; i < _firstMiddleSlot-1 ; ++i)
+		for(int i = count; i < _firstMiddleSlot ; ++i)
 		{
 			for(Inventory inv : player_invs.values())
 			{
@@ -446,7 +524,7 @@ public class Shop implements Listener
 		setMiddleLINE(player_invs.get(player), ATW);
 		
 		analysePlayerInv(player);
-		setStuffShopSlots();
+		setStuffShopSlots(player);
 				
 		int count = _firstPlayerSlot;
 		HashMap<ItemStack, Integer> same_stacks = player_stuff.get(player);
@@ -466,19 +544,13 @@ public class Shop implements Listener
 			}
 			
 		});
-		
+		Inventory inv = player_invs.get(player);
 		for(ItemStack stack : stacks)
 		{
 			if(itemM.getPersistenData(stack, pd_isArmor, PersistentDataType.INTEGER) == ATW)
 			{							
-				setToolTip(stack,true);
-				
-				for(Inventory inv : player_invs.values())
-				{
-					inv.setItem(count,stack);
-				}
-				
-				
+				setToolTip(stack,true);				
+				inv.setItem(count,stack);				
 				count++;
 			}
 			
@@ -488,12 +560,8 @@ public class Shop implements Listener
 		
 		ItemStack empty = new ItemStack(Material.AIR);
 		for(int i = count; i < _size ; ++i)
-		{
-			for(Inventory inv : player_invs.values())
-			{
-				inv.setItem(i, empty);
-			}
-			
+		{			
+			inv.setItem(i, empty);			
 		}
 	}
 	
@@ -540,7 +608,7 @@ public class Shop implements Listener
 		
 	}
 	
-	void putItemToShop(ItemStack stack, int amount)
+	void putItemToShop(Player player, ItemStack stack, int amount)
 	{
 		boolean found = false;
 		stack.setAmount(1);
@@ -576,7 +644,7 @@ public class Shop implements Listener
 			itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, shop_stuff_values.get(i));
 		}
 		
-		setStuffShopSlots();
+		setStuffShopSlots(player);
 	}
 	
 	public void analysePlayerInv(Player player)

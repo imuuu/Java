@@ -106,6 +106,7 @@ public class Main extends JavaPlugin
 		for(Shop shop : shops)
 		{
 			shop.configSaveContent();
+			shop.closeShopInvs();
 		}
 	}
 

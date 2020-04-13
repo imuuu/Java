@@ -365,7 +365,13 @@ public class ItemMetods
 				case WOODEN_AXE: return true;
 				case WOODEN_HOE: return true;
 				case WOODEN_SWORD: return true;
-		
+				
+				case STONE_PICKAXE: return true;
+				case STONE_SHOVEL: return true;
+				case STONE_AXE: return true;
+				case STONE_HOE: return true;
+				case STONE_SWORD: return true;
+				
 				case IRON_PICKAXE: return true;
 				case IRON_SHOVEL: return true;
 				case IRON_AXE: return true;
