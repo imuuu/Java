@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +22,8 @@ import net.milkbowl.vault.economy.Economy;
 public class Main extends JavaPlugin
 {
 
-	public HashMap<Player, ItemStack[]> playerInvContent = new HashMap<Player, ItemStack[]>();
+	public HashMap<Player, ItemStack[]> playerInvContent = new HashMap<>();
+	public HashMap<Material, Double[]> materialPrices = new HashMap<>(); //min, max, sell prosent each item
 		
 	static Main instance;
 	static Economy econ = null;
@@ -29,7 +31,8 @@ public class Main extends JavaPlugin
 	ArrayList<Shop> shops = new ArrayList<>();
 	public Shop shop1;
 	
-	public String playerInvContentYAML ="playerInvContent.yml";
+	public int default_expireTime = 60*60*24; // 1d
+	public Double[] default_prices= {0.1,1.0,2.0};
     
 	public void registerCommands() 
     {
@@ -52,7 +55,7 @@ public class Main extends JavaPlugin
 		shop1 = new Shop(ChatColor.DARK_RED + "General Store");
 		shops.add(shop1);
 		setupEconomy();
-		makeInvConfig();
+		ConfigsSetup();
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
@@ -74,7 +77,11 @@ public class Main extends JavaPlugin
         return econ;
     }
 	
-	
+	public void ConfigsSetup()
+	{
+		makeSettingsConfig();
+		makeMaterialConfig();
+	}
 	
 	boolean setupEconomy() 
 	{
@@ -89,17 +96,6 @@ public class Main extends JavaPlugin
         return econ != null;
     }
 	
-	void makeInvConfig()
-	{
-		ConfigMaker cm = new ConfigMaker(this, playerInvContentYAML);
-		FileConfiguration config = cm.getConfig();
-		if(!cm.isExists())
-		{			
-			config.options().header("===Stores player content===");
-			cm.saveConfig();
-		}
-		
-	}
 	
 	void saveShopsContent()
 	{
@@ -109,6 +105,98 @@ public class Main extends JavaPlugin
 			shop.closeShopInvs();
 		}
 	}
-
+	
+	void makeSettingsConfig()
+	{
+		String dmi = "defaultMinPrice";
+		String dma="defaultMaxPrice";
+		String dp="defaultProsent";
+		String de="defaultExpireTimeInSeconds";
+		ConfigMaker cm = new ConfigMaker(this, "settings.yml");
+		FileConfiguration config = cm.getConfig();
+		
+		if(!cm.isExists())
+		{
+			config.set(de, default_expireTime);
+			config.set(dmi, default_prices[0]);
+			config.set(dma,default_prices[1]);
+			config.set(dp,default_prices[2]);
+			cm.saveConfig();
+		}
+		else
+		{
+			if(!config.contains(de))
+			{
+				config.set(de, default_expireTime);
+			}
+			
+			if(!config.contains(dmi))
+			{
+				config.set(dmi,default_prices[0]);
+			}
+			
+			if(!config.contains(dma))
+			{
+				config.set(dma,default_prices[1]);
+			}
+			
+			if(!config.contains(dp))
+			{
+				config.set(dp, default_prices[2]);
+			}
+			
+			
+			cm.saveConfig();
+			
+			default_expireTime = config.getInt(de);
+			default_prices[0] = config.getDouble(dmi);
+			default_prices[1] = config.getDouble(dma);
+			default_prices[2] = config.getDouble(dp);
+			
+		
+			
+		}
+	}
+	
+	void makeMaterialConfig()
+	{
+		ConfigMaker cm = new ConfigMaker(this, "material_prices.yml");
+		FileConfiguration config = cm.getConfig();
+		String minPrice=".minPrice";
+		String maxPrice=".maxPrice";
+		String prosent=".proEachSell";
+		if(!cm.isExists())
+		{
+			config.options().header("minPrice = price will not drop below this each sells\n"
+					+ "maxPrice = price where calculation starts  => maxPrice * (1.0-proEachSell)^epoch\n"
+					+ "proEachSell = how much price go down from max price each selled item");
+		
+			for(Material m : Material.values())
+			{
+				config.set(m.name()+minPrice, 0);
+				config.set(m.name()+maxPrice, 0);
+				config.set(m.name()+prosent, 0);
+			}
+			cm.saveConfig();
+		}
+		else
+		{
+			materialPrices.clear();
+			for (String key : config.getConfigurationSection("").getKeys(false)) 
+			{
+				Material material = Material.getMaterial(key);
+				double mi = config.getDouble(key+minPrice);
+				double ma = config.getDouble(key+maxPrice);
+				double pr = config.getDouble(key+prosent);
+				if(mi != 0 || ma != 0 || pr != 0)
+				{
+					Double[] values = {mi,ma,pr};
+					materialPrices.put(material,values);
+				}
+				
+			}
+			
+		}
+	}
 	
 }

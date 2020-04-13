@@ -29,6 +29,7 @@ import net.minecraft.server.v1_15_R1.Item;
 
 public class Shop implements Listener
 {
+	String _displayName = "";
 	String _name = "";
 	String _fileNameShop="";
 	int _size=9*6;
@@ -65,8 +66,9 @@ public class Shop implements Listener
 	
 	public Shop(String shopName) 
 	{
-		_name = shopName;
-		_fileNameShop = "shop_"+ChatColor.stripColor(shopName)+".yml";	
+		_displayName = shopName;
+		_name = ChatColor.stripColor(shopName);
+		_fileNameShop = "shop_"+_name+".yml";	
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 		setupConfig();
 		setLabelIcons();
@@ -138,12 +140,12 @@ public class Shop implements Listener
 		
 	public String getName()
 	{
-		return _name;
+		return _displayName;
 	}
 	
 	void makeShop(Player player)
 	{
-		Inventory inv = _main.getServer().createInventory(null, _size, _name);
+		Inventory inv = _main.getServer().createInventory(null, _size, _displayName);
 		
 		
 		ItemStack panel = itemM.setDisplayName(
@@ -201,14 +203,12 @@ public class Shop implements Listener
 		if(e.getPlayer() instanceof Player)
 		{		
 			Player player = (Player) e.getPlayer();
-		//	Inventory inv = e.getInventory();
 			InventoryView view = e.getView();
-			if(view.getTitle().equalsIgnoreCase(_name))
+			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
-				System.out.println("Inv opened: " + _name);
+				System.out.println("Inv opened: " + _displayName);
 				player_currentLabel.put(player, LABELS.STUFF.getType());
 				player_currentShopPage.put(player, 0);
-				//_currentLabel=LABELS.STUFF.getType();
 				setStuffPlayerSlots(player, LABELS.STUFF.getType());			
 			}			
 		}		
@@ -221,7 +221,7 @@ public class Shop implements Listener
 		{		
 			Player player = (Player) e.getPlayer();
 			InventoryView view = e.getView();
-			if(view.getTitle().equalsIgnoreCase(_name))
+			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
 				player_currentLabel.remove(player);
 				player_invs.remove(player);
@@ -238,7 +238,7 @@ public class Shop implements Listener
 		{
 			Player player = (Player)e.getWhoClicked();
 			
-			if(view.getTitle().equalsIgnoreCase(_name))
+			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
 				e.setCancelled(true);
 				
@@ -319,10 +319,8 @@ public class Shop implements Listener
 						int currentPage = player_currentShopPage.get(player);
 						if(data == -1)
 						{
-							System.out.println("left");
 							if(currentPage > 0)
 							{
-								System.out.println("Can go left");
 								int page_next = currentPage-1;
 								if(page_next < 0)
 								{
