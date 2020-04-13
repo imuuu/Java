@@ -33,15 +33,15 @@ public class Shop implements Listener
 	String _fileNameShop="";
 	int _size=9*6;
 	
-	Inventory _inv;
-	HashMap<Player,Inventory> player_invs=new HashMap<>();
+
+	HashMap<Player,Inventory> player_invs = new HashMap<>();
 	
 	ItemMetods itemM= new ItemMetods();
 	Main _main = Main.getInstance();
 	
-	int _firstPlayerSlot=36;
-	int _firstShopSlot=0;
-	int _firstMiddleSlot=27;
+	int _firstPlayerSlot = 36;
+	int _firstShopSlot = 0;
+	int _firstMiddleSlot = 27;
 	
 	
 	HashMap<Player,HashMap<ItemStack, Integer>> player_stuff=new HashMap<>();
@@ -68,7 +68,7 @@ public class Shop implements Listener
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 		setupConfig();
 		setLabelIcons();
-		makeShop();
+		//makeShop();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -140,34 +140,37 @@ public class Shop implements Listener
 		return _name;
 	}
 	
-	void makeShop()
+	void makeShop(Player player)
 	{
-		_inv = _main.getServer().createInventory(null, _size, _name);
+		Inventory inv = _main.getServer().createInventory(null, _size, _name);
+		
+		
 		ItemStack panel = itemM.setDisplayName(
 				new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.GOLD+"LINE");		
 				
 		for(int i = 28; i < _firstPlayerSlot-1; ++i)
 		{
-			_inv.setItem(i, panel);
+			inv.setItem(i, panel);
 		}
 		
-		
+		player_invs.put(player, inv);
 		//0-26 => shop items
 		//36-54 => player items
 	}
 	
-	void setMiddleLINE(int label)
+	void setMiddleLINE(Inventory inv, int label)
 	{
 		ItemStack button = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
 		ItemStack label_icon = label_icons.get(label);
-		_inv.setItem((_firstMiddleSlot+35)/2, itemM.setDisplayName(label_icon,itemM.getPersistenData(label_icon, pd_text, PersistentDataType.STRING) ));
-		_inv.setItem(_firstMiddleSlot, itemM.setDisplayName(button, ChatColor.AQUA + "GO LEFT"));
-		_inv.setItem(35, itemM.setDisplayName(button, ChatColor.AQUA + "GO RIGHT"));
+		inv.setItem((_firstMiddleSlot+35)/2, itemM.setDisplayName(label_icon,itemM.getPersistenData(label_icon, pd_text, PersistentDataType.STRING) ));
+		inv.setItem(_firstMiddleSlot, itemM.setDisplayName(button, ChatColor.AQUA + "GO LEFT"));
+		inv.setItem(35, itemM.setDisplayName(button, ChatColor.AQUA + "GO RIGHT"));
 	}
 	
 	public void openShopInv(Player player)
 	{
-		player.openInventory(_inv);
+		makeShop(player);
+		player.openInventory(player_invs.get(player));
 	}
 	
 	@EventHandler
@@ -393,7 +396,11 @@ public class Shop implements Listener
 		{
 			for(int i = _firstShopSlot; i < _firstMiddleSlot-1 ; ++i)
 			{
-				_inv.setItem(i, empty);
+				for(Inventory inv : player_invs.values())
+				{
+					inv.setItem(i, empty);
+				}
+				
 			}
 			return;
 		}
@@ -406,7 +413,12 @@ public class Shop implements Listener
 				ItemStack stack = shop_stuff_stacks.get(i);
 				ItemStack copy = new ItemStack(stack);
 				setToolTip(copy,false);
-				_inv.setItem(count, copy);
+				
+				for(Inventory inv : player_invs.values())
+				{
+					inv.setItem(count, copy);
+				}
+				
 				count++;
 				
 				if(count > _firstMiddleSlot-1)
@@ -419,7 +431,11 @@ public class Shop implements Listener
 		
 		for(int i = count; i < _firstMiddleSlot-1 ; ++i)
 		{
-			_inv.setItem(i, empty);
+			for(Inventory inv : player_invs.values())
+			{
+				inv.setItem(i, empty);
+			}
+			
 		}
 		
 	}
@@ -427,7 +443,7 @@ public class Shop implements Listener
 	public void setStuffPlayerSlots(Player player, int ATW)
 	{
 		player_currentLabel.put(player, ATW);
-		setMiddleLINE(ATW);
+		setMiddleLINE(player_invs.get(player), ATW);
 		
 		analysePlayerInv(player);
 		setStuffShopSlots();
@@ -457,7 +473,11 @@ public class Shop implements Listener
 			{							
 				setToolTip(stack,true);
 				
-				_inv.setItem(count, stack);
+				for(Inventory inv : player_invs.values())
+				{
+					inv.setItem(count,stack);
+				}
+				
 				
 				count++;
 			}
@@ -469,7 +489,11 @@ public class Shop implements Listener
 		ItemStack empty = new ItemStack(Material.AIR);
 		for(int i = count; i < _size ; ++i)
 		{
-			_inv.setItem(i, empty);
+			for(Inventory inv : player_invs.values())
+			{
+				inv.setItem(i, empty);
+			}
+			
 		}
 	}
 	
