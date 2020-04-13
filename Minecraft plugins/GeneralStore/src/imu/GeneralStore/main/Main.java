@@ -1,5 +1,6 @@
 package imu.GeneralStore.main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
@@ -25,6 +26,7 @@ public class Main extends JavaPlugin
 	static Main instance;
 	static Economy econ = null;
 	
+	ArrayList<Shop> shops = new ArrayList<>();
 	public Shop shop1;
 	
 	public String playerInvContentYAML ="playerInvContent.yml";
@@ -48,11 +50,18 @@ public class Main extends JavaPlugin
 	{
 		instance = this;
 		shop1 = new Shop(ChatColor.DARK_RED + "General Store");
+		shops.add(shop1);
 		setupEconomy();
 		makeInvConfig();
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
+	}
+	
+	@Override
+	 public void onDisable()
+	{
+		saveShopsContent();
 	}
 	
 	public static Main getInstance()
@@ -65,7 +74,9 @@ public class Main extends JavaPlugin
         return econ;
     }
 	
-	private boolean setupEconomy() 
+	
+	
+	boolean setupEconomy() 
 	{
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
@@ -88,6 +99,14 @@ public class Main extends JavaPlugin
 			cm.saveConfig();
 		}
 		
+	}
+	
+	void saveShopsContent()
+	{
+		for(Shop shop : shops)
+		{
+			shop.configSaveContent();
+		}
 	}
 
 	

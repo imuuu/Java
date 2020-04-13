@@ -43,5 +43,11 @@ public class Main extends JavaPlugin
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" Default plate has been activated!");
 		getServer().getPluginManager().registerEvents(new EventClass(), this);
 	}
+	
+	@Override
+	 public void onDisable()
+	{
+		
+	}
 
 }

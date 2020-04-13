@@ -1,12 +1,16 @@
 package imu.GeneralStore.Other;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,15 +23,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.GeneralStore.main.Main;
+import net.minecraft.server.v1_15_R1.Item;
 
 
 public class Shop implements Listener
 {
 	String _name = "";
-	String _invContentYAML="";
+	String _displayName ="";
+	String _fileNameShop="";
 	int _size=9*6;
 	
 	Inventory _inv;
+	HashMap<Player,Inventory> player_invs=new HashMap<>();
+	
 	ItemMetods itemM= new ItemMetods();
 	Main _main = Main.getInstance();
 	
@@ -49,17 +57,49 @@ public class Shop implements Listener
 	String pd_text = "gs.text";
 	String pd_count = "gs.count";
 	
-	int _currentLabel = LABELS.STUFF.getType();
+	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
+	int _currentLbel = LABELS.STUFF.getType();
 	
 	public Shop(String shopName) 
 	{
-		_name = shopName;
-		_invContentYAML = _main.playerInvContentYAML;	
+		_name = ChatColor.stripColor(shopName);
+		_displayName=shopName;
+		_fileNameShop = "shop_"+ChatColor.stripColor(shopName)+".yml";	
 		_main.getServer().getPluginManager().registerEvents(this, _main);
+		setupConfig();
 		setLabelIcons();
 		makeShop();
 	}
 	
+	@SuppressWarnings("unchecked")
+	void setupConfig()
+	{
+		ConfigMaker cm = new ConfigMaker(_main, _fileNameShop);
+		FileConfiguration config = cm.getConfig();
+		if(!cm.isExists())
+		{
+			config.set("shop_stacks", shop_stuff_stacks);
+			config.set("shop_values",shop_stuff_values);
+			cm.saveConfig();
+		}
+		else
+		{
+			shop_stuff_stacks = new ArrayList<ItemStack>((List)config.getList("shop_stacks"));
+			shop_stuff_values = new ArrayList<Integer>((List)config.getList("shop_values"));
+		}
+	}
+	
+	public void configSaveContent()
+	{
+		ConfigMaker cm = new ConfigMaker(_main, _fileNameShop);
+		FileConfiguration config = cm.getConfig();
+		if(cm.isExists())
+		{
+			config.set("shop_stacks", shop_stuff_stacks);
+			config.set("shop_values",shop_stuff_values);
+			cm.saveConfig();
+		}
+	}
 	
 	void setLabelIcons()
 	{
@@ -76,7 +116,7 @@ public class Shop implements Listener
 		label_icons.put(1,stuff);
 		
 	}
-	enum LABELS
+	public enum LABELS
 	{
 		STUFF(0),
 		ARMOR(1);
@@ -105,9 +145,7 @@ public class Shop implements Listener
 		_inv = _main.getServer().createInventory(null, _size, _name);
 		ItemStack panel = itemM.setDisplayName(
 				new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.GOLD+"LINE");		
-		
-		
-		
+				
 		for(int i = 28; i < _firstPlayerSlot-1; ++i)
 		{
 			_inv.setItem(i, panel);
@@ -144,11 +182,10 @@ public class Shop implements Listener
 			if(view.getTitle().equalsIgnoreCase(_name))
 			{
 				System.out.println("Inv opened: " + _name);
-				_currentLabel=LABELS.STUFF.getType();
-				setStuffPlayerSlots(player, _currentLabel);
-				
-			}
-			
+				player_currentLabel.put(player, LABELS.STUFF.getType());
+				//_currentLabel=LABELS.STUFF.getType();
+				setStuffPlayerSlots(player, LABELS.STUFF.getType());			
+			}			
 		}
 		
 	}
@@ -174,8 +211,7 @@ public class Shop implements Listener
 				{
 					return;
 				}
-				
-				
+								
 				//shop side
 				if(raw_slot > -1 && raw_slot < 27)
 				{
@@ -232,9 +268,8 @@ public class Shop implements Listener
 				
 				Integer data = itemM.getPersistenData(stack, pd_switcher, PersistentDataType.INTEGER);
 				if(data != null && data == 1)
-				{
-					
-					setStuffPlayerSlots(player, switcher2000(_currentLabel));
+				{					
+					setStuffPlayerSlots(player, switcher2000(player_currentLabel.get(player)));
 				}
 				
 				
@@ -304,7 +339,7 @@ public class Shop implements Listener
 			itemM.moveItemFirstFreeSpaceInv(copy, player, true);
 		}
 		
-		setStuffPlayerSlots(player, _currentLabel);
+		setStuffPlayerSlots(player, player_currentLabel.get(player));
 
 	}
 	
@@ -334,7 +369,7 @@ public class Shop implements Listener
 			}
 		}
 		
-		setStuffPlayerSlots(player, _currentLabel);
+		setStuffPlayerSlots(player, player_currentLabel.get(player));
 	}
 	public int switcher2000(int current)
 	{
@@ -391,7 +426,7 @@ public class Shop implements Listener
 	
 	public void setStuffPlayerSlots(Player player, int ATW)
 	{
-		_currentLabel = ATW;
+		player_currentLabel.put(player, ATW);
 		setMiddleLINE(ATW);
 		
 		analysePlayerInv(player);
@@ -399,10 +434,25 @@ public class Shop implements Listener
 				
 		int count = _firstPlayerSlot;
 		HashMap<ItemStack, Integer> same_stacks = player_stuff.get(player);
-		
+		List<ItemStack> stacks = new ArrayList<>();
 		for(Map.Entry<ItemStack, Integer> entry : same_stacks.entrySet())
 		{
-			ItemStack stack = entry.getKey();
+			stacks.add(entry.getKey());
+		}
+		
+		Collections.sort(stacks, new Comparator<ItemStack>() 
+		{
+			public int compare(ItemStack stack1, ItemStack stack2)
+			{
+				int id1 = Item.getId(CraftItemStack.asNMSCopy(stack1).getItem());
+				int id2 = Item.getId(CraftItemStack.asNMSCopy(stack2).getItem());
+				return id1 < id2 ? -1 : id1 > id2 ? 1 : 0;
+			}
+			
+		});
+		
+		for(ItemStack stack : stacks)
+		{
 			if(itemM.getPersistenData(stack, pd_isArmor, PersistentDataType.INTEGER) == ATW)
 			{							
 				setToolTip(stack,true);
