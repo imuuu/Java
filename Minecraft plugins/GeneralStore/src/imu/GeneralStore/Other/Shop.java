@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +22,9 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GeneralStore.main.Main;
 import net.minecraft.server.v1_15_R1.Item;
@@ -38,6 +41,10 @@ public class Shop implements Listener
 	HashMap<Player,Inventory> player_invs = new HashMap<>();
 	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
 	HashMap<Player,Integer> player_currentShopPage = new HashMap<>();
+	
+	HashMap<Player,Integer> player_clicks = new HashMap<>();
+	HashMap<Player,Integer> player_clicks_warnings = new HashMap<>();
+	HashMap<Player,BukkitRunnable> player_runnables = new HashMap<>();
 	
 	
 	ItemMetods itemM= new ItemMetods();
@@ -62,13 +69,13 @@ public class Shop implements Listener
 	String pd_count = "gs.count";
 	String pd_shopSwitchButton= "gs.switchShopButton";
 	
-	
-	
+	int _maxClicksInHalfSecond=10/2;
 	public Shop(String shopName) 
 	{
 		_displayName = shopName;
 		_name = ChatColor.stripColor(shopName);
 		_fileNameShop = "shop_"+_name+".yml";	
+		_maxClicksInHalfSecond =(int)(_main.default_clickPerSecond/2);
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 		setupConfig();
 		setLabelIcons();
@@ -146,8 +153,7 @@ public class Shop implements Listener
 	void makeShop(Player player)
 	{
 		Inventory inv = _main.getServer().createInventory(null, _size, _displayName);
-		
-		
+				
 		ItemStack panel = itemM.setDisplayName(
 				new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.GOLD+"LINE");		
 				
@@ -157,6 +163,35 @@ public class Shop implements Listener
 		}
 		
 		player_invs.put(player, inv);
+		
+		BukkitRunnable r = new BukkitRunnable() 
+		{
+			Player p = player;
+			@Override
+			public void run() 
+			{
+				Integer clicks = player_clicks.get(p);
+				if(clicks != null && clicks >_maxClicksInHalfSecond)
+				{
+					player_clicks.put(p, -100);
+				}else
+				{
+					if(clicks != null && clicks > -1)
+					{
+						player_clicks.put(p, 0);
+					}
+					
+				}
+								
+				if(!player_invs.containsKey(p))
+				{
+					this.cancel();
+				}
+			}
+		};
+		
+		r.runTaskTimerAsynchronously(_main, 0, 10);
+		player_runnables.put(player, r);
 		//0-26 => shop items
 		//36-54 => player items
 	}
@@ -193,7 +228,15 @@ public class Shop implements Listener
 	{
 		makeShop(player);
 		player.openInventory(player_invs.get(player));
-		System.out.println("pages: "+shopPageCount());
+	}
+	
+	public void closeShopInv(Player player)
+	{
+		player_currentLabel.remove(player);
+		player_invs.remove(player);
+		player_clicks.remove(player);
+		//player_runnables.remove(player);
+		
 	}
 	
 	@EventHandler
@@ -223,8 +266,7 @@ public class Shop implements Listener
 			InventoryView view = e.getView();
 			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
-				player_currentLabel.remove(player);
-				player_invs.remove(player);
+				closeShopInv(player);
 			}			
 		}		
 	}
@@ -240,6 +282,28 @@ public class Shop implements Listener
 			
 			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
+				Integer click_count = player_clicks.get(player);
+				if(click_count == null)
+				{
+					click_count = 0;
+				}
+				if(click_count < 0)
+				{
+					player.closeInventory();
+					int warnings_count = player_clicks_warnings.containsKey(player) ? player_clicks_warnings.get(player) : 0;
+					player_clicks_warnings.put(player, ++warnings_count);
+					player.sendMessage(ChatColor.RED + "Please click slower! WARNING!");
+					if(player_clicks_warnings.get(player) > 2)
+					{
+						player_clicks_warnings.put(player,1);
+						player.kickPlayer(ChatColor.RED + "Please CLICK SLOWER!");
+						
+					}
+					
+					return;
+				}
+				player_clicks.put(player, ++click_count);
+				
 				e.setCancelled(true);
 				
 				int raw_slot = e.getRawSlot();
@@ -573,11 +637,29 @@ public class Shop implements Listener
 			action_str ="BUY ";
 		}
 		
+		ItemStack copy = new ItemStack(stack);
+		removeToolTip(copy);
+		removeAddedShopPDdata(copy);
+		int amount_in_shop = 0;
+		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
+		{
+			ItemStack test = new ItemStack(shop_stuff_stacks.get(i));
+			removeToolTip(test);
+			removeAddedShopPDdata(test);
+			if(test.isSimilar(copy))
+			{
+				amount_in_shop = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
+				break;
+			} 
+			
+		}
+		
+		Double[] prices = calculatePriceOfItem(stack, amount_in_shop, sell);
 		
 		itemM.addLore(stack, ChatColor.AQUA+ "===================", false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M3:"+ChatColor.DARK_PURPLE+" ALL   : "+ChatColor.GOLD+" "+0, false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M2:"+ChatColor.DARK_PURPLE+" STACK: "+ChatColor.GOLD+" "+0, false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M1:"+ChatColor.DARK_PURPLE+" ONE   : "+ChatColor.GOLD+" "+0, false);
+		itemM.addLore(stack, ChatColor.GREEN+ "M3:"+ChatColor.DARK_PURPLE+" ALL   : "+ChatColor.GOLD+" "+prices[2], false);
+		itemM.addLore(stack, ChatColor.GREEN+ "M2:"+ChatColor.DARK_PURPLE+" STACK: "+ChatColor.GOLD+" "+prices[1], false);
+		itemM.addLore(stack, ChatColor.GREEN+ "M1:"+ChatColor.DARK_PURPLE+" ONE   : "+ChatColor.GOLD+" "+prices[0], false);
 							
 		
 		itemM.addLore(stack, ChatColor.GREEN+"==: "+action_str+" : Price :=====", false);
@@ -606,6 +688,117 @@ public class Shop implements Listener
 		
 	}
 	
+	public double priceCalculation(double levelNow, double maxLevel, double minPrice, double maxPrice)
+	{
+		double price = 0;
+		double maxDmin = maxPrice / minPrice;
+		double top = minPrice;
+		double lower = Math.pow(maxDmin, 1/(maxLevel-1));
+		double end = Math.pow(Math.pow(maxDmin, 1/(maxLevel-1)), levelNow);
+		price = (top/lower) * end;	
+		
+		if(maxLevel == 1)
+			price = maxPrice;
+		return price;
+	}
+	
+	Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
+	{
+		Double[] prices = {0.0,0.0,0.0};
+
+		if(stack == null || stack.getType()== Material.AIR)
+		{
+			return prices;
+		}
+		if(!sell)
+		{
+			amount_inShop = 0;
+		}
+		
+		double enchantcost = 0;
+		if(stack.hasItemMeta())
+		{
+			ItemMeta meta = stack.getItemMeta();
+			
+			for(Map.Entry<Enchantment, Integer> ench : meta.getEnchants().entrySet())
+			{
+				if(_main.enchPrices.containsKey(ench.getKey()))
+				{
+					Double[] values=_main.enchPrices.get(ench.getKey());
+					double calp = priceCalculation(ench.getValue(), values[1], values[2], values[3]);
+					enchantcost += calp;
+
+					
+				}
+			}
+		}
+		
+		int total_amount = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
+		
+		Double[] material_values=_main.default_prices; //min,max,pros
+		
+		if(_main.materialPrices.containsKey(stack.getType()))
+		{
+			material_values=_main.materialPrices.get(stack.getType());
+		}
+
+		double material_values2 = material_values[2]/100;
+		
+		double materialCost_all = 0 + enchantcost;
+		double materialCost_one = 0 + enchantcost;
+		double materialCost_stack = 0 + enchantcost;
+		
+		boolean lock = false;
+		for(int i = 0 + amount_inShop; i < total_amount+amount_inShop; ++i)
+		{
+			double cost = material_values[0];
+			if(!lock)
+			{
+				if(sell)
+				{			
+					cost = material_values[1] * Math.pow((1.0-material_values2),i);
+					//System.out.println("cost: "+cost);
+				}else
+				{
+					cost = material_values[1];
+				}
+				
+				if(cost < material_values[0])
+				{
+					lock=true;
+					cost = material_values[0];
+				}
+					
+			}
+						
+			if(i == 0 + amount_inShop)
+			{
+				materialCost_one +=cost;
+			}
+			if(i < 64+amount_inShop)
+			{
+				materialCost_stack+=cost;
+			}
+			
+
+			materialCost_all += cost;
+		}
+
+		prices[0]=Math.round(materialCost_one * 100.0) / 100.0;
+		prices[1]=Math.round(materialCost_stack * 100.0) / 100.0;
+		prices[2]=Math.round(materialCost_all * 100.0) / 100.0;
+		
+		if(!sell)
+		{
+			for(int i = 0; i < prices.length; ++i)
+			{
+				prices[i]=(double)Math.round(prices[i] *_main.default_sellProsent*100)/100;
+			}
+		}
+		
+		return prices;
+		//priceCalculation(entry.getValue(), values[1], values[2], values[3]);
+	}
 	void putItemToShop(Player player, ItemStack stack, int amount)
 	{
 		boolean found = false;
@@ -642,7 +835,7 @@ public class Shop implements Listener
 			itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, shop_stuff_values.get(i));
 		}
 		
-		setStuffShopSlots(player);
+		setStuffPlayerSlots(player, player_currentLabel.get(player));; 
 	}
 	
 	public void analysePlayerInv(Player player)

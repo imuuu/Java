@@ -5,7 +5,9 @@ import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -24,14 +26,16 @@ public class Main extends JavaPlugin
 
 	public HashMap<Player, ItemStack[]> playerInvContent = new HashMap<>();
 	public HashMap<Material, Double[]> materialPrices = new HashMap<>(); //min, max, sell prosent each item
-		
+	public HashMap<Enchantment, Double[]> enchPrices = new HashMap<>(); // {minlvl,maxlvl,minPrice,maxPrice
 	static Main instance;
 	static Economy econ = null;
 	
 	ArrayList<Shop> shops = new ArrayList<>();
 	public Shop shop1;
 	
+	public int default_clickPerSecond=10;
 	public int default_expireTime = 60*60*24; // 1d
+	public double default_sellProsent=1.5;
 	public Double[] default_prices= {0.1,1.0,2.0};
     
 	public void registerCommands() 
@@ -81,6 +85,7 @@ public class Main extends JavaPlugin
 	{
 		makeSettingsConfig();
 		makeMaterialConfig();
+		makeEnchantExponentConfig();
 	}
 	
 	boolean setupEconomy() 
@@ -112,11 +117,13 @@ public class Main extends JavaPlugin
 		String dma="defaultMaxPrice";
 		String dp="defaultProsent";
 		String de="defaultExpireTimeInSeconds";
+		String dc="defaultClicksPerSecond";
 		ConfigMaker cm = new ConfigMaker(this, "settings.yml");
 		FileConfiguration config = cm.getConfig();
 		
 		if(!cm.isExists())
 		{
+			config.set(dc, default_clickPerSecond);
 			config.set(de, default_expireTime);
 			config.set(dmi, default_prices[0]);
 			config.set(dma,default_prices[1]);
@@ -125,6 +132,10 @@ public class Main extends JavaPlugin
 		}
 		else
 		{
+			if(!config.contains(dc))
+			{
+				config.set(dc, default_clickPerSecond);
+			}
 			if(!config.contains(de))
 			{
 				config.set(de, default_expireTime);
@@ -195,6 +206,47 @@ public class Main extends JavaPlugin
 				}
 				
 			}
+			
+		}
+	}
+	
+	void makeEnchantExponentConfig()
+	{
+		ConfigMaker cm = new ConfigMaker(this, "enchant_prices.yml");
+		FileConfiguration config = cm.getConfig();
+		if(!cm.isExists())
+		{
+			config.options().header("MinLevel doesnt effect anything yet.. always calculate 1-maxLevel");
+			for(Enchantment ench : Enchantment.values())
+			{
+
+				config.set(ench.getKey().toString().split(":")[1]+".minLevel", ench.getStartLevel());
+				config.set(ench.getKey().toString().split(":")[1]+".maxLevel", ench.getMaxLevel());
+				config.set(ench.getKey().toString().split(":")[1]+".minPrice", 0);
+				config.set(ench.getKey().toString().split(":")[1]+".maxPrice",0);
+				
+			}
+			cm.saveConfig();
+		}
+		else
+		{
+			for (String key : config.getConfigurationSection("").getKeys(false)) 
+			{
+				Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(key));
+				double minlvl = config.getDouble(key+".minLevel");
+				double maxlvl = config.getDouble(key+".maxLevel");
+				double minPrice = config.getDouble(key+".minPrice");
+				double maxPrice = config.getDouble(key+".maxPrice");
+				
+				if(minPrice != 0 || maxPrice != 0)
+				{
+					Double[] array= {minlvl,maxlvl,minPrice,maxPrice};
+					
+					enchPrices.put(ench, array);
+				}
+				
+			}
+			
 			
 		}
 	}
