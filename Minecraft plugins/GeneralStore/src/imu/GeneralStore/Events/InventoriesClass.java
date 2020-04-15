@@ -13,10 +13,7 @@ public class InventoriesClass implements Listener
 	String invName = "";
 	
 	
-	public InventoriesClass() 
-	{
-		invName = main.shop1.getName();
-	}
+	
 	@EventHandler
 	public void invOpen(InventoryOpenEvent e)
 	{

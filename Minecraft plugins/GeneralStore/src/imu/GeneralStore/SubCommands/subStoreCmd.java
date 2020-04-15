@@ -1,10 +1,16 @@
 package imu.GeneralStore.SubCommands;
 
+import java.util.ArrayList;
+import java.util.Map.Entry;
+
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
+import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.main.Main;
 
 public class subStoreCmd implements CommandInterface
@@ -20,13 +26,33 @@ public class subStoreCmd implements CommandInterface
 
         newInvenotry(player);
         player.sendMessage("IT is store prk!");
+        
+        System.out.println("=================================");
+		System.out.println("Size: "+ main.sameGat.size());
+		int count= 0;
+		ConfigMaker cm = new ConfigMaker(main,"test.yml");
+		FileConfiguration config = cm.getConfig();
+		
+		for(Entry<String, ArrayList<Material>> entry :  main.sameGat.entrySet())
+		{
+
+			for(Material mat : entry.getValue())
+			{
+				config.set(entry.getKey()+"."+mat.name(), mat);
+			}
+			count++;
+		}
+		cm.saveConfig();
+		System.out.println("cout:"+count);
+		System.out.println("=================================");
+		
         return false;
     }
     
     public void newInvenotry(Player player)
     {
+    	main.shopManager.openShop(player, "General Store");
     	
-    	main.shop1.openShopInv(player);
     }
  
 }

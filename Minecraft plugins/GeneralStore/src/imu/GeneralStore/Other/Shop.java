@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,11 +23,15 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GeneralStore.main.Main;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 import net.minecraft.server.v1_15_R1.Item;
 
 
@@ -48,7 +53,9 @@ public class Shop implements Listener
 	
 	
 	ItemMetods itemM= new ItemMetods();
+	
 	Main _main = Main.getInstance();
+	Economy _econ = Main.getEconomy();
 	
 	int _firstPlayerSlot = 36;
 	int _firstShopSlot = 0;
@@ -68,6 +75,9 @@ public class Shop implements Listener
 	String pd_text = "gs.text";
 	String pd_count = "gs.count";
 	String pd_shopSwitchButton= "gs.switchShopButton";
+	String pd_pone= "gs.priceOne";
+	String pd_pstack= "gs.priceStack";
+	String pd_pall= "gs.priceAll";
 	
 	int _maxClicksInHalfSecond=10/2;
 	public Shop(String shopName) 
@@ -146,6 +156,10 @@ public class Shop implements Listener
 	}
 		
 	public String getName()
+	{
+		return _name;
+	}
+	public String getDisplayName()
 	{
 		return _displayName;
 	}
@@ -235,8 +249,7 @@ public class Shop implements Listener
 		player_currentLabel.remove(player);
 		player_invs.remove(player);
 		player_clicks.remove(player);
-		//player_runnables.remove(player);
-		
+		//player_runnables.remove(player);		
 	}
 	
 	@EventHandler
@@ -320,22 +333,28 @@ public class Shop implements Listener
 				{
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					
-					if(click == ClickType.LEFT)
+					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
+					if(click == ClickType.LEFT && withdrawPlayerHasMoney(player, price_one))
 					{
 						putItemToPlayerInv(player, stack, 1);
+						return;
 					}
 					
-					if(click == ClickType.RIGHT)
+					double price_stack = itemM.getPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE);
+					if(click == ClickType.RIGHT && withdrawPlayerHasMoney(player, price_stack))
 					{
 						int c = 64;
 						if(stack_count < 64)
 							c = stack_count;
 						putItemToPlayerInv(player, stack, c);
+						return;
 					}
 					
-					if(click == ClickType.MIDDLE)
+					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
+					if(click == ClickType.MIDDLE && withdrawPlayerHasMoney(player, price_all))
 					{
 						putItemToPlayerInv(player, stack, stack_count);
+						return;
 					}
 				}
 				
@@ -343,14 +362,17 @@ public class Shop implements Listener
 				if(raw_slot > _firstPlayerSlot-1 && raw_slot < _size)
 				{
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
-					
+					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
 					if(click == ClickType.LEFT)
 					{						
 						removeItemPlayerInv(player, stack, 1);
 						putItemToShop(player,stack, 1);
+						depositMoney(player, price_one);
+						return;
 						
 					}
 					
+					double price_stack = itemM.getPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE);
 					if(click == ClickType.RIGHT)
 					{
 						int c = 64;
@@ -359,12 +381,17 @@ public class Shop implements Listener
 						
 						removeItemPlayerInv(player, stack, c);
 						putItemToShop(player,stack, c);
+						depositMoney(player, price_stack);
+						return;
 					}
 					
+					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
 					if(click == ClickType.MIDDLE)
 					{
 						removeItemPlayerInv(player, stack, stack_count);
 						putItemToShop(player,stack, stack_count);
+						depositMoney(player, price_all);
+						return;
 					}
 					
 				}
@@ -409,16 +436,30 @@ public class Shop implements Listener
 								setStuffPlayerSlots(player, player_currentLabel.get(player));
 							}
 						}
-					}
-					
-					
+					}					
 				}
-				
-				
-				
 			}
 		}
 		
+	}
+	public void depositMoney(Player player, double price)
+	{
+		EconomyResponse res = _econ.depositPlayer(player, price);
+		player.sendMessage(ChatColor.DARK_PURPLE+ "You have received: "+ ChatColor.GOLD +""+res.amount+ ""+_econ.currencyNameSingular());
+	}
+	public boolean withdrawPlayerHasMoney(Player player, double price)
+	{
+
+		double balance = _econ.getBalance(player);
+		if(balance > price)
+		{
+			_econ.withdrawPlayer(player, price);
+			player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance now: "+ ChatColor.GOLD +""+balance);
+			return true;
+		}
+		player.sendMessage(ChatColor.RED + "You don't have enough money!");
+		player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance is: "+ ChatColor.GOLD +""+balance+" "+ChatColor.DARK_PURPLE+"and that cost you: "+ChatColor.GOLD+""+price);
+		return false;
 	}
 	
 	void putItemToPlayerInv(Player player, ItemStack stack, int add_amount)
@@ -655,6 +696,9 @@ public class Shop implements Listener
 		}
 		
 		Double[] prices = calculatePriceOfItem(stack, amount_in_shop, sell);
+		itemM.setPersistenData(stack, pd_pone, PersistentDataType.DOUBLE, prices[0]);
+		itemM.setPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE, prices[1]);
+		itemM.setPersistenData(stack, pd_pall, PersistentDataType.DOUBLE, prices[2]);
 		
 		itemM.addLore(stack, ChatColor.AQUA+ "===================", false);
 		itemM.addLore(stack, ChatColor.GREEN+ "M3:"+ChatColor.DARK_PURPLE+" ALL   : "+ChatColor.GOLD+" "+prices[2], false);
@@ -685,6 +729,9 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_text);
 		itemM.removePersistenData(stack, pd_switcher);
 		itemM.removePersistenData(stack, pd_isArmor);
+		itemM.removePersistenData(stack, pd_pone);
+		itemM.removePersistenData(stack, pd_pstack);
+		itemM.removePersistenData(stack, pd_pall);
 		
 	}
 	
@@ -702,10 +749,55 @@ public class Shop implements Listener
 		return price;
 	}
 	
+	public Double[] materialPrices(ItemStack stack, Double[] lastPrice)
+	{
+		
+		System.out.println("seaching for: "+stack.getType());
+		for(Recipe r : _main.getServer().getRecipesFor(stack))
+		{
+			System.out.println("r: "+r);
+			if(r instanceof ShapedRecipe)
+			{
+				ShapedRecipe sr = (ShapedRecipe)r;
+				System.out.println("RESULT: "+sr.getResult());
+				int amount = sr.getResult().getAmount();
+				for(ItemStack s : sr.getIngredientMap().values())
+				{
+					if(s != null)
+					{
+						System.out.println("s: " + s);
+						
+						if(_main.materialPrices.containsKey(s.getType()))
+						{
+							
+							Double[] material_values = _main.materialPrices.get(s.getType());
+							
+							
+						
+							lastPrice[0] = lastPrice[0]+(material_values[0]/amount);
+							lastPrice[1] = lastPrice[1]+material_values[1]/amount;
+							lastPrice[2] = lastPrice[2]+material_values[2]/amount;
+							
+							
+						}
+						lastPrice = materialPrices(s, lastPrice);						
+					}
+					
+				}
+				
+				break;
+			}
+			
+			
+		}
+		
+		return lastPrice;
+	}
+	
 	Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
 	{
 		Double[] prices = {0.0,0.0,0.0};
-
+		
 		if(stack == null || stack.getType()== Material.AIR)
 		{
 			return prices;
@@ -713,6 +805,12 @@ public class Shop implements Listener
 		if(!sell)
 		{
 			amount_inShop = 0;
+		}
+		Double[] test = {0.0,0.0,0.0};
+		materialPrices(stack, test);
+		for(double d : test)
+		{
+			System.out.println("d: "+d);
 		}
 		
 		double enchantcost = 0;

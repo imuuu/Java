@@ -2,6 +2,7 @@ package imu.GeneralStore.main;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,6 +19,7 @@ import imu.GeneralStore.Events.InventoriesClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.Shop;
+import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import net.milkbowl.vault.economy.Economy;
 
@@ -30,8 +32,8 @@ public class Main extends JavaPlugin
 	static Main instance;
 	static Economy econ = null;
 	
-	ArrayList<Shop> shops = new ArrayList<>();
-	public Shop shop1;
+	public ShopManager shopManager;
+	public HashMap<String, ArrayList<Material>> sameGat=new HashMap<>();
 	
 	public int default_clickPerSecond=10;
 	public int default_expireTime = 60*60*24; // 1d
@@ -54,12 +56,14 @@ public class Main extends JavaPlugin
 	
 	@Override
 	public void onEnable() 
-	{
+	{		
 		instance = this;
-		shop1 = new Shop(ChatColor.DARK_RED + "General Store");
-		shops.add(shop1);
 		setupEconomy();
+		shopManager  = new ShopManager();
+		//shopManager.addShop(ChatColor.DARK_RED + "General Store");
+		
 		ConfigsSetup();
+		shopManager.makeShopsConfig();
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
@@ -88,6 +92,8 @@ public class Main extends JavaPlugin
 		makeEnchantExponentConfig();
 	}
 	
+	
+
 	boolean setupEconomy() 
 	{
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
@@ -102,13 +108,11 @@ public class Main extends JavaPlugin
     }
 	
 	
+	
 	void saveShopsContent()
 	{
-		for(Shop shop : shops)
-		{
-			shop.configSaveContent();
-			shop.closeShopInvs();
-		}
+		shopManager.closeShopsInvs();
+		shopManager.saveShopsContent();
 	}
 	
 	void makeSettingsConfig()
@@ -193,6 +197,44 @@ public class Main extends JavaPlugin
 		else
 		{
 			materialPrices.clear();
+			
+			System.out.println("values size: "+Material.values().length);
+			int count = 0;
+			for(Material m : Material.values())
+			{
+				String name = m.name();
+				//System.out.println("name: " + name);
+				if(name.toString().contains("_"))
+				{
+					
+					String[] gats = name.split("_");
+					//System.out.println("split: "+gats.length);
+					String gat = gats[gats.length-1];
+					//System.out.println("gat: "+ gat);
+					
+					if(sameGat.containsKey(gat))
+					{
+						sameGat.get(gat).add(m);
+					}else
+					{
+						ArrayList<Material> ar = new ArrayList<>();
+						ar.add(m);
+						sameGat.put(gat,ar);
+					}
+				}else 
+				{
+					ArrayList<Material> ar = new ArrayList<>();
+					ar.add(m);
+					sameGat.put(name,ar);
+				}
+				
+				count++;
+				
+					
+			}
+			System.out.println("COUNT: "+ count);
+			System.out.println("map size: " +sameGat.size());
+			
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 				Material material = Material.getMaterial(key);
