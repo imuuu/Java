@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,6 +26,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -80,6 +82,9 @@ public class Shop implements Listener
 	String pd_pall= "gs.priceAll";
 	
 	int _maxClicksInHalfSecond=10/2;
+	
+	Cooldowns cds = new Cooldowns();
+	String cdName = "expireTime";
 	public Shop(String shopName) 
 	{
 		_displayName = shopName;
@@ -90,8 +95,57 @@ public class Shop implements Listener
 		setupConfig();
 		setLabelIcons();
 		//makeShop();
+		cds.addCooldownInSeconds(cdName, _main.expireTime);
+		runnable();
 	}
 	
+	void runnable()
+	{
+		int refTime = _main.runnableDelay;
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				//System.out.println("run");
+				
+				if(cds.isCooldownReady(cdName))
+				{
+					checkExpireTime();				
+					cds.addCooldownInSeconds(cdName, _main.expireTime);
+				}
+				
+			}
+		}.runTaskTimer(_main, 0, 20 * refTime);
+	}
+	
+	void checkExpireTime()
+	{
+		double removeP=_main.expireProsent/100;
+		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
+		{
+			ItemStack stack = shop_stuff_stacks.get(i);
+			Integer amount = getShopStackAmount(stack);
+			double removeAmount = Math.round(((amount * removeP)+0.5));
+			int now_amount = (int) (amount-removeAmount);
+			setShopStackAmount(stack, now_amount);
+			shop_stuff_values.add(i, now_amount);
+			
+			
+			
+		}
+		RefresAllInvs();
+	}
+	
+	Integer getShopStackAmount(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
+	}
+	void setShopStackAmount(ItemStack stack, int amount)
+	{
+		itemM.setPersistenData(stack, pd_count, PersistentDataType.INTEGER,amount);
+	}
 	@SuppressWarnings("unchecked")
 	void setupConfig()
 	{
@@ -116,6 +170,12 @@ public class Shop implements Listener
 		FileConfiguration config = cm.getConfig();
 		if(cm.isExists())
 		{
+			if(shop_stuff_stacks.size() <= 0 || shop_stuff_values.size() <= 0)
+			{
+				System.out.println("CLEAR shop");
+				shop_stuff_stacks.clear();
+				shop_stuff_values.clear();
+			}
 			config.set("shop_stacks", shop_stuff_stacks);
 			config.set("shop_values",shop_stuff_values);
 			cm.saveConfig();
@@ -330,7 +390,8 @@ public class Shop implements Listener
 								
 				//shop side
 				if(raw_slot > -1 && raw_slot < 27)
-				{
+				{					
+					//BUY FROM SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
@@ -361,6 +422,7 @@ public class Shop implements Listener
 				//player side in shop
 				if(raw_slot > _firstPlayerSlot-1 && raw_slot < _size)
 				{
+					//SELL TO THE SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
 					if(click == ClickType.LEFT)
@@ -523,8 +585,17 @@ public class Shop implements Listener
 			itemM.moveItemFirstFreeSpaceInv(copy, player, true);
 		}
 		
-		setStuffPlayerSlots(player, player_currentLabel.get(player));
+		
+		RefresAllInvs();
 
+	}
+	
+	void RefresAllInvs()
+	{
+		for(Player p : player_invs.keySet())
+		{
+			setStuffPlayerSlots(p, player_currentLabel.get(p));
+		}
 	}
 	
 	void removeItemPlayerInv(Player player,ItemStack stack, int remove_amount)
@@ -583,15 +654,28 @@ public class Shop implements Listener
 				}
 				
 			}
+			shop_stuff_values.clear();
 			return;
 		}
 		int start =_firstShopSlot + player_currentShopPage.get(player) * _firstMiddleSlot;
 		int count = _firstShopSlot;
+		
 		if(shop_stuff_stacks.size() > 0)
 		{
 			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
 			{
 				ItemStack stack = shop_stuff_stacks.get(i);
+				if(getShopStackAmount(stack) <= 0)
+				{
+					shop_stuff_stacks.remove(i);
+					shop_stuff_values.remove(i);
+				}
+			}
+			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
+			{
+				ItemStack stack = shop_stuff_stacks.get(i);
+				
+				
 				ItemStack copy = new ItemStack(stack);
 				setToolTip(copy,false);
 				
@@ -749,10 +833,59 @@ public class Shop implements Listener
 		return price;
 	}
 	
+	public Double[] getPrices(Material material,boolean defaultPrice)
+	{
+		Double[] prices = {0.0,0.0,0.0};
+			
+		//System.out.println("get price for : "+material);
+		if(!_main.materialPrices.containsKey(material))
+		{
+			if(!_main.materialCatPrices.containsKey(itemM.getMaterialCategory(material)))
+			{
+				if(defaultPrice)
+				{
+					prices = _main.default_prices;
+				}
+				
+			}else
+			{
+				//System.out.println("CATEGORICES PRICE!");
+				prices = _main.materialCatPrices.get(itemM.getMaterialCategory(material));
+				//
+				//for(double d : prices)
+				//{
+				//	System.out.println("CatPrice: "+d);
+				//}
+			}
+		}else
+		{
+			//System.out.println("Material PRICE!");
+			prices = _main.materialPrices.get(material);
+			
+		}
+		
+		//itemM.printArray("price for "+material.name(), prices);
+		
+		return prices;
+	}
+	
 	public Double[] materialPrices(ItemStack stack, Double[] lastPrice)
 	{
 		
 		System.out.println("seaching for: "+stack.getType());
+		System.out.println("HOW many recepeis: "+ _main.getServer().getRecipesFor(stack).size());
+		
+		if(itemM.getMaterialCategory(stack.getType()).equalsIgnoreCase("planks")
+				|| itemM.getMaterialCategory(stack.getType()).equalsIgnoreCase("wood"))
+		{
+			System.out.println("ITS PLANk");
+			Double[] material_values = 	getPrices(Material.OAK_LOG,false);
+			lastPrice[0] = lastPrice[0]+(material_values[0]/4);
+			lastPrice[1] = lastPrice[1]+material_values[1]/4;
+			lastPrice[2] = lastPrice[2]+material_values[2]/4;
+			return lastPrice;
+		}
+				
 		for(Recipe r : _main.getServer().getRecipesFor(stack))
 		{
 			System.out.println("r: "+r);
@@ -761,39 +894,193 @@ public class Shop implements Listener
 				ShapedRecipe sr = (ShapedRecipe)r;
 				System.out.println("RESULT: "+sr.getResult());
 				int amount = sr.getResult().getAmount();
+				int count = 0;
 				for(ItemStack s : sr.getIngredientMap().values())
 				{
 					if(s != null)
 					{
-						System.out.println("s: " + s);
 						
-						if(_main.materialPrices.containsKey(s.getType()))
-						{
+						System.out.println("=========== NEW s: " + s);
+						Double[] mav = getPrices(s.getType(), false);
+						if(mav[0] != 0 || mav[1] != 0 || mav[2] != 0)
+						{								
 							
-							Double[] material_values = _main.materialPrices.get(s.getType());
-							
-							
-						
-							lastPrice[0] = lastPrice[0]+(material_values[0]/amount);
-							lastPrice[1] = lastPrice[1]+material_values[1]/amount;
-							lastPrice[2] = lastPrice[2]+material_values[2]/amount;
-							
-							
+							lastPrice[0] = lastPrice[0]+mav[0];
+							lastPrice[1] = lastPrice[1]+mav[1];
+							lastPrice[2] = lastPrice[2]+mav[2];	
+							itemM.printArray("kesel",lastPrice);
 						}
-						lastPrice = materialPrices(s, lastPrice);						
+						
+						
+						lastPrice = materialPrices(s, lastPrice); // eka birchs
+						itemM.printArray("this "+s.getType().name()+" and others "+ count + " price is before dive ", lastPrice);
+						
 					}
 					
+					count++;
 				}
+				System.out.println("========DIVE by: "+amount+" "+sr.getResult().getType().name());
+				lastPrice[0] = lastPrice[0]/amount;
+				lastPrice[1] = lastPrice[1]/amount;
+				lastPrice[2] = lastPrice[2]/amount;	
 				
 				break;
-			}
-			
-			
+			}			
+		}
+		
+		if(lastPrice[0] == 0 && lastPrice[1] == 0 && lastPrice[2] == 0)
+		{
+			lastPrice = getPrices(stack.getType(), true);
+			itemM.printArray("Last chance",lastPrice);
 		}
 		
 		return lastPrice;
 	}
 	
+	
+	void printPriceArrayList(String id,ArrayList<Double[]> values)
+	{
+		for(Double[] ds : values)
+		{
+			System.out.println("===== "+id+" =====");
+			for(Double d: ds)
+			{
+				System.out.println("vals: "+d);
+			}
+			System.out.println("===== "+id+" =====");
+		}
+	}
+	
+	public Double[] materialPricesDecoder(ItemStack stack, ArrayList<Double[]> values)
+	{
+		Double[] prices = {0.0,0.0,0.0};
+		values.remove(0);
+		//values.remove(1);
+		
+		int size = 1; //values.size(); for savety now 1
+		double nextM = 1;
+		double highestPros = 0;
+		for(int i = 0; i < values.size(); ++i)
+		{
+			Double[] vals = values.get(i);
+			double div = vals[3];
+			
+			for(int j = 0; j < vals.length-1 ; ++j)
+			{
+				
+				double di = div;
+				if(di < 0)
+				{
+					di = 1;
+				}			
+				double price = (vals[j]/di)/nextM;				
+				prices[j] = (prices[j]+price);
+				//System.out.println(j+": "+vals[j]+", di: "+di+", price: "+price+ ", nextM: "+nextM+", last: "+prices[j]);
+				
+			}
+			if(vals[2] > highestPros)
+			{
+				highestPros = vals[2];
+			}
+			nextM = 1;
+			if(div < 0)
+			{
+				nextM = Math.abs(div);
+			}
+		}
+		
+		int amount = 1;
+				
+		for(Recipe r : _main.getServer().getRecipesFor(stack))
+		{
+			if(r instanceof ShapedRecipe)
+			{
+				ShapedRecipe sr = (ShapedRecipe)r;
+				amount  = sr.getResult().getAmount();
+				break;
+			}
+		}
+						
+		if(size % 2 > 0 || (amount > 6 && size % 2 == 0))
+		{
+			for(int i = 0; i < prices.length; ++i)
+			{
+				prices[i] = prices[i]/amount;
+			}
+		}
+		
+		prices[2]=highestPros;
+		
+		//itemM.printArray("Last price2", prices);
+		return prices;
+	}
+	
+	public ArrayList<Double[]> materialPrices(ItemStack stack, ArrayList<Double[]> values)
+	{
+		
+		//System.out.println("seaching for: "+stack.getType());
+		
+		if(itemM.getMaterialCategory(stack.getType()).equalsIgnoreCase("planks")
+				|| itemM.getMaterialCategory(stack.getType()).equalsIgnoreCase("wood"))
+		{
+			Double[] material_values = 	getPrices(Material.OAK_LOG,false);
+			Double[] vals = new Double[4];
+			vals[0] =  material_values[0];
+			vals[1] =  material_values[1];
+			vals[2] =  material_values[2];
+			vals[3] = 4.0;
+			values.add(vals);
+		}else
+		{
+			for(Recipe r : _main.getServer().getRecipesFor(stack))
+			{
+				if(r instanceof ShapedRecipe)
+				{
+					ShapedRecipe sr = (ShapedRecipe)r;
+					int amount = sr.getResult().getAmount();
+					for(ItemStack s : sr.getIngredientMap().values())
+					{
+						if(s != null)
+						{							
+							//System.out.println("=========== NEW s: " + s);
+							Double[] mav = getPrices(s.getType(), false);
+							
+							Double[] vals = new Double[4];
+							vals[0] =  mav[0];
+							vals[1] =  mav[1];
+							vals[2] =  mav[2];
+							vals[3] = -(double)amount;
+							values.add(vals);
+							//printPriceArrayList("keskel",values);
+							
+							values = materialPrices(s, values); // eka birchs
+
+							
+						}
+						
+					}					
+					break;
+				}			
+			}
+						
+		}
+				
+		Double[] vals = values.get(values.size()-1);
+		if(vals[0] == 0 && vals[1] == 0 && vals[2] == 0 && vals[3]==0)
+		{
+			Double[] mav = getPrices(stack.getType(), false);
+			Double[] val = new Double[4];
+			val[0] =  mav[0];
+			val[1] =  mav[1];
+			val[2] =  mav[2];
+			val[3] = 1.0;
+			values.add(val);
+		}
+		
+		//printPriceArrayList("OUT", values);
+				
+		return values;
+	}
 	Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
 	{
 		Double[] prices = {0.0,0.0,0.0};
@@ -806,12 +1093,21 @@ public class Shop implements Listener
 		{
 			amount_inShop = 0;
 		}
-		Double[] test = {0.0,0.0,0.0};
-		materialPrices(stack, test);
-		for(double d : test)
-		{
-			System.out.println("d: "+d);
-		}
+		Double[] test2 = {0.0,0.0,0.0,0.0};
+		//Double[] test3 = {0.0,0.0,0.0,0.0};
+		//test = materialPrices(stack, test);
+		ArrayList<Double[]> test = new ArrayList<>();
+		test.add(test2);
+		
+		test = materialPrices(stack, test);
+		
+		//printPriceArrayList("endi", test);
+		Double[] ds = materialPricesDecoder(stack,test);
+		//itemM.printArray("last p:", ds);
+		//for(double d : test)
+		//{
+		//	System.out.println("d: "+d);
+		//}
 		
 		double enchantcost = 0;
 		if(stack.hasItemMeta())
@@ -833,7 +1129,15 @@ public class Shop implements Listener
 		
 		int total_amount = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 		
-		Double[] material_values=_main.default_prices; //min,max,pros
+		//Double[] material_values=_main.default_prices; //min,max,pros
+		Double[] material_values=getPrices(stack.getType(), false);//min,max,pros
+		if(material_values[0] == 0 && material_values[1] == 0 && material_values[2] == 0)
+		{
+			System.out.println("price not found");
+			//material_values = _main.shopManager.smart_prices.containsKey(stack.getType()) ? _main.shopManager.smart_prices.get(stack.getType()) : getPrices(stack.getType(), true);
+			material_values = ds;
+			
+		}
 		
 		if(_main.materialPrices.containsKey(stack.getType()))
 		{
@@ -907,17 +1211,18 @@ public class Shop implements Listener
 		{
 			
 			ItemStack shop_stack = shop_stuff_stacks.get(i);
+			int shop_amount = getShopStackAmount(shop_stack);
 			shop_stack.setAmount(1);
 			removeAddedShopPDdata(shop_stack);
 			removeToolTip(stack);
 			if(shop_stack.isSimilar(stack))
 			{
-				int count = shop_stuff_values.get(i)+amount;
+				int count = shop_amount+amount;
 				
 				shop_stuff_stacks.set(i, shop_stack);
 				shop_stuff_values.set(i, count);
 				
-				found=true;
+				found = true;
 				break;
 			}
 		}
@@ -933,7 +1238,11 @@ public class Shop implements Listener
 			itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, shop_stuff_values.get(i));
 		}
 		
-		setStuffPlayerSlots(player, player_currentLabel.get(player));; 
+		for(Player p : player_invs.keySet())
+		{
+			setStuffPlayerSlots(p, player_currentLabel.get(p));
+		}
+		
 	}
 	
 	public void analysePlayerInv(Player player)

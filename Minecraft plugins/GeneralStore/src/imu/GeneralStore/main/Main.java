@@ -18,6 +18,7 @@ import imu.GeneralStore.Commands.GeneralStoreCmd;
 import imu.GeneralStore.Events.InventoriesClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
+import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.SubCommands.subStoreCmd;
@@ -33,13 +34,22 @@ public class Main extends JavaPlugin
 	static Economy econ = null;
 	
 	public ShopManager shopManager;
-	public HashMap<String, ArrayList<Material>> sameGat=new HashMap<>();
+	
+	public HashMap<String, ArrayList<Material>> materialCategorys=new HashMap<>();
+	public HashMap<String, Double[]> materialCatPrices=new HashMap<>();
 	
 	public int default_clickPerSecond=10;
-	public int default_expireTime = 60*60*24; // 1d
-	public double default_sellProsent=1.5;
+	
+	public int expireTime = 10; // 1d
+	public double expireProsent = 10; // 1d
+	public int runnableDelay = 1;
+	
 	public Double[] default_prices= {0.1,1.0,2.0};
+	
+	public double default_sellProsent=1.5;
+	
     
+	ItemMetods itemM = new ItemMetods();
 	public void registerCommands() 
     {
     	
@@ -59,14 +69,17 @@ public class Main extends JavaPlugin
 	{		
 		instance = this;
 		setupEconomy();
-		shopManager  = new ShopManager();
+		
 		//shopManager.addShop(ChatColor.DARK_RED + "General Store");
 		
 		ConfigsSetup();
-		shopManager.makeShopsConfig();
+		
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
+		
+		shopManager  = new ShopManager();
+		shopManager.makeShopsConfig();
 	}
 	
 	@Override
@@ -128,7 +141,7 @@ public class Main extends JavaPlugin
 		if(!cm.isExists())
 		{
 			config.set(dc, default_clickPerSecond);
-			config.set(de, default_expireTime);
+			config.set(de, expireTime);
 			config.set(dmi, default_prices[0]);
 			config.set(dma,default_prices[1]);
 			config.set(dp,default_prices[2]);
@@ -142,7 +155,7 @@ public class Main extends JavaPlugin
 			}
 			if(!config.contains(de))
 			{
-				config.set(de, default_expireTime);
+				config.set(de, expireTime);
 			}
 			
 			if(!config.contains(dmi))
@@ -163,7 +176,7 @@ public class Main extends JavaPlugin
 			
 			cm.saveConfig();
 			
-			default_expireTime = config.getInt(de);
+			expireTime = config.getInt(de);
 			default_prices[0] = config.getDouble(dmi);
 			default_prices[1] = config.getDouble(dma);
 			default_prices[2] = config.getDouble(dp);
@@ -186,68 +199,87 @@ public class Main extends JavaPlugin
 					+ "maxPrice = price where calculation starts  => maxPrice * (1.0-proEachSell)^epoch\n"
 					+ "proEachSell = how much price go down from max price each selled item");
 		
+			//for(Material m : Material.values())
+			//{
+			//	config.set(m.name()+minPrice, 0);
+			//	config.set(m.name()+maxPrice, 0);
+			//	config.set(m.name()+prosent, 0);
+			//}
+			HashMap<String, ArrayList<Material>> gats=new HashMap<>();
 			for(Material m : Material.values())
 			{
-				config.set(m.name()+minPrice, 0);
-				config.set(m.name()+maxPrice, 0);
-				config.set(m.name()+prosent, 0);
+				String name = itemM.getMaterialCategory(m);
+				if(gats.containsKey(name))
+				{
+					gats.get(name).add(m);
+				}else
+				{
+					ArrayList<Material> arr = new ArrayList<>();
+					arr.add(m);
+					gats.put(name,arr);
+				}
+			}
+			
+			for(Entry<String, ArrayList<Material>> entry :  gats.entrySet())
+			{	 
+				String key = entry.getKey();
+				config.set(key+minPrice, 0);
+				config.set(key+maxPrice, 0);
+				config.set(key+prosent, 0);
+				for(Material mat : entry.getValue())
+				{					
+					config.set(entry.getKey()+".belong."+mat.name()+minPrice, 0);
+					config.set(entry.getKey()+".belong."+mat.name()+maxPrice, 0);
+					config.set(entry.getKey()+".belong."+mat.name()+prosent, 0);
+				}
 			}
 			cm.saveConfig();
+
 		}
 		else
 		{
 			materialPrices.clear();
 			
-			System.out.println("values size: "+Material.values().length);
-			int count = 0;
-			for(Material m : Material.values())
-			{
-				String name = m.name();
-				//System.out.println("name: " + name);
-				if(name.toString().contains("_"))
-				{
-					
-					String[] gats = name.split("_");
-					//System.out.println("split: "+gats.length);
-					String gat = gats[gats.length-1];
-					//System.out.println("gat: "+ gat);
-					
-					if(sameGat.containsKey(gat))
-					{
-						sameGat.get(gat).add(m);
-					}else
-					{
-						ArrayList<Material> ar = new ArrayList<>();
-						ar.add(m);
-						sameGat.put(gat,ar);
-					}
-				}else 
-				{
-					ArrayList<Material> ar = new ArrayList<>();
-					ar.add(m);
-					sameGat.put(name,ar);
-				}
-				
-				count++;
-				
-					
-			}
-			System.out.println("COUNT: "+ count);
-			System.out.println("map size: " +sameGat.size());
 			
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
-				Material material = Material.getMaterial(key);
-				double mi = config.getDouble(key+minPrice);
-				double ma = config.getDouble(key+maxPrice);
-				double pr = config.getDouble(key+prosent);
+				
+				
+				
+				String materialString = key+".belong";
+				double mi = config.getDouble(key + minPrice);
+				double ma = config.getDouble(key + maxPrice);
+				double pr = config.getDouble(key + prosent);
+				
 				if(mi != 0 || ma != 0 || pr != 0)
 				{
 					Double[] values = {mi,ma,pr};
-					materialPrices.put(material,values);
+					materialCatPrices.put(key,values);
 				}
 				
+				for (String key2 : config.getConfigurationSection(materialString).getKeys(false)) 
+				{
+					Material material = Material.getMaterial(key2);
+					mi = config.getDouble(materialString+"."+key2 + minPrice);
+					ma = config.getDouble(materialString+"."+key2 + maxPrice);
+					pr = config.getDouble(materialString+"."+key2 + prosent);
+					
+					if(mi != 0 || ma != 0 || pr != 0)
+					{
+						Double[] values = {mi,ma,pr};
+						materialPrices.put(material,values);
+					}
+				}
+				
+				
+				
+				
+				
 			}
+			
+			System.out.println("size: "+materialPrices.size());
+			itemM.printHashMap(materialPrices);
+			itemM.printHashMap(materialCatPrices);
 			
 		}
 	}

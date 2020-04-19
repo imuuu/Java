@@ -1,7 +1,9 @@
 package imu.GeneralStore.Other;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -523,5 +525,33 @@ public class ItemMetods
 		Bukkit.getPluginManager().callEvent(event);
 	}
 	
+	public <K,V> void printHashMap(HashMap<K, V> map)
+	{
+		for(Entry<K, V> entry : map.entrySet())
+		{
+			System.out.println("Key: "+entry.getKey()+" value: "+entry.getValue());
+		}
+	}
+	
+	public <T> void printArray(String id, T[] arr)
+	{
+		System.out.println("====================");
+		for(T v : arr)
+		{
+			System.out.println(id+" : "+v);
+		}
+		System.out.println("====================");
+	}
+	
+	public String getMaterialCategory(Material m)
+	{
+		String name = m.name();
+		if(name.contains("_"))
+		{
+			String[] parts = name.split("_");
+			name = parts[parts.length-1];
+		}
+		return name;
+	}
 	
 }

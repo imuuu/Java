@@ -27,24 +27,20 @@ public class subStoreCmd implements CommandInterface
         newInvenotry(player);
         player.sendMessage("IT is store prk!");
         
-        System.out.println("=================================");
-		System.out.println("Size: "+ main.sameGat.size());
-		int count= 0;
-		ConfigMaker cm = new ConfigMaker(main,"test.yml");
-		FileConfiguration config = cm.getConfig();
+        
+		//ConfigMaker cm = new ConfigMaker(main,"test.yml");
+		//FileConfiguration config = cm.getConfig();
+		//
+		//for(Entry<String, ArrayList<Material>> entry :  main.sameGat.entrySet())
+		//{
+        //
+		//	for(Material mat : entry.getValue())
+		//	{
+		//		config.set(entry.getKey()+"."+mat.name(), mat);
+		//	}
+		//}
+		//cm.saveConfig();
 		
-		for(Entry<String, ArrayList<Material>> entry :  main.sameGat.entrySet())
-		{
-
-			for(Material mat : entry.getValue())
-			{
-				config.set(entry.getKey()+"."+mat.name(), mat);
-			}
-			count++;
-		}
-		cm.saveConfig();
-		System.out.println("cout:"+count);
-		System.out.println("=================================");
 		
         return false;
     }
