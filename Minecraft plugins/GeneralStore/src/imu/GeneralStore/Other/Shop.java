@@ -3,12 +3,11 @@ package imu.GeneralStore.Other;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,10 +25,11 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.mojang.datafixers.util.Pair;
 
 import imu.GeneralStore.main.Main;
 import net.milkbowl.vault.economy.Economy;
@@ -41,7 +41,7 @@ public class Shop implements Listener
 {
 	String _displayName = "";
 	String _name = "";
-	String _fileNameShop="";
+	String _fileNameShopYML="";
 	int _size=9*6;
 	
 
@@ -62,8 +62,7 @@ public class Shop implements Listener
 	int _firstPlayerSlot = 36;
 	int _firstShopSlot = 0;
 	int _firstMiddleSlot = 27;
-	
-	
+		
 	HashMap<Player,HashMap<ItemStack, Integer>> player_stuff=new HashMap<>();
 	HashMap<Player,HashMap<ItemStack, ArrayList<ItemStack>>> player_refs=new HashMap<>();
 	
@@ -85,12 +84,17 @@ public class Shop implements Listener
 	
 	Cooldowns cds = new Cooldowns();
 	String cdName = "expireTime";
+	
+	//DATA Gather
+	ArrayList<Pair<Material, Integer> > sellCountValues = new ArrayList<>();
+	
+	
 	public Shop(String shopName) 
 	{
 		_displayName = shopName;
 		_name = ChatColor.stripColor(shopName);
-		_fileNameShop = "shop_"+_name+".yml";	
-		_maxClicksInHalfSecond =(int)(_main.default_clickPerSecond/2);
+		_fileNameShopYML = "shop_"+_name+".yml";	
+		_maxClicksInHalfSecond =(int)(_main.clickPerSecond/2);
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 		setupConfig();
 		setLabelIcons();
@@ -99,6 +103,57 @@ public class Shop implements Listener
 		runnable();
 	}
 	
+	public enum LABELS
+	{
+		STUFF(0),
+		ARMOR(1);
+		
+		private int type;
+		
+		LABELS(int i)
+		{
+			this.type = i;
+		}
+		public int getType()
+		{
+			return type;
+		}
+		
+	}
+		
+	void setLabelIcons()
+	{
+		ItemStack armor = new ItemStack(Material.DIAMOND_CHESTPLATE);
+		ItemStack stuff = new ItemStack(Material.STONE);
+		
+		itemM.setPersistenData(armor, pd_switcher, PersistentDataType.INTEGER, (int)1);
+		itemM.setPersistenData(stuff, pd_switcher, PersistentDataType.INTEGER, (int)1);
+		
+		itemM.setPersistenData(armor, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Armor, Tools, Weapons");
+		itemM.setPersistenData(stuff, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Other stuff");
+
+		label_icons.put(0,armor);
+		label_icons.put(1,stuff);
+		
+	}
+	public String getName()
+	{
+		return _name;
+	}
+	public String getDisplayName()
+	{
+		return _displayName;
+	}
+	
+	public String getFileName()
+	{
+		return _fileNameShopYML.substring(0, _fileNameShopYML.lastIndexOf("."));
+	}
+	
+	public String getFileNameYml()
+	{
+		return _fileNameShopYML;
+	}
 	void runnable()
 	{
 		int refTime = _main.runnableDelay;
@@ -122,6 +177,10 @@ public class Shop implements Listener
 	
 	void checkExpireTime()
 	{
+		if(shop_stuff_stacks.size() <= 0)
+		{
+			return;
+		}
 		double removeP=_main.expireProsent/100;
 		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
 		{
@@ -130,9 +189,7 @@ public class Shop implements Listener
 			double removeAmount = Math.round(((amount * removeP)+0.5));
 			int now_amount = (int) (amount-removeAmount);
 			setShopStackAmount(stack, now_amount);
-			shop_stuff_values.add(i, now_amount);
-			
-			
+			shop_stuff_values.set(i, now_amount);			
 			
 		}
 		RefresAllInvs();
@@ -146,10 +203,11 @@ public class Shop implements Listener
 	{
 		itemM.setPersistenData(stack, pd_count, PersistentDataType.INTEGER,amount);
 	}
-	@SuppressWarnings("unchecked")
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	void setupConfig()
 	{
-		ConfigMaker cm = new ConfigMaker(_main, _fileNameShop);
+		ConfigMaker cm = new ConfigMaker(_main, _fileNameShopYML);
 		FileConfiguration config = cm.getConfig();
 		if(!cm.isExists())
 		{
@@ -166,62 +224,94 @@ public class Shop implements Listener
 	
 	public void configSaveContent()
 	{
-		ConfigMaker cm = new ConfigMaker(_main, _fileNameShop);
+		ConfigMaker cm = new ConfigMaker(_main, _fileNameShopYML);
 		FileConfiguration config = cm.getConfig();
 		if(cm.isExists())
 		{
+			
 			if(shop_stuff_stacks.size() <= 0 || shop_stuff_values.size() <= 0)
 			{
 				System.out.println("CLEAR shop");
 				shop_stuff_stacks.clear();
 				shop_stuff_values.clear();
 			}
+			
+			for(int i = 0 ; i < shop_stuff_stacks.size(); ++i)
+			{
+				Integer count = getShopStackAmount(shop_stuff_stacks.get(i));
+				if(count == null || count <= 0)
+				{
+					shop_stuff_stacks.remove(i);					
+				}
+			}
+			
+			for(int i = 0 ; i < shop_stuff_values.size(); ++i)
+			{
+				int count = shop_stuff_values.get(i);
+				if(count <= 0)
+				{
+					shop_stuff_values.remove(i);				
+				}
+			}
+			
 			config.set("shop_stacks", shop_stuff_stacks);
 			config.set("shop_values",shop_stuff_values);
 			cm.saveConfig();
 		}
 	}
 	
-	void setLabelIcons()
+	public void configSelledItemCount(ItemStack stack,int amount)
 	{
-		ItemStack armor = new ItemStack(Material.DIAMOND_CHESTPLATE);
-		ItemStack stuff = new ItemStack(Material.STONE);
-		
-		itemM.setPersistenData(armor, pd_switcher, PersistentDataType.INTEGER, (int)1);
-		itemM.setPersistenData(stuff, pd_switcher, PersistentDataType.INTEGER, (int)1);
-		
-		itemM.setPersistenData(armor, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Armor, Tools, Weapons");
-		itemM.setPersistenData(stuff, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Other stuff");
-
-		label_icons.put(0,armor);
-		label_icons.put(1,stuff);
-		
+		System.out.println("selled itemCount ad");
+		sellCountValues.add(new Pair<Material,Integer>(stack.getType(), amount));
 	}
-	public enum LABELS
+	
+	public void configSellLogItem(Player player, ItemStack stack, int amount)
 	{
-		STUFF(0),
-		ARMOR(1);
-		
-		private int type;
-		
-		LABELS(int i)
+		Date date = new Date(System.currentTimeMillis());
+		String str = _name+":"+player.getName() +":"+stack.getType().name()+":"+amount;
+		_main.shopManager.logAddSold(new Pair<Date, String>(date,str));
+	}
+	
+	boolean checkIfAbleToSaveData()
+	{
+		if(!isShopsOpened())
 		{
-			this.type = i;
-		}
-		public int getType()
-		{
-			return type;
+			System.out.println("SHOPS ALL ARE CLOSED SAVE DATA");
+			if(sellCountValues.size() > 0)
+			{
+				System.out.println("SAVING sell count data");
+				ConfigMaker cm = new ConfigMaker(_main, getFileName()+"_SelledMaterialCount.yml");
+				FileConfiguration config = cm.getConfig();
+				
+				if(!cm.isExists())
+				{
+					cm.saveConfig();
+				}
+				
+				for(Pair<Material, Integer> values : sellCountValues)
+				{
+					String mName = values.getFirst().name();
+					int am = values.getSecond();
+										
+					System.out.println("Name: "+mName + "amount: "+am);
+					if(!config.contains(mName))
+					{
+						config.set(mName, 1);
+					}else
+					{
+						int count = config.getInt(mName)+am;
+						config.set(mName, count);
+					}
+				}
+				cm.saveConfig();
+				sellCountValues.clear();
+			}
+			
+			return true;
 		}
 		
-	}
-		
-	public String getName()
-	{
-		return _name;
-	}
-	public String getDisplayName()
-	{
-		return _displayName;
+		return false;
 	}
 	
 	void makeShop(Player player)
@@ -270,6 +360,17 @@ public class Shop implements Listener
 		//36-54 => player items
 	}
 	
+	public boolean isShopsOpened()
+	{
+		if(player_invs.size() > 0)
+		{
+			System.out.println("SOME SHOP IS OPEN");
+			return true;
+		}
+
+		return false;
+		
+	}
 	public void closeShopInvs()
 	{
 		for(Player p : player_invs.keySet())
@@ -340,6 +441,8 @@ public class Shop implements Listener
 			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
 				closeShopInv(player);
+				checkIfAbleToSaveData();
+				_main.shopManager.checkIfAbleToSaveData();
 			}			
 		}		
 	}
@@ -513,6 +616,7 @@ public class Shop implements Listener
 	{
 
 		double balance = _econ.getBalance(player);
+		balance = Math.round(balance*100)/100;
 		if(balance > price)
 		{
 			_econ.withdrawPlayer(player, price);
@@ -600,6 +704,8 @@ public class Shop implements Listener
 	
 	void removeItemPlayerInv(Player player,ItemStack stack, int remove_amount)
 	{
+		configSelledItemCount(stack, remove_amount);
+		configSellLogItem(player, stack, remove_amount);
 		HashMap<ItemStack, ArrayList<ItemStack>> refs = player_refs.get(player);
 		
 		for(Map.Entry<ItemStack, ArrayList<ItemStack>> entry : refs.entrySet())
@@ -1134,6 +1240,7 @@ public class Shop implements Listener
 		if(material_values[0] == 0 && material_values[1] == 0 && material_values[2] == 0)
 		{
 			System.out.println("price not found");
+			//TODO enable this after smart cal
 			//material_values = _main.shopManager.smart_prices.containsKey(stack.getType()) ? _main.shopManager.smart_prices.get(stack.getType()) : getPrices(stack.getType(), true);
 			material_values = ds;
 			
@@ -1194,7 +1301,7 @@ public class Shop implements Listener
 		{
 			for(int i = 0; i < prices.length; ++i)
 			{
-				prices[i]=(double)Math.round(prices[i] *_main.default_sellProsent*100)/100;
+				prices[i]=(double)Math.round(prices[i] *_main.sellProsent*100)/100;
 			}
 		}
 		

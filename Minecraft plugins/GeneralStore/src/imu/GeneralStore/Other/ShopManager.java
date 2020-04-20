@@ -1,6 +1,8 @@
 package imu.GeneralStore.Other;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.bukkit.Material;
@@ -8,6 +10,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.mojang.datafixers.util.Pair;
 
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
@@ -19,24 +23,27 @@ public class ShopManager
 	
 	HashMap<String,Shop> shops = new HashMap<>();
 	
+	ArrayList<Pair<Date, String> > selledItems = new ArrayList<>();
+	
 	String shopYAML ="shopNames.yml";
 	
 	boolean calculationReady = true;
 	public ShopManager()
 	{
-		System.out.println("DO SHIT");
+		
 		if(!calculationReady)
 		{
+			System.out.println("Loading SMART PRICES");
 			new BukkitRunnable() {
 				
 				@Override
 				public void run() 
 				{
-					Shop tempShop = new Shop("temp");
+					Shop tempShop = addShop("temp");
 					
 					
-					ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
-					FileConfiguration config=cm.getConfig();
+					//ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
+					//FileConfiguration config=cm.getConfig();
 					for(Material m : Material.values())
 					{
 						ItemStack stack = new ItemStack(m);
@@ -52,9 +59,10 @@ public class ShopManager
 						}
 						
 					}
-					cm.saveConfig();
+					//cm.saveConfig();
 					System.out.println("CALS READY");
 					calculationReady = true;
+					removeShop("temp");
 				}
 			}.runTaskAsynchronously(_main);
 		}
@@ -63,7 +71,7 @@ public class ShopManager
 		
 	}
 	
-	public void addShop(String name)
+	public Shop addShop(String name)
 	{
 		Shop shop = new Shop(name);
 		shops.put(name, shop);
@@ -72,6 +80,8 @@ public class ShopManager
 		FileConfiguration config = cm.getConfig();
 		config.set(name, true);
 		cm.saveConfig();
+		
+		return shop;
 	}
 	
 	public void removeShop(String name)
@@ -158,5 +168,52 @@ public class ShopManager
 			System.out.println("Shop added: "+shopName);
 			addShop(shopName);
 		}		
+	}
+	
+	public void logAddSold(Pair<Date, String> value)
+	{
+		selledItems.add(value);
+	}
+	
+	public void checkIfAbleToSaveData()
+	{
+		if(selledItems.size() <= 0 )
+		{
+			return;
+		}
+		
+		for(Shop shop : shops.values())
+		{
+			if(shop.isShopsOpened())
+			{
+				return;
+			}
+		}
+		
+	
+		System.out.println("SAVING sell LOG data");
+		ConfigMaker cm = new ConfigMaker(_main, "Sold_Log.yml");
+		FileConfiguration config = cm.getConfig();
+		
+		if(!cm.isExists())
+		{
+			cm.saveConfig();
+		}
+		
+		for(Pair<Date, String> values : selledItems)
+		{
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss z");
+			String date = formatter.format(values.getFirst());
+			String str = values.getSecond();
+			if(config.contains(date))
+			{
+				int count =  Integer.parseInt(str.split(":")[3]) + Integer.parseInt(config.getString(date).split(":")[3]);
+				str = str.substring(0, str.lastIndexOf(":"))+":"+count;
+			}
+			config.set(date, str);
+		}
+		cm.saveConfig();
+		selledItems.clear();
+		
 	}
 }

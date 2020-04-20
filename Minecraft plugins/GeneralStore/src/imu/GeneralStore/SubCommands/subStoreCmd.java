@@ -1,16 +1,10 @@
 package imu.GeneralStore.SubCommands;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.main.Main;
 
 public class subStoreCmd implements CommandInterface

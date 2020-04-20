@@ -19,7 +19,6 @@ import imu.GeneralStore.Events.InventoriesClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
-import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import net.milkbowl.vault.economy.Economy;
@@ -38,15 +37,15 @@ public class Main extends JavaPlugin
 	public HashMap<String, ArrayList<Material>> materialCategorys=new HashMap<>();
 	public HashMap<String, Double[]> materialCatPrices=new HashMap<>();
 	
-	public int default_clickPerSecond=10;
+	public int clickPerSecond=10;
 	
 	public int expireTime = 10; // 1d
 	public double expireProsent = 10; // 1d
 	public int runnableDelay = 1;
 	
-	public Double[] default_prices= {0.1,1.0,2.0};
+	public Double[] default_prices= {0.1, 1.0, 2.0};
 	
-	public double default_sellProsent=1.5;
+	public double sellProsent=1.5;
 	
     
 	ItemMetods itemM = new ItemMetods();
@@ -126,64 +125,29 @@ public class Main extends JavaPlugin
 	{
 		shopManager.closeShopsInvs();
 		shopManager.saveShopsContent();
+		shopManager.checkIfAbleToSaveData();
 	}
 	
 	void makeSettingsConfig()
 	{
-		String dmi = "defaultMinPrice";
-		String dma="defaultMaxPrice";
-		String dp="defaultProsent";
-		String de="defaultExpireTimeInSeconds";
-		String dc="defaultClicksPerSecond";
 		ConfigMaker cm = new ConfigMaker(this, "settings.yml");
-		FileConfiguration config = cm.getConfig();
-		
-		if(!cm.isExists())
+
+		try 
 		{
-			config.set(dc, default_clickPerSecond);
-			config.set(de, expireTime);
-			config.set(dmi, default_prices[0]);
-			config.set(dma,default_prices[1]);
-			config.set(dp,default_prices[2]);
-			cm.saveConfig();
-		}
-		else
+			default_prices[0] = cm.addDefault("DefaultMinPrice", default_prices[0]);
+			default_prices[1] = cm.addDefault("DefaultMaxPrice", default_prices[1]);
+			default_prices[2] = cm.addDefault("DefaultPriceProsent", default_prices[2]);
+			expireProsent = cm.addDefault("ExpireProsent", expireProsent);
+			expireTime = cm.addDefault("ExpireTime", expireTime);
+			clickPerSecond = cm.addDefault("ClicksPerSecond", clickPerSecond);
+			sellProsent = cm.addDefault("SellProsent", sellProsent);
+			
+		} catch (Exception e) 
 		{
-			if(!config.contains(dc))
-			{
-				config.set(dc, default_clickPerSecond);
-			}
-			if(!config.contains(de))
-			{
-				config.set(de, expireTime);
-			}
-			
-			if(!config.contains(dmi))
-			{
-				config.set(dmi,default_prices[0]);
-			}
-			
-			if(!config.contains(dma))
-			{
-				config.set(dma,default_prices[1]);
-			}
-			
-			if(!config.contains(dp))
-			{
-				config.set(dp, default_prices[2]);
-			}
-			
-			
-			cm.saveConfig();
-			
-			expireTime = config.getInt(de);
-			default_prices[0] = config.getDouble(dmi);
-			default_prices[1] = config.getDouble(dma);
-			default_prices[2] = config.getDouble(dp);
-			
-		
-			
+			getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Something got wrong GeneralStore fileNamed: "+cm.getFileName());
+			getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Maybe you casted some value as Integer When it should be Double?");
 		}
+		
 	}
 	
 	void makeMaterialConfig()
@@ -243,9 +207,7 @@ public class Main extends JavaPlugin
 			
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
-				
-				
-				
+						
 				String materialString = key+".belong";
 				double mi = config.getDouble(key + minPrice);
 				double ma = config.getDouble(key + maxPrice);
@@ -270,10 +232,6 @@ public class Main extends JavaPlugin
 						materialPrices.put(material,values);
 					}
 				}
-				
-				
-				
-				
 				
 			}
 			

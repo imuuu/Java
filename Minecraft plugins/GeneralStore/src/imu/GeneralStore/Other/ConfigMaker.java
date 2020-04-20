@@ -25,6 +25,10 @@ public class ConfigMaker {
 		_config = YamlConfiguration.loadConfiguration(_file);
 	}
 	
+	public String getFileName()
+	{
+		return _fileName;
+	}
 	public void saveConfig()
 	{
 		try
@@ -72,5 +76,19 @@ public class ConfigMaker {
 			
 		}
 		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T addDefault(String name, T value)
+	{
+		name = name+"("+value.getClass().getSimpleName()+")";
+		if(!isExists() || !_config.contains(name))
+		{
+			_config.set(name,value);
+		}
+		saveConfig();
+
+		return (T)_config.get(name);
+		
 	}
 }
