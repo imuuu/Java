@@ -42,6 +42,7 @@ public class Shop implements Listener
 	String _displayName = "";
 	String _name = "";
 	String _fileNameShopYML="";
+	String _fileNameSelledMaterialCount="";
 	int _size=9*6;
 	
 
@@ -89,18 +90,26 @@ public class Shop implements Listener
 	ArrayList<Pair<Material, Integer> > sellCountValues = new ArrayList<>();
 	
 	
-	public Shop(String shopName) 
+	public Shop(String shopName,boolean realShop) 
 	{
-		_displayName = shopName;
-		_name = ChatColor.stripColor(shopName);
-		_fileNameShopYML = "shop_"+_name+".yml";	
-		_maxClicksInHalfSecond =(int)(_main.clickPerSecond/2);
-		_main.getServer().getPluginManager().registerEvents(this, _main);
-		setupConfig();
-		setLabelIcons();
-		//makeShop();
-		cds.addCooldownInSeconds(cdName, _main.expireTime);
-		runnable();
+		if(realShop)
+		{
+			_displayName = shopName;
+			_name = ChatColor.stripColor(shopName);
+			_fileNameShopYML = "shop_"+_name+".yml";
+			_fileNameSelledMaterialCount=_name+"_SelledMaterialCount.yml";
+			
+			_maxClicksInHalfSecond =(int)(_main.clickPerSecond/2);
+			_main.getServer().getPluginManager().registerEvents(this, _main);
+			setupConfig();
+			setLabelIcons();
+			//makeShop();
+			cds.addCooldownInSeconds(cdName, _main.expireTime);
+			runnable();
+		
+		}
+		
+	
 	}
 	
 	public enum LABELS
@@ -195,11 +204,11 @@ public class Shop implements Listener
 		RefresAllInvs();
 	}
 	
-	Integer getShopStackAmount(ItemStack stack)
+	public Integer getShopStackAmount(ItemStack stack)
 	{
 		return itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 	}
-	void setShopStackAmount(ItemStack stack, int amount)
+	public void setShopStackAmount(ItemStack stack, int amount)
 	{
 		itemM.setPersistenData(stack, pd_count, PersistentDataType.INTEGER,amount);
 	}
@@ -262,7 +271,6 @@ public class Shop implements Listener
 	
 	public void configSelledItemCount(ItemStack stack,int amount)
 	{
-		System.out.println("selled itemCount ad");
 		sellCountValues.add(new Pair<Material,Integer>(stack.getType(), amount));
 	}
 	
@@ -277,11 +285,9 @@ public class Shop implements Listener
 	{
 		if(!isShopsOpened())
 		{
-			System.out.println("SHOPS ALL ARE CLOSED SAVE DATA");
 			if(sellCountValues.size() > 0)
 			{
-				System.out.println("SAVING sell count data");
-				ConfigMaker cm = new ConfigMaker(_main, getFileName()+"_SelledMaterialCount.yml");
+				ConfigMaker cm = new ConfigMaker(_main, _fileNameSelledMaterialCount);
 				FileConfiguration config = cm.getConfig();
 				
 				if(!cm.isExists())
@@ -1187,7 +1193,7 @@ public class Shop implements Listener
 				
 		return values;
 	}
-	Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
+	public Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
 	{
 		Double[] prices = {0.0,0.0,0.0};
 		
@@ -1246,10 +1252,10 @@ public class Shop implements Listener
 			
 		}
 		
-		if(_main.materialPrices.containsKey(stack.getType()))
-		{
-			material_values=_main.materialPrices.get(stack.getType());
-		}
+		//if(_main.materialPrices.containsKey(stack.getType()))
+		//{
+		//	material_values=_main.materialPrices.get(stack.getType());
+		//}
 
 		double material_values2 = material_values[2]/100;
 		

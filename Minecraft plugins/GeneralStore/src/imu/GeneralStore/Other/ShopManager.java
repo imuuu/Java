@@ -39,8 +39,8 @@ public class ShopManager
 				@Override
 				public void run() 
 				{
-					Shop tempShop = addShop("temp");
-					
+					Shop tempShop =new Shop("asddd",false);
+							//_main.shopManager.addShop("temp294736232192_Shop");
 					
 					//ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
 					//FileConfiguration config=cm.getConfig();
@@ -50,7 +50,7 @@ public class ShopManager
 						Double[] test2 = {0.0,0.0,0.0,0.0};
 						ArrayList<Double[]> test = new ArrayList<>();
 						test.add(test2);
-						test = tempShop. materialPrices(stack, test);
+						test = tempShop.materialPrices(stack, test);
 						Double[] values = tempShop.materialPricesDecoder(stack,test);
 						if(values[0] != 0 && values[1] != 0 && values[2] != 0)
 						{
@@ -62,7 +62,7 @@ public class ShopManager
 					//cm.saveConfig();
 					System.out.println("CALS READY");
 					calculationReady = true;
-					removeShop("temp");
+					//removeShop("temp294736232192_Shop");
 				}
 			}.runTaskAsynchronously(_main);
 		}
@@ -73,7 +73,7 @@ public class ShopManager
 	
 	public Shop addShop(String name)
 	{
-		Shop shop = new Shop(name);
+		Shop shop = new Shop(name,true);
 		shops.put(name, shop);
 		
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
@@ -84,6 +84,14 @@ public class ShopManager
 		return shop;
 	}
 	
+	public boolean isExists(String name)
+	{
+		if(getShop(name) != null)
+		{
+			return true;
+		}
+		return false;
+	}
 	public void removeShop(String name)
 	{
 		Shop shop = getShop(name);
@@ -93,18 +101,28 @@ public class ShopManager
 			return;
 		}
 		shops.remove(shop._displayName);
+		
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
 		FileConfiguration config = cm.getConfig();
 		config.set(name, null);
 		cm.saveConfig();
+		
+		String[] fileNames = {shop._fileNameShopYML,shop._fileNameSelledMaterialCount};
+		for(String fName : fileNames)
+		{
+			ConfigMaker cm2 = new ConfigMaker(_main, fName);
+			cm2.removeConfig();
+		}
+		
 	}
 	
 	public Shop getShop(String name)
 	{
 		Shop shop = shops.get(name);
-		name = name.replace(" ", "");
+		
 		if(shop == null)
 		{
+			name = name.replace(" ", "");
 			for(Shop s : shops.values())
 			{
 				if(name.equalsIgnoreCase(s.getName().replace(" ", "")))
@@ -117,6 +135,7 @@ public class ShopManager
 		
 		return shop;
 	}
+
 	
 	public void openShop(Player player, String shopName)
 	{

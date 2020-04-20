@@ -41,6 +41,12 @@ public class ConfigMaker {
 		}
 	}
 	
+	public void removeConfig()
+	{
+		File f= new File(_plugin.getDataFolder() + "/" + _fileName);
+		f.delete();
+	}
+	
 	public FileConfiguration getConfig()
 	{
 		return _config;

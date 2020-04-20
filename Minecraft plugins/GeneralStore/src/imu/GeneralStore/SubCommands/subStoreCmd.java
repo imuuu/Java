@@ -1,47 +1,41 @@
 package imu.GeneralStore.SubCommands;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
+import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreCmd implements CommandInterface
 {
-	Main main = Main.getInstance();
+	Main _main = Main.getInstance();
 	
 	
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
+    {
         Player player = (Player) sender;
- 
-        //if(args.length > 1) return false;
 
-        newInvenotry(player);
-        player.sendMessage("IT is store prk!");
-        
-        
-		//ConfigMaker cm = new ConfigMaker(main,"test.yml");
-		//FileConfiguration config = cm.getConfig();
-		//
-		//for(Entry<String, ArrayList<Material>> entry :  main.sameGat.entrySet())
-		//{
-        //
-		//	for(Material mat : entry.getValue())
-		//	{
-		//		config.set(entry.getKey()+"."+mat.name(), mat);
-		//	}
-		//}
-		//cm.saveConfig();
-		
-		
+        if(args.length == 1)
+        {
+        	newInvenotry(player, "General Store");
+        }else
+        {
+        	 String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
+        	 newInvenotry(player, nameShop);
+        }
+				
         return false;
     }
     
-    public void newInvenotry(Player player)
+    public void newInvenotry(Player player,String shopName)
     {
-    	main.shopManager.openShop(player, "General Store");
+    	_main.shopManager.openShop(player, shopName);
     	
     }
  

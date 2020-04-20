@@ -536,9 +536,9 @@ public class ItemMetods
 	public <T> void printArray(String id, T[] arr)
 	{
 		System.out.println("====================");
-		for(T v : arr)
+		for(int i = 0; i < arr.length ; ++i)
 		{
-			System.out.println(id+" : "+v);
+			System.out.println(i+": "+id+" : "+ arr[i]);
 		}
 		System.out.println("====================");
 	}
@@ -553,5 +553,34 @@ public class ItemMetods
 		}
 		return name;
 	}
+	
+	public String addColor(String str) {
+        String coloredString = str;
+        coloredString = coloredString.replace("{{BLACK}}", ChatColor.BLACK.toString());
+        coloredString = coloredString.replace("{{DARK_BLUE}}", ChatColor.DARK_BLUE.toString());
+        coloredString = coloredString.replace("{{DARK_GREEN}}", ChatColor.DARK_GREEN.toString());
+        coloredString = coloredString.replace("{{GREEN}}", ChatColor.GREEN.toString());
+        coloredString = coloredString.replace("{{DARK_CYAN}}", ChatColor.DARK_AQUA.toString());
+        coloredString = coloredString.replace("{{DARK_RED}}", ChatColor.DARK_RED.toString());
+        coloredString = coloredString.replace("{{PURPLE}}", ChatColor.DARK_PURPLE.toString());
+        coloredString = coloredString.replace("{{GOLD}}", ChatColor.GOLD.toString());
+        coloredString = coloredString.replace("{{GRAY}}", ChatColor.GRAY.toString());
+        coloredString = coloredString.replace("{{DARK_GRAY}}", ChatColor.DARK_GRAY.toString());
+        coloredString = coloredString.replace("{{BLUE}}", ChatColor.BLUE.toString());
+        coloredString = coloredString.replace("{{BRIGHT_GREEN}}", ChatColor.GREEN.toString());
+        coloredString = coloredString.replace("{{CYAN}}", ChatColor.AQUA.toString());
+        coloredString = coloredString.replace("{{RED}}", ChatColor.RED.toString());
+        coloredString = coloredString.replace("{{PINK}}", ChatColor.LIGHT_PURPLE.toString());
+        coloredString = coloredString.replace("{{YELLOW}}", ChatColor.YELLOW.toString());
+        coloredString = coloredString.replace("{{WHITE}}", ChatColor.WHITE.toString());
+        coloredString = coloredString.replace("{{OBFUSCATED}}", ChatColor.MAGIC.toString());
+        coloredString = coloredString.replace("{{BOLD}}", ChatColor.BOLD.toString());
+        coloredString = coloredString.replace("{{STRIKETHROUGH}}", ChatColor.STRIKETHROUGH.toString());
+        coloredString = coloredString.replace("{{UNDERLINE}}", ChatColor.UNDERLINE.toString());
+        coloredString = coloredString.replace("{{ITALIC}}", ChatColor.ITALIC.toString());
+        coloredString = coloredString.replace("{{RESET}}", ChatColor.RESET.toString());
+        coloredString = ChatColor.translateAlternateColorCodes('&', coloredString);
+        return coloredString;
+    }
 	
 }

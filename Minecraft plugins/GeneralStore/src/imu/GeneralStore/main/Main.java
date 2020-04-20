@@ -21,6 +21,10 @@ import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.SubCommands.subStoreCmd;
+import imu.GeneralStore.SubCommands.subStoreCostCmd;
+import imu.GeneralStore.SubCommands.subStoreCreateCmd;
+import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
+import imu.GeneralStore.SubCommands.subStoreSetPriceCmd;
 import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin
@@ -49,6 +53,8 @@ public class Main extends JavaPlugin
 	
     
 	ItemMetods itemM = new ItemMetods();
+	
+	public String materialPriceYML ="material_prices.yml";
 	public void registerCommands() 
     {
     	
@@ -57,6 +63,10 @@ public class Main extends JavaPlugin
         String cmd1="gs";
         handler.registerCmd(cmd1, new GeneralStoreCmd());       
         handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
+        handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
+        handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd());
+        handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd());
+        handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -152,7 +162,7 @@ public class Main extends JavaPlugin
 	
 	void makeMaterialConfig()
 	{
-		ConfigMaker cm = new ConfigMaker(this, "material_prices.yml");
+		ConfigMaker cm = new ConfigMaker(this, materialPriceYML);
 		FileConfiguration config = cm.getConfig();
 		String minPrice=".minPrice";
 		String maxPrice=".maxPrice";
@@ -203,8 +213,7 @@ public class Main extends JavaPlugin
 		else
 		{
 			materialPrices.clear();
-			
-			
+						
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 						
@@ -235,7 +244,6 @@ public class Main extends JavaPlugin
 				
 			}
 			
-			System.out.println("size: "+materialPrices.size());
 			itemM.printHashMap(materialPrices);
 			itemM.printHashMap(materialCatPrices);
 			
