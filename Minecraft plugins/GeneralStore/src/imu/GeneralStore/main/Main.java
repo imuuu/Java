@@ -20,10 +20,12 @@ import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
+import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
+import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
 import imu.GeneralStore.SubCommands.subStoreSetPriceCmd;
 import net.milkbowl.vault.economy.Economy;
 
@@ -43,13 +45,14 @@ public class Main extends JavaPlugin
 	
 	public int clickPerSecond=10;
 	
-	public int expireTime = 10; // 1d
+	public int expireTime = 60; // 1d
 	public double expireProsent = 10; // 1d
 	public int runnableDelay = 1;
 	
 	public Double[] default_prices= {0.1, 1.0, 2.0};
 	
 	public double sellProsent=1.5;
+	public double durabilityCostMultiplier = 0.8;
 	
     
 	ItemMetods itemM = new ItemMetods();
@@ -61,12 +64,15 @@ public class Main extends JavaPlugin
         CommandHandler handler = new CommandHandler();
 
         String cmd1="gs";
-        handler.registerCmd(cmd1, new GeneralStoreCmd());       
+        handler.registerCmd(cmd1, new GeneralStoreCmd());  
+        handler.setPermissionOnLastCmd("gs");
         handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
         handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
         handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd());
         handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd());
         handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
+        handler.registerSubCmd(cmd1, "add", new subStoreAddCmd());
+        handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -144,13 +150,16 @@ public class Main extends JavaPlugin
 
 		try 
 		{
-			default_prices[0] = cm.addDefault("DefaultMinPrice", default_prices[0]);
-			default_prices[1] = cm.addDefault("DefaultMaxPrice", default_prices[1]);
-			default_prices[2] = cm.addDefault("DefaultPriceProsent", default_prices[2]);
-			expireProsent = cm.addDefault("ExpireProsent", expireProsent);
-			expireTime = cm.addDefault("ExpireTime", expireTime);
-			clickPerSecond = cm.addDefault("ClicksPerSecond", clickPerSecond);
-			sellProsent = cm.addDefault("SellProsent", sellProsent);
+			
+			default_prices[0] = cm.addDefault("DefaultMinPrice", default_prices[0],"Minprice: item will not sold lower than this each epoch");
+			default_prices[1] = cm.addDefault("DefaultMaxPrice", default_prices[1],"Maxprice: first item price if shop is not contain that item, buing from shop this is multiplied with sellprosent");
+			default_prices[2] = cm.addDefault("DefaultPriceProsent", default_prices[2],"PriceProsent: how many prosents (from maxprice) it goes down in each item in shop");
+			expireProsent = cm.addDefault("ExpireProsent", expireProsent,"ExpireProsent: How many prosent item amount in shop its go down every time expire ticks");
+			expireTime = cm.addDefault("ExpireTime", expireTime,"ExpireTime: How often shop will remove items its shop");
+			clickPerSecond = cm.addDefault("ClicksPerSecond", clickPerSecond,"ClicksPerSecond: How many clicks is allowed in shop menu. Prevents duplications, good is under 10-12 clicks");
+			sellProsent = cm.addDefault("SellProsent", sellProsent,"SellProsent: How much item will be sold for player. price comes from maxprice * sellprosent");
+			durabilityCostMultiplier = cm.addDefault("DurabilityCostMultiplier", durabilityCostMultiplier,"DurabilityCostMultiplier:(0.0-1.0) How much durability effects item price. If equals 1 it means same price but lowered, If 0 durability isnt effected at all");
+			cm.addComments();
 			
 		} catch (Exception e) 
 		{

@@ -2,6 +2,10 @@ package imu.GeneralStore.Other;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,6 +20,8 @@ public class ConfigMaker {
 	private File _file;
 	private String _fileName;
 	private FileConfiguration _config;
+	
+	public ArrayList<String> lines = new ArrayList<>();
 	
 	public ConfigMaker(Plugin plugin, String fileName)
 	{
@@ -58,6 +64,15 @@ public class ConfigMaker {
 		return b.exists();
 	}
 	
+	public File getFile()
+	{
+		return new File(_plugin.getDataFolder() + "/" + _fileName);
+	}
+	
+	public String getFilePath()
+	{
+		return _plugin.getDataFolder() + "/" + _fileName;
+	}
 	void saveInvTOconfig(Player player)
 	{
 		ConfigMaker cm = new ConfigMaker(_plugin, _fileName);
@@ -84,16 +99,34 @@ public class ConfigMaker {
 		return null;
 	}
 	
+	
+	public void addComments() throws Exception
+	{
+		PrintWriter pw = new PrintWriter(getFilePath());
+		pw.close();
+		Files.write(Paths.get(getFilePath()),lines);
+	}
+	
+	
+	
 	@SuppressWarnings("unchecked")
-	public <T> T addDefault(String name, T value)
+	public <T> T addDefault(String name, T value, String comment) 
 	{
 		name = name+"("+value.getClass().getSimpleName()+")";
 		if(!isExists() || !_config.contains(name))
-		{
+		{		
+			
 			_config.set(name,value);
 		}
 		saveConfig();
-
+		
+		if(comment != null && comment != "" )
+		{
+			lines.add("# "+comment);
+		}		
+		String line = name+": "+ _config.get(name).toString() ;
+		lines.add(line);
+		
 		return (T)_config.get(name);
 		
 	}

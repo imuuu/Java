@@ -42,24 +42,25 @@ public class ShopManager
 					Shop tempShop =new Shop("asddd",false);
 							//_main.shopManager.addShop("temp294736232192_Shop");
 					
-					//ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
-					//FileConfiguration config=cm.getConfig();
+					ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
+					FileConfiguration config=cm.getConfig();
 					for(Material m : Material.values())
 					{
 						ItemStack stack = new ItemStack(m);
 						Double[] test2 = {0.0,0.0,0.0,0.0};
 						ArrayList<Double[]> test = new ArrayList<>();
 						test.add(test2);
-						test = tempShop.materialPrices(stack, test);
+						test = tempShop.materialTreePrices(stack, test);
 						Double[] values = tempShop.materialPricesDecoder(stack,test);
+						
 						if(values[0] != 0 && values[1] != 0 && values[2] != 0)
 						{
 							smart_prices.put(m, values);
-							//config.set(m.toString(), values[0]);					
+							config.set(m.toString(), values[1]);					
 						}
 						
 					}
-					//cm.saveConfig();
+					cm.saveConfig();
 					System.out.println("CALS READY");
 					calculationReady = true;
 					//removeShop("temp294736232192_Shop");
@@ -116,6 +117,13 @@ public class ShopManager
 		
 	}
 	
+	public void addSmartPrice(Material material, Double[] prices)
+	{
+		if(!smart_prices.containsKey(material))
+		{
+			smart_prices.put(material, prices);
+		}
+	}
 	public Shop getShop(String name)
 	{
 		Shop shop = shops.get(name);

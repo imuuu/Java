@@ -8,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreCmd implements CommandInterface

@@ -17,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -527,10 +528,25 @@ public class ItemMetods
 	
 	public <K,V> void printHashMap(HashMap<K, V> map)
 	{
+		System.out.println("========MAP========");
 		for(Entry<K, V> entry : map.entrySet())
 		{
-			System.out.println("Key: "+entry.getKey()+" value: "+entry.getValue());
+			if(entry.getValue().getClass().isArray())
+			{
+				@SuppressWarnings("unchecked")
+				V[] values =(V[]) entry.getValue();
+				System.out.println("==KEY: "+entry.getKey());
+				for(V v : values)
+				{
+					System.out.println("values: "+v);
+				}
+				System.out.println("==KEY: "+entry.getKey());
+			}else
+			{
+				System.out.println("Key: "+entry.getKey()+" value: "+entry.getValue());
+			}			
 		}
+		System.out.println("========MAP========");
 	}
 	
 	public <T> void printArray(String id, T[] arr)
@@ -541,6 +557,31 @@ public class ItemMetods
 			System.out.println(i+": "+id+" : "+ arr[i]);
 		}
 		System.out.println("====================");
+	}
+	
+	public boolean isEveryThingThis(Double[] arr, double value )
+	{
+		
+		for(double v : arr)
+		{
+			if(v != value)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> void setAllThisValue(T[] arr, T value)
+	{
+		
+		for(int i = 0; i < arr.length ; ++i)
+		{
+			arr[i] = value;
+		}
+
 	}
 	
 	public String getMaterialCategory(Material m)
@@ -582,5 +623,75 @@ public class ItemMetods
         coloredString = ChatColor.translateAlternateColorCodes('&', coloredString);
         return coloredString;
     }
+	
+	public boolean giveDamage(ItemStack stack,int dmg, boolean destroyItem)
+	{
+		if(stack != null && stack.getType() != Material.AIR && stack.getType().getMaxDurability() > 0)
+		{
+			if(stack.getItemMeta() instanceof Damageable)
+			{
+				Damageable meta = (Damageable) stack.getItemMeta();
+				int maxDur=stack.getType().getMaxDurability();
+				int givenDamage = meta.getDamage()+ dmg;
+					
+				if(givenDamage >= maxDur)
+				{
+					System.out.println("RESET");
+					meta.setDamage(maxDur);
+					if(destroyItem)
+					{
+						stack.setAmount(0);
+					}
+				}else
+				{
+					System.out.println("DAMAGE SET: "+givenDamage);
+					meta.setDamage(givenDamage);
+				}
+				
+				stack.setItemMeta((ItemMeta)meta);
+				return true;
+			}
+			
+		}
+		return false;
+	}
+	
+	public double getDurabilityProsent(ItemStack stack)
+	{
+		if(stack != null && stack.getType() != Material.AIR && stack.getType().getMaxDurability() > 0)
+		{
+			if(stack.getItemMeta() instanceof Damageable)
+			{
+				Damageable meta = (Damageable) stack.getItemMeta();
+				double maxDur = stack.getType().getMaxDurability();
+				double getDmg = meta.getDamage();
+				double prosent = 1-getDmg/maxDur;
+				
+				if(prosent > 1.0)
+				{
+					prosent = 1.0;
+				}
+				return prosent;
+			}
+			
+		}
+		System.out.println("it hasnt dur");
+		return 1.0;
+	}
+	
+	public void setDamage(ItemStack stack,int dmg)
+	{
+		if(stack != null && stack.getType() != Material.AIR && stack.getType().getMaxDurability() > 0)
+		{
+			if(stack.getItemMeta() instanceof Damageable)
+			{
+				Damageable meta = (Damageable) stack.getItemMeta();
+				meta.setDamage(dmg);								
+				stack.setItemMeta((ItemMeta)meta);
+				
+			}
+			
+		}
+	}
 	
 }

@@ -4,12 +4,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.main.Main;
@@ -39,8 +37,6 @@ public class subStoreCostCmd implements CommandInterface
     				+ChatColor.DARK_PURPLE+" priceProsent: "+ChatColor.GOLD+prices[2]);
     		
     		
-    		//_main.shopManager.addShop("temp29473628192_Shop");
-    		//_main.shopManager.removeShop("temp29473628192_Shop");
     		return false;
     	}else
     	{
