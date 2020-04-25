@@ -9,67 +9,97 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.datafixers.util.Pair;
 
+import imu.GeneralStore.Interfaces.DelaySendable;
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
 
-public class ShopManager 
+public class ShopManager implements DelaySendable
 {
-	Main _main = Main.getInstance();
+	Main _main = null;
 	public HashMap<Material,Double[]> smart_prices = new HashMap<>();
+	public HashMap<Material,Double[]> looked_prices = new HashMap<>();
+	
+	ArrayList<ItemStack> unique_items = new ArrayList<>();
 	
 	HashMap<String,Shop> shops = new HashMap<>();
 	
 	ArrayList<Pair<Date, String> > selledItems = new ArrayList<>();
 	
 	String shopYAML ="shopNames.yml";
+	String uniqueYAML ="UniqueItems.yml";
 	
 	boolean calculationReady = true;
-	public ShopManager()
+	
+	ItemMetods itemM = null;
+	
+	String pd_unique = "gs.unique";
+	
+	public ShopManager(Main main)
 	{
-		
-		if(!calculationReady)
+		_main = main;
+		itemM = _main.getItemM();
+		if(_main.isLoadSmartPricesUpFront())
 		{
-			System.out.println("Loading SMART PRICES");
-			new BukkitRunnable() {
-				
-				@Override
-				public void run() 
+			calculateAllSmart();
+		}		
+		
+		loadUniqueItemsConfig();
+	}
+	
+	
+	
+	@Override
+	public boolean isReady() 
+	{
+		return calculationReady;
+	}
+	
+	public void calculateAllSmart()
+	{
+		calculationReady = false;
+		_main.getServer().getConsoleSender().sendMessage(ChatColor.DARK_PURPLE +" GeneralStore: Start calculating prices");		
+		closeShopsInvs();
+		clearSmartPrices();
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				Shop tempShop =new Shop("asddd",false);
+				for(Material m : Material.values())
 				{
-					Shop tempShop =new Shop("asddd",false);
-							//_main.shopManager.addShop("temp294736232192_Shop");
-					
-					ConfigMaker cm = new ConfigMaker(_main,"smartcal.yml");
-					FileConfiguration config=cm.getConfig();
-					for(Material m : Material.values())
+					//System.out.println("GOING now: "+m.name());
+					ItemStack stack = new ItemStack(m);
+				
+					Double[] values = tempShop.getSmartPrice(stack, false, 0);						
+					if(values[0] != 0 && values[1] != 0 && values[2] != 0)
 					{
-						ItemStack stack = new ItemStack(m);
-						Double[] test2 = {0.0,0.0,0.0,0.0};
-						ArrayList<Double[]> test = new ArrayList<>();
-						test.add(test2);
-						test = tempShop.materialTreePrices(stack, test);
-						Double[] values = tempShop.materialPricesDecoder(stack,test);
-						
-						if(values[0] != 0 && values[1] != 0 && values[2] != 0)
-						{
-							smart_prices.put(m, values);
-							config.set(m.toString(), values[1]);					
-						}
-						
-					}
-					cm.saveConfig();
-					System.out.println("CALS READY");
-					calculationReady = true;
-					//removeShop("temp294736232192_Shop");
+						addSmartPrice(m, values.clone());											
+					}						
 				}
-			}.runTaskAsynchronously(_main);
-		}
+				calculationReady = true;
+				_main.getServer().getConsoleSender().sendMessage(ChatColor.DARK_PURPLE +" GeneralStore: Calculating is done");
+				looked_prices.clear();
+			}
+		}.runTaskAsynchronously(_main);
+	
 		
-		
-		
+	}
+	
+	public void clearSmartPrices()
+	{
+		smart_prices.clear();
+		looked_prices.clear();
+	}
+	
+	public boolean isCalculationReady()
+	{
+		return calculationReady;
 	}
 	
 	public Shop addShop(String name)
@@ -124,6 +154,17 @@ public class ShopManager
 			smart_prices.put(material, prices);
 		}
 	}
+	
+	public void addLookedPrices(Material material, Double[] prices)
+	{
+		
+		if(!looked_prices.containsKey(material))
+		{
+			looked_prices.put(material, prices);
+		}
+	}
+	
+	
 	public Shop getShop(String name)
 	{
 		Shop shop = shops.get(name);
@@ -216,9 +257,6 @@ public class ShopManager
 				return;
 			}
 		}
-		
-	
-		System.out.println("SAVING sell LOG data");
 		ConfigMaker cm = new ConfigMaker(_main, "Sold_Log.yml");
 		FileConfiguration config = cm.getConfig();
 		
@@ -243,4 +281,126 @@ public class ShopManager
 		selledItems.clear();
 		
 	}
+	
+	void setUniquePDdata(ItemStack stack, Double[] price)
+	{
+		itemM.setPersistenData(stack, pd_unique, PersistentDataType.STRING, price[0]+":"+price[1]+":"+price[2]);
+	}
+	
+	Double[] getUniquePriceData(ItemStack stack)
+	{
+		String[] strs = itemM.getPersistenData(stack, pd_unique, PersistentDataType.STRING).split(":");
+		Double[] ds = {Double.parseDouble(strs[0]),Double.parseDouble(strs[1]),Double.parseDouble(strs[2])};
+		return ds;
+	}
+	
+	void removeUniqueTag(ItemStack stack)
+	{
+		itemM.removePersistenData(stack, pd_unique);
+	}
+	
+	public void addUniqueItem(ItemStack stack, Double[] price)
+	{
+		if(itemM.isEveryThingThis(price, 0.0))
+		{
+			unique_items.remove(stack);
+		}else
+		{
+			setUniquePDdata(stack, price);
+			if(isUnique(stack))
+			{
+				ItemStack stack_test = new ItemStack(stack);
+				removeUniqueTag(stack_test);
+				for(int i = 0; i < unique_items.size(); ++i)
+				{
+					ItemStack s_test = new ItemStack(unique_items.get(i));
+					removeUniqueTag(s_test);
+					if(stack_test.isSimilar(s_test))
+					{
+						unique_items.set(i, stack);
+						break;
+					}
+				}
+			}else
+			{
+				unique_items.add(stack);
+			}
+		}		
+		saveUniqueItemsConfig();
+
+	}
+	
+	void saveUniqueItemsConfig()
+	{
+		ConfigMaker cm = new ConfigMaker(_main, uniqueYAML);
+		FileConfiguration config = cm.getConfig();
+		cm.clearConfig();
+		for(int i = 0; i < unique_items.size() ; ++i)
+		{
+			config.set(String.valueOf(i), unique_items.get(i));
+		}		
+		cm.saveConfig();
+	}
+	
+	public void loadUniqueItemsConfig()
+	{
+		ConfigMaker cm = new ConfigMaker(_main, uniqueYAML);
+		FileConfiguration config = cm.getConfig();
+		boolean found = false;
+		unique_items.clear();
+		for (String key : config.getConfigurationSection("").getKeys(false)) 
+		{
+			ItemStack stack =config.getItemStack(key);
+			
+			
+			if(unique_items.stream().anyMatch(s -> stack.isSimilar(s)))
+			{
+				found = true;
+				continue;				
+			}					
+			unique_items.add(config.getItemStack(key));
+		}
+		
+		if(found)
+		{
+			saveShopsContent();
+		}
+
+	}
+	
+	public boolean isUnique(ItemStack stack)
+	{
+		ItemStack stack_test = new ItemStack(stack);
+		removeUniqueTag(stack_test);
+		for(ItemStack s : unique_items)
+		{
+			ItemStack s_test = new ItemStack(s);
+			removeUniqueTag(s_test);
+			if(stack_test.isSimilar(s_test))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Double[] getUniqueItemPrice(ItemStack stack)
+	{
+		ItemStack stack_test = new ItemStack(stack);
+		removeUniqueTag(stack_test);
+		
+		for(ItemStack s : unique_items)
+		{
+			ItemStack s_test = new ItemStack(s);
+			removeUniqueTag(s_test);
+			if(stack_test.isSimilar(s_test))
+			{
+				return getUniquePriceData(s);
+			}
+		}		
+		return null;
+		
+	}
+
+
 }

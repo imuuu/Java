@@ -51,6 +51,7 @@ public class Shop implements Listener
 	HashMap<Player,Inventory> player_invs = new HashMap<>();
 	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
 	HashMap<Player,Integer> player_currentShopPage = new HashMap<>();
+	HashMap<Player,Integer> player_currentPlayerPage = new HashMap<>();
 	
 	HashMap<Player,Integer> player_clicks = new HashMap<>();
 	HashMap<Player,Integer> player_clicks_warnings = new HashMap<>();
@@ -79,7 +80,8 @@ public class Shop implements Listener
 	String pd_switcher= "gs.Switch";
 	String pd_text = "gs.text";
 	String pd_count = "gs.count";
-	String pd_shopSwitchButton= "gs.switchShopButton";
+	String pd_shopSwitchButton= "gs.shopsSwitchButton";
+	String pd_playerSwitchButton= "gs.playerSwitchButton";
 	String pd_pone= "gs.priceOne";
 	String pd_pstack= "gs.priceStack";
 	String pd_pall= "gs.priceAll";
@@ -103,16 +105,16 @@ public class Shop implements Listener
 			_fileNameShopYML = "shop_"+_name+".yml";
 			_fileNameSelledMaterialCount=_name+"_SelledMaterialCount.yml";
 			
-			_maxClicksInHalfSecond =(int)(_main.clickPerSecond/2);
+			_maxClicksInHalfSecond =(int)(_main.getClickPerSecond()/2);
 			_main.getServer().getPluginManager().registerEvents(this, _main);
 			setupConfig();
 			setLabelIcons();
 			//makeShop();
-			cds.addCooldownInSeconds(cdName, _main.expireTime);
+			cds.addCooldownInSeconds(cdName, _main.getExpireTime());
 			runnable();
 		
 		}
-		shopManager = _main.shopManager;
+		shopManager = _main.getShopManager();
 		
 	
 	}
@@ -170,7 +172,7 @@ public class Shop implements Listener
 	}
 	void runnable()
 	{
-		int refTime = _main.runnableDelay;
+		int refTime = _main.getRunnableDelay();
 		new BukkitRunnable() 
 		{
 			
@@ -182,7 +184,7 @@ public class Shop implements Listener
 				if(cds.isCooldownReady(cdName))
 				{
 					checkExpireTime();				
-					cds.addCooldownInSeconds(cdName, _main.expireTime);
+					cds.addCooldownInSeconds(cdName, _main.getExpireTime());
 				}
 				
 			}
@@ -195,7 +197,7 @@ public class Shop implements Listener
 		{
 			return;
 		}
-		double removeP=_main.expireProsent/100;
+		double removeP=_main.getExpireProsent()/100;
 		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
 		{			
 			ItemStack stack = shop_stuff_stacks.get(i);
@@ -311,7 +313,7 @@ public class Shop implements Listener
 	{
 		Date date = new Date(System.currentTimeMillis());
 		String str = _name+":"+player.getName() +":"+stack.getType().name()+":"+amount;
-		_main.shopManager.logAddSold(new Pair<Date, String>(date,str));
+		_main.getShopManager().logAddSold(new Pair<Date, String>(date,str));
 	}
 	
 	boolean checkIfAbleToSaveData()
@@ -332,8 +334,7 @@ public class Shop implements Listener
 				{
 					String mName = values.getFirst().name();
 					int am = values.getSecond();
-										
-					System.out.println("Name: "+mName + "amount: "+am);
+
 					if(!config.contains(mName))
 					{
 						config.set(mName, 1);
@@ -358,7 +359,7 @@ public class Shop implements Listener
 		Inventory inv = _main.getServer().createInventory(null, _size, _displayName);
 				
 		ItemStack panel = itemM.setDisplayName(
-				new ItemStack(Material.RED_STAINED_GLASS_PANE), ChatColor.GOLD+"LINE");		
+				new ItemStack(Material.RED_STAINED_GLASS_PANE)," ");		
 				
 		for(int i = 28; i < _firstPlayerSlot-1; ++i)
 		{
@@ -423,19 +424,31 @@ public class Shop implements Listener
 		int pages =(int) Math.round((shop_stuff_stacks.size()/(_firstMiddleSlot))+0.5);
 		return pages-1;
 	}
+	
+	
 	void setMiddleLINE(Inventory inv, int label)
 	{
-		ItemStack button1 = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
-		ItemStack button2 = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+		ItemStack left_shop_button = new ItemStack(Material.DARK_OAK_SIGN);
+		ItemStack right_shop_button = new ItemStack(Material.DARK_OAK_SIGN);
 		
-		itemM.setPersistenData(button1, pd_shopSwitchButton, PersistentDataType.INTEGER, (int)-1);
-		itemM.setPersistenData(button2, pd_shopSwitchButton, PersistentDataType.INTEGER, (int) 1);
+		ItemStack left_player_button = new ItemStack(Material.BIRCH_SIGN);
+		ItemStack right_player_button = new ItemStack(Material.BIRCH_SIGN);
+		
+		
+		itemM.setPersistenData(left_shop_button, pd_shopSwitchButton, PersistentDataType.INTEGER, (int)-1);
+		itemM.setPersistenData(right_shop_button, pd_shopSwitchButton, PersistentDataType.INTEGER, (int) 1);
+		itemM.setPersistenData(left_player_button, pd_playerSwitchButton, PersistentDataType.INTEGER, (int) -1);
+		itemM.setPersistenData(right_player_button, pd_playerSwitchButton, PersistentDataType.INTEGER, (int) 1);
+		
 		
 		ItemStack label_icon = label_icons.get(label);
 		
 		inv.setItem((_firstMiddleSlot+35)/2, itemM.setDisplayName(label_icon,itemM.getPersistenData(label_icon, pd_text, PersistentDataType.STRING) ));
-		inv.setItem(_firstMiddleSlot, itemM.setDisplayName(button1, ChatColor.AQUA + "GO LEFT"));
-		inv.setItem(35, itemM.setDisplayName(button2, ChatColor.AQUA + "GO RIGHT"));
+		inv.setItem((_firstMiddleSlot+35)/2-1, itemM.setDisplayName(left_player_button, ChatColor.DARK_GREEN + "<< inv"));
+		inv.setItem((_firstMiddleSlot+35)/2+1, itemM.setDisplayName(right_player_button,ChatColor.DARK_GREEN + "inv >> "));
+		
+		inv.setItem(_firstMiddleSlot, itemM.setDisplayName(left_shop_button, ChatColor.AQUA + "<< Shop"));
+		inv.setItem(_firstPlayerSlot-1, itemM.setDisplayName(right_shop_button, ChatColor.AQUA + "Shop >>"));
 	}
 	
 	public void openShopInv(Player player)
@@ -449,22 +462,28 @@ public class Shop implements Listener
 		player_currentLabel.remove(player);
 		player_invs.remove(player);
 		player_clicks.remove(player);
+		
+		player_refs.remove(player);
+		player_stuff.remove(player);
+		player_currentPlayerPage.remove(player);
+		player_currentShopPage.remove(player);
+		player_currentLabel.remove(player);
+		
 		//player_runnables.remove(player);		
 	}
 	
 	@EventHandler
 	public void invOpen(InventoryOpenEvent e)
 	{
-		System.out.println("Inv OPEN"+ e.getInventory());
 		if(e.getPlayer() instanceof Player)
 		{		
 			Player player = (Player) e.getPlayer();
 			InventoryView view = e.getView();
 			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
-				System.out.println("Inv opened: " + _displayName);
 				player_currentLabel.put(player, LABELS.STUFF.getType());
 				player_currentShopPage.put(player, 0);
+				player_currentPlayerPage.put(player, 0);
 				setStuffPlayerSlots(player, LABELS.STUFF.getType());			
 			}			
 		}		
@@ -481,7 +500,7 @@ public class Shop implements Listener
 			{
 				closeShopInv(player);
 				checkIfAbleToSaveData();
-				_main.shopManager.checkIfAbleToSaveData();
+				_main.getShopManager().checkIfAbleToSaveData();
 			}			
 		}		
 	}
@@ -640,7 +659,32 @@ public class Shop implements Listener
 								setStuffPlayerSlots(player, player_currentLabel.get(player));
 							}
 						}
-					}					
+					}
+					data = itemM.getPersistenData(stack, pd_playerSwitchButton, PersistentDataType.INTEGER);
+					if(data != null && data != 0)
+					{
+						int cur_player_page = player_currentPlayerPage.get(player);
+						if(data == -1)
+						{
+							if(cur_player_page > 0)
+							{
+								int page_next = cur_player_page-1;
+								if(page_next < 0)
+								{
+									page_next = 0;
+								}
+								player_currentPlayerPage.put(player,page_next);
+								setStuffPlayerSlots(player, player_currentLabel.get(player));
+							}
+						}
+						
+						if(data == 1)
+						{
+							int page_next = cur_player_page + 1;							
+							player_currentPlayerPage.put(player, page_next);
+							setStuffPlayerSlots(player, player_currentLabel.get(player));
+						}
+					}
 				}
 			}
 		}
@@ -870,13 +914,16 @@ public class Shop implements Listener
 		
 		analysePlayerInv(player);
 		setStuffShopSlots(player);
-				
-		int count = _firstPlayerSlot;
+		
 		HashMap<ItemStack, Integer> same_stacks = player_stuff.get(player);
 		List<ItemStack> stacks = new ArrayList<>();
 		for(Map.Entry<ItemStack, Integer> entry : same_stacks.entrySet())
 		{
-			stacks.add(entry.getKey());
+			if(itemM.getPersistenData(entry.getKey(), pd_isArmor, PersistentDataType.INTEGER) == ATW)
+			{							
+				stacks.add(entry.getKey());
+			}
+			
 		}
 		
 		Collections.sort(stacks, new Comparator<ItemStack>() 
@@ -889,20 +936,32 @@ public class Shop implements Listener
 			}
 			
 		});
-		Inventory inv = player_invs.get(player);
-		for(ItemStack stack : stacks)
+
+		int cur_playerPage = player_currentPlayerPage.get(player);
+		int pageCount = (int) Math.round(((stacks.size()-1)/(_size-_firstPlayerSlot))+0.5)-1;
+
+		if(cur_playerPage > pageCount)
 		{
-			if(itemM.getPersistenData(stack, pd_isArmor, PersistentDataType.INTEGER) == ATW)
-			{							
-				setToolTip(stack,true);				
-				inv.setItem(count,stack);				
-				count++;
-			}
+			cur_playerPage = pageCount;
+			player_currentPlayerPage.put(player, pageCount);
+		}
+		
+		int start = 0 + cur_playerPage * (_size - _firstPlayerSlot) ;
+		int count = _firstPlayerSlot;
+		Inventory inv = player_invs.get(player);
+		for(int i = start; i < stacks.size(); ++i)
+		{
+			ItemStack stack = stacks.get(i);
 			
-			if(count >_size)
+			setToolTip(stack,true);				
+			inv.setItem(count,stack);				
+			count++;
+			
+			if(count >_size-1)
 				break;			
 		}
 		
+	
 		ItemStack empty = new ItemStack(Material.AIR);
 		for(int i = count; i < _size ; ++i)
 		{			
@@ -1001,28 +1060,27 @@ public class Shop implements Listener
 		{
 			if(!_main.materialCatPrices.containsKey(itemM.getMaterialCategory(material)))
 			{
-				if(smartPriceEnabled)
+				if(smartPriceEnabled && _main.isEnableSmartPrices())
 				{
-					if(!_main.shopManager.smart_prices.containsKey(material))
+					if(!_main.getShopManager().smart_prices.containsKey(material))
 					{
 						if(defaultPrice)	
 						{
 							System.out.println("Default price2 ");
-							prices = _main.default_prices;
+							prices = _main.getDefault_prices().clone();
 						}
 					}
 					else 
 					{
 						//System.out.println("smart price found");
-						prices = _main.shopManager.smart_prices.get(material);
+						prices = _main.getShopManager().smart_prices.get(material);
 					}
 				}
 				else			
 				{					
 					if(defaultPrice)	
 					{
-						System.out.println("Default price1 ");
-						prices = _main.default_prices;
+						prices = _main.getDefault_prices().clone();
 					}					
 				}				
 			}
@@ -1041,31 +1099,34 @@ public class Shop implements Listener
 	}
 	public Double[] getSmartPrice(ItemStack stack, boolean checkShapless, int iterations)
 	{
-		if(iterations > 20)
+		int maxItes  = 10;
+		if(iterations > maxItes)
 		{
-			System.out.println("LOCK SYSTEM");
 			Double[] lock = { 0.0, 0.0, 0.0};
+			shopManager.addLookedPrices(stack.getType(), lock.clone());
 			return lock;
 		}
 		Double[] last_prices = getPrices(stack.getType(), false, true).clone();
-		if(!itemM.isEveryThingThis(last_prices, 0.0))
+		if(!itemM.isEveryThingThis(last_prices, 0.0)  && !shopManager.looked_prices.containsKey(stack.getType()))
 		{
-			
-			itemM.printArray("PRICE FOUND: "+stack.getType().name(), last_prices);
 			return last_prices;
 			
 		}else
 		{
-			System.out.println("price NOT FOUND START SEARCH");
 			if(checkShapless)
 			{
-				System.out.println("START SEARCH FOR SHAPLESS");
 				last_prices = getSmartPrice_part2(stack,++iterations).clone();
+				if(iterations > maxItes)
+				{
+					Double[] lock = { 0.0, 0.0, 0.0};
+					shopManager.addLookedPrices(stack.getType(), lock.clone());
+					return lock;
+				}
+				
 				if(!itemM.isEveryThingThis(last_prices, 0.0))
 				{
 					return last_prices;
-				}
-				
+				}				
 			}
 		}
 		
@@ -1077,15 +1138,10 @@ public class Shop implements Listener
         
         if(hash.isEmpty() && !checkShapless)
         {
-        	System.out.println("HASH IS EMPTY GO CHECK SHAPLESS");
         	return getSmartPrice(stack, true,++iterations).clone();
         }
-        itemM.printHashMap(hash);
         Collections.sort(all_i_keys);
-        
-        System.out.println("===calculate price===");
-        //HashMap<Material, Double[]> offline_prices= new HashMap<>();
-        
+
         for(int i = all_i_keys.size()-1; i > -1; --i)
         {
         	int key = all_i_keys.get(i);
@@ -1094,45 +1150,30 @@ public class Shop implements Listener
         	
         	int recipeAmount = Integer.parseInt(str_list[0]);
         	Material main_material = Material.getMaterial(str_list[1]);
-        	
-        	
-    	
-    		
-    		System.out.println("GOING now: "+main_material);
-    		
+
     		Double[] main_material_price = getPrices(main_material, false, true).clone();
-    		itemM.printArray("MAIN MATERIAL PRICE: ", main_material_price);
-    		if(itemM.isEveryThingThis(main_material_price, 0.0))
+
+    		if(itemM.isEveryThingThis(main_material_price, 0.0) && !shopManager.looked_prices.containsKey(main_material))
     		{
-    			System.out.println("not found from get price main material");
     			if(!shopManager.smart_prices.containsKey(main_material))
         		{
         			for(Entry<Material, Integer> entry : hash.get(key2).entrySet())
             		{
-            			
-            			//BIRCH PLANK = 2
-            			
             			Material sub_material = entry.getKey();
             			int sub_count = entry.getValue();
-            			System.out.println("calc sub material: "+ sub_material);
-            			System.out.println("Do it found in offline" + shopManager.smart_prices.containsKey(sub_material));
-            			System.out.println("count: "+ sub_count);
             			Double[] sub_price = {0.0,0.0,0.0};
             			
         				Double[] get_price = getPrices(sub_material, false, true);
-            			itemM.printArray("subPrice ", get_price);
-            			if(itemM.isEveryThingThis(get_price, 0.0))
+
+            			if(itemM.isEveryThingThis(get_price, 0.0) && !shopManager.looked_prices.containsKey(sub_material))
             			{
-            				System.out.println("TRY to find solution");
             				get_price = getSmartPrice_part2(new ItemStack(sub_material),++iterations).clone();
             			}
             			
             			sub_price[0] = get_price[0] * sub_count;
             			sub_price[1] = get_price[1] * sub_count;
             			sub_price[2] = get_price[2];
-            			
-            			
-            			
+            			                   			
             			main_material_price[0] = main_material_price[0] + sub_price[0];
             			main_material_price[1] = main_material_price[1] + sub_price[1];
             			
@@ -1144,27 +1185,21 @@ public class Shop implements Listener
             		}
         		}else
         		{
-        			System.out.println("OFFLINE PRICE");
-        			main_material_price = shopManager.smart_prices.get(main_material).clone();
-        			
+        			main_material_price = shopManager.smart_prices.get(main_material).clone();       			
         		}
-    		}else
-    		{
-    			System.out.println("found price from get price ");
     		}
-    		
     		
     		main_material_price[0] = main_material_price[0] / recipeAmount;
     		main_material_price[1] = main_material_price[1] / recipeAmount;
         	
-        	//wSystem.out.println(all_i.get(key));
-    		itemM.printArray("Total price==================== "+main_material, main_material_price);
-    		
     		if(!itemM.isEveryThingThis(main_material_price.clone(), 0.0))
     		{
     			shopManager.addSmartPrice(main_material, main_material_price.clone());
-    		}   
-    		last_prices =main_material_price.clone();
+    		}else
+    		{
+    			shopManager.addLookedPrices(main_material, main_material_price.clone());
+    		}
+    		last_prices = main_material_price.clone();
     		itemM.setAllThisValue(main_material_price, 0.0);
         }    
         return last_prices;
@@ -1204,17 +1239,25 @@ public class Shop implements Listener
 	
 	Double[] getSmartPrice_part2(ItemStack stack,int iterations)
 	{
+		if(shopManager.looked_prices.containsKey(stack.getType()))
+		{
+			return shopManager.looked_prices.get(stack.getType()).clone();
+		}
+		if(iterations > 10)
+		{
+			Double[] lock = { 0.0, 0.0, 0.0};
+			shopManager.addLookedPrices(stack.getType(), lock.clone());
+			return lock;
+		}
+		
 		Double[] last_price =  {0.0,0.0,0.0};
 		ArrayList<Integer> all_i_keys = new ArrayList<>();
         HashMap<String, HashMap<Material, Integer>> hash = new HashMap<>();
         HashMap<Integer, String> all_i = new HashMap<>();
 
-        hash = getRecipeShaplessTree(stack, hash, 0, all_i_keys, all_i);
-        itemM.printHashMap(hash);
-        //System.out.println("HASH IS EMPTY ?: " + hash.isEmpty());
+        hash = getRecipeShaplessTree(stack, hash, 0, all_i_keys, all_i,iterations);
         Collections.sort(all_i_keys);
         
-        //HashMap<Material, Double[]> offline_prices= new HashMap<>();
         for(int i = all_i_keys.size()-1; i > -1; --i)
         {
         	int key = all_i_keys.get(i);
@@ -1226,41 +1269,57 @@ public class Shop implements Listener
         	
     		Double[] main_material_price = new Double[3];
     		itemM.setAllThisValue(main_material_price, 0.0);
-			for(Entry<Material, Integer> entry : hash.get(key2).entrySet())
+    		if(!shopManager.looked_prices.containsKey(main_material))
     		{
-    			Material sub_material = entry.getKey();
-    			int sub_count = entry.getValue();
-    			Double[] sub_price = getSmartPrice(new ItemStack(sub_material),false,iterations).clone();
-    			
-    			sub_price[0] = sub_price[0]*sub_count;
-    			sub_price[1] = sub_price[1]*sub_count;
-    			
-    			main_material_price[0] = main_material_price[0] + sub_price[0];
-    			main_material_price[1] = main_material_price[1] + sub_price[1];
-    			
-    			if(main_material_price[2] < sub_price[2])
-    			{
-    				main_material_price[2] = sub_price[2];
-    			}
+    			for(Entry<Material, Integer> entry : hash.get(key2).entrySet())
+        		{
+        			Material sub_material = entry.getKey();
+        			int sub_count = entry.getValue();
+        			Double[] sub_price = shopManager.looked_prices.containsKey(sub_material) 
+        					? shopManager.looked_prices.get(sub_material)
+        					: getSmartPrice(new ItemStack(sub_material),false,++iterations).clone();
+        			if(itemM.isEveryThingThis(sub_price, 0.0))
+        			{
+        				shopManager.addLookedPrices(sub_material, sub_price);
+        			}
+        			
+        			sub_price[0] = sub_price[0]*sub_count;
+        			sub_price[1] = sub_price[1]*sub_count;
+        			
+        			main_material_price[0] = main_material_price[0] + sub_price[0];
+        			main_material_price[1] = main_material_price[1] + sub_price[1];
+        			
+        			if(main_material_price[2] < sub_price[2])
+        			{
+        				main_material_price[2] = sub_price[2];
+        			}
+        		}
     		}
+			
 			main_material_price[0] = main_material_price[0] / recipeAmount;
     		main_material_price[1] = main_material_price[1] / recipeAmount;
         	
     		if(!itemM.isEveryThingThis(main_material_price.clone(), 0.0))
     		{
     			shopManager.addSmartPrice(main_material, main_material_price.clone());
-    		}   
+    		}else
+    		{
+    			shopManager.addLookedPrices(main_material, main_material_price.clone());
+    		}
     		last_price = main_material_price.clone();
     		itemM.setAllThisValue(main_material_price, 0.0);
         }
         return last_price;
 	}
 	
-	public HashMap<String, HashMap<Material, Integer>> getRecipeShaplessTree(ItemStack stack, HashMap<String, HashMap<Material, Integer>> hash, int i, ArrayList<Integer> all_i_keys, HashMap<Integer, String> all_i)
+	public HashMap<String, HashMap<Material, Integer>> getRecipeShaplessTree(ItemStack stack, HashMap<String, HashMap<Material, Integer>> hash, int i, ArrayList<Integer> all_i_keys, HashMap<Integer, String> all_i, int iterations)
 	{
+		if(i > 15 || iterations > 15)
+		{
+			return hash;
+		}
 		for(Recipe r : _main.getServer().getRecipesFor(stack))
 		{
-			System.out.println("r: "+r);
 			if(r instanceof ShapelessRecipe)
 			{
 				ShapelessRecipe sr = (ShapelessRecipe)r;
@@ -1269,24 +1328,18 @@ public class Shop implements Listener
 				if(!hash.containsKey(str))
 				{
 					all_i_keys.add(i);
-				}
-					
+				}					
 				all_i.put(i,str);
-				//i = i+1;
 				for(ItemStack s : sr.getIngredientList())
 				{					
 					if(s != null && s.getType() != Material.AIR)
 					{
-						//System.out.println("s: "+s);
-						int count = mats.containsKey(s.getType()) ? mats.get(s.getType()) : 0;
-						
+						int count = mats.containsKey(s.getType()) ? mats.get(s.getType()) : 0;						
 						mats.put(s.getType(), ++count);
-						getRecipeShaplessTree(s, hash, ++i, all_i_keys,all_i);
-						
-					}					
+						getRecipeShaplessTree(s, hash, ++i, all_i_keys,all_i, ++iterations);						
+					}
+					
 				}
-				
-				//System.out.println("str: "+str);
 				hash.put(str, mats);
 				break;
 			}
@@ -1512,6 +1565,18 @@ public class Shop implements Listener
 				
 		return values;
 	}
+	
+	public void oldtesting()
+	{
+		Double[] test2 = {0.0,0.0,0.0,0.0};
+		ArrayList<Double[]> test = new ArrayList<>();
+		test.add(test2);
+		
+		ItemStack copy = new ItemStack(Material.AIR);
+		itemM.setDamage(copy, 0);
+		test = materialTreePrices(copy, test);
+		//Double[] ds = materialPricesDecoder(copy,test);
+	}
 	public Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
 	{
 		Double[] prices = {0.0,0.0,0.0};
@@ -1524,24 +1589,7 @@ public class Shop implements Listener
 		{
 			amount_inShop = 0;
 		}
-
-		Double[] test2 = {0.0,0.0,0.0,0.0};
-		ArrayList<Double[]> test = new ArrayList<>();
-		test.add(test2);
 		
-		ItemStack copy = new ItemStack(stack);
-		itemM.setDamage(copy, 0);
-		test = materialTreePrices(copy, test);
-		Double[] ds = materialPricesDecoder(copy,test);
-		
-		if(!_main.shopManager.smart_prices.containsKey(copy.getType()))
-		{
-			_main.shopManager.smart_prices.put(copy.getType(),ds);
-		}
-		
-		//itemM.printHashMap(_main.shopManager.smart_prices);
-		
-	
 		double enchantcost = 0;
 		if(stack.hasItemMeta())
 		{
@@ -1559,23 +1607,26 @@ public class Shop implements Listener
 		}
 				
 		int total_amount = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
-		
-		//Double[] material_values=_main.default_prices; //min,max,pros
-		Double[] material_values = getPrices(stack.getType(), true, true);//min,max,pros
-		if(material_values[0] == 0 && material_values[1] == 0 && material_values[2] == 0)
+		Double[] material_values = {0.0,0.0,0.0};
+		ItemStack uniqueTest = new ItemStack(stack);
+		removeAddedShopPDdata(uniqueTest);
+		Double[] uniquePrice = _main.getShopManager().getUniqueItemPrice(uniqueTest);
+		if(uniquePrice == null)
 		{
-			System.out.println("price not found");
-			//TODO enable this after smart cal
-			//material_values = _main.shopManager.smart_prices.containsKey(stack.getType()) ? _main.shopManager.smart_prices.get(stack.getType()) : getPrices(stack.getType(), true);
-			material_values = ds;
-			
+			if(_main.isEnableSmartPrices() && !_main.isLoadSmartPricesUpFront())
+			{
+				material_values = getSmartPrice(stack, false, 0).clone();
+			}else
+			{
+				material_values = getPrices(stack.getType(), true, true).clone();//min,max,pros
+			}
+		}else
+		{
+			System.out.println("UNIQUE PRICE");
+			material_values = uniquePrice;
+			enchantcost = 0;
 		}
-		
-		//if(_main.materialPrices.containsKey(stack.getType()))
-		//{
-		//	material_values=_main.materialPrices.get(stack.getType());
-		//}
-
+	
 		double material_values2 = material_values[2]/100;
 		
 		double materialCost_all = 0 + enchantcost;
@@ -1621,7 +1672,7 @@ public class Shop implements Listener
 		double durProsent = itemM.getDurabilityProsent(stack);
 		if(durProsent != 1)
 		{
-			durProsent = durProsent * _main.durabilityCostMultiplier;
+			durProsent = durProsent * _main.getDurabilityCostMultiplier();
 			if(durProsent <= 0)
 			{
 				durProsent = 1;
@@ -1638,7 +1689,7 @@ public class Shop implements Listener
 		{
 			for(int i = 0; i < prices.length; ++i)
 			{						
-				prices[i]=(double)Math.round(prices[i] *_main.sellProsent*100)/100;
+				prices[i]=(double)Math.round(prices[i] *_main.getSellProsent()*100)/100;
 			}
 		}
 		

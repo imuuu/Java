@@ -25,7 +25,7 @@ public class subStoreCreateCmd implements CommandInterface
  
         System.out.println("args size: "+args.length);
         itemM.printArray("Args2", args);
-        ShopManager shopManager = _main.shopManager;
+        ShopManager shopManager = _main.getShopManager();
         
         
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");

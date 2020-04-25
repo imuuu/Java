@@ -28,7 +28,7 @@ public class subStoreRemoveINFCmd implements CommandInterface
 
     	
     	
-    	ShopManager shopManager = _main.shopManager;
+    	ShopManager shopManager = _main.getShopManager();
         
         
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");

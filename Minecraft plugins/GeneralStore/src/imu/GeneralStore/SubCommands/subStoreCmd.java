@@ -34,7 +34,7 @@ public class subStoreCmd implements CommandInterface
     
     public void newInvenotry(Player player,String shopName)
     {
-    	_main.shopManager.openShop(player, shopName);
+    	_main.getShopManager().openShop(player, shopName);
     	
     }
  

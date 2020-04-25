@@ -23,7 +23,7 @@ public class subStoreRemoveCmd implements CommandInterface
     {
         Player player = (Player) sender;
       
-        ShopManager shopManager = _main.shopManager;
+        ShopManager shopManager = _main.getShopManager();
         
         
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");

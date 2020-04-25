@@ -9,8 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,43 +22,47 @@ import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
+import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
 import imu.GeneralStore.SubCommands.subStoreSetPriceCmd;
+import imu.GeneralStore.SubCommands.subStoreSetUniquePriceCmd;
 import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin
 {
 
-	public HashMap<Player, ItemStack[]> playerInvContent = new HashMap<>();
 	public HashMap<Material, Double[]> materialPrices = new HashMap<>(); //min, max, sell prosent each item
 	public HashMap<Enchantment, Double[]> enchPrices = new HashMap<>(); // {minlvl,maxlvl,minPrice,maxPrice
 	static Main instance;
 	static Economy econ = null;
 	
-	public ShopManager shopManager;
+	ShopManager shopManager;
 	
 	public HashMap<String, ArrayList<Material>> materialCategorys=new HashMap<>();
 	public HashMap<String, Double[]> materialCatPrices=new HashMap<>();
 	
-	public int clickPerSecond=10;
+	int clickPerSecond=10;
 	
-	public int expireTime = 60; // 1d
-	public double expireProsent = 10; // 1d
-	public int runnableDelay = 1;
+	int expireTime = 60; 
+	double expireProsent = 10; 
+	int runnableDelay = 1;
 	
-	public Double[] default_prices= {0.1, 1.0, 2.0};
+	Double[] default_prices= {0.1, 1.0, 2.0};
 	
-	public double sellProsent=1.5;
-	public double durabilityCostMultiplier = 0.8;
+	double sellProsent = 1.5;
+	double durabilityCostMultiplier = 0.8;
 	
-    
-	ItemMetods itemM = new ItemMetods();
+    boolean enableSmartPrices = false; //TODO add config 
+    boolean loadSmartPricesUpFront=false; //TODO add config 
+	ItemMetods itemM = null;
 	
-	public String materialPriceYML ="material_prices.yml";
+	
+
+
+	String materialPriceYML ="material_prices.yml";
 	public void registerCommands() 
-    {
-    	
+    {  	
         CommandHandler handler = new CommandHandler();
 
         String cmd1="gs";
@@ -69,10 +71,12 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
         handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
         handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd());
-        handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd());
+        handler.registerSubCmd(cmd1, "price", new subStoreSetPriceCmd());
         handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
         handler.registerSubCmd(cmd1, "add", new subStoreAddCmd());
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
+        handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
+        handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -83,17 +87,16 @@ public class Main extends JavaPlugin
 	public void onEnable() 
 	{		
 		instance = this;
+		itemM = new ItemMetods();
 		setupEconomy();
-		
-		//shopManager.addShop(ChatColor.DARK_RED + "General Store");
-		
+	
 		ConfigsSetup();
 		
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
 		
-		shopManager  = new ShopManager();
+		shopManager  = new ShopManager(this);
 		shopManager.makeShopsConfig();
 	}
 	
@@ -120,7 +123,56 @@ public class Main extends JavaPlugin
 		makeEnchantExponentConfig();
 	}
 	
+	public ShopManager getShopManager()
+	{
+		return shopManager;
+	}
 	
+	public int getClickPerSecond() {
+		return clickPerSecond;
+	}
+
+	public int getExpireTime() {
+		return expireTime;
+	}
+
+	public double getExpireProsent() {
+		return expireProsent;
+	}
+
+	public int getRunnableDelay() {
+		return runnableDelay;
+	}
+
+	public Double[] getDefault_prices() {
+		return default_prices;
+	}
+
+
+	public double getSellProsent() {
+		return sellProsent;
+	}
+
+	public double getDurabilityCostMultiplier() {
+		return durabilityCostMultiplier;
+	}
+
+	public boolean isEnableSmartPrices() {
+		return enableSmartPrices;
+	}
+
+	public boolean isLoadSmartPricesUpFront() {
+		return loadSmartPricesUpFront;
+	}
+
+	public String getMaterialPriceYML() {
+		return materialPriceYML;
+	}
+	
+	public ItemMetods getItemM() {
+		return itemM;
+	}
+
 
 	boolean setupEconomy() 
 	{
@@ -150,7 +202,6 @@ public class Main extends JavaPlugin
 
 		try 
 		{
-			
 			default_prices[0] = cm.addDefault("DefaultMinPrice", default_prices[0],"Minprice: item will not sold lower than this each epoch");
 			default_prices[1] = cm.addDefault("DefaultMaxPrice", default_prices[1],"Maxprice: first item price if shop is not contain that item, buing from shop this is multiplied with sellprosent");
 			default_prices[2] = cm.addDefault("DefaultPriceProsent", default_prices[2],"PriceProsent: how many prosents (from maxprice) it goes down in each item in shop");
@@ -182,12 +233,7 @@ public class Main extends JavaPlugin
 					+ "maxPrice = price where calculation starts  => maxPrice * (1.0-proEachSell)^epoch\n"
 					+ "proEachSell = how much price go down from max price each selled item");
 		
-			//for(Material m : Material.values())
-			//{
-			//	config.set(m.name()+minPrice, 0);
-			//	config.set(m.name()+maxPrice, 0);
-			//	config.set(m.name()+prosent, 0);
-			//}
+
 			HashMap<String, ArrayList<Material>> gats=new HashMap<>();
 			for(Material m : Material.values())
 			{
@@ -222,7 +268,8 @@ public class Main extends JavaPlugin
 		else
 		{
 			materialPrices.clear();
-						
+				
+			materialCatPrices.clear();
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 						
@@ -253,8 +300,6 @@ public class Main extends JavaPlugin
 				
 			}
 			
-			itemM.printHashMap(materialPrices);
-			itemM.printHashMap(materialCatPrices);
 			
 		}
 	}
@@ -279,6 +324,7 @@ public class Main extends JavaPlugin
 		}
 		else
 		{
+			enchPrices.clear();
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 				Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(key));

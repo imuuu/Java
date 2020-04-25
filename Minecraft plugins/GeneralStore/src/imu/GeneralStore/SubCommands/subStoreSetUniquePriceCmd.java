@@ -4,22 +4,24 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.main.Main;
 
-public class subStoreSetPriceCmd implements CommandInterface
+public class subStoreSetUniquePriceCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
+	Main _main =null;
 	ItemMetods itemM = new ItemMetods();
 	
 	Player player;
 	
+	public subStoreSetUniquePriceCmd(Main main)
+	{
+		_main = main;
+	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
@@ -31,9 +33,9 @@ public class subStoreSetPriceCmd implements CommandInterface
             	ItemStack stack = player.getInventory().getItemInMainHand();
             	if(stack != null && stack.getType() != Material.AIR)
             	{
-            		player.sendMessage(ChatColor.GREEN+"Prices has been chance to Material: "+ChatColor.AQUA+stack.getType().name());
+            		
             		Double[] prices= {Double.parseDouble(args[1]),Double.parseDouble(args[2]),Double.parseDouble(args[3])};
-            		setNewPrice(stack, prices);
+            		setNewUniquePrice(stack, prices);
             		
             		
             		
@@ -56,20 +58,17 @@ public class subStoreSetPriceCmd implements CommandInterface
         return false;
     }
     
-    void setNewPrice(ItemStack stack, Double[] prices)
+    void setNewUniquePrice(ItemStack stack, Double[] prices)
     {
-    	Material m = stack.getType();
-    	_main.materialPrices.put(m, prices);
-    	String cat = itemM.getMaterialCategory(m);
+    	_main.getShopManager().addUniqueItem(stack, prices);
     	
-    	ConfigMaker cm = new ConfigMaker(_main, _main.getMaterialPriceYML());
-    	FileConfiguration config = cm.getConfig();
-    	
-    	config.set(cat+".belong."+m.name()+".minPrice", prices[0]);
-    	config.set(cat+".belong."+m.name()+".maxPrice", prices[1]);
-    	config.set(cat+".belong."+m.name()+".proEachSell", prices[2]);
-    	
-    	cm.saveConfig();
+    	if(!_main.getShopManager().isUnique(stack))
+    	{
+    		player.sendMessage(ChatColor.DARK_GREEN+"Unique item removed");
+    	}else
+    	{
+    		player.sendMessage(ChatColor.GREEN+"Unique has been added");
+    	}
     	
     	
     	

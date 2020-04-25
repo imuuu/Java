@@ -21,7 +21,9 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.GeneralStore.Interfaces.DelaySendable;
 import imu.GeneralStore.main.Main;
 import net.milkbowl.vault.economy.Economy;
 import net.minecraft.server.v1_15_R1.ItemArmor;
@@ -33,10 +35,10 @@ import net.minecraft.server.v1_15_R1.ItemShield;
 public class ItemMetods 
 {
 	
-	Main main = Main.getInstance();
+	Main _main = Main.getInstance();
 	Economy econ = Main.getEconomy();
 	
-	private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+	Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	
 	public boolean isDigit(String str)
 	{
@@ -429,7 +431,7 @@ public class ItemMetods
 	
 	public ItemStack removePersistenData(ItemStack stack, String keyName)
 	{
-		NamespacedKey key = new NamespacedKey(main, keyName);
+		NamespacedKey key = new NamespacedKey(_main, keyName);
 		ItemMeta meta = stack.getItemMeta();
 		meta.getPersistentDataContainer().remove(key);
 		stack.setItemMeta(meta);
@@ -438,7 +440,7 @@ public class ItemMetods
 	
 	public <T> ItemStack setPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)
 	{
-		NamespacedKey key = new NamespacedKey(main, keyName);
+		NamespacedKey key = new NamespacedKey(_main, keyName);
 		ItemMeta meta = stack.getItemMeta();
 		meta.getPersistentDataContainer().set(key, type, data);
 		stack.setItemMeta(meta);
@@ -451,7 +453,7 @@ public class ItemMetods
 		T value = null;
 		if(stack != null && stack.getType() != Material.AIR)
 		{
-			NamespacedKey key = new NamespacedKey(main, keyName);
+			NamespacedKey key = new NamespacedKey(_main, keyName);
 			ItemMeta meta = stack.getItemMeta();
 			PersistentDataContainer container = meta.getPersistentDataContainer();
 			if(container.has(key, type))
@@ -573,10 +575,8 @@ public class ItemMetods
 		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T> void setAllThisValue(T[] arr, T value)
-	{
-		
+	{		
 		for(int i = 0; i < arr.length ; ++i)
 		{
 			arr[i] = value;
@@ -675,23 +675,44 @@ public class ItemMetods
 			}
 			
 		}
-		System.out.println("it hasnt dur");
 		return 1.0;
 	}
 	
 	public void setDamage(ItemStack stack,int dmg)
 	{
-		if(stack != null && stack.getType() != Material.AIR && stack.getType().getMaxDurability() > 0)
+		if(stack != null && stack.getType() != Material.AIR)
 		{
-			if(stack.getItemMeta() instanceof Damageable)
-			{
-				Damageable meta = (Damageable) stack.getItemMeta();
-				meta.setDamage(dmg);								
-				stack.setItemMeta((ItemMeta)meta);
-				
-			}
+			Damageable meta = (Damageable) stack.getItemMeta();
+			meta.setDamage(dmg);								
+			stack.setItemMeta((ItemMeta)meta);
 			
 		}
+	}
+	
+	public void sendMessageLater(Player player, DelaySendable ds, String msg)
+	{
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				if(ds.isReady() == true)
+				{
+					player.sendMessage(msg);
+					cancel();
+				}
+				
+			}
+		}.runTaskTimerAsynchronously(_main, 0, 20);
+		
+	}
+	
+	public boolean isSameStack(ItemStack stack, ItemStack stack2)
+	{
+		
+		
+		return false;
 	}
 	
 }
