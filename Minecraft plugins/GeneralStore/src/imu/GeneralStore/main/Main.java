@@ -44,7 +44,7 @@ public class Main extends JavaPlugin
 	
 	int clickPerSecond=10;
 	
-	int expireTime = 60; 
+	int expireTime = 60*60; 
 	double expireProsent = 10; 
 	int runnableDelay = 1;
 	
@@ -53,8 +53,8 @@ public class Main extends JavaPlugin
 	double sellProsent = 1.5;
 	double durabilityCostMultiplier = 0.8;
 	
-    boolean enableSmartPrices = false; //TODO add config 
-    boolean loadSmartPricesUpFront=false; //TODO add config 
+    boolean enableSmartPrices = false; 
+    boolean loadSmartPricesUpFront=false; 
 	ItemMetods itemM = null;
 	
 	
@@ -186,9 +186,7 @@ public class Main extends JavaPlugin
         econ = rsp.getProvider();
         return econ != null;
     }
-	
-	
-	
+		
 	void saveShopsContent()
 	{
 		shopManager.closeShopsInvs();
@@ -210,6 +208,8 @@ public class Main extends JavaPlugin
 			clickPerSecond = cm.addDefault("ClicksPerSecond", clickPerSecond,"ClicksPerSecond: How many clicks is allowed in shop menu. Prevents duplications, good is under 10-12 clicks");
 			sellProsent = cm.addDefault("SellProsent", sellProsent,"SellProsent: How much item will be sold for player. price comes from maxprice * sellprosent");
 			durabilityCostMultiplier = cm.addDefault("DurabilityCostMultiplier", durabilityCostMultiplier,"DurabilityCostMultiplier:(0.0-1.0) How much durability effects item price. If equals 1 it means same price but lowered, If 0 durability isnt effected at all");
+			enableSmartPrices = cm.addDefault("EnableSmartPrices",enableSmartPrices , "EnableSmartPrices: Allow shop calculate prices from recipies");
+			loadSmartPricesUpFront=cm.addDefault("LoadSmartPricesUpFront", loadSmartPricesUpFront, "LoadSmartPricesUpFront: Load smart prices before using shops, false means doing it when it opens.. can be laggy at first");
 			cm.addComments();
 			
 		} catch (Exception e) 

@@ -23,8 +23,6 @@ public class subStoreCreateCmd implements CommandInterface
     {
         Player player = (Player) sender;
  
-        System.out.println("args size: "+args.length);
-        itemM.printArray("Args2", args);
         ShopManager shopManager = _main.getShopManager();
         
         

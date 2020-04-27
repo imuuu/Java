@@ -35,10 +35,7 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
             	{
             		
             		Double[] prices= {Double.parseDouble(args[1]),Double.parseDouble(args[2]),Double.parseDouble(args[3])};
-            		setNewUniquePrice(stack, prices);
-            		
-            		
-            		
+            		setNewUniquePrice(stack, prices);          		
             	}else
             	{
             		player.sendMessage(ChatColor.RED+"You don't have item in your hand!");
@@ -51,9 +48,7 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
         {
         	
         }
-        player.sendMessage("/gs setprice <minPrice> <maxPrice> <priceProsent>");
-
-        
+        player.sendMessage("/gs unique <minPrice> <maxPrice> <priceProsent>");
 		
         return false;
     }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -421,7 +422,7 @@ public class Shop implements Listener
 	
 	int shopPageCount()
 	{
-		int pages =(int) Math.round((shop_stuff_stacks.size()/(_firstMiddleSlot))+0.5);
+		int pages =(int) Math.round(((shop_stuff_stacks.size()-1)/(_firstMiddleSlot))+0.5);
 		return pages-1;
 	}
 	
@@ -578,6 +579,7 @@ public class Shop implements Listener
 						putItemToPlayerInv(player, stack, stack_count,false);
 						return;
 					}
+					return;
 				}
 				
 				//player side in shop
@@ -616,7 +618,7 @@ public class Shop implements Listener
 						depositMoney(player, price_all);
 						return;
 					}
-					
+					return;
 				}
 				if(raw_slot > _firstMiddleSlot-1 && raw_slot < _firstPlayerSlot)
 				{
@@ -625,6 +627,7 @@ public class Shop implements Listener
 					if(data != null && data == 1)
 					{					
 						setStuffPlayerSlots(player, switcher2000(player_currentLabel.get(player)));
+						return;
 					}
 					
 					data = itemM.getPersistenData(stack, pd_shopSwitchButton, PersistentDataType.INTEGER);
@@ -641,13 +644,22 @@ public class Shop implements Listener
 									page_next = 0;
 								}
 								player_currentShopPage.put(player, page_next);
-								setStuffPlayerSlots(player, player_currentLabel.get(player));
+								//setStuffPlayerSlots(player, player_currentLabel.get(player));
+								System.out.println("vasen");
+								
+								setStuffShopSlots(player);
+								//for(Player p : player_invs.keySet())
+								//{
+								//	setStuffShopSlots(p);
+								//}
+								
+								return;
 							}
 							
 						}
 						
 						if(data == 1)
-						{
+						{							
 							if(shopPageCount() > currentPage)
 							{
 								int page_next = currentPage + 1;
@@ -655,8 +667,15 @@ public class Shop implements Listener
 								{
 									page_next = shopPageCount();
 								}
+								System.out.println("oikee");
 								player_currentShopPage.put(player, page_next);
-								setStuffPlayerSlots(player, player_currentLabel.get(player));
+								//setStuffPlayerSlots(player, player_currentLabel.get(player));
+								setStuffShopSlots(player);
+								//for(Player p : player_invs.keySet())
+								//{
+								//	setStuffShopSlots(p);
+								//}
+								return;
 							}
 						}
 					}
@@ -675,6 +694,7 @@ public class Shop implements Listener
 								}
 								player_currentPlayerPage.put(player,page_next);
 								setStuffPlayerSlots(player, player_currentLabel.get(player));
+								return;
 							}
 						}
 						
@@ -683,8 +703,10 @@ public class Shop implements Listener
 							int page_next = cur_player_page + 1;							
 							player_currentPlayerPage.put(player, page_next);
 							setStuffPlayerSlots(player, player_currentLabel.get(player));
+							return;
 						}
 					}
+					return;
 				}
 			}
 		}
@@ -845,47 +867,34 @@ public class Shop implements Listener
 	}
 	public void setStuffShopSlots(Player player)
 	{
-		ItemStack empty = new ItemStack(Material.AIR);
-		if(shop_stuff_stacks.isEmpty())
-		{
-			for(int i = _firstShopSlot; i < _firstMiddleSlot ; ++i)
-			{
-				for(Inventory inv : player_invs.values())
-				{
-					inv.setItem(i, empty);
-				}
-				
-			}
-			shop_stuff_values.clear();
-			return;
-		}
+
 		int start =_firstShopSlot + player_currentShopPage.get(player) * _firstMiddleSlot;
 		int count = _firstShopSlot;
 		
+		Inventory inv = player_invs.get(player);
 		if(shop_stuff_stacks.size() > 0)
 		{
+			ItemStack stack;
+			ItemStack copy;
 			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
 			{
-				ItemStack stack = shop_stuff_stacks.get(i);
+				stack = shop_stuff_stacks.get(i);
 				if(getShopStackAmount(stack) <= 0)
 				{
 					shop_stuff_stacks.remove(i);
 					shop_stuff_values.remove(i);
 				}
 			}
+			
 			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
 			{
-				ItemStack stack = shop_stuff_stacks.get(i);
+				stack = shop_stuff_stacks.get(i);
 				
-				
-				ItemStack copy = new ItemStack(stack);
+				copy = new ItemStack(stack);
 				setToolTip(copy,false);
 				
-				for(Inventory inv : player_invs.values())
-				{
-					inv.setItem(count, copy);
-				}
-				
+				inv.setItem(count, copy);
+
 				count++;
 				
 				if(count > _firstMiddleSlot-1)
@@ -894,15 +903,10 @@ public class Shop implements Listener
 				}
 			}
 		}
-		
-		
+
 		for(int i = count; i < _firstMiddleSlot ; ++i)
 		{
-			for(Inventory inv : player_invs.values())
-			{
-				inv.setItem(i, empty);
-			}
-			
+			inv.setItem(i, null);		
 		}
 		
 	}
@@ -911,6 +915,12 @@ public class Shop implements Listener
 	{
 		player_currentLabel.put(player, ATW);
 		setMiddleLINE(player_invs.get(player), ATW);
+		
+		int shopPages = shopPageCount();
+		if(player_currentShopPage.get(player) > shopPages)
+		{
+			player_currentShopPage.put(player, shopPages);
+		}
 		
 		analysePlayerInv(player);
 		setStuffShopSlots(player);
@@ -951,21 +961,17 @@ public class Shop implements Listener
 		Inventory inv = player_invs.get(player);
 		for(int i = start; i < stacks.size(); ++i)
 		{
-			ItemStack stack = stacks.get(i);
-			
+			ItemStack stack = stacks.get(i);			
 			setToolTip(stack,true);				
 			inv.setItem(count,stack);				
 			count++;
 			
 			if(count >_size-1)
 				break;			
-		}
-		
-	
-		ItemStack empty = new ItemStack(Material.AIR);
+		}	
 		for(int i = count; i < _size ; ++i)
 		{			
-			inv.setItem(i, empty);			
+			inv.setItem(i, null);			
 		}
 	}
 	
@@ -1066,7 +1072,6 @@ public class Shop implements Listener
 					{
 						if(defaultPrice)	
 						{
-							System.out.println("Default price2 ");
 							prices = _main.getDefault_prices().clone();
 						}
 					}
@@ -1092,8 +1097,7 @@ public class Shop implements Listener
 		}else
 		{
 			//System.out.println("Material PRICE!");
-			prices = _main.materialPrices.get(material);
-			
+			prices = _main.materialPrices.get(material);			
 		}
 		return prices;
 	}

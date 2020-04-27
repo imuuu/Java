@@ -4,8 +4,36 @@ version: 1.0
 main: imu.GeneralStore.main.Main
 description: General Store
 api-version: 1.15
+softdepend: [Vault]
 commands:
    gs:
      description: GeneralStore
      usage:  /<command>
+   gs shop:
+     description: Opens default shop without shopname. Opens shop with name
+     usage: /<command> {shop_name}
+   gs create:
+     description: Create new shop
+     usage: /<command> {shop_name}
+   gs remove:
+     description: Remove created shop
+     usage: /<command> {shop_name}
+   gs price:
+     description: Set price of material what you are holding in your hand. Remember reload configs
+     usage: /<command> {min_price} {max_price} {price_prosent}
+   gs cost:
+     description: Gives price of holded item
+     usage: /<command>
+   gs add:
+     description: Add item in your hand to shop as infinite item, item's amount matters
+     usage: /<command>
+   gs remove inf:
+     description: Remove infinite item from shop. Need to have that same item your hand
+     usage: /<command>
+   gs reload:
+     description: Reload all configs. Usefull when changing prices in game
+     usage: /<command>
+   gs unique:
+     description: Add unique item with spesific price. If all three are 0 it will be removed from unique pool
+     usage: /<command> {min_price} {max_price} {price_prosent}
       
