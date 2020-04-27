@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -25,6 +24,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GeneralStore.Interfaces.DelaySendable;
 import imu.GeneralStore.main.Main;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.milkbowl.vault.economy.Economy;
 import net.minecraft.server.v1_15_R1.ItemArmor;
 import net.minecraft.server.v1_15_R1.ItemElytra;
@@ -708,11 +710,38 @@ public class ItemMetods
 		
 	}
 	
-	public boolean isSameStack(ItemStack stack, ItemStack stack2)
+	public void sendYesNoConfirm(Player player, String yesCommandStr, String noCommandStr)
 	{
+		TextComponent msgYes = new TextComponent("YES");
+		msgYes.setColor(ChatColor.GREEN);
+		msgYes.setBold(true);
+		msgYes.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, yesCommandStr));
+		
+		TextComponent msgSlash = new TextComponent(" / ");
+		msgSlash.setColor(ChatColor.DARK_GREEN);
+		
+		TextComponent msgNo = new TextComponent("NO");
+		msgNo.setColor(ChatColor.RED);
+		msgNo.setBold(true);
+		msgNo.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, noCommandStr));
 		
 		
-		return false;
+		msgYes.addExtra(msgSlash);
+		msgYes.addExtra(msgNo);
+		player.spigot().sendMessage(msgYes);
 	}
+	
+	public boolean doesStrArrayCointainStr(String[] args, String option)
+    {
+    	for(String str : args)
+    	{
+    		if(str.equalsIgnoreCase(option))
+    		{
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+	
 	
 }

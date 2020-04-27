@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ItemMetods;
+import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreSetUniquePriceCmd implements CommandInterface
@@ -17,10 +18,11 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
 	ItemMetods itemM = new ItemMetods();
 	
 	Player player;
-	
+	ShopManager shopManager = null;
 	public subStoreSetUniquePriceCmd(Main main)
 	{
 		_main = main;
+		shopManager = _main.getShopManager();
 	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
@@ -35,7 +37,14 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
             	{
             		
             		Double[] prices= {Double.parseDouble(args[1]),Double.parseDouble(args[2]),Double.parseDouble(args[3])};
-            		setNewUniquePrice(stack, prices);          		
+            		if(shopManager.isPriceValid(prices))
+            		{
+            			setNewUniquePrice(stack, prices);      
+            		}else
+            		{
+            			player.sendMessage(shopManager.getStr_invalid_price());
+            		}
+            		    		
             	}else
             	{
             		player.sendMessage(ChatColor.RED+"You don't have item in your hand!");

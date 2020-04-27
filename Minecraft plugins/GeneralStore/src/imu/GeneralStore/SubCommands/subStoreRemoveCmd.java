@@ -15,23 +15,47 @@ import imu.GeneralStore.main.Main;
 
 public class subStoreRemoveCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
+	Main _main = null;
+	
 	ItemMetods itemM = new ItemMetods();
 	
+	public subStoreRemoveCmd(Main main)
+	{
+		_main = main;
+	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         Player player = (Player) sender;
-      
+     
+        if(args.length < 2)
+        {
+    		player.sendMessage("Remember give your shop a name");
+    		return false;
+        }
         ShopManager shopManager = _main.getShopManager();
+      
         
-        
-        String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
+        String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ").toLowerCase().replace("false", "").replace("true", "");
         //nameShop=nameShop.substring(1,nameShop.length()-1);
         if(shopManager.isExists(nameShop))
         {
-        	player.sendMessage(ChatColor.GREEN+"Shop has been removed!");
-        	shopManager.removeShop(nameShop);
+        	
+        	
+        	if(args.length > 2 && itemM.doesStrArrayCointainStr(args, "true"))
+        	{
+        		player.sendMessage(ChatColor.GREEN+"Shop has been removed!");
+            	shopManager.removeShop(nameShop);
+            	
+        	}else if(args.length > 2 && itemM.doesStrArrayCointainStr(args, "false"))
+        	{
+        		player.sendMessage(ChatColor.GREEN+"Remove process canceled");
+            	
+        	}else
+        	{
+        		player.sendMessage(ChatColor.GOLD+ "Are you sure you wanna remove this shop?");
+        		itemM.sendYesNoConfirm(player, "/"+ cmd.getName()+ " remove "+nameShop+" true", "/"+ cmd.getName()+ " remove "+nameShop+" false");
+        	}
         	return false;
         }
         
@@ -42,5 +66,7 @@ public class subStoreRemoveCmd implements CommandInterface
 		
         return false;
     }
+    
+   
    
 }

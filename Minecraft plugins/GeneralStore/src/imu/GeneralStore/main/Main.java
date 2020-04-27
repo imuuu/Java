@@ -22,10 +22,12 @@ import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
+import imu.GeneralStore.SubCommands.subStoreListCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
 import imu.GeneralStore.SubCommands.subStoreSetPriceCmd;
+import imu.GeneralStore.SubCommands.subStoreSetUniqueINVCmd;
 import imu.GeneralStore.SubCommands.subStoreSetUniquePriceCmd;
 import net.milkbowl.vault.economy.Economy;
 
@@ -69,14 +71,16 @@ public class Main extends JavaPlugin
         handler.registerCmd(cmd1, new GeneralStoreCmd());  
         handler.setPermissionOnLastCmd("gs");
         handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
+        handler.registerSubCmd(cmd1, "shops", new subStoreListCmd(this)); //added
         handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
-        handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd());
-        handler.registerSubCmd(cmd1, "price", new subStoreSetPriceCmd());
+        handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd(this));
+        handler.registerSubCmd(cmd1, "price", new subStoreSetPriceCmd(this));
         handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
         handler.registerSubCmd(cmd1, "add", new subStoreAddCmd());
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
         handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
         handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
+        handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this));
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -92,12 +96,15 @@ public class Main extends JavaPlugin
 	
 		ConfigsSetup();
 		
+		
+		
+		
+		shopManager  = new ShopManager(this);
+		//shopManager.makeShopsConfig();
+		
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
-		
-		shopManager  = new ShopManager(this);
-		shopManager.makeShopsConfig();
 	}
 	
 	@Override

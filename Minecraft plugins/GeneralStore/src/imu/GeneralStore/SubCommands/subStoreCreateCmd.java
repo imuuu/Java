@@ -21,14 +21,18 @@ public class subStoreCreateCmd implements CommandInterface
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
-        Player player = (Player) sender;
- 
+    	Player player = (Player) sender;
+    	if(args.length < 2)
+        {
+    		player.sendMessage("Remember give your shop a name");
+    		return false;
+        }
+    	
         ShopManager shopManager = _main.getShopManager();
         
         
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
         nameShop = itemM.addColor(nameShop);
-        //nameShop=nameShop.substring(1,nameShop.length()-1);
         if(shopManager.isExists(nameShop))
         {
         	player.sendMessage(ChatColor.RED + "Shop name already exists");

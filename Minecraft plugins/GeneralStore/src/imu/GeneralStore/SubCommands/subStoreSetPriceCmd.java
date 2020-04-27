@@ -11,19 +11,27 @@ import org.bukkit.inventory.ItemStack;
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.ItemMetods;
+import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreSetPriceCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
+	Main _main=null;
 	ItemMetods itemM = new ItemMetods();
 	
 	Player player;
 	
+	ShopManager shopManager = null;
+	public subStoreSetPriceCmd(Main main) 
+	{
+		_main = main;
+		shopManager = _main.getShopManager();
+	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         player = (Player) sender;
+        System.out.println("shopmanager: "+shopManager);
         if(args.length > 3)
         {
         	if(itemM.isDigit(args[1]) && itemM.isDigit(args[2]) && itemM.isDigit(args[3]))
@@ -31,9 +39,17 @@ public class subStoreSetPriceCmd implements CommandInterface
             	ItemStack stack = player.getInventory().getItemInMainHand();
             	if(stack != null && stack.getType() != Material.AIR)
             	{
-            		player.sendMessage(ChatColor.GREEN+"Prices has been chance to Material: "+ChatColor.AQUA+stack.getType().name());
             		Double[] prices= {Double.parseDouble(args[1]),Double.parseDouble(args[2]),Double.parseDouble(args[3])};
-            		setNewPrice(stack, prices);
+            		if(shopManager.isPriceValid(prices))
+            		{
+            			player.sendMessage(ChatColor.GREEN+"Prices has been chance to Material: "+ChatColor.AQUA+stack.getType().name());
+                		
+                		setNewPrice(stack, prices);
+            		}else
+            		{
+            			player.sendMessage(shopManager.getStr_invalid_price());
+            		}
+            		
             		
             		
             		

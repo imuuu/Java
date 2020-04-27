@@ -39,6 +39,10 @@ public class ShopManager implements DelaySendable
 	
 	String pd_unique = "gs.unique";
 	
+	String str_invalid_price=ChatColor.RED +"The price is invalid, please enter correct price";
+	
+
+
 	public ShopManager(Main main)
 	{
 		_main = main;
@@ -49,10 +53,18 @@ public class ShopManager implements DelaySendable
 		}		
 		
 		loadUniqueItemsConfig();
+		makeShopsConfig();
 	}
 	
-	
-	
+	public String getStr_invalid_price() 
+	{
+		return str_invalid_price;
+	}
+
+	public HashMap<String,Shop> getShops()
+	{
+		return shops;
+	}
 	@Override
 	public boolean isReady() 
 	{
@@ -102,6 +114,22 @@ public class ShopManager implements DelaySendable
 		return calculationReady;
 	}
 	
+	public boolean isPriceValid(Double[] price)
+	{
+		System.out.println("checking price");
+		if (  (price.length < 3) || (price.length > 3))
+		{
+			return false;
+		}
+
+		if((price[0] > price[1]) || (price[0]< 0) || (price[2] > 100) || price[2] < 0)
+		{
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public Shop addShop(String name)
 	{
 		Shop shop = new Shop(name,true);
@@ -144,6 +172,8 @@ public class ShopManager implements DelaySendable
 			ConfigMaker cm2 = new ConfigMaker(_main, fName);
 			cm2.removeConfig();
 		}
+		
+		saveShopNames();
 		
 	}
 	
@@ -219,6 +249,19 @@ public class ShopManager implements DelaySendable
 		
 	}
 	
+	public void saveShopNames()
+	{
+		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
+		FileConfiguration config = cm.getConfig();
+		
+		cm.clearConfig();
+		for(String shopName : shops.keySet())
+		{
+			config.set(shopName, true);
+		}
+		
+		cm.saveConfig();
+	}
 	public void makeShopsConfig() 
 	{
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
@@ -233,7 +276,6 @@ public class ShopManager implements DelaySendable
 		for (String key : config.getConfigurationSection("").getKeys(false)) 
 		{
 			String shopName = key;
-			System.out.println("Shop added: "+shopName);
 			addShop(shopName);
 		}		
 	}

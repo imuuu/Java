@@ -84,6 +84,7 @@ public class Shop implements Listener
 	String pd_shopSwitchButton= "gs.shopsSwitchButton";
 	String pd_playerSwitchButton= "gs.playerSwitchButton";
 	String pd_pone= "gs.priceOne";
+	String pd_peight= "gs.priceEight";
 	String pd_pstack= "gs.priceStack";
 	String pd_pall= "gs.priceAll";
 	String pd_infItem="gs.infItem";
