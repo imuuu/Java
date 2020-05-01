@@ -163,10 +163,11 @@ public class ItemMetods
 	    		{
 	    			ArrayList<String> lores = new ArrayList<String>();
 	    			lores.addAll(meta.getLore());
-	    			
+	    			lore = ChatColor.stripColor(lore);
 	    			for(int i = 0 ; i < lores.size() ; ++i)
-	    			{  				
-	    				if(lores.get(i).contains(lore))
+	    			{  	
+	    				String lore1 = ChatColor.stripColor(lores.get(i));
+	    				if(lore1.contains(lore))
 	    				{
 	    					return i;
 	    				}
@@ -288,6 +289,8 @@ public class ItemMetods
 		}
 		return stack;
 	}
+	
+	
 	
 	public ItemStack addDisplayName(ItemStack stack,String name, boolean front)
 	{
@@ -431,6 +434,8 @@ public class ItemMetods
 		
 	}
 	
+	
+	
 	public ItemStack removePersistenData(ItemStack stack, String keyName)
 	{
 		NamespacedKey key = new NamespacedKey(_main, keyName);
@@ -477,29 +482,36 @@ public class ItemMetods
 		}
 		ItemStack copy = new ItemStack(stack);
 		stack.setAmount(0);
-		
+		int dropAmount = 1;
+		if(copy.getAmount() > copy.getMaxStackSize())
+		{
+			dropAmount = copy.getAmount();
+			copy.setAmount(1);
+		}
 		PlayerInventory inv = player.getInventory();
 		
-		int invSlot;
-		if(includeHotbar)
+		for(int i = 0; i < dropAmount ; ++i)
 		{
-			invSlot = inv.firstEmpty();
-		}else
-		{
-			invSlot = getFirstEmpty(inv.getContents());
-		}
+			int invSlot;
+			if(includeHotbar)
+			{
+				invSlot = inv.firstEmpty();
+			}else
+			{
+				invSlot = getFirstEmpty(inv.getContents());
+			}
 
-		if( invSlot != -1)
-		{
+			if( invSlot != -1)
+			{
 
-			inv.addItem(copy);
-		}else
-		{
-			player.sendMessage(ChatColor.RED + "You don't have space!");
-			dropItem(copy,player,true);
-			
-			
+				inv.addItem(copy);
+			}else
+			{
+				player.sendMessage(ChatColor.RED + "You don't have space!");
+				dropItem(copy,player,true);			
+			}
 		}
+		
 		
 	}
 	

@@ -9,6 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,12 +18,16 @@ import imu.GeneralStore.Commands.GeneralStoreCmd;
 import imu.GeneralStore.Events.InventoriesClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
+import imu.GeneralStore.Other.EnchantsManager;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
+import imu.GeneralStore.Other.UniquesINV;
+import imu.GeneralStore.Other.UniquesINVmodify;
 import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
+import imu.GeneralStore.SubCommands.subStoreEnchantInvCmd;
 import imu.GeneralStore.SubCommands.subStoreListCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
@@ -35,14 +41,18 @@ public class Main extends JavaPlugin
 {
 
 	public HashMap<Material, Double[]> materialPrices = new HashMap<>(); //min, max, sell prosent each item
-	public HashMap<Enchantment, Double[]> enchPrices = new HashMap<>(); // {minlvl,maxlvl,minPrice,maxPrice
-	static Main instance;
+	//HashMap<Enchantment, Double[]> enchPrices = new HashMap<>(); // {minlvl,maxlvl,minPrice,maxPrice
+	static Main instance = null;
 	static Economy econ = null;
 	
-	ShopManager shopManager;
+	ShopManager shopManager = null;
+	EnchantsManager enchManager = null;
 	
+	
+
 	public HashMap<String, ArrayList<Material>> materialCategorys=new HashMap<>();
 	public HashMap<String, Double[]> materialCatPrices=new HashMap<>();
+	
 	
 	int clickPerSecond=10;
 	
@@ -59,9 +69,6 @@ public class Main extends JavaPlugin
     boolean loadSmartPricesUpFront=false; 
 	ItemMetods itemM = null;
 	
-	
-
-
 	String materialPriceYML ="material_prices.yml";
 	public void registerCommands() 
     {  	
@@ -80,7 +87,8 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
         handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
         handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
-        handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this));
+        handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this)); //added
+        handler.registerSubCmd(cmd1, "enchs", new subStoreEnchantInvCmd(this)); //added
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -92,16 +100,12 @@ public class Main extends JavaPlugin
 	{		
 		instance = this;
 		itemM = new ItemMetods();
-		setupEconomy();
-	
-		ConfigsSetup();
-		
-		
-		
-		
 		shopManager  = new ShopManager(this);
-		//shopManager.makeShopsConfig();
+		enchManager = new EnchantsManager(this);
 		
+		setupEconomy();
+		ConfigsSetup();
+
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
@@ -128,6 +132,11 @@ public class Main extends JavaPlugin
 		makeSettingsConfig();
 		makeMaterialConfig();
 		makeEnchantExponentConfig();
+	}
+	
+	public EnchantsManager getEnchManager() 
+	{
+		return enchManager;
 	}
 	
 	public ShopManager getShopManager()
@@ -198,6 +207,7 @@ public class Main extends JavaPlugin
 	{
 		shopManager.closeShopsInvs();
 		shopManager.saveShopsContent();
+		shopManager.closeOpenedInvs();
 		shopManager.checkIfAbleToSaveData();
 	}
 	
@@ -331,7 +341,7 @@ public class Main extends JavaPlugin
 		}
 		else
 		{
-			enchPrices.clear();
+			enchManager.getEnchPrices().clear();
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 				Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(key));
@@ -342,10 +352,10 @@ public class Main extends JavaPlugin
 				
 				if(minPrice != 0 || maxPrice != 0)
 				{
-					Double[] array= {minlvl,maxlvl,minPrice,maxPrice};
 					
-					enchPrices.put(ench, array);
 				}
+				Double[] array= {minlvl,maxlvl,minPrice,maxPrice};
+				enchManager.addNewEnchant(ench, array);
 				
 			}
 			

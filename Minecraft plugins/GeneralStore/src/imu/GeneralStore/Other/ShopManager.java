@@ -25,8 +25,12 @@ public class ShopManager implements DelaySendable
 	public HashMap<Material,Double[]> looked_prices = new HashMap<>();
 	
 	ArrayList<ItemStack> unique_items = new ArrayList<>();
+	HashMap<Player, UniquesINV> uniqueInvs = new HashMap<>();
+	HashMap<Player, UniquesINVmodify> uniqueInvModifies = new HashMap<>();
+	
 	
 	HashMap<String,Shop> shops = new HashMap<>();
+	HashMap<Player,Integer> openedSomeInv = new HashMap<>();
 	
 	ArrayList<Pair<Date, String> > selledItems = new ArrayList<>();
 	
@@ -38,7 +42,10 @@ public class ShopManager implements DelaySendable
 	ItemMetods itemM = null;
 	
 	String pd_unique = "gs.unique";
+	String pd_modify = "gs.uniqueModify";
 	
+	
+
 	String str_invalid_price=ChatColor.RED +"The price is invalid, please enter correct price";
 	
 
@@ -56,6 +63,15 @@ public class ShopManager implements DelaySendable
 		makeShopsConfig();
 	}
 	
+	public String get_pd_modify() 
+	{
+		return pd_modify;
+	}
+	public ArrayList<ItemStack> getUnique_items() 
+	{
+		return unique_items;
+	}
+
 	public String getStr_invalid_price() 
 	{
 		return str_invalid_price;
@@ -71,6 +87,16 @@ public class ShopManager implements DelaySendable
 		return calculationReady;
 	}
 	
+	
+	public void addInv(Player player)
+	{
+		openedSomeInv.put(player, 1);
+	}
+	
+	public void removeOpenedInv(Player player)
+	{
+		openedSomeInv.remove(player);
+	}
 	public void calculateAllSmart()
 	{
 		calculationReady = false;
@@ -116,7 +142,6 @@ public class ShopManager implements DelaySendable
 	
 	public boolean isPriceValid(Double[] price)
 	{
-		System.out.println("checking price");
 		if (  (price.length < 3) || (price.length > 3))
 		{
 			return false;
@@ -249,6 +274,14 @@ public class ShopManager implements DelaySendable
 		
 	}
 	
+	public void closeOpenedInvs()
+	{
+		for(Player p : openedSomeInv.keySet())
+		{
+			p.closeInventory();
+		}
+	}
+	
 	public void saveShopNames()
 	{
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
@@ -341,9 +374,15 @@ public class ShopManager implements DelaySendable
 		itemM.removePersistenData(stack, pd_unique);
 	}
 	
-	public void addUniqueItem(ItemStack stack, Double[] price)
+	void removeInModify(ItemStack stack)
 	{
-		if(itemM.isEveryThingThis(price, 0.0))
+		itemM.removePersistenData(stack, pd_modify);
+	}
+	
+	public void addUniqueItem(ItemStack stack, Double[] price, boolean removeCheck)
+	{
+		removeInModify(stack);
+		if(itemM.isEveryThingThis(price, 0.0) && removeCheck)
 		{
 			unique_items.remove(stack);
 		}else
@@ -414,10 +453,12 @@ public class ShopManager implements DelaySendable
 	{
 		ItemStack stack_test = new ItemStack(stack);
 		removeUniqueTag(stack_test);
+		removeInModify(stack_test);
 		for(ItemStack s : unique_items)
 		{
 			ItemStack s_test = new ItemStack(s);
 			removeUniqueTag(s_test);
+			removeInModify(stack_test);
 			if(stack_test.isSimilar(s_test))
 			{
 				return true;
@@ -430,17 +471,50 @@ public class ShopManager implements DelaySendable
 	{
 		ItemStack stack_test = new ItemStack(stack);
 		removeUniqueTag(stack_test);
-		
+		removeInModify(stack_test);
+
 		for(ItemStack s : unique_items)
 		{
 			ItemStack s_test = new ItemStack(s);
 			removeUniqueTag(s_test);
+			removeInModify(s_test);
 			if(stack_test.isSimilar(s_test))
 			{
 				return getUniquePriceData(s);
 			}
 		}		
 		return null;
+		
+	}
+	
+	public void openUniqueINV(Player player)
+	{
+		UniquesINV ui = null;
+		if(uniqueInvs.containsKey(player))
+		{
+			ui = uniqueInvs.get(player);
+		}else
+		{
+			ui = new UniquesINV(_main, player, ChatColor.DARK_PURPLE +"========== Uniques =========");
+		}
+		ui.openThis();
+		
+	}
+	
+	public void openUniqueINVmodify(Player player,ItemStack stack,boolean newItem)
+	{
+		UniquesINVmodify ui = null;
+		if(uniqueInvModifies.containsKey(player))
+		{
+			ui = uniqueInvModifies.get(player);
+		}
+		else
+		{
+			ui = new UniquesINVmodify(_main, player, ChatColor.DARK_AQUA + "========== Modify ==========", uniqueInvs.get(player));
+		}
+		ui.INIT(stack,newItem);
+		ui.openThis();
+		
 		
 	}
 

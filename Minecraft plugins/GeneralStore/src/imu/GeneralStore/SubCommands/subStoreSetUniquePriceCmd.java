@@ -64,7 +64,7 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
     
     void setNewUniquePrice(ItemStack stack, Double[] prices)
     {
-    	_main.getShopManager().addUniqueItem(stack, prices);
+    	_main.getShopManager().addUniqueItem(stack, prices,true);
     	
     	if(!_main.getShopManager().isUnique(stack))
     	{

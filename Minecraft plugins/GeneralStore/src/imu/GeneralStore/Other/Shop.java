@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -64,6 +64,7 @@ public class Shop implements Listener
 	Main _main = Main.getInstance();
 	Economy _econ = Main.getEconomy();
 	ShopManager shopManager=null;
+	EnchantsManager enchantsManager = null;
 	
 	int _firstPlayerSlot = 36;
 	int _firstShopSlot = 0;
@@ -94,6 +95,11 @@ public class Shop implements Listener
 	Cooldowns cds = new Cooldowns();
 	String cdName = "expireTime";
 	
+	String[] str_lores = {  ChatColor.GREEN+ "M1  :"+ChatColor.DARK_PURPLE+"  1   : "+ChatColor.GOLD+" ",
+							ChatColor.GREEN+ "M2  :"+ChatColor.DARK_PURPLE+"  8   : "+ChatColor.GOLD+" ",
+							ChatColor.GREEN+ "SM1 :"+ChatColor.DARK_PURPLE+" 64  : "+ChatColor.GOLD+" ",
+							ChatColor.GREEN+ "SM2 :"+ChatColor.DARK_PURPLE+" All  : "+ChatColor.GOLD+" "};
+	
 	//DATA Gather
 	ArrayList<Pair<Material, Integer> > sellCountValues = new ArrayList<>();
 	
@@ -117,6 +123,7 @@ public class Shop implements Listener
 		
 		}
 		shopManager = _main.getShopManager();
+		enchantsManager = _main.getEnchManager();
 		
 	
 	}
@@ -550,6 +557,11 @@ public class Shop implements Listener
 				{
 					return;
 				}
+				
+				if(player.getGameMode() == GameMode.CREATIVE && click == ClickType.MIDDLE)
+				{
+					return;
+				}
 								
 				//shop side
 				if(raw_slot > -1 && raw_slot < 27)
@@ -564,8 +576,18 @@ public class Shop implements Listener
 						return;
 					}
 					
+					double price_eight = itemM.getPersistenData(stack, pd_peight, PersistentDataType.DOUBLE);
+					if(click == ClickType.RIGHT && withdrawPlayerHasMoney(player, price_eight))
+					{
+						int c = 8;
+						if(stack_count < 8)
+							c = stack_count;
+						putItemToPlayerInv(player, stack, c,false);
+						return;
+					}
+					
 					double price_stack = itemM.getPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE);
-					if(click == ClickType.RIGHT && withdrawPlayerHasMoney(player, price_stack))
+					if(click == ClickType.SHIFT_LEFT && withdrawPlayerHasMoney(player, price_stack))
 					{
 						int c = 64;
 						if(stack_count < 64)
@@ -575,7 +597,7 @@ public class Shop implements Listener
 					}
 					
 					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
-					if(click == ClickType.MIDDLE && withdrawPlayerHasMoney(player, price_all))
+					if(click == ClickType.SHIFT_RIGHT && withdrawPlayerHasMoney(player, price_all))
 					{
 						putItemToPlayerInv(player, stack, stack_count,false);
 						return;
@@ -598,8 +620,21 @@ public class Shop implements Listener
 						
 					}
 					
-					double price_stack = itemM.getPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE);
+					double price_eight = itemM.getPersistenData(stack, pd_peight, PersistentDataType.DOUBLE);
 					if(click == ClickType.RIGHT)
+					{
+						int c = 8;
+						if(stack_count < 8)
+							c = stack_count;
+						
+						removeItemPlayerInv(player, stack, c);
+						putItemToShop(stack, c,false);
+						depositMoney(player, price_eight);
+						return;
+					}
+					
+					double price_stack = itemM.getPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE);
+					if(click == ClickType.SHIFT_LEFT)
 					{
 						int c = 64;
 						if(stack_count < 64)
@@ -612,7 +647,7 @@ public class Shop implements Listener
 					}
 					
 					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
-					if(click == ClickType.MIDDLE)
+					if(click == ClickType.SHIFT_RIGHT)
 					{
 						removeItemPlayerInv(player, stack, stack_count);
 						putItemToShop(stack, stack_count,false);
@@ -1005,16 +1040,18 @@ public class Shop implements Listener
 		
 		Double[] prices = calculatePriceOfItem(stack, amount_in_shop, sell);
 		itemM.setPersistenData(stack, pd_pone, PersistentDataType.DOUBLE, prices[0]);
-		itemM.setPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE, prices[1]);
-		itemM.setPersistenData(stack, pd_pall, PersistentDataType.DOUBLE, prices[2]);
+		itemM.setPersistenData(stack, pd_peight, PersistentDataType.DOUBLE, prices[1]);
+		itemM.setPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE, prices[2]);
+		itemM.setPersistenData(stack, pd_pall, PersistentDataType.DOUBLE, prices[3]);
 		
 		itemM.addLore(stack, ChatColor.AQUA+ "===================", false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M3:"+ChatColor.DARK_PURPLE+" ALL   : "+ChatColor.GOLD+" "+prices[2], false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M2:"+ChatColor.DARK_PURPLE+" STACK: "+ChatColor.GOLD+" "+prices[1], false);
-		itemM.addLore(stack, ChatColor.GREEN+ "M1:"+ChatColor.DARK_PURPLE+" ONE   : "+ChatColor.GOLD+" "+prices[0], false);
+		itemM.addLore(stack, str_lores[3]+prices[3], false);
+		itemM.addLore(stack, str_lores[2]+prices[2], false);
+		itemM.addLore(stack, str_lores[1]+prices[1], false);
+		itemM.addLore(stack, str_lores[0]+prices[0], false);
 							
 		
-		itemM.addLore(stack, ChatColor.GREEN+"==: "+action_str+" : Price :=====", false);
+		itemM.addLore(stack, ChatColor.GREEN+"==:  "+action_str+" : Price :=====", false);
 		itemM.addLore(stack, ChatColor.DARK_PURPLE+"Amount  : "+ChatColor.YELLOW+""+amount, false);
 		
 		itemM.addLore(stack, ChatColor.AQUA+ "===================", false);
@@ -1023,12 +1060,13 @@ public class Shop implements Listener
 	void removeToolTip(ItemStack stack)
 	{
 		itemM.removeLore(stack, "===================");
-		itemM.removeLore(stack, "===================");
-		itemM.removeLore(stack, "ALL");
-		itemM.removeLore(stack, "STACK");
-		itemM.removeLore(stack, "ONE");
-		itemM.removeLore(stack, "Amount  : ");
 		itemM.removeLore(stack, ":=====");
+		itemM.removeLore(stack, "Amount  : ");
+		itemM.removeLore(stack, str_lores[0]);
+		itemM.removeLore(stack, str_lores[1]);
+		itemM.removeLore(stack, str_lores[2]);
+		itemM.removeLore(stack, str_lores[3]);	
+		itemM.removeLore(stack, "===================");
 	}
 	
 	void removeAddedShopPDdata(ItemStack stack)
@@ -1038,6 +1076,7 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_switcher);
 		itemM.removePersistenData(stack, pd_isArmor);
 		itemM.removePersistenData(stack, pd_pone);
+		itemM.removePersistenData(stack, pd_peight);
 		itemM.removePersistenData(stack, pd_pstack);
 		itemM.removePersistenData(stack, pd_pall);
 		//itemM.removePersistenData(stack, pd_infItem);
@@ -1584,7 +1623,7 @@ public class Shop implements Listener
 	}
 	public Double[] calculatePriceOfItem(ItemStack stack,int amount_inShop, boolean sell)
 	{
-		Double[] prices = {0.0,0.0,0.0};
+		Double[] prices = {0.0,0.0,0.0,0.0};
 		
 		if(stack == null || stack.getType()== Material.AIR)
 		{
@@ -1602,10 +1641,14 @@ public class Shop implements Listener
 			
 			for(Map.Entry<Enchantment, Integer> ench : meta.getEnchants().entrySet())
 			{
-				if(_main.enchPrices.containsKey(ench.getKey()))
+				if(enchantsManager.getEnchPrices().containsKey(ench.getKey()))
 				{
-					Double[] values=_main.enchPrices.get(ench.getKey());
-					double calp = priceCalculation(ench.getValue(), values[1], values[2], values[3]);
+					Double[] values=enchantsManager.getEnchPrices().get(ench.getKey());
+					double calp = 0;
+					if(!itemM.isEveryThingThis(values, 0.0))
+					{
+						calp = priceCalculation(ench.getValue(), values[1], values[2], values[3]);
+					}					
 					enchantcost += calp;					
 				}
 			}
@@ -1627,7 +1670,6 @@ public class Shop implements Listener
 			}
 		}else
 		{
-			System.out.println("UNIQUE PRICE");
 			material_values = uniquePrice;
 			enchantcost = 0;
 		}
@@ -1636,6 +1678,7 @@ public class Shop implements Listener
 		
 		double materialCost_all = 0 + enchantcost;
 		double materialCost_one = 0 + enchantcost;
+		double materialCost_eight = 0 + enchantcost;
 		double materialCost_stack = 0 + enchantcost;
 		
 		boolean lock = false;
@@ -1665,12 +1708,17 @@ public class Shop implements Listener
 			{
 				materialCost_one +=cost;
 			}
-			if(i < 64+amount_inShop)
+			
+			if(i < 8 + amount_inShop)
+			{
+				materialCost_eight+=cost;
+			}
+			
+			if(i < 64 + amount_inShop)
 			{
 				materialCost_stack+=cost;
 			}
 			
-
 			materialCost_all += cost;
 		}
 		
@@ -1685,8 +1733,9 @@ public class Shop implements Listener
 		}
 		
 		prices[0]=Math.round((materialCost_one   * durProsent)* 100.0) / 100.0;
-		prices[1]=Math.round((materialCost_stack * durProsent)* 100.0) / 100.0;
-		prices[2]=Math.round((materialCost_all   * durProsent)* 100.0) / 100.0;
+		prices[1]=Math.round((materialCost_eight   * durProsent)* 100.0) / 100.0;
+		prices[2]=Math.round((materialCost_stack * durProsent)* 100.0) / 100.0;
+		prices[3]=Math.round((materialCost_all   * durProsent)* 100.0) / 100.0;
 		
 		
 		

@@ -5,30 +5,26 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
+import imu.GeneralStore.Other.EnchantINV;
+import imu.GeneralStore.Other.EnchantsManager;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.Other.UniquesINV;
 import imu.GeneralStore.main.Main;
 
-public class subStoreSetUniqueINVCmd implements CommandInterface
+public class subStoreEnchantInvCmd implements CommandInterface
 {
-	Main _main =null;
-	ItemMetods itemM = new ItemMetods();
-	
-	Player player;
-	ShopManager shopManager = null;
-	public subStoreSetUniqueINVCmd(Main main)
-	{
-		_main = main;
-		shopManager = _main.getShopManager();
+	EnchantsManager enchManager = null;
+	public subStoreEnchantInvCmd(Main main)
+	{	
+		enchManager = main.getEnchManager();
 	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
-        player = (Player) sender;
+    	Player player = (Player) sender;
         
-        shopManager.openUniqueINV(player);
-        //player.sendMessage("/gs uniques");
+    	enchManager.openEnchantINV(player);
 		
         return false;
     }
