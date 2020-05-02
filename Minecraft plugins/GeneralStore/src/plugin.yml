@@ -36,4 +36,9 @@ commands:
    gs unique:
      description: Add unique item with spesific price. If all three are 0 it will be removed from unique pool
      usage: /<command> {min_price} {max_price} {price_prosent}
+   gs uniques:
+     description: Give you inv with all uniques with modified ability
+     usage: /<command>
+   gs enchs:
+     description: Give you inv with all enchants with modified ability
       

@@ -43,13 +43,9 @@ public class ShopManager implements DelaySendable
 	
 	String pd_unique = "gs.unique";
 	String pd_modify = "gs.uniqueModify";
-	
-	
 
 	String str_invalid_price=ChatColor.RED +"The price is invalid, please enter correct price";
 	
-
-
 	public ShopManager(Main main)
 	{
 		_main = main;

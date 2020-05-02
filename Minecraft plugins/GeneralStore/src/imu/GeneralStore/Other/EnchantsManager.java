@@ -6,12 +6,14 @@ import java.util.HashMap;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.GeneralStore.main.Main;
+import net.md_5.bungee.api.ChatColor;
 
 public class EnchantsManager 
 {
@@ -34,13 +36,13 @@ public class EnchantsManager
 	
 	public void openEnchantINV(Player player)
 	{
-		EnchantINV ei = new EnchantINV(_main, player, "Enchantments");
+		EnchantINV ei = new EnchantINV(_main, player,ChatColor.DARK_PURPLE +"======= Enchantments =======");
 		ei.openThis();
 	}
 	
 	public void openEnchantINVmodify(Player player, ItemStack stack)
 	{
-		EnchantInvModify eim = new EnchantInvModify(_main, player, "modify", stack);
+		EnchantInvModify eim = new EnchantInvModify(_main, player, ChatColor.DARK_AQUA + "========== Modify ==========", stack);
 		eim.openThis();
 	}
 	
@@ -49,17 +51,23 @@ public class EnchantsManager
 		return enchPrices;
 	}
 	
-	public void addNewEnchant(Enchantment enc, Double[] price)
+	public void addNewEnchant(Enchantment enc, Double[] price, boolean setToConfig)
 	{
 		enchPrices.put(enc, price);
 		ItemStack encItem = makeEnchItem(enc, price);
+		removeModifyData(encItem);
 		int contain = isContaining(encItem);
-		if(contain > 0)
+		if(contain != -1)
 		{
 			ench_items.set(contain, encItem);
 		}else
 		{
 			ench_items.add(encItem);
+		}
+		
+		if(setToConfig)
+		{
+			setEnchantToConfig(enc, price);
 		}
 	}
 	
@@ -94,11 +102,13 @@ public class EnchantsManager
 		ItemStack test,copy;
 		test = stack.clone();
 		removeEnchPriceData(test);
+		removeModifyData(test);
 		
 		for(int i = 0; i < ench_items.size(); ++i)
 		{
 			copy = ench_items.get(i).clone();
 			removeEnchPriceData(copy);
+			removeModifyData(copy);			
 			if(test.isSimilar(copy))
 			{
 				return i;
@@ -107,9 +117,28 @@ public class EnchantsManager
 		return -1;
 	}
 	
+	public void setEnchantToConfig(Enchantment ench, double minLvl, double maxLvl, double minPrice, double maxPrice)
+	{
+		ConfigMaker cm = new ConfigMaker(_main, "enchant_prices.yml");
+		FileConfiguration config = cm.getConfig();
+		config.set(ench.getKey().toString().split(":")[1]+".minLevel", minLvl);
+		config.set(ench.getKey().toString().split(":")[1]+".maxLevel", maxLvl);
+		config.set(ench.getKey().toString().split(":")[1]+".minPrice", minPrice);
+		config.set(ench.getKey().toString().split(":")[1]+".maxPrice", maxPrice);
+		cm.saveConfig();
+	}
+	public void setEnchantToConfig(Enchantment ench,Double[] data)
+	{
+		setEnchantToConfig(ench, data[0], data[1], data[2], data[3]);
+	}
+	public void setEnchantToConfig(ItemStack enchItem)
+	{
+		Double[] data = getEnchPriceData(enchItem);
+		setEnchantToConfig(getEnchantFromStack(enchItem),data);
+	}
 	public boolean isEnchantPriceValid(Double[] data)
 	{
-		if (  (data.length < 3) || (data.length > 3))
+		if (  (data.length < 4) || (data.length > 4))
 		{
 			return false;
 		}

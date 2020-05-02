@@ -28,6 +28,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 	
 	String _pd_modify = "";
 	String _pd_vButton = "gs.uModifyVb";
+	String _pd_dataIdx = "gs.eDataId";
 	
 	Double[] _prices = {};
 	Double[] _defautl_prices = {};
@@ -44,6 +45,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 	Double[] price_button_values = {0.1, 1.0, 10.0, 100.0, 1000.0};
 	Double[] price_button_multiv = {1.0, 5.0, 10.0};
 
+	String[] _dataNames = {};
 	
 	public UniquesINVmodify(Main main, Player player, String name, UniquesINV uinv) 
 	{
@@ -63,11 +65,20 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		_orginalStack_copy = _orginalStack.clone();
 		_shopManager.removeInModify(_orginalStack_copy);
 		_copy = _orginalStack.clone();
-		_prices = _shopManager.getUniqueItemPrice(_orginalStack);		
-		_defautl_prices = _prices.clone();
+		
+		setData(_shopManager.getUniqueItemPrice(_orginalStack));
+		
 		_value_state_now = 0;
 		_newItem = newItem;
 		makeInv();		
+	}
+	
+	void setData(Double[] data)
+	{
+		_prices = data;
+		_defautl_prices = _prices.clone();
+		String[] names = {"Min Price", "Max Price" , "Percent"};
+		_dataNames = names;		
 	}
 	
 	enum LABELS
@@ -102,9 +113,18 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 	{
 		return itemM.getPersistenData(stack, _pd_vButton, PersistentDataType.DOUBLE);
 	}
+	
+	void setValueDataIndex(ItemStack stack, int id)
+	{
+		itemM.setPersistenData(stack, _pd_dataIdx, PersistentDataType.INTEGER, id);
+	}
+	
+	Integer getValueDataIndex(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, _pd_dataIdx, PersistentDataType.INTEGER);
+	}
 	void makeInv()
-	{		
-		
+	{				
 		itemM.setDisplayName(_empty, " ");
 		for(int i = 0; i < _size ; ++i)
 		{
@@ -117,28 +137,20 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 				
 	}
 	
+	void setSwitch(LABELS label, Material material, String displayName,int itemSlot)
+	{
+		ItemStack sbutton = new ItemStack(material);
+		itemM.setDisplayName(sbutton, displayName);
+		setButtonSwitch(sbutton, label.getType());
+		_inv.setItem(itemSlot, sbutton);
+	}
 	
 	void refreshButtons()
 	{
-		ItemStack back_button = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-		itemM.setDisplayName(back_button, ChatColor.AQUA + "<< BACK");
-		_uinv.setButtonSwitch(back_button, LABELS.GO_BACK.getType());
-		_inv.setItem(9, back_button);
-		
-		ItemStack copy_button = new ItemStack(Material.SLIME_BALL);
-		itemM.setDisplayName(copy_button, ChatColor.AQUA + "Copy to your inv");
-		_uinv.setButtonSwitch(copy_button, LABELS.COPY.getType());
-		_inv.setItem(8, copy_button);
-		
-		ItemStack remove_button = new ItemStack(Material.LAVA_BUCKET);
-		itemM.setDisplayName(remove_button, ChatColor.RED + "Remove as unique item");
-		_uinv.setButtonSwitch(remove_button, LABELS.REMOVE.getType());
-		_inv.setItem(_size-1, remove_button);
-		
-		ItemStack reset_item = new ItemStack(Material.WATER_BUCKET);
-		itemM.setDisplayName(reset_item, ChatColor.AQUA + "RESET PRICE");
-		_uinv.setButtonSwitch(reset_item, LABELS.RESET_ITEM.getType());
-		_inv.setItem(4+8, reset_item);
+		setSwitch(LABELS.GO_BACK, Material.RED_STAINED_GLASS_PANE, ChatColor.AQUA + "<< BACK", 9);
+		setSwitch(LABELS.COPY, Material.SLIME_BALL, ChatColor.AQUA + "Copy to your inv", 8);
+		setSwitch(LABELS.REMOVE, Material.LAVA_BUCKET, ChatColor.RED + "Remove as unique item", _size-1);
+		setSwitch( LABELS.RESET_ITEM, Material.WATER_BUCKET, ChatColor.AQUA + "RESET PRICE", 12);
 		
 		refreshValueStateButton();
 		refrestItem();
@@ -224,6 +236,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 				{
 					_edited = true;
 					Double price_amount = getValueButtonValue(stack);
+					int dataIndex = getValueDataIndex(stack);
 					Double multip = 1.0;
 					if(click == ClickType.LEFT)
 					{
@@ -246,7 +259,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 						multip = price_button_multiv[2];
 					}
 					
-					changePrice(price_amount*multip); 
+					changePrice(dataIndex, price_amount*multip); 
 					refreshButtons();
 					return;
 				}
@@ -269,23 +282,9 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		}
 	}
 	
-	String getValueStateName()
-	{
-		String str = "";
-		switch (_value_state_now) {
-		case 0:
-			str = "Min price";
-			break;
-
-		case 1:
-			str = "Max price";
-			break;
-		case 2:
-			str = "Percent";
-			break;
-		}
-		
-		return str;
+	String getValueStateName(int index)
+	{		
+		return _dataNames[index];
 	}
 	void changeValueState(int i)
 	{
@@ -300,7 +299,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		refreshValueStateButton();
 	}
 	
-	void changePrice(Double addAmount)
+	void changePrice(int id, Double addAmount)
 	{
 		Double[] copy_price = _prices.clone();
 		double newPrice =  Math.round((copy_price[_value_state_now] + addAmount)* 100.0) / 100.0;;
@@ -331,26 +330,41 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		{
 			case 0:
 				value_state_button = new ItemStack(Material.IRON_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName(_value_state_now));
 				break;
 			case 1:
 				value_state_button = new ItemStack(Material.GOLD_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 			case 2:
 				value_state_button = new ItemStack(Material.DIAMOND_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 		}
-		itemM.addLore(value_state_button, ChatColor.DARK_PURPLE + "Change between min, max, percent", false);
+		itemM.addLore(value_state_button, ChatColor.DARK_PURPLE + "Changed between "+ getValueStateName(0)+", " +getValueStateName(1) +", " + getValueStateName(2), false);
 		_uinv.setButtonSwitch(value_state_button, LABELS.VALUE_STATE.getType());
 		_inv.setItem(4, value_state_button);
 	}
 	
+	void setSinglePriceButton(Material material,String displayName, double buttonValue, int valueIndex, int itemSlot)
+	{
+		ItemStack pButton = new ItemStack(material);
+		setValueButtonValue(pButton, buttonValue);
+		setButtonSwitch(pButton, LABELS.VALUE_PRICE_BUTTON.getType());
+		setValueDataIndex(pButton, valueIndex);
+		itemM.setDisplayName(pButton,displayName);
+		
+		itemM.addLore(pButton, ChatColor.GREEN+"M3"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "     :  "+ChatColor.YELLOW+price_button_multiv[2]+"x", false);
+		itemM.addLore(pButton, ChatColor.GREEN+"SM1"+ ChatColor.AQUA +" / "+ ChatColor.RED + "SM2:  "+ChatColor.YELLOW+price_button_multiv[1]+"x", false);
+		itemM.addLore(pButton, ChatColor.GREEN+"M1"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "  M2:  "+ChatColor.YELLOW+price_button_multiv[0]+"x", false);
+		itemM.addLore(pButton, "---------------",false);
+		itemM.addLore(pButton, ChatColor.DARK_PURPLE + getValueStateName(valueIndex) +": "+ChatColor.GOLD + _prices[valueIndex], false);
+		
+		_inv.setItem(itemSlot, pButton);
+	}
+	
 	void refreshPriceButtons()
 	{
-
-		ItemStack price_button; //= new ItemStack(Material.BEDROCK);
 		int first = 20;
 		
 		String disp = ChatColor.YELLOW + "===> "+ChatColor.GREEN+"+"+ ChatColor.AQUA +"/"+ ChatColor.RED + "- ";
@@ -359,8 +373,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		String[] displays = {disp +ChatColor.GOLD + price_button_values[0], disp +ChatColor.GOLD + price_button_values[1], 
 							disp +ChatColor.GOLD + price_button_values[2], disp +ChatColor.GOLD + price_button_values[3], 
 							disp +ChatColor.GOLD + price_button_values[4]};
- 		
-			
+ 					
 		for(int i = 0; i < 5;++i)
 		{
 			if(_value_state_now == 2 && i > 2)
@@ -369,23 +382,8 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 				continue;
 			}
 			
-			price_button = new ItemStack(mats[i]);
-			itemM.setDisplayName(price_button,displays[i]);
-			setValueButtonValue(price_button, price_button_values[i]);
-			_uinv.setButtonSwitch(price_button, LABELS.VALUE_PRICE_BUTTON.getType());
-			
-			itemM.addLore(price_button, ChatColor.GREEN+"M3"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "     :  "+ChatColor.YELLOW+price_button_multiv[2]+"x", false);
-			itemM.addLore(price_button, ChatColor.GREEN+"SM1"+ ChatColor.AQUA +" / "+ ChatColor.RED + "SM2:  "+ChatColor.YELLOW+price_button_multiv[1]+"x", false);
-			itemM.addLore(price_button, ChatColor.GREEN+"M1"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "  M2:  "+ChatColor.YELLOW+price_button_multiv[0]+"x", false);
-			itemM.addLore(price_button, "---------------",false);
-			itemM.addLore(price_button, ChatColor.DARK_PURPLE + getValueStateName() +": "+ChatColor.GOLD + _prices[_value_state_now], false);
-
-			
-			_inv.setItem(first+i, price_button);
-		}
-		
-		
-		
+			setSinglePriceButton(mats[i],displays[i],price_button_values[i],_value_state_now,(first+i));
+		}	
 	}
 	
 	

@@ -78,7 +78,6 @@ public class EnchantINV extends CustomInvLayout implements Listener
 	{
 		if(isThisInv(e))
 		{
-			System.out.println("Ench inv open");
 			makeInv();
 		}
 	}
@@ -88,7 +87,6 @@ public class EnchantINV extends CustomInvLayout implements Listener
 	{
 		if(isThisInv(e))
 		{
-			System.out.println("Ench inv closed");
 			HandlerList.unregisterAll(this);
 		}
 	}
@@ -121,7 +119,6 @@ public class EnchantINV extends CustomInvLayout implements Listener
 				
 				if(switch_button == LABELS.ENC_ITEM.getType())
 				{
-					System.out.println("its item");
 					openModifyInv(stack);
 					return;
 				}
@@ -200,7 +197,7 @@ public class EnchantINV extends CustomInvLayout implements Listener
 		
 		if(enchM.isModify(stack))
 		{
-			 modifyStr = ChatColor.RED+"== BEEN MODIFIED ==";
+			 modifyStr = ChatColor.RED+"== BEING MODIFIED ==";
 		}
 		String[] tooltip_strs= {ChatColor.AQUA+ "==== Enchantment ====",
 								ChatColor.DARK_PURPLE + "maxPrice: " + ChatColor.GOLD + p[3],

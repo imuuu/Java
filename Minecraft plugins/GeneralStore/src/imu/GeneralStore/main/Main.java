@@ -9,8 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,8 +19,6 @@ import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.EnchantsManager;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
-import imu.GeneralStore.Other.UniquesINV;
-import imu.GeneralStore.Other.UniquesINVmodify;
 import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
@@ -100,10 +96,11 @@ public class Main extends JavaPlugin
 	{		
 		instance = this;
 		itemM = new ItemMetods();
+		setupEconomy();
 		shopManager  = new ShopManager(this);
 		enchManager = new EnchantsManager(this);
 		
-		setupEconomy();
+		
 		ConfigsSetup();
 
 		registerCommands();
@@ -330,11 +327,11 @@ public class Main extends JavaPlugin
 			config.options().header("MinLevel doesnt effect anything yet.. always calculate 1-maxLevel");
 			for(Enchantment ench : Enchantment.values())
 			{
-
-				config.set(ench.getKey().toString().split(":")[1]+".minLevel", ench.getStartLevel());
-				config.set(ench.getKey().toString().split(":")[1]+".maxLevel", ench.getMaxLevel());
-				config.set(ench.getKey().toString().split(":")[1]+".minPrice", 0);
-				config.set(ench.getKey().toString().split(":")[1]+".maxPrice",0);
+				enchManager.setEnchantToConfig(ench, ench.getStartLevel(), ench.getMaxLevel(), 0, 0);
+				//config.set(ench.getKey().toString().split(":")[1]+".minLevel", ench.getStartLevel());
+				//config.set(ench.getKey().toString().split(":")[1]+".maxLevel", ench.getMaxLevel());
+				//config.set(ench.getKey().toString().split(":")[1]+".minPrice", 0);
+				//config.set(ench.getKey().toString().split(":")[1]+".maxPrice",0);
 				
 			}
 			cm.saveConfig();
@@ -355,7 +352,7 @@ public class Main extends JavaPlugin
 					
 				}
 				Double[] array= {minlvl,maxlvl,minPrice,maxPrice};
-				enchManager.addNewEnchant(ench, array);
+				enchManager.addNewEnchant(ench, array,false);
 				
 			}
 			

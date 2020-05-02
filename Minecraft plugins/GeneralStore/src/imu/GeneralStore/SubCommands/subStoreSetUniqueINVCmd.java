@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
-import imu.GeneralStore.Other.UniquesINV;
 import imu.GeneralStore.main.Main;
 
 public class subStoreSetUniqueINVCmd implements CommandInterface

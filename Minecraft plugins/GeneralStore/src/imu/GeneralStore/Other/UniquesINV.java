@@ -134,13 +134,12 @@ public class UniquesINV extends CustomInvLayout implements Listener
 				if(switch_button == LABELS.UnigueItem.getType())
 				{
 					openModifyInv(stack);
-					//refreshItems();
 					return;
 				}
 			}
 		}
 
-		if(action == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+		if(isThisInv(e) && action == InventoryAction.MOVE_TO_OTHER_INVENTORY)
 		{
 			droppedItem = e.getCurrentItem();
 			if(!addNewItem(droppedItem))
@@ -169,11 +168,8 @@ public class UniquesINV extends CustomInvLayout implements Listener
 					_player.sendMessage(ChatColor.DARK_RED + "Please add only one item at the time");
 				}
 				e.setCancelled(true);
-			}
-			
-		}
-		
-		
+			}			
+		}	
 	}
 	
 	boolean addNewItem(ItemStack stack)
@@ -310,7 +306,7 @@ public class UniquesINV extends CustomInvLayout implements Listener
 		
 		if(isModified(stack))
 		{
-			 modifyStr = ChatColor.RED+"== BEEN MODIFIED ==";
+			 modifyStr = ChatColor.RED+"== BEING MODIFIED ==";
 		}
 		String[] tooltip_strs= {ChatColor.AQUA+ "======Unique======",
 								ChatColor.DARK_PURPLE + "percent : " + ChatColor.GOLD + p[2],

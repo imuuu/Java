@@ -1,6 +1,7 @@
 package imu.GeneralStore.Other;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -8,8 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -24,24 +23,31 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 	EnchantsManager _enchM = null;
 	
 	String _pd_modify = "";
-	String _pd_vButton = "gs.uModifyVb";
+	String _pd_vButton = "gs.eModifyVb";
+	String _pd_dataIdx = "gs.eDataId";
 	
 	Double[] _prices = {};
 	Double[] _defautl_prices = {};
 	String[] _tooltip_strs= {ChatColor.AQUA+ "======Ench======",
 							ChatColor.DARK_PURPLE + "maxPrice : " + ChatColor.GOLD +"",
-							ChatColor.DARK_PURPLE + "minPrice : " + ChatColor.GOLD +"",
-							ChatColor.DARK_PURPLE + "maxLevel: " + ChatColor.GOLD + "",
-							ChatColor.DARK_PURPLE + "minLevel : " + ChatColor.GOLD + "",
+							ChatColor.DARK_PURPLE + "minPrice  : " + ChatColor.GOLD +"",
+							ChatColor.DARK_PURPLE + "maxlevel : " + ChatColor.GOLD +"",
+							ChatColor.DARK_PURPLE + "minlevel  : " + ChatColor.GOLD +"",
 							ChatColor.AQUA+ "======Ench======",
 							""+ChatColor.DARK_PURPLE + ChatColor.MAGIC+ "# "+ChatColor.GREEN + "CONFIRM by CLICK!"+ ChatColor.DARK_PURPLE+ChatColor.MAGIC+ " #"};
 	
+	int _total_value_state_min = 2;
 	int _total_value_states = 3; //include 0
 	int _value_state_now = 0;
 	
 	Double[] price_button_values = {0.1, 1.0, 10.0, 100.0, 1000.0};
 	Double[] price_button_multiv = {1.0, 5.0, 10.0};
-
+	
+	String[] _dataNames = {};
+	
+	Enchantment _enchment = null;
+	int realMinLvl = 1;
+	int realMaxLvl = 1;
 	
 	public EnchantInvModify(Main main, Player player, String name, ItemStack enchItem) 
 	{
@@ -62,22 +68,38 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 		_enchM.removeModifyData(_orginalStack_copy);
 		_copy = _orginalStack.clone();
 		
-		_prices =_enchM.getEnchPriceData(_orginalStack);		
-		_defautl_prices = _prices.clone();
-		_value_state_now = 0;
+		setData(_enchM.getEnchPriceData(_orginalStack));
+
+		_value_state_now = _total_value_state_min;
+		_enchment = _enchM.getEnchantFromStack(uniqueItemStack);
+		realMinLvl = _enchment.getStartLevel();
+		realMaxLvl = _enchment.getMaxLevel();
 		
 		makeInv();		
+	}
+	
+	void setData(Double[] data)
+	{
+
+		_prices = data;
+		_defautl_prices = _prices.clone();
+		String[] names = {"Min Level","Max Level","Min Price", "Max Price"};
+		_dataNames = names;
+		
+		
 	}
 	
 	enum LABELS
 	{
 		GO_BACK(99),
 		COPY(80),
-		REMOVE(81),
+		RESET_DEFAULT(81),
 		VALUE_STATE(10),
 		VALUE_PRICE_BUTTON(11),
 		RESET_ITEM(12),
-		CONFIRM(13);
+		CONFIRM(13),
+		RESET_ITEM_DEFAULT(14);
+		
 				
 		int type;
 		
@@ -106,28 +128,20 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 				
 	}
 	
+	void setSwitch(LABELS label, Material material, String displayName,int itemSlot)
+	{
+		ItemStack sbutton = new ItemStack(material);
+		itemM.setDisplayName(sbutton, displayName);
+		setButtonSwitch(sbutton, label.getType());
+		_inv.setItem(itemSlot, sbutton);
+	}
 	
 	void refreshButtons()
 	{
-		ItemStack back_button = new ItemStack(Material.RED_STAINED_GLASS_PANE);
-		itemM.setDisplayName(back_button, ChatColor.AQUA + "<< BACK");
-		setButtonSwitch(back_button, LABELS.GO_BACK.getType());
-		_inv.setItem(9, back_button);
-		
-		ItemStack copy_button = new ItemStack(Material.SLIME_BALL);
-		itemM.setDisplayName(copy_button, ChatColor.AQUA + "Copy to your inv");
-		setButtonSwitch(copy_button, LABELS.COPY.getType());
-		_inv.setItem(8, copy_button);
-		
-		ItemStack remove_button = new ItemStack(Material.LAVA_BUCKET);
-		itemM.setDisplayName(remove_button, ChatColor.RED + "Remove as unique item");
-		setButtonSwitch(remove_button, LABELS.REMOVE.getType());
-		_inv.setItem(_size-1, remove_button);
-		
-		ItemStack reset_item = new ItemStack(Material.WATER_BUCKET);
-		itemM.setDisplayName(reset_item, ChatColor.AQUA + "RESET PRICE");
-		setButtonSwitch(reset_item, LABELS.RESET_ITEM.getType());
-		_inv.setItem(4+8, reset_item);
+		setSwitch(LABELS.GO_BACK, Material.RED_STAINED_GLASS_PANE , ChatColor.AQUA + "<< BACK", 9);
+		setSwitch(LABELS.RESET_DEFAULT, Material.LAVA_BUCKET,  ChatColor.RED + "RESET DEFAULT VALUES", _size-1);
+		setSwitch(LABELS.RESET_ITEM, Material.WATER_BUCKET, ChatColor.AQUA + "CLEAR CHANGES", 12);
+		setSwitch(LABELS.RESET_ITEM_DEFAULT, Material.BEDROCK, ChatColor.AQUA + "RESET ITEM DATA DEFAULT VALUES", 14);
 		
 		refreshValueStateButton();
 		refrestItem();
@@ -142,6 +156,16 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 	Double getValueButtonValue(ItemStack stack)
 	{
 		return itemM.getPersistenData(stack, _pd_vButton, PersistentDataType.DOUBLE);
+	}
+	
+	void setValueDataIndex(ItemStack stack, int id)
+	{
+		itemM.setPersistenData(stack, _pd_dataIdx, PersistentDataType.INTEGER, id);
+	}
+	
+	Integer getValueDataIndex(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, _pd_dataIdx, PersistentDataType.INTEGER);
 	}
 	
 	void goBack()
@@ -185,11 +209,20 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 					return;
 				}
 				
-				if(switch_button == LABELS.REMOVE.getType())
+				if(switch_button == LABELS.RESET_DEFAULT.getType())
 				{
-					Double[] price = {0.0,0.0,0.0};
-
+					Double[] price = {(double)realMinLvl, (double)realMaxLvl, 0.0,0.0};
+					confirm(price);
 					goBack();
+					return;
+				}
+				
+				if(switch_button == LABELS.RESET_ITEM_DEFAULT.getType())
+				{
+					System.out.println("its this");
+					Double[] price = {(double)realMinLvl, (double)realMaxLvl, 0.0,0.0};
+					_prices = price;
+					refreshButtons();
 					return;
 				}
 				
@@ -208,6 +241,7 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 				if(switch_button == LABELS.VALUE_PRICE_BUTTON.getType())
 				{
 					Double price_amount = getValueButtonValue(stack);
+					int dataIndex = getValueDataIndex(stack);
 					Double multip = 1.0;
 					if(click == ClickType.LEFT)
 					{
@@ -230,7 +264,7 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 						multip = price_button_multiv[2];
 					}
 					
-					changePrice(price_amount*multip); 
+					changePrice(dataIndex, price_amount*multip); 
 					refreshButtons();
 					return;
 				}
@@ -243,75 +277,62 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 				
 				if(switch_button == LABELS.CONFIRM.getType())
 				{
-					_player.sendMessage(ChatColor.YELLOW + "Unique item has been chanced!");
-					//_shopManager.addUniqueItem(_orginalStack, _prices.clone(), false);
-
+					
+					confirm(_prices);
 					goBack();
-				}
-				
+				}				
 			}
 		}
 	}
 	
-	String getValueStateName()
+	void confirm(Double[] data)
 	{
-		String str = "";
-		switch (_value_state_now) {
-		case 0:
-			str = "Min Level";
-			break;
-
-		case 1:
-			str = "Max Level";
-			break;
-		case 2:
-			str = "Min price";
-			break;
-		case 3:
-			str = "Max price";
-			break;
-		}
-		
-		return str;
+		_player.sendMessage(ChatColor.YELLOW + "Enchant has been modified");
+		_enchM.addNewEnchant(_enchment, data,true);		
+	}
+	
+	String getValueStateName(int id)
+	{
+		return _dataNames[id];
 	}
 	void changeValueState(int i)
 	{
 		_value_state_now += i;
-		if(_value_state_now < 0)
+		if(_value_state_now < _total_value_state_min)
 			_value_state_now = _total_value_states;
 
 		
 		if(_value_state_now > _total_value_states)
-			_value_state_now = 0;
+			_value_state_now = _total_value_state_min;
 		
 		refreshValueStateButton();
 	}
 	
-	void changePrice(Double addAmount)
+	void changePrice(int id, Double addAmount)
 	{
 		Double[] copy_price = _prices.clone();
-		double newPrice =  Math.round((copy_price[_value_state_now] + addAmount)* 100.0) / 100.0;;
+		double newPrice =  Math.round((copy_price[id] + addAmount)* 100.0) / 100.0;;
 		
 		if(newPrice < 0)
 		{
 			newPrice = 0;
 		}
 		
-		if(_value_state_now == 0 && newPrice > _prices[1])
+		if(id == 0 && newPrice > _prices[1])
 		{
 			copy_price[1] = newPrice;
 		}
 		
-		if(_value_state_now == 2 && newPrice > _prices[3])
+		if(id == 2 && newPrice > _prices[3])
 		{
 			copy_price[3] = newPrice;
 		}
 		
-		copy_price[_value_state_now] = newPrice;
+		copy_price[id] = newPrice;
 		
 		if(!_enchM.isEnchantPriceValid(copy_price))
 		{
-			_player.sendMessage(ChatColor.DARK_RED + "That's not valid price!");
+			_player.sendMessage(ChatColor.DARK_RED + "That's not valid data!");
 			return;
 		}
 		
@@ -324,30 +345,46 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 		{
 			case 0:
 				value_state_button = new ItemStack(Material.IRON_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName(_value_state_now));
 				break;
 			case 1:
 				value_state_button = new ItemStack(Material.GOLD_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 			case 2:
 				value_state_button = new ItemStack(Material.DIAMOND_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 			case 3:
 				value_state_button = new ItemStack(Material.EMERALD_BLOCK);
-				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName());
+				itemM.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 		}
-		itemM.addLore(value_state_button, ChatColor.DARK_PURPLE + "Change between minlvl, maxlvl, minPrice, maxPrice", false);
+		
+		itemM.addLore(value_state_button, ChatColor.DARK_PURPLE + "Changed between "+ getValueStateName(2)+", " +getValueStateName(3), false);
 		setButtonSwitch(value_state_button, LABELS.VALUE_STATE.getType());
 		_inv.setItem(4, value_state_button);
 	}
 	
+	void setSinglePriceButton(Material material,String displayName, double buttonValue, int valueIndex, int itemSlot)
+	{
+		ItemStack pButton = new ItemStack(material);
+		setValueButtonValue(pButton, buttonValue);
+		setButtonSwitch(pButton, LABELS.VALUE_PRICE_BUTTON.getType());
+		setValueDataIndex(pButton, valueIndex);
+		itemM.setDisplayName(pButton,displayName);
+		
+		itemM.addLore(pButton, ChatColor.GREEN+"M3"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "     :  "+ChatColor.YELLOW+price_button_multiv[2]+"x", false);
+		itemM.addLore(pButton, ChatColor.GREEN+"SM1"+ ChatColor.AQUA +" / "+ ChatColor.RED + "SM2:  "+ChatColor.YELLOW+price_button_multiv[1]+"x", false);
+		itemM.addLore(pButton, ChatColor.GREEN+"M1"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "  M2:  "+ChatColor.YELLOW+price_button_multiv[0]+"x", false);
+		itemM.addLore(pButton, "---------------",false);
+		itemM.addLore(pButton, ChatColor.DARK_PURPLE + getValueStateName(valueIndex) +": "+ChatColor.GOLD + _prices[valueIndex], false);
+		
+		_inv.setItem(itemSlot, pButton);
+	}
+	
 	void refreshPriceButtons()
 	{
-
-		ItemStack price_button; //= new ItemStack(Material.BEDROCK);
 		int first = 20;
 		
 		String disp = ChatColor.YELLOW + "===> "+ChatColor.GREEN+"+"+ ChatColor.AQUA +"/"+ ChatColor.RED + "- ";
@@ -356,31 +393,16 @@ public class EnchantInvModify extends CustomInvLayout implements Listener
 		String[] displays = {disp +ChatColor.GOLD + price_button_values[0], disp +ChatColor.GOLD + price_button_values[1], 
 							disp +ChatColor.GOLD + price_button_values[2], disp +ChatColor.GOLD + price_button_values[3], 
 							disp +ChatColor.GOLD + price_button_values[4]};
- 		
+ 				
+		setSinglePriceButton(Material.IRON_INGOT, disp +ChatColor.GOLD + "1.0",1.0, 0, 3);
+		setSinglePriceButton(Material.GOLD_INGOT, disp +ChatColor.GOLD + "1.0",1.0, 1, 5);
 			
 		for(int i = 0; i < 5;++i)
 		{
-
-			price_button = new ItemStack(mats[i]);
-			itemM.setDisplayName(price_button,displays[i]);
-			setValueButtonValue(price_button, price_button_values[i]);
-			setButtonSwitch(price_button, LABELS.VALUE_PRICE_BUTTON.getType());
-			
-			itemM.addLore(price_button, ChatColor.GREEN+"M3"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "     :  "+ChatColor.YELLOW+price_button_multiv[2]+"x", false);
-			itemM.addLore(price_button, ChatColor.GREEN+"SM1"+ ChatColor.AQUA +" / "+ ChatColor.RED + "SM2:  "+ChatColor.YELLOW+price_button_multiv[1]+"x", false);
-			itemM.addLore(price_button, ChatColor.GREEN+"M1"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "  M2:  "+ChatColor.YELLOW+price_button_multiv[0]+"x", false);
-			itemM.addLore(price_button, "---------------",false);
-			itemM.addLore(price_button, ChatColor.DARK_PURPLE + getValueStateName() +": "+ChatColor.GOLD + _prices[_value_state_now], false);
-
-			
-			_inv.setItem(first+i, price_button);
-		}
-		
-		
-		
+			setSinglePriceButton(mats[i],displays[i],price_button_values[i],_value_state_now,(first+i));	
+		}	
 	}
-	
-	
+		
 	void refrestItem()
 	{
 		setTooltip();

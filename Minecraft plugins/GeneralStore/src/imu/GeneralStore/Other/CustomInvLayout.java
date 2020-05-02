@@ -26,21 +26,21 @@ public class CustomInvLayout
 		_name = name;
 		_size = size;
 		_player = player;		
-		_inv =  _main.getServer().createInventory(player, _size, _name);
+		_inv =  _main.getServer().createInventory(null, _size, _name);
 		itemM = _main.getItemM();
 	}
 	
 	public boolean isThisInv(InventoryEvent e) 
 	{
 		InventoryView view = e.getView();
-		if(view.getTitle().equalsIgnoreCase(_name))
+
+		if(view.getTitle().equalsIgnoreCase(_name) && view.getPlayer() == _player)
 		{
 			return true;
 		}
 		return false;
 	}
-	
-	
+		
 	public void onDisable()
 	{
 		_player.closeInventory();

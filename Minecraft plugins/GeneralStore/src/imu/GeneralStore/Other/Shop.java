@@ -1458,20 +1458,6 @@ public class Shop implements Listener
 		return lastPrice;
 	}
 	
-	
-	void printPriceArrayList(String id,ArrayList<Double[]> values)
-	{
-		for(Double[] ds : values)
-		{
-			System.out.println("===== "+id+" =====");
-			for(Double d: ds)
-			{
-				System.out.println("vals: "+d);
-			}
-			System.out.println("===== "+id+" =====");
-		}
-	}
-	
 	public Double[] materialPricesDecoder(ItemStack stack, ArrayList<Double[]> values)
 	{
 		Double[] prices = {0.0,0.0,0.0};
@@ -1645,7 +1631,7 @@ public class Shop implements Listener
 				{
 					Double[] values=enchantsManager.getEnchPrices().get(ench.getKey());
 					double calp = 0;
-					if(!itemM.isEveryThingThis(values, 0.0))
+					if( values[2] != 0 ||  values[3] != 0)
 					{
 						calp = priceCalculation(ench.getValue(), values[1], values[2], values[3]);
 					}					
