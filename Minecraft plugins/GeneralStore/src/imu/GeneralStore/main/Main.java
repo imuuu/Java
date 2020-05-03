@@ -25,6 +25,7 @@ import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
 import imu.GeneralStore.SubCommands.subStoreEnchantInvCmd;
 import imu.GeneralStore.SubCommands.subStoreListCmd;
+import imu.GeneralStore.SubCommands.subStoreLockCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
@@ -63,6 +64,7 @@ public class Main extends JavaPlugin
 	
     boolean enableSmartPrices = false; 
     boolean loadSmartPricesUpFront=false; 
+    boolean locked = false; // added
 	ItemMetods itemM = null;
 	
 	String materialPriceYML ="material_prices.yml";
@@ -71,10 +73,10 @@ public class Main extends JavaPlugin
         CommandHandler handler = new CommandHandler();
 
         String cmd1="gs";
-        handler.registerCmd(cmd1, new GeneralStoreCmd());  
+        handler.registerCmd(cmd1, new GeneralStoreCmd(this));  
         handler.setPermissionOnLastCmd("gs");
         handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
-        handler.registerSubCmd(cmd1, "shops", new subStoreListCmd(this)); //added
+        handler.registerSubCmd(cmd1, "shops", new subStoreListCmd(this));
         handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
         handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd(this));
         handler.registerSubCmd(cmd1, "price", new subStoreSetPriceCmd(this));
@@ -83,8 +85,9 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
         handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
         handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
-        handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this)); //added
-        handler.registerSubCmd(cmd1, "enchs", new subStoreEnchantInvCmd(this)); //added
+        handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this));
+        handler.registerSubCmd(cmd1, "enchs", new subStoreEnchantInvCmd(this));
+        handler.registerSubCmd(cmd1, "lock", new subStoreLockCmd(this));
         
         
         getCommand(cmd1).setExecutor(handler);
@@ -106,6 +109,8 @@ public class Main extends JavaPlugin
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
 		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
+		
+		shopManager.setLockShops(locked,false);
 	}
 	
 	@Override
@@ -126,7 +131,7 @@ public class Main extends JavaPlugin
 	
 	public void ConfigsSetup()
 	{
-		makeSettingsConfig();
+		makeSettingsConfig(false);
 		makeMaterialConfig();
 		makeEnchantExponentConfig();
 	}
@@ -141,6 +146,10 @@ public class Main extends JavaPlugin
 		return shopManager;
 	}
 	
+	public void setLocked(boolean lock)
+	{
+		locked = lock;
+	}
 	public int getClickPerSecond() {
 		return clickPerSecond;
 	}
@@ -208,10 +217,13 @@ public class Main extends JavaPlugin
 		shopManager.checkIfAbleToSaveData();
 	}
 	
-	void makeSettingsConfig()
+	public void makeSettingsConfig(boolean refresh)
 	{
 		ConfigMaker cm = new ConfigMaker(this, "settings.yml");
-
+		if(refresh)
+		{
+			cm.clearConfig();
+		}
 		try 
 		{
 			default_prices[0] = cm.addDefault("DefaultMinPrice", default_prices[0],"Minprice: item will not sold lower than this each epoch");
@@ -224,6 +236,7 @@ public class Main extends JavaPlugin
 			durabilityCostMultiplier = cm.addDefault("DurabilityCostMultiplier", durabilityCostMultiplier,"DurabilityCostMultiplier:(0.0-1.0) How much durability effects item price. If equals 1 it means same price but lowered, If 0 durability isnt effected at all");
 			enableSmartPrices = cm.addDefault("EnableSmartPrices",enableSmartPrices , "EnableSmartPrices: Allow shop calculate prices from recipies");
 			loadSmartPricesUpFront=cm.addDefault("LoadSmartPricesUpFront", loadSmartPricesUpFront, "LoadSmartPricesUpFront: Load smart prices before using shops, false means doing it when it opens.. can be laggy at first");
+			locked = cm.addDefault("AllcommandsLocked", locked, "If true all Ops can only use commands. Normally used in if you don't wanna people use shops");
 			cm.addComments();
 			
 		} catch (Exception e) 
@@ -231,6 +244,7 @@ public class Main extends JavaPlugin
 			getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Something got wrong GeneralStore fileNamed: "+cm.getFileName());
 			getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Maybe you casted some value as Integer When it should be Double?");
 		}
+		
 		
 	}
 	

@@ -38,6 +38,7 @@ public class ShopManager implements DelaySendable
 	String uniqueYAML ="UniqueItems.yml";
 	
 	boolean calculationReady = true;
+	boolean lock_shops = false;
 	
 	ItemMetods itemM = null;
 	
@@ -59,6 +60,21 @@ public class ShopManager implements DelaySendable
 		makeShopsConfig();
 	}
 	
+	public boolean isShopsLocked()
+	{
+		return lock_shops;
+	}
+	
+	public void setLockShops(boolean lock, boolean saveData)
+	{
+		lock_shops = lock;
+		if(saveData)
+		{
+			_main.setLocked(lock);
+			_main.makeSettingsConfig(true);
+		}
+		
+	}
 	public String get_pd_modify() 
 	{
 		return pd_modify;

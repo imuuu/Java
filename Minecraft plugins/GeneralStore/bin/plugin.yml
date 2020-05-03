@@ -12,6 +12,9 @@ commands:
    gs shop:
      description: Opens default shop without shopname. Opens shop with name
      usage: /<command> {shop_name}
+   gs shops:
+    description: Show list of all shops
+    usage: /<command>}
    gs create:
      description: Create new shop
      usage: /<command> {shop_name}
@@ -41,4 +44,8 @@ commands:
      usage: /<command>
    gs enchs:
      description: Give you inv with all enchants with modified ability
+     usage: /<command>
+   gs lock:
+     description: Lock all this plugin commands from normal players. Operators are able to use everything!
+     usage: /<command>
       

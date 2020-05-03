@@ -9,13 +9,19 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ItemMetods;
+import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
  
 public class GeneralStoreCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
-	ItemMetods itemM=new ItemMetods();
+	Main _main = null;
+	ShopManager _shopM = null;
+	public GeneralStoreCmd(Main main)
+	{
+		_main = main;
+		_shopM = _main.getShopManager();
+	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
  
@@ -25,36 +31,24 @@ public class GeneralStoreCmd implements CommandInterface
     		return true;
     	}
     	
+    	if(_shopM.isShopsLocked())
+    	{
+    		if(!sender.isOp())
+    		{
+    			sender.sendMessage(ChatColor.RED + "Closed");
+    			return true;
+    		}
+    		
+    		sender.sendMessage(ChatColor.YELLOW + "This plugin commands are locked from normal player..");
+    		
+    		
+    	}
+    	
     	if(args.length > 0)
     		return false;
         
     	
-    	Player p = (Player) sender;
-
-        p.sendMessage("General Store123!");
-        ItemStack stack = p.getInventory().getItemInMainHand();
-        //ItemStack stack2 = p.getInventory().getItemInOffHand();
-        System.out.println("STACK: "+stack);
-        //if(itemM.giveDamage(stack,100,true))
-		//{
-        //	System.out.println("Prosent: "+itemM.getDurabilityProsent(stack));
-		//}else
-		//{
-		//	p.sendMessage("Not valid item");
-		//}
-        itemM.setDamage(stack, 69);
-        System.out.println("Stack: "+stack);
-        //_main.getShopManager().getUniqueItemPrice(stack);
-        //Shop shop = new Shop("plasd", false);
-        //System.out.println(itemM.isSameStack(stack, stack2));
-        //itemM.printHashMap(_main.shopManager.smart_prices);
-        //itemM.printArray("TOTAL", shop.getSmartPrice(stack,false,0));
-        //Double[] first = {0.0, 0.0, 0.0};
-        //Double[] prices = shop.materialNEWPrices(stack, first, 0);
-        
-        //itemM.printArray("VALUES:", prices);
-        //itemM.printHashMap(_main.shopManager.smart_prices);
-        
+    	
         return true;
     }
  
