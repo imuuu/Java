@@ -1,0 +1,12 @@
+name: WorldRestore
+author: imukuppikorva
+version: 1.0
+main: imu.WorldRestore.main.Main
+description: WorldRestore
+api-version: 1.15
+softdepend: [WorldEdit,WorldGuard]
+commands:
+   wr:
+     description: WorldRestore
+     usage:  /<command>
+      

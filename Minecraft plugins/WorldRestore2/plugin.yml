@@ -1,0 +1,31 @@
+name: WorldRestore
+version: 1.0
+author: bullterrier292
+main: me.bullterrier292.WorldRestore
+commands:
+   rw:
+       description: Restores world from other world
+       usage: /<command>
+   rwfixdchunks:
+       description: Restores world from other world
+       usage: /<command>
+   rwfixsurface:
+       description: Restores world from other world
+       usage: /<command>
+   rwautodchunks:
+       description: Restores world from other world
+       usage: /<command>
+   rwautosurface:
+       description: Restores world from other world
+       usage: /<command>
+   rwtest:
+       description: Restores world from other world
+       usage: /<command>
+   rwstop:
+       description: Restores world from other world
+       usage: /<command>
+   wrset:
+       description: Restores world from other world
+       usage: /<command>
+    
+ 
