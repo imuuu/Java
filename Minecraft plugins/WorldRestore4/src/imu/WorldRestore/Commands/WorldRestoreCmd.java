@@ -18,11 +18,11 @@ public class WorldRestoreCmd implements CommandInterface
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
  
-    	sender.sendMessage("Write /help wr get more info!");
-    	
+    
     	if(args.length > 0)
     		return false;
         
+    	sender.sendMessage("Write /help wr get more info!");
     	
     	
         return true;

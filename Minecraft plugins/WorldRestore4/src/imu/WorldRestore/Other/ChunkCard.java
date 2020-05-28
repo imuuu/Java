@@ -119,8 +119,7 @@ public class ChunkCard
 	{
 		return _cManager.getMain().getServer().getWorld(_targetWorld);
 	}
-	
-	
+		
 	public String get_targetWorldName() {
 		return _targetWorld;
 	}

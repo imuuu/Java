@@ -31,8 +31,8 @@ public class Main extends JavaPlugin
 	ChunkFileHandler _chunkFileHandler = null;
 	PlayerData _playerData = null;
 
-	String _playWorld = "world"; //season
-	String _cloneWorld = "dw"; //default_world
+	String _playWorld = "season"; //season 			//world
+	String _cloneWorld = "default_world"; //default_world		//dw
 	
 	boolean _enable_autoChunkUpdate = false;
 	int _maxSavedChunkCardsInMemory = 100;

@@ -128,14 +128,23 @@ public class ChunkHandler
 	{
 		Material dType = dblock.getType();
 		//replace block from other world if there is difference			
-		if((block.getType() != dType || block.getState() != dblock.getState()))
+		BlockState bState = block.getState();
+		if((block.getType() != dType || bState != dblock.getState()))
 		{
 			if(!checkProtection || !isBlockProtectedV2(block))
 			{
 				//get main blocks front so it will speed up process
 				if(dType == Material.STONE || dType == Material.DIRT || dType == Material.AIR || dType == Material.GRAVEL || dType == Material.SAND || dType== Material.COBBLESTONE)
 				{
+					
+					if(bState instanceof InventoryHolder)
+					{
+						InventoryHolder holder = (InventoryHolder) bState;
+						holder.getInventory().clear();
+					}
+					
 					block.setType(dType);
+					
 				}
 				else 
 				{

@@ -30,8 +30,7 @@ public class subWrAreaCmd implements CommandInterface
     {
         Player player = (Player) sender;
         Chunk chunk = player.getLocation().getChunk();
-        
-        System.out.println("args: "+args.length);
+
         if(args.length > 1 && _itemM.isDigit(args[1]))
         {
         	int maxY = 256;
@@ -40,8 +39,6 @@ public class subWrAreaCmd implements CommandInterface
         	boolean checkProtection = true;
         	if(size % 2 > 0)
         	{
-
-            	System.out.println("its valid");
             	if(args.length > 2 && _itemM.isDigit(args[2]))
             	{
             		minY = checkValidY(Integer.parseInt(args[2]));            		
