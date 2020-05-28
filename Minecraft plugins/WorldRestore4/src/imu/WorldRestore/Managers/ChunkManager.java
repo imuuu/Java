@@ -2,11 +2,17 @@ package imu.WorldRestore.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import imu.WorldRestore.Other.ChunkCard;
 import imu.WorldRestore.Other.ChunkFileHandler;
@@ -29,6 +35,8 @@ public class ChunkManager
 	int _maxSizeChunkHash = 3;
 	
 	HashMap<Chunk, ChunkCard> _chunks = new HashMap<Chunk, ChunkCard>();
+	
+	HashMap<UUID, Location> _player_locs = new HashMap<UUID, Location>();
 	boolean _chunksInUse = false;
 	
 	
@@ -55,6 +63,8 @@ public class ChunkManager
 	{
 		return _chunkFixYAML;
 	}
+
+	
 	public void setChunk(Chunk chunk, String targetWorldName, int y)
 	{
 		ChunkCard cCard = _chunks.get(chunk);
@@ -68,24 +78,27 @@ public class ChunkManager
 		}
 		
 	}
-	
 	public void setChunk(Block block)
 	{
 		
 		setChunk(block.getChunk(), getDefTargetWorldName(), block.getLocation().getBlockY());
 	}
-	public void setChunkAuto(Block block,int yDelta)
+	public void setChunkAuto(Block block,int yMinDelta,int yMaxDelta)
 	{
 		Chunk chunk = block.getChunk();
 		Location loc = block.getLocation();
 		ChunkCard card = _chunks.get(chunk);
+		int min = loc.getBlockY()+yMinDelta;
+		int max = loc.getBlockY()+yMaxDelta;
 		if(card != null)
 		{
-			card.Refresh(loc.getBlockY());
-			card.Refresh(loc.getBlockY()+yDelta);
+			//card.Refresh(loc.getBlockY());
+			
+			card.RefreshAndLayers(min, max);
 		}else
 		{
-			card = new ChunkCard(this, chunk, getDefTargetWorldName(), loc.getBlockY(),loc.getBlockY()+yDelta,System.currentTimeMillis());
+			card = new ChunkCard(this, chunk, getDefTargetWorldName(), min, max, System.currentTimeMillis(),true);
+			card.printData();
 			newChunk(card);
 		}
 		
@@ -111,16 +124,10 @@ public class ChunkManager
 	}
 	public void newChunk(ChunkCard cCard)
 	{
-		Runtime r = Runtime.getRuntime();
-		
+		System.out.println("its new chunck!");
 		checkHashSize();
 		_chunks.put(cCard.getChunk(), cCard);
 		_chunkFileHandler.saveCard(cCard);
-		
-		
-		//long memUsed = ((r.totalMemory() - r.freeMemory()));
-		//System.out.println("memory usage: "+memUsed/ (1024 * 1024));
-		//System.out.println("size of array of chunkCards: "+cs.size());
 	}
 	
 	public void removeChunkCardFromChunks(ChunkCard card)
@@ -147,13 +154,13 @@ public class ChunkManager
 		}
 	}
 	
-	public void fixChunk(ChunkCard card)
+	public void fixChunkLayers(ChunkCard card)
 	{
-		_chunkHandler.fixChunk(card);
+		_chunkHandler.fixChunk(card,true);
 	}
-	public void fixChunks(ArrayList<ChunkCard> cards)
+	public void fixChunks(ArrayList<ChunkCard> cards, boolean goLayers)
 	{
-		_chunkHandler.fixChunks(cards);
+		_chunkHandler.fixChunks(cards, goLayers);
 	}
 	
 
@@ -161,6 +168,15 @@ public class ChunkManager
 	{		
 		_chunkFileHandler.saveCardList(_chunks);
 		_chunks.clear();			
+	}
+	
+	public boolean isLocationInRegion(Location loc)
+	{
+		RegionContainer con = _main.getWorldGuard().getPlatform().getRegionContainer();
+		RegionQuery quarry = con.createQuery();
+		ApplicableRegionSet set = quarry.getApplicableRegions(BukkitAdapter.adapt(loc));
+		
+		return set.getRegions().size() > 0;
 	}
 
 	

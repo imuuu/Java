@@ -1,26 +1,23 @@
 package imu.WorldRestore.main;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Wolf;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import imu.WorldRestore.Commands.WorldRestoreCmd;
 import imu.WorldRestore.Events.Event1;
 import imu.WorldRestore.Handlers.CommandHandler;
 import imu.WorldRestore.Managers.ChunkManager;
-import imu.WorldRestore.Other.CFileHandle;
 import imu.WorldRestore.Other.ChunkFileHandler;
 import imu.WorldRestore.Other.ChunkHandler;
 import imu.WorldRestore.Other.ConfigMaker;
 import imu.WorldRestore.Other.ItemMetods;
-import imu.WorldRestore.SubCommands.subCmd;
-import imu.WorldRestore.SubCommands.subCmd2;
+import imu.WorldRestore.Other.PlayerData;
+import imu.WorldRestore.SubCommands.subWrFixAll;
 import imu.WorldRestore.SubCommands.subCmd3;
 import imu.WorldRestore.SubCommands.subTeleportCmd;
+import imu.WorldRestore.SubCommands.subWrAreaCmd;
 
 public class Main extends JavaPlugin
 {
@@ -31,7 +28,7 @@ public class Main extends JavaPlugin
 	ChunkManager _chunkManager = null;
 	ChunkHandler _chunkHandler = null;
 	ChunkFileHandler _chunkFileHandler = null;
-	CFileHandle _cFileHandle = null;
+	PlayerData _playerData = null;
 	
 	
 	int _chunkHandler_maxChunkFixSize = 2;
@@ -45,8 +42,8 @@ public class Main extends JavaPlugin
         String cmd1="wr";
         handler.registerCmd(cmd1, new WorldRestoreCmd(this));  
         handler.setPermissionOnLastCmd("wr");
-        handler.registerSubCmd(cmd1, "test", new subCmd(this));
-        handler.registerSubCmd(cmd1, "test2", new subCmd2(this));
+        handler.registerSubCmd(cmd1, "area", new subWrAreaCmd(this));
+        handler.registerSubCmd(cmd1, "test2", new subWrFixAll(this));
         handler.registerSubCmd(cmd1, "test3", new subCmd3(this));
         handler.registerSubCmd(cmd1, "tp", new subTeleportCmd(this));
        
@@ -65,6 +62,7 @@ public class Main extends JavaPlugin
 		_chunkFileHandler = new ChunkFileHandler(this);
 		_chunkManager.SetupHandlers();
 		_chunkHandler.SetupHanddlers();
+		_playerData = new PlayerData(this);
 		
 		ConfigsSetup();
 
@@ -111,6 +109,11 @@ public class Main extends JavaPlugin
 	public ItemMetods getItemM() 
 	{
 		return itemM;
+	}
+	
+	public PlayerData getPlayerData()
+	{
+		return _playerData;
 	}
 	
 	public void makeSettingsConfig(boolean refresh)

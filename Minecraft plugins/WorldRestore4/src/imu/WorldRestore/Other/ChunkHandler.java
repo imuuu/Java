@@ -27,10 +27,11 @@ public class ChunkHandler
 	int _auto_chunkFixDelay = 10; // how often auto
 	int _auto_chunkAmount = 2;
 	
-	int _chunkFixDelay = 10;
+	int _chunkFixDelay = 1;
 	int _chunkAmount = 2;
 	
 	BukkitTask _chunkfixer = null;
+	RegionQuery _quarry = null;
 	public ChunkHandler(Main main) 
 	{
 		_main = main;
@@ -39,7 +40,10 @@ public class ChunkHandler
 		
 		autoChunkFixer();
 	}
-	
+	void setupWGquarry()
+	{
+		_quarry =  _wg.getPlatform().getRegionContainer().createQuery();
+	}
 	public void SetupHanddlers()
 	{
 		_chunkFileHandler = _main.getChunkFileHandler();
@@ -65,7 +69,7 @@ public class ChunkHandler
 		this._chunkAmount = _chunkAmount;
 	}
 
-	public void fixChunk(ChunkCard card)
+	public void fixChunk(ChunkCard card, boolean goLayers)
 	{
 		Chunk chunk = card.getChunk();
 		
@@ -79,35 +83,40 @@ public class ChunkHandler
 		World world = card.getWorld();
 		World targetWorld = card.getTargetWorld();
 		
-		Block block,dblock;
-		int count = 0;
+		Block block, dblock;
+		
+		setupWGquarry();
+		if(_main.getPlayerData().hasPlayersInThisChunk(chunk))
+		{
+			System.out.println("YES there is player");
+			_main.getPlayerData().setPlayersTaggedInChunk(chunk);
+		}
+		
 		for(int i=0; i < 16; i++)
 		{
 			for(int j=0; j < 16;j++)
 			{
-				for(int k=y; k < card.get_maxY()+1; k++)
-				{					
-					block = world.getBlockAt(x, y, z);
-					dblock = targetWorld.getBlockAt(x,y,z);
-					Material dType = dblock.getType();
-										
-					//replace block from other world if there is difference					
-					if((block.getType() != dType || block.getState() != dblock.getState()) && !isBlockProtected(block))
+				if(goLayers)
+				{
+					for(int k : card.getLayers().keySet())
 					{
-						count++;
-						
-						//get main blocks front so it will speed up process
-						if(dType == Material.STONE || dType == Material.DIRT || dType == Material.AIR || dType == Material.GRAVEL || dType == Material.SAND || dType== Material.COBBLESTONE)
-						{
-							block.setType(dType);
-						}
-						else 
-						{
-							itemM.copyBlock(dblock, block);
-						}
+						block = world.getBlockAt(x, k, z);
+						dblock = targetWorld.getBlockAt(x,k,z);
+						blockChangeOperation(block, dblock);
 					}
-				y++;
-				}			
+				}
+				else
+				{
+					for(int k=y; k < card.get_maxY()+1; k++)
+					{					
+						block = world.getBlockAt(x, y, z);
+						dblock = targetWorld.getBlockAt(x,y,z);
+						blockChangeOperation(block, dblock);
+						
+					y++;
+					}			
+				}
+				
 			z++;
 			y=dy;
 			}		
@@ -115,33 +124,43 @@ public class ChunkHandler
 		z=dz;
 		}
 		
+	}
+	void blockChangeOperation(Block block, Block dblock)
+	{
+		Material dType = dblock.getType();
 		
-		System.out.println("TOTAL COUNT : "+count);
-		
-	
+		//replace block from other world if there is difference					
+		if((block.getType() != dType || block.getState() != dblock.getState()) && !isBlockProtectedV2(block))
+		{
+
+			//get main blocks front so it will speed up process
+			if(dType == Material.STONE || dType == Material.DIRT || dType == Material.AIR || dType == Material.GRAVEL || dType == Material.SAND || dType== Material.COBBLESTONE)
+			{
+				block.setType(dType);
+			}
+			else 
+			{
+				itemM.copyBlock(dblock, block);
+			}
+		}
 	}
 	
-	boolean isBlockProtected(Block block)
-	{
-		RegionContainer con = _wg.getPlatform().getRegionContainer();
-		RegionQuery quarry = con.createQuery();
-		ApplicableRegionSet set = quarry.getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
 	
-		if(set.getRegions().size() > 0)
-		{
-			return true;
-		}
-		
-		return false;
+	
+	// ONLY ENTER HERE AFTER QUARY HAS BEEN SETUP! void setupWGquary!
+	boolean isBlockProtectedV2(Block block)
+	{
+		ApplicableRegionSet set = _quarry.getApplicableRegions(BukkitAdapter.adapt(block.getLocation()));
+		return set.getRegions().size() > 0;
 	}
 	public void fixChunk(ChunkCard card, int minY, int maxY)
 	{
 		card.set_minY(minY);
 		card.set_maxY(maxY);
-		fixChunk(card);
+		fixChunk(card,false);
 	}
 	
-	public void fixChunks(ArrayList<ChunkCard> cards)
+	public void fixChunks(ArrayList<ChunkCard> cards, boolean goLayers)
 	{
 		if(cards.isEmpty())
 		{
@@ -161,7 +180,7 @@ public class ChunkHandler
 				
 				for(int i = 0; i < amount ; ++i)
 				{
-					fixChunk(cards.get(i));
+					fixChunk(cards.get(i), goLayers);
 				}
 				
 				for(int i = 0; i < amount ; ++i)
@@ -194,14 +213,13 @@ public class ChunkHandler
 					System.out.println("cfh is null in chunkhandler");
 					return;
 				}
-				ItemMetods itemM = new ItemMetods(_main);
-				long start = System.currentTimeMillis();
+				//ItemMetods itemM = new ItemMetods(_main);
+				//long start = System.currentTimeMillis();
 				ArrayList<ChunkCard> cards = _chunkFileHandler.getBeingRepairedChunks(_auto_chunkAmount);
-				long elapsedTime = System.currentTimeMillis()-start;
-				System.out.println("TIME WAS: "+elapsedTime);	
-				
-				itemM.printArray("chunks", cards.toArray());
-				fixChunks(cards);
+				//long elapsedTime = System.currentTimeMillis()-start;
+				//System.out.println("autoChunkFixer: TIME WAS: "+elapsedTime);	
+
+				fixChunks(cards,true);
 				
 			}
 		}.runTaskTimer(_main, 10, 20*_auto_chunkFixDelay);

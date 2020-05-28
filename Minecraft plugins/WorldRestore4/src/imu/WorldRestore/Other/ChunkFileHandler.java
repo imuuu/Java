@@ -76,12 +76,25 @@ public class ChunkFileHandler
 	public String compileChunkCard(ChunkCard cCard)
 	{
 		String sep = ";";
+		
+		String layerStr = "";
+		for(Integer i : cCard.getLayers().values())
+		{
+			layerStr += ":"+String.valueOf(i);
+		}
+		if(layerStr.charAt(0) == ':')
+		{
+			layerStr = layerStr.substring(1);
+		}
+		
 		String str = cCard.getId() +sep+ 
 				cCard.getWorld().getName() +sep+ 
 				cCard.get_targetWorldName() +sep+
 				cCard.get_minY() +sep+
 				cCard.get_maxY() +sep+
-				cCard.get_timeStamp();
+				cCard.get_timeStamp()+sep+
+				layerStr;
+		
 		return str;
 	}
 	
@@ -95,7 +108,24 @@ public class ChunkFileHandler
 		int maxY = Integer.parseInt(parts[4]);
 		long stamp = Long.parseLong(parts[5]);
 		
-		ChunkCard card = new ChunkCard(_main.getChunkManager(), chunk, targetWorld, minY, maxY, stamp);
+		String layerStr = parts[6];
+		HashMap<Integer, Integer> layers = new HashMap<>();
+		int l;
+		if(layerStr.contains(":"))
+		{
+			for(String layer : layerStr.split(":"))
+			{
+				l = Integer.parseInt(layer);
+				layers.put(l, l);
+			}
+		}else
+		{
+			l = Integer.parseInt(layerStr);
+			layers.put(l, l);
+			
+		}
+		
+		ChunkCard card = new ChunkCard(_main.getChunkManager(), chunk, targetWorld, minY, maxY, stamp,layers);
 		return card;
 	}
 	

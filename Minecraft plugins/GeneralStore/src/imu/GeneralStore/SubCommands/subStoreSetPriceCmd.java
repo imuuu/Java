@@ -31,7 +31,6 @@ public class subStoreSetPriceCmd implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         player = (Player) sender;
-        System.out.println("shopmanager: "+shopManager);
         if(args.length > 3)
         {
         	if(itemM.isDigit(args[1]) && itemM.isDigit(args[2]) && itemM.isDigit(args[3]))

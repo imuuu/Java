@@ -1,5 +1,7 @@
 package imu.WorldRestore.Other;
 
+import java.util.HashMap;
+
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
@@ -16,26 +18,44 @@ public class ChunkCard
 	int _maxY = 0;
 	
 	long _timeStamp = 0;
+	HashMap<Integer, Integer> _layers = new HashMap<>();
 	
 	ChunkManager _cManager = null;
 	public ChunkCard(ChunkManager cManager, Chunk chunk, String targetWorldName, int y) 
 	{
-		_cManager = cManager;
-		_chunk = chunk;
+		setup(cManager, chunk, targetWorldName);
 		_timeStamp = System.currentTimeMillis();
-		_targetWorld = targetWorldName;
-		_id = _cManager.createChunkID(_chunk);		
+			
 		setMinMaxY(y);
 	}
-	public ChunkCard(ChunkManager cManager, Chunk chunk, String targetWorldName, int minY, int maxY, long timestamp) 
+	public ChunkCard(ChunkManager cManager, Chunk chunk, String targetWorldName, int minY, int maxY, long timestamp, boolean addLayersBetweenMinMax) 
+	{
+		setup(cManager, chunk, targetWorldName);
+		_timeStamp = timestamp;
+		set_minY(minY);
+		set_maxY(maxY);
+		if(addLayersBetweenMinMax)
+		{
+			putLayers(minY, maxY);
+		}
+			
+	}
+	public ChunkCard(ChunkManager cManager, Chunk chunk, String targetWorldName, int minY, int maxY, long timestamp,HashMap<Integer, Integer> layers) 
+	{
+		setup(cManager, chunk, targetWorldName);
+		_timeStamp = timestamp;
+		set_minY(minY);
+		set_maxY(maxY);
+		
+		_layers = layers;
+	}
+	
+	void setup(ChunkManager cManager, Chunk chunk, String targetWorldName)
 	{
 		_cManager = cManager;
 		_chunk = chunk;
-		_timeStamp = timestamp;
 		_targetWorld = targetWorldName;
-		set_minY(minY);
-		set_maxY(maxY);
-		_id = _cManager.createChunkID(_chunk);		
+		_id = _cManager.createChunkID(_chunk);	
 	}
 	
 	public void setMinMaxY(int y)
@@ -50,6 +70,7 @@ public class ChunkCard
 		{
 			_maxY=y;			
 		}
+		_layers.put(y, y);
 			
 	}
 	
@@ -57,6 +78,23 @@ public class ChunkCard
 	{
 		setMinMaxY(y);
 		_timeStamp = System.currentTimeMillis();
+	}
+	
+	public void RefreshAndLayers(int minY, int maxY)
+	{
+		setMinMaxY(minY);
+		setMinMaxY(maxY);
+		putLayers(minY, maxY);
+		_timeStamp = System.currentTimeMillis();
+	}
+	public void putLayers(int minY, int maxY)
+	{
+		minY = checkerY(minY);
+		maxY = checkerY(maxY);
+		for(int y = minY ; y < maxY+1 ; ++y)
+		{
+			_layers.put(y, y);
+		}
 	}
 	
 	public String getId()
@@ -73,6 +111,10 @@ public class ChunkCard
 		return _chunk.getWorld();
 	}
 	
+	public HashMap<Integer, Integer> getLayers()
+	{
+		return _layers;
+	}
 	public World getTargetWorld()
 	{
 		return _cManager.getMain().getServer().getWorld(_targetWorld);
@@ -95,7 +137,7 @@ public class ChunkCard
 		}else if(y < 0)
 		{
 			y = 0;
-		}
+		}		
 		return y;
 	}
 	
@@ -103,11 +145,13 @@ public class ChunkCard
 	{
 		y = checkerY(y);
 		_minY = y;
+		_layers.put(y, y);
 	}
 	public void set_maxY(int y)
 	{
 		y = checkerY(y);
 		_maxY = y;
+		_layers.put(y, y);
 	}
 
 	public int get_maxY() {

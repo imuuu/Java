@@ -21,7 +21,7 @@ commands:
    gs remove:
      description: Remove created shop
      usage: /<command> {shop_name}
-   gs price:
+   gs setprice:
      description: Set price of material what you are holding in your hand. Remember reload configs
      usage: /<command> {min_price} {max_price} {price_prosent}
    gs cost:

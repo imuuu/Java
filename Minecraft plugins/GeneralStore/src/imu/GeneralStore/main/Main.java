@@ -79,7 +79,7 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "shops", new subStoreListCmd(this));
         handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
         handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd(this));
-        handler.registerSubCmd(cmd1, "price", new subStoreSetPriceCmd(this));
+        handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd(this));
         handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
         handler.registerSubCmd(cmd1, "add", new subStoreAddCmd());
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
