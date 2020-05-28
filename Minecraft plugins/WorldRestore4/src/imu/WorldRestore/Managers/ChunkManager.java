@@ -32,7 +32,7 @@ public class ChunkManager
 	String _chunkYAML = "chunks.yml";
 	String _chunkFixYAML = "chunks_being_fixed.yml";
 	
-	int _maxSizeChunkHash = 3;
+	int _maxSizeChunkHash = 100;
 	
 	HashMap<Chunk, ChunkCard> _chunks = new HashMap<Chunk, ChunkCard>();
 	
@@ -40,9 +40,12 @@ public class ChunkManager
 	boolean _chunksInUse = false;
 	
 	
-	public ChunkManager(Main main) 
+	public ChunkManager(Main main, String playWorld, String cloneWorld,int maxChunkHashSize) 
 	{
 		_main = main;			
+		_maxSizeChunkHash = maxChunkHashSize;
+		_worldName = playWorld;
+		_defTargetWorld = cloneWorld;
 	}
 	
 	public void SetupHandlers()
@@ -63,7 +66,11 @@ public class ChunkManager
 	{
 		return _chunkFixYAML;
 	}
-
+	
+	public void setMaxChunkSize(int size)
+	{
+		_maxSizeChunkHash = size;
+	}
 	
 	public void setChunk(Chunk chunk, String targetWorldName, int y)
 	{
@@ -92,13 +99,10 @@ public class ChunkManager
 		int max = loc.getBlockY()+yMaxDelta;
 		if(card != null)
 		{
-			//card.Refresh(loc.getBlockY());
-			
 			card.RefreshAndLayers(min, max);
 		}else
 		{
 			card = new ChunkCard(this, chunk, getDefTargetWorldName(), min, max, System.currentTimeMillis(),true);
-			card.printData();
 			newChunk(card);
 		}
 		
@@ -124,7 +128,6 @@ public class ChunkManager
 	}
 	public void newChunk(ChunkCard cCard)
 	{
-		System.out.println("its new chunck!");
 		checkHashSize();
 		_chunks.put(cCard.getChunk(), cCard);
 		_chunkFileHandler.saveCard(cCard);
@@ -154,13 +157,13 @@ public class ChunkManager
 		}
 	}
 	
-	public void fixChunkLayers(ChunkCard card)
+	public void fixChunkLayers(ChunkCard card, boolean checkProtection)
 	{
-		_chunkHandler.fixChunk(card,true);
+		_chunkHandler.fixChunk(card,true,checkProtection);
 	}
-	public void fixChunks(ArrayList<ChunkCard> cards, boolean goLayers)
+	public void fixChunks(ArrayList<ChunkCard> cards, boolean goLayers, boolean checkProtection)
 	{
-		_chunkHandler.fixChunks(cards, goLayers);
+		_chunkHandler.fixChunks(cards, goLayers, checkProtection);
 	}
 	
 
@@ -174,8 +177,7 @@ public class ChunkManager
 	{
 		RegionContainer con = _main.getWorldGuard().getPlatform().getRegionContainer();
 		RegionQuery quarry = con.createQuery();
-		ApplicableRegionSet set = quarry.getApplicableRegions(BukkitAdapter.adapt(loc));
-		
+		ApplicableRegionSet set = quarry.getApplicableRegions(BukkitAdapter.adapt(loc));		
 		return set.getRegions().size() > 0;
 	}
 

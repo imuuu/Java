@@ -9,4 +9,19 @@ commands:
    wr:
      description: WorldRestore
      usage:  /<command>
+   wr area:
+     description: Define area by number. Optional set minY maxY and checkProtection
+     usage: /<command> <minY (optional)> <maxY (optional)> <checkP true:false (optional)>
+   wr fix all:
+      description: Put all chunks from flagged chunks to being fixed and start fixing them
+      usage: /<command>
+   wr tp:
+      description: Tp between worlds
+      usage: /<command>
+   wr reload:
+      description: Reload config
+      usage: /<command>
+   wr remove chunks data:
+      description: Remove all visited/flagged chunks data
+      usage: /<command>
       

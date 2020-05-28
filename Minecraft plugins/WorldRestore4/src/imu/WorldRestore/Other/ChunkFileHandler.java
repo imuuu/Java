@@ -17,15 +17,15 @@ public class ChunkFileHandler
 	String _fixFileName = "";
 	String _cd = "x";
 	
-	int _chunkfixTime = 10;
-	int _chunkCheckDelay = 10;
+	int _chunkLifeTime = 10;
+	int _chunkFileCheckDelay = 10;
 	
 	
 	Main _main = null;
 	ChunkManager _cManager = null;
 	Cooldowns _cds = null;
 
-	public ChunkFileHandler(Main main) 
+	public ChunkFileHandler(Main main, int chunklifetime, int chunkCheckFileDelay, boolean enableAutoFileReader) 
 	{
 		_main = main;
 		_cManager = main.getChunkManager();
@@ -33,21 +33,30 @@ public class ChunkFileHandler
 		_fixFileName = _cManager.getChunksFixYAML();
 		_cds = new Cooldowns();
 		
-		Init();
+		_chunkLifeTime = chunklifetime;
+		_chunkFileCheckDelay = chunkCheckFileDelay;
+
+		if(enableAutoFileReader)
+		{
+			chunksFileReader();
+		}
+		
+	}
+
+	
+	public void setChunkFileCheckDelay(int seconds)
+	{
+		_chunkFileCheckDelay = seconds;
+	}
+	public void setChunkLifeTime(int seconds)
+	{
+		_chunkLifeTime = seconds;
 	}
 	
-	void Init()
+	public void clearChunksFile()
 	{
-		chunksFileReader();
-	}
-	
-	public void setChunkCheckDelay(int seconds)
-	{
-		_chunkCheckDelay = seconds;
-	}
-	public void setChunkFixTime(int seconds)
-	{
-		_chunkfixTime = seconds;
+		ConfigMaker cm = new ConfigMaker(_main, _fileName);
+		cm.clearConfig();
 	}
 	
 	public void saveCard(ChunkCard card)
@@ -129,7 +138,7 @@ public class ChunkFileHandler
 		return card;
 	}
 	
-	void readChunkFile()
+	void readChunkFile(int secondsExpireTime)
 	{
 		_cManager.saveAllChunks();
 		
@@ -143,32 +152,22 @@ public class ChunkFileHandler
 		for (String key : config.getConfigurationSection("").getKeys(false)) 
 		{
 			String value = config.getString(key);
-			//String[] chunkDataStr = value.split(";");
-			//long stamp = Long.parseLong(chunkDataStr[chunkDataStr.length-1]);
 			ChunkCard card = decompileString(value);
-			if(_cds.isTimePastThis(card._timeStamp, _chunkfixTime))
+			if(_cds.isTimePastThis(card._timeStamp, secondsExpireTime))
 			{
-				// => add to the new file whitch handdles fixing
-				ChunkCard checkCard = _cManager.getChunkCard(card);
-				if(checkCard != null)
-				{
-					config.set(card.getId(), compileChunkCard(checkCard));
-				}
-				else
-				{
-					_cManager.removeChunkCardFromChunks(card);
-					config2.set(key, value);
-					config.set(key, null);
-					cm2.saveConfig();
-				}
-				
-			}
-			
+				//_cManager.removeChunkCardFromChunks(card);
+				config2.set(key, value);
+				config.set(key, null);
+				cm2.saveConfig();			
+			}		
 		}
 		cm.saveConfig();			
 
 	}
-	
+	public void setAllChunksToFix()
+	{
+		readChunkFile(-1);
+	}
 	ArrayList<ChunkCard> getBeingRepairedChunks(int size)
 	{
 		ArrayList<ChunkCard> chunks = new ArrayList<ChunkCard>();
@@ -210,8 +209,8 @@ public class ChunkFileHandler
 			@Override
 			public void run() 
 			{		
-				readChunkFile();
+				readChunkFile(_chunkLifeTime);
 			}
-		}.runTaskTimer(_main, 9, 20 * _chunkCheckDelay);
+		}.runTaskTimer(_main, 9, 20 * _chunkFileCheckDelay);
 	}
 }

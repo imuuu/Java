@@ -37,6 +37,7 @@ public class subWrAreaCmd implements CommandInterface
         	int maxY = 256;
         	int minY = 0;
         	int size = Integer.parseInt(args[1]);
+        	boolean checkProtection = true;
         	if(size % 2 > 0)
         	{
 
@@ -56,6 +57,11 @@ public class subWrAreaCmd implements CommandInterface
             		return false;
             	}
             	
+            	if(args.length > 4 && args[4].equalsIgnoreCase("false"))
+            	{
+            		checkProtection = false;
+            	}
+            	
             	int s = (size - (size % 2)) / 2;
             	ArrayList<ChunkCard> cards = new ArrayList<ChunkCard>();
             	int startX = chunk.getX()-s;
@@ -69,8 +75,8 @@ public class subWrAreaCmd implements CommandInterface
             		}
             	}
             	
-            	player.sendMessage(ChatColor.LIGHT_PURPLE + "Start working chunks. Total chunks: "+cards.size() + "between layers: "+minY+" - "+maxY);
-            	_cManager.fixChunks(cards, false);
+            	player.sendMessage(ChatColor.LIGHT_PURPLE + "Start working chunks. Total chunks: "+cards.size() + " between layers: "+minY+" - "+maxY + " Check protection: "+checkProtection);
+            	_cManager.fixChunks(cards, false, checkProtection);
             	
             	return false;
         	}
@@ -86,7 +92,7 @@ public class subWrAreaCmd implements CommandInterface
     
    void wrongMessage(Player player)
    {
-	   player.sendMessage("/wr area <size> <minY (optional) > <maxY (optional) >");
+	   player.sendMessage("/wr area <size> <minY (optional) > <maxY (optional) > <checkProt true:false (optional) >");
    }
    int checkValidY(int y)
    {
