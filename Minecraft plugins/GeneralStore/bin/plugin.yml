@@ -48,4 +48,6 @@ commands:
    gs lock:
      description: Lock all this plugin commands from normal players. Operators are able to use everything!
      usage: /<command>
-      
+   gs type:
+     description: Set shop type sell only or sell and buy
+     usage: /<command> {shop_name}  

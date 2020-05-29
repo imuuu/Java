@@ -4,6 +4,7 @@ package imu.GeneralStore.Commands;
 //Imports for the base command class.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ShopManager;
@@ -22,6 +23,7 @@ public class GeneralStoreCmd implements CommandInterface
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
  
+
     	if(!_main.getShopManager().isReady())
     	{
     		sender.sendMessage(ChatColor.DARK_RED+"You can't use that right now");

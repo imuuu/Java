@@ -27,7 +27,7 @@ public class subStoreCostCmd implements CommandInterface
     	if(stack != null && stack.getType() != Material.AIR)
     	{
     		System.out.println("here");
-    		Shop tempShop = new Shop("cost",false);
+    		Shop tempShop = new Shop("cost",false,false);
     		ItemStack copy = new ItemStack(stack);
     		tempShop.setShopStackAmount(copy, 1);
     		Double[] prices = tempShop.calculatePriceOfItem(copy, 0, true);

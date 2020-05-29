@@ -39,7 +39,7 @@ public class subStoreCreateCmd implements CommandInterface
         	return false;
         }
         
-        shopManager.addShop(nameShop);
+        shopManager.addShop(nameShop, false);
         player.sendMessage(ChatColor.GREEN+"Shop has been made!");
         
         

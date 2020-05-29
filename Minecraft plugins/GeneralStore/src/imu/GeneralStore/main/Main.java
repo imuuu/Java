@@ -30,6 +30,7 @@ import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
 import imu.GeneralStore.SubCommands.subStoreSetPriceCmd;
+import imu.GeneralStore.SubCommands.subStoreSetSellTypeCmd;
 import imu.GeneralStore.SubCommands.subStoreSetUniqueINVCmd;
 import imu.GeneralStore.SubCommands.subStoreSetUniquePriceCmd;
 import net.milkbowl.vault.economy.Economy;
@@ -62,8 +63,8 @@ public class Main extends JavaPlugin
 	double sellProsent = 1.5;
 	double durabilityCostMultiplier = 0.8;
 	
-    boolean enableSmartPrices = false; 
-    boolean loadSmartPricesUpFront=false; 
+    boolean enableSmartPrices = true; 
+    boolean loadSmartPricesUpFront = true; 
     boolean locked = false; // added
 	ItemMetods itemM = null;
 	
@@ -88,6 +89,7 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this));
         handler.registerSubCmd(cmd1, "enchs", new subStoreEnchantInvCmd(this));
         handler.registerSubCmd(cmd1, "lock", new subStoreLockCmd(this));
+        handler.registerSubCmd(cmd1, "type", new subStoreSetSellTypeCmd(this));
         
         
         getCommand(cmd1).setExecutor(handler);

@@ -163,6 +163,7 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		{
 			Double[] price = {0.0, 0.0, 0.0};
 			_shopManager.addUniqueItem(_orginalStack, price, true);
+			_shopManager.removeUniqueTag(_orginalStack_copy);
 			itemM.moveItemFirstFreeSpaceInv(_orginalStack_copy, _player, true);
 		}
 		_shopManager.openUniqueINV(_player);
@@ -184,6 +185,14 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 		{
 			_shopManager.removeOpenedInv(_player);
 			_uinv.removeInModify(_orginalStack);
+			if(_newItem && !_edited && itemM.isEveryThingThis(_prices, 0.0))
+			{
+				Double[] price = {0.0, 0.0, 0.0};
+				_shopManager.addUniqueItem(_orginalStack, price, true);
+				_shopManager.removeUniqueTag(_orginalStack_copy);
+				itemM.moveItemFirstFreeSpaceInv(_orginalStack_copy, _player, true);
+			}
+			
 		}
 	}
 	
@@ -208,7 +217,9 @@ public class UniquesINVmodify extends CustomInvLayout implements Listener
 				
 				if(switch_button == LABELS.COPY.getType())
 				{
-					itemM.moveItemFirstFreeSpaceInv(_orginalStack_copy.clone(), _player, true);
+					ItemStack _orginalStack_copy_clone = _orginalStack_copy.clone();
+					_shopManager.removeUniqueTag(_orginalStack_copy_clone);
+					itemM.moveItemFirstFreeSpaceInv(_orginalStack_copy_clone, _player, true);
 					return;
 				}
 				

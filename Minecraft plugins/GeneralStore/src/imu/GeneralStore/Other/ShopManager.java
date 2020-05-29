@@ -120,7 +120,7 @@ public class ShopManager implements DelaySendable
 			@Override
 			public void run() 
 			{
-				Shop tempShop =new Shop("asddd",false);
+				Shop tempShop = new Shop("asddd",false, false);
 				for(Material m : Material.values())
 				{
 					//System.out.println("GOING now: "+m.name());
@@ -167,19 +167,32 @@ public class ShopManager implements DelaySendable
 		return true;
 	}
 	
-	public Shop addShop(String name)
+	public Shop addShop(String name, boolean onlySelling)
 	{
-		Shop shop = new Shop(name,true);
+		Shop shop = new Shop(name,true, onlySelling);
 		shops.put(name, shop);
 		
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
 		FileConfiguration config = cm.getConfig();
-		config.set(name, true);
+		config.set(name, onlySelling);
 		cm.saveConfig();
 		
 		return shop;
 	}
-	
+	public void setIsSellingOnly(String name, boolean isSellingOnly)
+	{
+		if(isExists(name))
+		{
+			Shop shop = getShop(name);
+			shop.closeShopInvs();
+			shop.setOnlySell(isSellingOnly);
+			ConfigMaker cm = new ConfigMaker(_main, shopYAML);
+			FileConfiguration config = cm.getConfig();
+			config.set(shop.getDisplayName(), isSellingOnly);
+			cm.saveConfig();
+			
+		}
+	}
 	public boolean isExists(String name)
 	{
 		if(getShop(name) != null)
@@ -300,9 +313,9 @@ public class ShopManager implements DelaySendable
 		FileConfiguration config = cm.getConfig();
 		
 		cm.clearConfig();
-		for(String shopName : shops.keySet())
+		for(Shop shop : shops.values())
 		{
-			config.set(shopName, true);
+			config.set(shop.getDisplayName(), shop.getOnlySell());
 		}
 		
 		cm.saveConfig();
@@ -321,7 +334,7 @@ public class ShopManager implements DelaySendable
 		for (String key : config.getConfigurationSection("").getKeys(false)) 
 		{
 			String shopName = key;
-			addShop(shopName);
+			addShop(shopName, config.getBoolean(key));
 		}		
 	}
 	
@@ -397,6 +410,7 @@ public class ShopManager implements DelaySendable
 		if(itemM.isEveryThingThis(price, 0.0) && removeCheck)
 		{
 			unique_items.remove(stack);
+			removeUniqueTag(stack);
 		}else
 		{
 			setUniquePDdata(stack, price);
