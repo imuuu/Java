@@ -1,0 +1,11 @@
+name: UltimateCustomItems
+author: imukuppikorva
+version: 1.0
+main: imu.UIC.main.Main
+description: UltimateCustomItems
+api-version: 1.15
+#softdepend: [WorldEdit,WorldGuard]
+commands:
+   uic:
+     description: UltimateCustomItems
+     usage:  /<command>     

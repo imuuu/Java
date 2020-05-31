@@ -76,8 +76,8 @@ public class CFileHandle
 	{
 		try 
 		{
-			Path path = Paths.get(_main.getDataFolder()+"/", _dataFileName);
-			List<String> list = Files.readAllLines(path);
+			//Path path = Paths.get(_main.getDataFolder()+"/", _dataFileName);
+			//List<String> list = Files.readAllLines(path);
 			//System.out.println("lista: "+ list);
 		} catch (Exception e) 
 		{

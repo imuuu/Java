@@ -266,7 +266,7 @@ public class Commands implements CommandExecutor
 		{
 			if(!cds.isCooldownReady(cd_name))
 			{
-				p.sendMessage("You have "+cds.GetCdInSeconds(cd_name)/60+"m cooldown left!");
+				p.sendMessage("You have "+ChatColor.RED+cds.GetCdInSeconds(cd_name)+ChatColor.WHITE+"s cooldown left!");
 				return true;
 			}else
 			{
@@ -314,6 +314,7 @@ public class Commands implements CommandExecutor
 					{
 						cancelTeleport(player);
 						player_cds.get(player).removeCooldown("home");
+						player_cds.get(player).addCooldownInSeconds("home", 15);
 						continue;
 					}
 					

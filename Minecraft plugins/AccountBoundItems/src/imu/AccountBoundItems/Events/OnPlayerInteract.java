@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
@@ -64,25 +65,28 @@ public class OnPlayerInteract implements Listener
 		}
 	}
 	
+	@EventHandler
+	public void onInvClose(InventoryCloseEvent e)
+	{
+		Player player = (Player) e.getPlayer();
+		for(ItemStack stack : player.getInventory().getContents())
+		{
+			if(itemAbi.isBound(stack) && !itemAbi.getNameData(stack).equalsIgnoreCase(player.getName()))
+			{
+				itemAbi.dropItem(stack, player, false);
+				player.sendMessage(ChatColor.RED + "Some item(s) didn't belong to you!");
+			}
+		}
+	}
+	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onInv(InventoryClickEvent e)
 	{
 		ItemStack hover_stack = e.getCurrentItem();
 		ItemStack inMouse_stack = e.getCursor();
-		//System.out.println("====================");
-		//System.out.println("CLICK TYPE: " + e.getClick());
-		//System.out.println("ACTION: " + e.getAction());
-		//System.out.println("SlotType: "+e.getSlotType());
-		//System.out.println("hover: "+hover_stack);
-		//System.out.println("inMouse: " + inMouse_stack);
-		//System.out.println("RawSlot: "+ e.getRawSlot());
-		//System.out.println("Slot: " + e.getSlot());
-		
+
 		Player player = null;
-		if(e.getWhoClicked() instanceof Player)
-		{
-			player = (Player)e.getWhoClicked();
-		}
+		player = (Player)e.getWhoClicked();
 		
 		if(itemAbi.isWaiting(hover_stack))
 		{

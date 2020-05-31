@@ -4,7 +4,6 @@ package imu.GeneralStore.Commands;
 //Imports for the base command class.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ShopManager;
