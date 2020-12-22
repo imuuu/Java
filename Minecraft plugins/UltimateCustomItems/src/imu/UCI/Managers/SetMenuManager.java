@@ -17,7 +17,7 @@ public final class SetMenuManager implements ImenuM
 	@Override
 	public void openNewInv(Player player) 
 	{
-		SetMenuINV inv = new SetMenuINV(_main, player, "SetMenu", 9);
+		SetMenuINV inv = new SetMenuINV(_main, player, "SetMenu", 9, null);
 		inv.openThis();
 	}
 	

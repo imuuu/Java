@@ -1,5 +1,7 @@
 package imu.UCI.INVs;
 
+import java.util.HashMap;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +18,7 @@ import imu.UCI.Other.ItemMetods;
 import imu.UCI.main.Main;
 
 
-public abstract class CustomInvLayout implements Listener
+public abstract class CustomInvLayout implements Listener 
 {
 	Main _main = null;
 	ItemMetods _itemM = null;
@@ -27,7 +29,9 @@ public abstract class CustomInvLayout implements Listener
 	Player _player = null;
 	String pd_switch = "gs.buttonSwitch";
 	
-	public CustomInvLayout(Main main, Player player, String name, int size)
+	HashMap<String, Object> _dataContainer = new HashMap<String, Object>();
+	
+	public CustomInvLayout(Main main, Player player, String name, int size, HashMap<String, Object> dataContainer)
 	{
 		_main = main;
 		_name = name;
@@ -36,12 +40,27 @@ public abstract class CustomInvLayout implements Listener
 		_inv =  _main.getServer().createInventory(null, _size, _name);
 		_itemM = _main.getItemM();
 		_main.getServer().getPluginManager().registerEvents(this, _main);
+		setDataContainer(dataContainer);
+	}
+	
+	public void setDataContainer(HashMap<String, Object> dataContainer)
+	{
+		if(dataContainer != null)
+		{
+			_dataContainer = dataContainer;
+		}
+		
 	}
 	
 	void setSwitch(int SwitchID, Material material, String displayName,int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
 		_itemM.setDisplayName(sbutton, displayName);
+		setButtonSwitch(sbutton, SwitchID);
+		_inv.setItem(itemSlot, sbutton);
+	}
+	void setSwitch(int SwitchID, ItemStack sbutton, int itemSlot)
+	{
 		setButtonSwitch(sbutton, SwitchID);
 		_inv.setItem(itemSlot, sbutton);
 	}

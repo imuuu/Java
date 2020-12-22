@@ -24,6 +24,8 @@ public class CustomSet
 		_name = name;
 		_pieceSize = pieceSize;
 		setSockets(sockets);
+		
+		System.out.println("CUSTOM SET CREATED: name:"+ name+"pSize"+ pieceSize+ "sSize"+sockets);
 	}
 	
 	public void setSockets(int size)
@@ -39,6 +41,11 @@ public class CustomSet
 	public int get_pieceSize() 
 	{
 		return _pieceSize;
+	}
+	
+	public int get_socketsSize()
+	{
+		return _socketsSize;
 	}
 	
 	public void set_name(String name) 
