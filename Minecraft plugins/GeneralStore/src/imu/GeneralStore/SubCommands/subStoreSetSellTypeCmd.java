@@ -17,11 +17,12 @@ public class subStoreSetSellTypeCmd implements CommandInterface
 {
 	Main _main = null;
 	
-	ItemMetods itemM = new ItemMetods();
+	ItemMetods itemM = null;
 	
 	public subStoreSetSellTypeCmd(Main main)
 	{
 		_main = main;
+		itemM = main.getItemM();
 	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 

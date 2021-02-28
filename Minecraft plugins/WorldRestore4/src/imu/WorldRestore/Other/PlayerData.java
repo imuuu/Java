@@ -12,7 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import imu.WorldRestore.main.Main;
-import net.minecraft.server.v1_15_R1.Tuple;
+import net.minecraft.server.v1_16_R3.Tuple;
+
 
 public class PlayerData 
 {

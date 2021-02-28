@@ -11,23 +11,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreAddCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
-	ItemMetods itemM = new ItemMetods();
+	Main _main = null;
+	
+	public subStoreAddCmd(Main main) 
+	{
+		_main = main;
+	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         Player player = (Player) sender;
-
-    	
-    	
+	
     	ShopManager shopManager = _main.getShopManager();
         
         
@@ -40,10 +41,7 @@ public class subStoreAddCmd implements CommandInterface
         	{
         		Shop shop = shopManager.getShop(nameShop);
         		player.sendMessage(ChatColor.DARK_PURPLE +"Item has been added as infinity item to shop named: "+shop.getDisplayName());
-        		shop.putInfItemToShop(stack);
-        		
-        		
-        	
+        		shop.putInfItemToShop(stack);  	
         	}else
         	{
         		player.sendMessage(ChatColor.RED+"You don't have item in your hand!");

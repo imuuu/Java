@@ -15,7 +15,7 @@ import imu.GeneralStore.main.Main;
 public class subStoreSetUniquePriceCmd implements CommandInterface
 {
 	Main _main =null;
-	ItemMetods itemM = new ItemMetods();
+	ItemMetods itemM = null;
 	
 	Player player;
 	ShopManager shopManager = null;
@@ -23,6 +23,7 @@ public class subStoreSetUniquePriceCmd implements CommandInterface
 	{
 		_main = main;
 		shopManager = _main.getShopManager();
+		itemM = _main.getItemM();
 	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 

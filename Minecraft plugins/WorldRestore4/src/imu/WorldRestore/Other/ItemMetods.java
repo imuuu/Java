@@ -12,8 +12,8 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -31,12 +31,12 @@ import imu.WorldRestore.main.Main;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_15_R1.BlockPosition;
-import net.minecraft.server.v1_15_R1.ItemArmor;
-import net.minecraft.server.v1_15_R1.ItemElytra;
-import net.minecraft.server.v1_15_R1.ItemShield;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.TileEntity;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.ItemArmor;
+import net.minecraft.server.v1_16_R3.ItemElytra;
+import net.minecraft.server.v1_16_R3.ItemShield;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import net.minecraft.server.v1_16_R3.TileEntity;
 
 public class ItemMetods 
 {
@@ -801,7 +801,8 @@ public class ItemMetods
 		ntc2.setInt("x", loc_set.getBlockX());
 		ntc2.setInt("y", loc_set.getBlockY());
 		ntc2.setInt("z", loc_set.getBlockZ());
-		copyEntity.load(ntc2);
+		copyEntity.load(targetEntity.getBlock(),ntc2);
+		//copyEntity.
 		copyEntity.update();
 		
 		return true;

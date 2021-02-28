@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,9 +16,9 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.AccountBoundItems.main.Main;
 import net.milkbowl.vault.economy.Economy;
-import net.minecraft.server.v1_15_R1.ItemArmor;
-import net.minecraft.server.v1_15_R1.ItemElytra;
-import net.minecraft.server.v1_15_R1.ItemShield;
+import net.minecraft.server.v1_16_R3.ItemArmor;
+import net.minecraft.server.v1_16_R3.ItemElytra;
+import net.minecraft.server.v1_16_R3.ItemShield;
 
 
 

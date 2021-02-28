@@ -9,14 +9,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreCreateCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
-	ItemMetods itemM = new ItemMetods();
+	Main _main = null;
+	
+	public subStoreCreateCmd(Main main) 
+	{
+		_main = main;
+	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
@@ -32,7 +35,7 @@ public class subStoreCreateCmd implements CommandInterface
         
         
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
-        nameShop = itemM.addColor(nameShop);
+        nameShop = _main.getItemM().addColor(nameShop);
         if(shopManager.isExists(nameShop))
         {
         	player.sendMessage(ChatColor.RED + "Shop name already exists");

@@ -35,7 +35,7 @@ public class Commands implements CommandExecutor
 	
 	Plugin _plugin;
 	
-	HashMap<Player, Cooldowns> player_cds = new HashMap<Player, Cooldowns>();
+	HashMap<UUID, Cooldowns> player_cds = new HashMap<UUID, Cooldowns>();
 	
 	HashMap<UUID, Location> allHomes = new HashMap<UUID, Location>();
 	
@@ -240,6 +240,11 @@ public class Commands implements CommandExecutor
 		if(homeLoc == null)
 		{
 			System.out.println("home not found by uuid"+uuid);
+			Player p = Bukkit.getPlayer(uuid);
+			if(p != null)
+			{
+				p.sendMessage(ChatColor.RED + "You don't have home setted!");
+			}
 			return false;
 		}
 		return true;
@@ -255,12 +260,12 @@ public class Commands implements CommandExecutor
 	}
 	boolean isCd(Player p , String cd_name, double cd)
 	{
-		Cooldowns cds = player_cds.get(p);
+		Cooldowns cds = player_cds.get(p.getUniqueId());
 		if(cds == null)
 		{
 			cds = new Cooldowns();
 			cds.addCooldownInSeconds(cd_name, cd);
-			player_cds.put(p, cds);
+			player_cds.put(p.getUniqueId(), cds);
 		}
 		else
 		{
@@ -313,8 +318,8 @@ public class Commands implements CommandExecutor
 					if(!entry.getValue().canTeleport())
 					{
 						cancelTeleport(player);
-						player_cds.get(player).removeCooldown("home");
-						player_cds.get(player).addCooldownInSeconds("home", 15);
+						player_cds.get(player.getUniqueId()).removeCooldown("home");
+						player_cds.get(player.getUniqueId()).addCooldownInSeconds("home", 15);
 						continue;
 					}
 					

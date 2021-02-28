@@ -3,7 +3,7 @@ author: bullterrier292
 version: 1.0
 main: imu.DontLoseItems.main.Main
 description: Dont lose your items
-api-version: 1.15
+api-version: 1.16
 commands:
    drop:
      description: test

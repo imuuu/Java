@@ -17,7 +17,7 @@ import imu.GeneralStore.main.Main;
 public class subStoreSetPriceCmd implements CommandInterface
 {
 	Main _main=null;
-	ItemMetods itemM = new ItemMetods();
+	ItemMetods itemM = null;
 	
 	Player player;
 	
@@ -26,6 +26,7 @@ public class subStoreSetPriceCmd implements CommandInterface
 	{
 		_main = main;
 		shopManager = _main.getShopManager();
+		itemM = _main.getItemM();
 	}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
@@ -42,6 +43,7 @@ public class subStoreSetPriceCmd implements CommandInterface
             		if(shopManager.isPriceValid(prices))
             		{
             			player.sendMessage(ChatColor.GREEN+"Prices has been chance to Material: "+ChatColor.AQUA+stack.getType().name());
+            			player.sendMessage(ChatColor.GOLD+"REMEMBER RELOAD CONFIGS '/gs reload'! After chanced all");
                 		
                 		setNewPrice(stack, prices);
             		}else

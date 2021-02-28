@@ -5,17 +5,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreSetUniqueINVCmd implements CommandInterface
 {
-	Main _main =null;
-	ItemMetods itemM = new ItemMetods();
-	
+	Main _main = null;
+
 	Player player;
 	ShopManager shopManager = null;
+	
 	public subStoreSetUniqueINVCmd(Main main)
 	{
 		_main = main;

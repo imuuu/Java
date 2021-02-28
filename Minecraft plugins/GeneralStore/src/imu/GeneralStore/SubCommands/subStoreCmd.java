@@ -12,8 +12,11 @@ import imu.GeneralStore.main.Main;
 
 public class subStoreCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
-	
+	Main _main = null;
+	public subStoreCmd(Main main) 
+	{
+		_main = main;
+	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 

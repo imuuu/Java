@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="Minecraft plugins/AccountBoundItems/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/defaultPlugin/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/DontLoseItems/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/GeneralStore/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/HomeTele/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/UltimateCustomItems/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/WorldRestore/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/WorldRestore2/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/WorldRestore3/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/WorldRestore4/src"/>
+	<classpathentry kind="src" path="Minecraft plugins/WorldRestoreOLD/src"/>
+	<classpathentry kind="output" path="Minecraft plugins/AccountBoundItems/bin"/>
+</classpath>

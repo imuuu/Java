@@ -11,23 +11,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 
 public class subStoreRemoveINFCmd implements CommandInterface
 {
-	Main _main = Main.getInstance();
-	ItemMetods itemM = new ItemMetods();
+	Main _main = null;
+
+	public subStoreRemoveINFCmd(Main main) 
+	{
+		_main = main;
+	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         Player player = (Player) sender;
 
-    	
-    	
     	ShopManager shopManager = _main.getShopManager();
         
         
@@ -41,9 +42,7 @@ public class subStoreRemoveINFCmd implements CommandInterface
         		Shop shop = shopManager.getShop(nameShop);
         		player.sendMessage(ChatColor.DARK_PURPLE +"Item has been removed from shop named: "+shop.getDisplayName());
         		shop.removeInfItemFromShop(stack);
-        		
-        		
-        	
+
         	}else
         	{
         		player.sendMessage(ChatColor.RED+"You don't have item in your hand!");
@@ -53,10 +52,6 @@ public class subStoreRemoveINFCmd implements CommandInterface
         }
         player.sendMessage(ChatColor.RED + "Couldn't find shop name with that");
     	
-    	
-  
-        
-		
         return false;
     }
     

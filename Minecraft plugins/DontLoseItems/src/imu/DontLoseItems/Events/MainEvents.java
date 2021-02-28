@@ -1,7 +1,7 @@
 package imu.DontLoseItems.Events;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,98 +17,89 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.DontLoseItems.Other.ConfigMaker;
+import imu.DontLoseItems.Other.ItemMetods;
 
 public class MainEvents implements Listener
 {
 		
-	HashMap<Player, ItemStack[]> armorItems = new HashMap<Player, ItemStack[]>();
-	HashMap<Player, ArrayList<ItemStack>> toolItems = new HashMap<Player, ArrayList<ItemStack>>();
-	HashMap<Player, ArrayList<ItemStack>> weaponItems = new HashMap<Player, ArrayList<ItemStack>>();
-	
+	HashMap<UUID, ItemStack[]> saved_items = new HashMap<UUID, ItemStack[]>();
+	HashMap<UUID, Boolean> died_pvp = new HashMap<UUID,Boolean>();
+
 	String[] tools = {"PICKAXE", "AXE", "HOE", "SHOVEL","ROD"};
 	String[] weapons = {"SWORD","BOW"};
 	
 	boolean saveArmor = true;
+	boolean saveHotBar = true;
 	boolean saveTools = false;
 	boolean saveWeapons = false;
 	
-	Plugin _plugin;
+	double durability_penalty_pve = 0.1;
+	double durability_penalty_pvp = 0.2;
 	
-	public MainEvents(Plugin plugin)
+	Plugin _plugin;
+	ItemMetods _itemM = null;
+	public MainEvents(Plugin plugin, ItemMetods itemM)
 	{
 		_plugin = plugin;
+		_itemM = itemM;
 		getSettings();
 	}
-
+	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e)
 	{
 		Player player = e.getEntity();
 		PlayerInventory inv = player.getInventory();
 
-		ItemStack[] armors = copyItemStackArray(inv.getArmorContents());
-				
 		ItemStack[] content = inv.getContents();
-		
-		if(saveTools || saveWeapons)
+		ItemStack[] save_items = new ItemStack[content.length];
+
+		if(player.getKiller() instanceof Player)
 		{
-			
-			for(int i = 0; i < content.length; ++i)
+			died_pvp.put(player.getUniqueId(), true);
+		}else
+		{
+			died_pvp.put(player.getUniqueId(), false);
+		}
+		
+		for(int l = 0 ; l < content.length; ++l)
+		{
+			ItemStack stack = content[l];
+			if(stack != null)
 			{
-				ItemStack stack = content[i];
-				
-				if(stack != null)
+				ItemStack copy = new ItemStack(stack);
+							
+				if(saveHotBar && l > -1 && l < 9)
 				{
-					ItemStack copy = new ItemStack(stack);
-					
+					save_items[l] = copy;
+					stack.setAmount(0);
+				}
+				else if(saveTools || saveWeapons)
+				{
 					if(saveTools & stringEndsWith(copy.getType().toString(), tools)) //Its a tool!
 					{
-						if(!toolItems.containsKey(player))
-						{
-							toolItems.put(player, new ArrayList<ItemStack>());
-						}
-							
-
-						toolItems.get(player).add(copy);
-						
+						save_items[l]= copy;
 						stack.setAmount(0);
 					}
 					
 					if(saveWeapons & stringEndsWith(copy.getType().toString(), weapons)) // its a weapon
 					{
-						if(!weaponItems.containsKey(player))
-						{
-							weaponItems.put(player, new ArrayList<ItemStack>());
-						}
-							
-										
-						weaponItems.get(player).add(copy);
-						
+						save_items[l]= copy;
 						stack.setAmount(0);
 					}
 				}
-			}
-		}
-		
-		
-		
-		if(player.hasPermission("dontloseitems.dontlose") && saveArmor)
-		{
-			armorItems.put(player,armors);
-			
-			for (ItemStack itemStack : inv.getArmorContents())
-			{
-				if(itemStack != null)
+				
+				if(saveArmor && l > content.length-6) 
 				{
-					itemStack.setAmount(0);
-				}		
+					save_items[l] = copy;
+					stack.setAmount(0);
+				}
 			}
+			
 		}
-		
-
+		saved_items.put(player.getUniqueId(), save_items);
 	}
 	
 	@EventHandler
@@ -116,52 +107,34 @@ public class MainEvents implements Listener
 	{
 		Player player = e.getPlayer();
 
-		ItemStack[] armors = armorItems.get(player);
+		PlayerInventory inv = player.getInventory();
 		
-		if(armors != null)
+		ItemStack[] s_items = saved_items.get(player.getUniqueId());
+		int prosent = 0;
+		for(int i = 0; i < inv.getContents().length; ++i)
 		{
-			player.getInventory().setArmorContents(armors);
-		}
-		
-		if(toolItems.containsKey(player))
-		{
-			new BukkitRunnable() {
-				
-				@Override
-				public void run() 
-				{
-					for(ItemStack t_stack : toolItems.get(player))
-					{
-						//inv.addItem(t_stack);
-						moveItemFirstFreeSpaceInv(t_stack, player);
-					}
-					toolItems.remove(player);
-					
-				}
-			}.runTask(_plugin);
-			
-		}
-		
-		if(weaponItems.containsKey(player))
-		{
-			System.out.println("size: "+ weaponItems.get(player).size());
-			new BukkitRunnable() 
+			ItemStack item = s_items[i];
+			if(item != null)
 			{
 				
-				@Override
-				public void run() 
+				if(died_pvp.get(player.getUniqueId()))
 				{
-					for(ItemStack w_stack : weaponItems.get(player))
-					{
-						//inv.addItem(w_stack);
-						moveItemFirstFreeSpaceInv(w_stack, player);
-					}
-					weaponItems.remove(player);
+					_itemM.giveDamage(item, (int)(item.getType().getMaxDurability() * durability_penalty_pvp), false);
+					prosent = (int)(durability_penalty_pvp * 100);
+				}else
+				{
+					_itemM.giveDamage(item, (int)(item.getType().getMaxDurability() * durability_penalty_pve), false);
+					prosent = (int)(durability_penalty_pve * 100);
 				}
-			}.runTask(_plugin);
 			
+			inv.setItem(i, item);
+			}
 		}
 		
+		if(prosent > 0)
+		{
+			player.sendMessage(ChatColor.GRAY + "All your items has lost durability: " + ChatColor.RED+ prosent +"%");
+		}
 		
 	}
 	
@@ -174,6 +147,9 @@ public class MainEvents implements Listener
 		String a_path ="settings.saveArmor";
 		String t_path = "settings.saveTools";
 		String w_path = "settings.saveWeapons";
+		String h_path = "settings.saveHotbar";
+		String dpvp_path = "settings.pvp_damage_penalty";
+		String dpve_path = "settings.pve_damage_penalty";
 		
 		if(!config.contains("settings.")) 
 		{
@@ -182,6 +158,9 @@ public class MainEvents implements Listener
 			config.set(a_path,saveArmor);
 			config.set(t_path,saveTools);
 			config.set(w_path,saveWeapons);		
+			config.set(h_path,saveHotBar);		
+			config.set(dpvp_path,durability_penalty_pvp);		
+			config.set(dpve_path,durability_penalty_pve);		
 			cm.saveConfig();
 			return;
 		}
@@ -189,6 +168,9 @@ public class MainEvents implements Listener
 		saveArmor = config.getBoolean(a_path);
 		saveTools = config.getBoolean(t_path);
 		saveWeapons = config.getBoolean(w_path);
+		saveHotBar = config.getBoolean(h_path);
+		durability_penalty_pvp = config.getDouble(dpvp_path);
+		durability_penalty_pve = config.getDouble(dpve_path);
 				
 	}
 	boolean stringEndsWith(String target, String[] array)

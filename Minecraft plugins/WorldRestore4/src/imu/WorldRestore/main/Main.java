@@ -31,8 +31,8 @@ public class Main extends JavaPlugin
 	ChunkFileHandler _chunkFileHandler = null;
 	PlayerData _playerData = null;
 
-	String _playWorld = "season"; //season 			//world
-	String _cloneWorld = "default_world"; //default_world		//dw
+	String _playWorld = "world"; //season 			//world
+	String _cloneWorld = "clone_world"; //default_world		//dw
 	
 	boolean _enable_autoChunkUpdate = false;
 	int _maxSavedChunkCardsInMemory = 100;
@@ -152,8 +152,8 @@ public class Main extends JavaPlugin
 			_auto_chunkFixDelay = cm.addDefault("Automatic_FixedChunksFileReadDelay", _auto_chunkFixDelay, "How often it checks fixed chunks file and put chunks to fix");
 			_auto_chunkAmount = cm.addDefault("Automatic_FixedChunksAmount", _auto_chunkAmount, "When fixedChunksfile is read this is amount how many chunks it takes to update");
 			_chunkFixDelay = cm.addDefault("ChunkFixDelay", _chunkFixDelay, "How often it fixes one chunk in seconds");
-			_chunkLifeTime = cm.addDefault("ChunksLifeTime", _chunkLifeTime, "How many seconds chunk is life before updated to default");
-			_chunkFileCheckDelay = cm.addDefault("ChunkFileCheckDelay", _chunkFileCheckDelay, "How often all chunk data are loopped though and put to fixed file if time is expired");
+			_chunkLifeTime = cm.addDefault("ChunksLifeTime", _chunkLifeTime, "How many seconds chunk is life before updated to default. milliseconds");
+			_chunkFileCheckDelay = cm.addDefault("ChunkFileCheckDelay", _chunkFileCheckDelay, "How often all chunk data are loopped though and put to fixed file if time is expired. Seconds");
 			cm.addComments();
 			
 		} catch (Exception e) 

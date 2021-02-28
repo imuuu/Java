@@ -40,8 +40,8 @@ public class Main extends JavaPlugin
 
 	public HashMap<Material, Double[]> materialPrices = new HashMap<>(); //min, max, sell prosent each item
 	//HashMap<Enchantment, Double[]> enchPrices = new HashMap<>(); // {minlvl,maxlvl,minPrice,maxPrice
-	static Main instance = null;
-	static Economy econ = null;
+	Main instance = null;
+	Economy econ = null;
 	
 	ShopManager shopManager = null;
 	EnchantsManager enchManager = null;
@@ -76,14 +76,14 @@ public class Main extends JavaPlugin
         String cmd1="gs";
         handler.registerCmd(cmd1, new GeneralStoreCmd(this));  
         handler.setPermissionOnLastCmd("gs");
-        handler.registerSubCmd(cmd1, "shop", new subStoreCmd());
+        handler.registerSubCmd(cmd1, "shop", new subStoreCmd(this));
         handler.registerSubCmd(cmd1, "shops", new subStoreListCmd(this));
-        handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd());
-        handler.registerSubCmd(cmd1, "remove", new subStoreRemoveCmd(this));
+        handler.registerSubCmd(cmd1, "create", new subStoreCreateCmd(this));
+        handler.registerSubCmd(cmd1, "remove shop", new subStoreRemoveCmd(this));
         handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd(this));
-        handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd());
-        handler.registerSubCmd(cmd1, "add", new subStoreAddCmd());
-        handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd());
+        handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd(this));
+        handler.registerSubCmd(cmd1, "add", new subStoreAddCmd(this));
+        handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd(this));
         handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
         handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
         handler.registerSubCmd(cmd1, "uniques", new subStoreSetUniqueINVCmd(this));
@@ -100,10 +100,11 @@ public class Main extends JavaPlugin
 	public void onEnable() 
 	{		
 		instance = this;
-		itemM = new ItemMetods();
+		itemM = new ItemMetods(this);
 		setupEconomy();
-		shopManager  = new ShopManager(this);
 		enchManager = new EnchantsManager(this);
+		shopManager  = new ShopManager(this);
+		
 		
 		
 		ConfigsSetup();
@@ -121,12 +122,12 @@ public class Main extends JavaPlugin
 		saveShopsContent();
 	}
 	
-	public static Main getInstance()
+	public Main getInstance()
 	{
 		return instance;
 	}
 	
-	public static Economy getEconomy() 
+	public Economy getEconomy() 
 	{
         return econ;
     }
@@ -200,10 +201,13 @@ public class Main extends JavaPlugin
 
 	boolean setupEconomy() 
 	{
-        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) 
+        {
+        	System.out.println("Vault not found");
             return false;
         }
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        
         if (rsp == null) {
             return false;
         }
@@ -341,20 +345,21 @@ public class Main extends JavaPlugin
 		if(!cm.isExists())
 		{
 			config.options().header("MinLevel doesnt effect anything yet.. always calculate 1-maxLevel");
+			cm.saveConfig();
 			for(Enchantment ench : Enchantment.values())
 			{
 				enchManager.setEnchantToConfig(ench, ench.getStartLevel(), ench.getMaxLevel(), 0, 0);
 				//config.set(ench.getKey().toString().split(":")[1]+".minLevel", ench.getStartLevel());
 				//config.set(ench.getKey().toString().split(":")[1]+".maxLevel", ench.getMaxLevel());
 				//config.set(ench.getKey().toString().split(":")[1]+".minPrice", 0);
-				//config.set(ench.getKey().toString().split(":")[1]+".maxPrice",0);
-				
+				//config.set(ench.getKey().toString().split(":")[1]+".maxPrice",0);				
 			}
-			cm.saveConfig();
+			makeEnchantExponentConfig();
 		}
 		else
 		{
-			enchManager.getEnchPrices().clear();
+			enchManager.clearEnchPrices();
+			
 			for (String key : config.getConfigurationSection("").getKeys(false)) 
 			{
 				Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(key));
@@ -371,9 +376,8 @@ public class Main extends JavaPlugin
 				enchManager.addNewEnchant(ench, array,false);
 				
 			}
-			
-			
 		}
+		
 	}
 	
 }

@@ -6,14 +6,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
-import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.main.Main;
 
 public class subStoreReloadCmd implements CommandInterface
 {
 	Main _main = null;
-	ItemMetods itemM = new ItemMetods();
-	
+
 	Player player;
 	
 	public subStoreReloadCmd(Main main) 
@@ -48,7 +46,7 @@ public class subStoreReloadCmd implements CommandInterface
     		player.sendMessage(ChatColor.DARK_PURPLE + "Start calculating smartprices...");
     		_main.getShopManager().calculateAllSmart();
     		
-    		itemM.sendMessageLater(player, _main.getShopManager(), ChatColor.GREEN + "Calculations are ready!");
+    		_main.getItemM().sendMessageLater(player, _main.getShopManager(), ChatColor.GREEN + "Calculations are ready!");
     	}
     }
     

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -27,18 +27,20 @@ import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.milkbowl.vault.economy.Economy;
-import net.minecraft.server.v1_15_R1.ItemArmor;
-import net.minecraft.server.v1_15_R1.ItemElytra;
-import net.minecraft.server.v1_15_R1.ItemShield;
+import net.minecraft.server.v1_16_R3.ItemArmor;
+import net.minecraft.server.v1_16_R3.ItemElytra;
+import net.minecraft.server.v1_16_R3.ItemShield;
+
 
 
 
 public class ItemMetods 
 {
-	
-	Main _main = Main.getInstance();
-	Economy econ = Main.getEconomy();
+	Main _main = null;
+	public ItemMetods(Main main) 
+	{
+		_main = main;
+	}
 	
 	Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 	
@@ -438,15 +440,22 @@ public class ItemMetods
 	
 	public ItemStack removePersistenData(ItemStack stack, String keyName)
 	{
+		if(stack.getType() == Material.AIR)
+			return stack;
+
 		NamespacedKey key = new NamespacedKey(_main, keyName);
 		ItemMeta meta = stack.getItemMeta();
 		meta.getPersistentDataContainer().remove(key);
 		stack.setItemMeta(meta);
+
 		return stack;
 	}
 	
 	public <T> ItemStack setPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)
 	{
+		if(stack.getType() == Material.AIR)
+			return stack;
+		
 		NamespacedKey key = new NamespacedKey(_main, keyName);
 		ItemMeta meta = stack.getItemMeta();
 		meta.getPersistentDataContainer().set(key, type, data);

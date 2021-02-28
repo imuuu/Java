@@ -3,7 +3,7 @@ author: imukuppikorva
 version: 1.0
 main: imu.GeneralStore.main.Main
 description: General Store
-api-version: 1.15
+api-version: 1.16
 softdepend: [Vault]
 commands:
    gs:
@@ -18,7 +18,7 @@ commands:
    gs create:
      description: Create new shop
      usage: /<command> {shop_name}
-   gs remove:
+   gs remove shop:
      description: Remove created shop
      usage: /<command> {shop_name}
    gs setprice:
@@ -29,7 +29,7 @@ commands:
      usage: /<command>
    gs add:
      description: Add item in your hand to shop as infinite item, item's amount matters
-     usage: /<command>
+     usage: /<command> {shop_name}
    gs remove inf:
      description: Remove infinite item from shop. Need to have that same item your hand
      usage: /<command>

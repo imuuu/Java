@@ -74,6 +74,11 @@ public class ShopManager implements DelaySendable
 			_main.makeSettingsConfig(true);
 		}
 		
+		if(lock)
+		{
+			closeShopsInvs();
+		}
+		
 	}
 	public String get_pd_modify() 
 	{
@@ -120,7 +125,7 @@ public class ShopManager implements DelaySendable
 			@Override
 			public void run() 
 			{
-				Shop tempShop = new Shop("asddd",false, false);
+				Shop tempShop = new Shop(_main, "asddd",false, false);
 				for(Material m : Material.values())
 				{
 					//System.out.println("GOING now: "+m.name());
@@ -169,7 +174,7 @@ public class ShopManager implements DelaySendable
 	
 	public Shop addShop(String name, boolean onlySelling)
 	{
-		Shop shop = new Shop(name,true, onlySelling);
+		Shop shop = new Shop(_main, name,true, onlySelling);
 		shops.put(name, shop);
 		
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);

@@ -13,7 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -37,7 +37,8 @@ import com.mojang.datafixers.util.Pair;
 import imu.GeneralStore.main.Main;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
-import net.minecraft.server.v1_15_R1.Item;
+import net.minecraft.server.v1_16_R3.Item;
+
 
 
 public class Shop implements Listener
@@ -60,10 +61,13 @@ public class Shop implements Listener
 	HashMap<Player,BukkitRunnable> player_runnables = new HashMap<>();
 	
 	
-	ItemMetods itemM = new ItemMetods();
+	ItemMetods itemM = null;
 	
-	Main _main = Main.getInstance();
-	Economy _econ = Main.getEconomy();
+	
+	Main _main = null;
+	
+	Economy _econ = null;
+	
 	ShopManager shopManager=null;
 	EnchantsManager enchantsManager = null;
 	
@@ -105,8 +109,12 @@ public class Shop implements Listener
 	ArrayList<Pair<Material, Integer> > sellCountValues = new ArrayList<>();
 	
 	
-	public Shop(String shopName, boolean realShop, boolean onlySelling) 
+	public Shop(Main main, String shopName, boolean realShop, boolean onlySelling) 
 	{
+		_main = main;
+		_econ = main.getEconomy();
+		itemM = main.getItemM();
+		
 		if(realShop)
 		{
 			_displayName = shopName;
@@ -423,7 +431,6 @@ public class Shop implements Listener
 	{
 		if(player_invs.size() > 0)
 		{
-			System.out.println("SOME SHOP IS OPEN");
 			return true;
 		}
 
@@ -578,7 +585,6 @@ public class Shop implements Listener
 				{					
 					//BUY FROM SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
-					
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
 					if(click == ClickType.LEFT && withdrawPlayerHasMoney(player, price_one))
 					{
@@ -609,6 +615,7 @@ public class Shop implements Listener
 					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
 					if(click == ClickType.SHIFT_RIGHT && withdrawPlayerHasMoney(player, price_all))
 					{
+						
 						putItemToPlayerInv(player, stack, stack_count,false);
 						return;
 					}
@@ -691,14 +698,8 @@ public class Shop implements Listener
 									page_next = 0;
 								}
 								player_currentShopPage.put(player, page_next);
-								//setStuffPlayerSlots(player, player_currentLabel.get(player));
-								System.out.println("vasen");
-								
+
 								setStuffShopSlots(player);
-								//for(Player p : player_invs.keySet())
-								//{
-								//	setStuffShopSlots(p);
-								//}
 								
 								return;
 							}
@@ -714,14 +715,11 @@ public class Shop implements Listener
 								{
 									page_next = shopPageCount();
 								}
-								System.out.println("oikee");
+
 								player_currentShopPage.put(player, page_next);
-								//setStuffPlayerSlots(player, player_currentLabel.get(player));
+
 								setStuffShopSlots(player);
-								//for(Player p : player_invs.keySet())
-								//{
-								//	setStuffShopSlots(p);
-								//}
+
 								return;
 							}
 						}
@@ -761,22 +759,32 @@ public class Shop implements Listener
 	}
 	public void depositMoney(Player player, double price)
 	{
+		if(_econ == null)
+		{
+			player.sendMessage(ChatColor.RED + "Economy plugin null");
+			return;
+		}
+		
+		double balance = _econ.getBalance(player);
 		EconomyResponse res = _econ.depositPlayer(player, price);
-		player.sendMessage(ChatColor.DARK_PURPLE+ "You have received: "+ ChatColor.GOLD +""+res.amount+ ""+_econ.currencyNameSingular());
+		player.sendMessage(ChatColor.DARK_PURPLE+ "You have received: "+ ChatColor.WHITE +res.amount+" " +ChatColor.GOLD +_econ.currencyNameSingular()+ ChatColor.GRAY +" Total balance: "+ Math.round((balance+price)*100.0)/100.0 +" "+ ChatColor.GRAY + _econ.currencyNameSingular());
 	}
 	public boolean withdrawPlayerHasMoney(Player player, double price)
 	{
-
+		if(_econ == null)
+		{
+			player.sendMessage(ChatColor.RED + "Economy plugin null");
+			return false;
+		}
 		double balance = _econ.getBalance(player);
-		balance = Math.round(balance*100)/100;
 		if(balance > price)
 		{
 			_econ.withdrawPlayer(player, price);
-			player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance now: "+ ChatColor.GOLD +""+balance);
+			player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance now: "+ ChatColor.GOLD +""+ Math.round((balance-price)*100.0)/100.0);
 			return true;
 		}
 		player.sendMessage(ChatColor.RED + "You don't have enough money!");
-		player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance is: "+ ChatColor.GOLD +""+balance+" "+ChatColor.DARK_PURPLE+"and that cost you: "+ChatColor.GOLD+""+price);
+		player.sendMessage(ChatColor.DARK_PURPLE+ "Your balance is: "+ ChatColor.GOLD +""+ Math.round(balance*100.0)/100.0 +" "+ChatColor.DARK_PURPLE+"and that cost you: "+ChatColor.GOLD+""+price);
 		return false;
 	}
 	
@@ -802,8 +810,8 @@ public class Shop implements Listener
 				if(!isStackInf(copy) || removeTotaly)
 				{
 					int amount = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
+
 					int total = amount - add_amount;
-					
 					if(total < 1 || removeTotaly)
 					{
 						add_amount = add_amount + total;
@@ -835,26 +843,26 @@ public class Shop implements Listener
 
 		if(copy == null)
 		{
-			System.out.println("COPY was null");
+			System.out.println("COPY was null, line 857:shop.java");
 			return;
 		}
-		
 		int num = add_amount / 64;
 		int remainder = add_amount % 64;
 				
 		copy.setAmount(64);
 		for(int j = 0; j < num; ++j)
 		{
-			itemM.moveItemFirstFreeSpaceInv(copy, player, true);			
+			ItemStack item_spawn = new ItemStack(copy);
+			itemM.moveItemFirstFreeSpaceInv(item_spawn, player, true);			
 		}
 		
 		if(remainder > 0)
 		{
-			copy.setAmount(remainder);
-			itemM.moveItemFirstFreeSpaceInv(copy, player, true);
+			ItemStack item_spawn = new ItemStack(copy);
+			item_spawn.setAmount(remainder);
+			itemM.moveItemFirstFreeSpaceInv(item_spawn, player, true);
 		}
-		
-		
+				
 		RefresAllInvs();
 
 	}
@@ -1644,9 +1652,9 @@ public class Shop implements Listener
 			
 			for(Map.Entry<Enchantment, Integer> ench : meta.getEnchants().entrySet())
 			{
-				if(enchantsManager.getEnchPrices().containsKey(ench.getKey()))
+				if(enchantsManager.isEnchPriced(ench.getKey()))
 				{
-					Double[] values=enchantsManager.getEnchPrices().get(ench.getKey());
+					Double[] values = enchantsManager.getEnchPrice(ench.getKey());
 					double calp = 0;
 					if( values[2] != 0 ||  values[3] != 0)
 					{

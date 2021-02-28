@@ -2,6 +2,7 @@ package imu.GeneralStore.Other;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ public class EnchantsManager
 {
 	Main _main = null;
 	ItemMetods _itemM = null;
-	HashMap<Enchantment, Double[]> enchPrices = new HashMap<>();  // {minlvl,maxlvl,minPrice,maxPrice
+	HashMap<String, Double[]> enchPrices = new HashMap<>();  // {minlvl,maxlvl,minPrice,maxPrice
 	ArrayList<ItemStack> ench_items = new ArrayList<>();
 	
 	Material ench_item_mat = Material.ENCHANTED_BOOK;
@@ -46,17 +47,23 @@ public class EnchantsManager
 		eim.openThis();
 	}
 	
-	public HashMap<Enchantment, Double[]> getEnchPrices() 
+	HashMap<String, Double[]> getEnchPrices() 
 	{
 		return enchPrices;
 	}
 	
+	public boolean isEnchPriced(Enchantment ench)
+	{
+		return enchPrices.containsKey(ench.toString());
+	}
+	
 	public void addNewEnchant(Enchantment enc, Double[] price, boolean setToConfig)
 	{
-		enchPrices.put(enc, price);
+		enchPrices.put(enc.toString(), price);
 		ItemStack encItem = makeEnchItem(enc, price);
 		removeModifyData(encItem);
 		int contain = isContaining(encItem);
+		
 		if(contain != -1)
 		{
 			ench_items.set(contain, encItem);
@@ -73,7 +80,12 @@ public class EnchantsManager
 	
 	void removeEnchant(Enchantment enc)
 	{
-		enchPrices.remove(enc);
+		enchPrices.remove(enc.toString());
+	}
+	
+	public void clearEnchPrices()
+	{
+		enchPrices.clear();
 	}
 	
 	public ItemStack makeEnchItem(Enchantment enc, Double[] data)
@@ -190,7 +202,7 @@ public class EnchantsManager
 	}
 	public Double[] getEnchPrice(Enchantment ench)
 	{
-		return enchPrices.get(ench);
+		return enchPrices.get(ench.toString());
 	}
 	
 	public void setModifyData(ItemStack stack)

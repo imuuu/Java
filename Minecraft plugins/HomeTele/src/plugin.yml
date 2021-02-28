@@ -3,7 +3,7 @@ author: imukuppikorva
 version: 1.0
 main: imu.HomeTele.Main
 description: defPlate
-api-version: 1.15
+api-version: 1.16
 commands:
    sethome:
      description: You can set home

@@ -3,6 +3,9 @@ package imu.DontLoseItems.Commands;
 //Imports for the base command class.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import imu.DontLoseItems.Interfaces.CommandInterface;
  
@@ -15,13 +18,6 @@ public class ExampleCmd implements CommandInterface
     	if(args.length > 0)
     		return false;
         
-    	
-    	//Player p = (Player) sender;
-    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_HELMET));
-    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_CHESTPLATE));
-    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_LEGGINGS));
-    	//p.getWorld().dropItem(p.getLocation(), new ItemStack(Material.DIAMOND_BOOTS));
-        //p.sendMessage("DROPPED!");
         return true;
     }
  
