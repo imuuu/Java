@@ -255,6 +255,10 @@ public class Commands implements CommandExecutor
 		if(!hasHome(uuid) || !hasHome(uuid_target))
 			return;
 		Player p = Bukkit.getServer().getPlayer(uuid);
+		if(p == null)
+		{
+			return;
+		}
 		p.sendMessage("You have teleported to home!");
 		p.teleport(allHomes.get(uuid_target));
 	}

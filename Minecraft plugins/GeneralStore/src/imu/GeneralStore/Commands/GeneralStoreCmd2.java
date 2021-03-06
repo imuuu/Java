@@ -1,11 +1,6 @@
 package imu.GeneralStore.Commands;
 
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
 //Imports for the base command class.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,11 +10,11 @@ import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
  
-public class GeneralStoreCmd implements CommandInterface
+public class GeneralStoreCmd2 implements CommandInterface
 {
 	Main _main = null;
 	ShopManager _shopM = null;
-	public GeneralStoreCmd(Main main)
+	public GeneralStoreCmd2(Main main)
 	{
 		_main = main;
 		_shopM = _main.getShopManager();
@@ -46,28 +41,6 @@ public class GeneralStoreCmd implements CommandInterface
     		
     		
     	}
-    	
-    	
-//    	try 
-//    	{
-//
-//    		//InputStream input = getClass().getResourceAsStream("/DenizenScriptTempelate.txt");
-//    		InputStream input = getClass().getResourceAsStream("/DenizenScriptTempelate.txt");
-//    	    InputStreamReader inputReader = new InputStreamReader(input);
-//			BufferedReader br = new BufferedReader(inputReader);
-//			String str;
-//			while((str = br.readLine()) != null )
-//			{
-//				System.out.println(str);
-//			}
-//			br.close();
-//			
-//		} catch (Exception e) {
-//			// TODO: handle exception
-//			System.out.println("EXPT");
-//		}
-//    	
-//    	System.out.println("assign name: "+_main.getDenSC().CreateTestSample("testiS", "markonkulju"));
     	
     	if(args.length > 0)
     		return false;

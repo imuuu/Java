@@ -13,19 +13,24 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.GeneralStore.Commands.GeneralStoreCmd;
+import imu.GeneralStore.Commands.GeneralStoreCmd2;
 import imu.GeneralStore.Events.InventoriesClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Other.ConfigMaker;
+import imu.GeneralStore.Other.DenizenScriptCreator;
 import imu.GeneralStore.Other.EnchantsManager;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.ShopManager;
+import imu.GeneralStore.SubCommands.subStoreAddAllCmd;
 import imu.GeneralStore.SubCommands.subStoreAddCmd;
+import imu.GeneralStore.SubCommands.subStoreAssignCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
 import imu.GeneralStore.SubCommands.subStoreEnchantInvCmd;
 import imu.GeneralStore.SubCommands.subStoreListCmd;
 import imu.GeneralStore.SubCommands.subStoreLockCmd;
+import imu.GeneralStore.SubCommands.subStorePlayerCostCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveINFCmd;
@@ -45,6 +50,7 @@ public class Main extends JavaPlugin
 	
 	ShopManager shopManager = null;
 	EnchantsManager enchManager = null;
+	DenizenScriptCreator denSC = null;
 	
 	
 
@@ -56,7 +62,7 @@ public class Main extends JavaPlugin
 	
 	int expireTime = 60*60; 
 	double expireProsent = 10; 
-	int runnableDelay = 1;
+	int runnableDelay = 60;
 	
 	Double[] default_prices= {0.1, 1.0, 2.0};
 	
@@ -83,6 +89,7 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "setprice", new subStoreSetPriceCmd(this));
         handler.registerSubCmd(cmd1, "cost", new subStoreCostCmd(this));
         handler.registerSubCmd(cmd1, "add", new subStoreAddCmd(this));
+        handler.registerSubCmd(cmd1, "add all", new subStoreAddAllCmd(this));
         handler.registerSubCmd(cmd1, "remove inf", new subStoreRemoveINFCmd(this));
         handler.registerSubCmd(cmd1, "reload", new subStoreReloadCmd(this));
         handler.registerSubCmd(cmd1, "unique", new subStoreSetUniquePriceCmd(this));
@@ -90,9 +97,17 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "enchs", new subStoreEnchantInvCmd(this));
         handler.registerSubCmd(cmd1, "lock", new subStoreLockCmd(this));
         handler.registerSubCmd(cmd1, "type", new subStoreSetSellTypeCmd(this));
+        handler.registerSubCmd(cmd1, "assign", new subStoreAssignCmd(this,"assign"));
         
+        
+        
+        String cmd2="g";
+        handler.registerCmd(cmd2, new GeneralStoreCmd2(this));  
+        handler.setPermissionOnLastCmd("gs.g");
+        handler.registerSubCmd(cmd2, "price", new subStorePlayerCostCmd(this));
         
         getCommand(cmd1).setExecutor(handler);
+        getCommand(cmd2).setExecutor(handler);
         
     }
 	
@@ -104,18 +119,22 @@ public class Main extends JavaPlugin
 		setupEconomy();
 		enchManager = new EnchantsManager(this);
 		shopManager  = new ShopManager(this);
-		
-		
+		denSC = new DenizenScriptCreator(this);
+
 		
 		ConfigsSetup();
 
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
-		getServer().getPluginManager().registerEvents(new InventoriesClass(), this);
+		getServer().getPluginManager().registerEvents(new InventoriesClass(this), this);
 		
 		shopManager.setLockShops(locked,false);
 	}
 	
+	public DenizenScriptCreator getDenSC() {
+		return denSC;
+	}
+
 	@Override
 	 public void onDisable()
 	{

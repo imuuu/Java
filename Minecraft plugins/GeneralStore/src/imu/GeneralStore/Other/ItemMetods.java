@@ -764,5 +764,18 @@ public class ItemMetods
     	return false;
     }
 	
+	public void cloneItemStackData(ItemStack stack, ItemStack clonable)
+	{
+		if(clonable != null)
+		{
+			stack.setType(clonable.getType());
+			stack.setAmount(clonable.getAmount());
+			if(clonable.hasItemMeta())
+			{
+				stack.setItemMeta(clonable.getItemMeta());
+			}
+		}
+	}
+	
 	
 }

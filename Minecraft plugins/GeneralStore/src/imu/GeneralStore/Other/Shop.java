@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
@@ -60,6 +61,8 @@ public class Shop implements Listener
 	HashMap<Player,Integer> player_clicks_warnings = new HashMap<>();
 	HashMap<Player,BukkitRunnable> player_runnables = new HashMap<>();
 	
+	HashMap<Player, ArrayList<ItemStack>> player_emptyStacks = new HashMap<>();
+	
 	
 	ItemMetods itemM = null;
 	
@@ -94,6 +97,8 @@ public class Shop implements Listener
 	String pd_pstack= "gs.priceStack";
 	String pd_pall= "gs.priceAll";
 	String pd_infItem="gs.infItem";
+	
+	String pd_type="gs.itemType";
 	
 	int _maxClicksInHalfSecond=10/2;
 	
@@ -155,21 +160,49 @@ public class Shop implements Listener
 		}
 		
 	}
+	
+	public enum ShopItemType
+	{
+		NONE,
+		EMPTY,
+		INFINITY;
+		
+		
+	}
 		
 	void setLabelIcons()
 	{
 		ItemStack armor = new ItemStack(Material.DIAMOND_CHESTPLATE);
 		ItemStack stuff = new ItemStack(Material.STONE);
+		ItemStack empty = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 		
 		itemM.setPersistenData(armor, pd_switcher, PersistentDataType.INTEGER, (int)1);
 		itemM.setPersistenData(stuff, pd_switcher, PersistentDataType.INTEGER, (int)1);
 		
 		itemM.setPersistenData(armor, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Armor, Tools, Weapons");
 		itemM.setPersistenData(stuff, pd_text, PersistentDataType.STRING, ChatColor.AQUA + "Other stuff");
+		
+		
+		String emptyDisName = ChatColor.GRAY + "-";
+		itemM.setPersistenData(empty, pd_text, PersistentDataType.STRING, emptyDisName);
+		itemM.setPersistenData(empty, pd_type, PersistentDataType.STRING, ShopItemType.EMPTY.toString());
+		itemM.setDisplayName(empty, emptyDisName);
 
 		label_icons.put(0,armor);
 		label_icons.put(1,stuff);
+		label_icons.put(2,empty);
 		
+	}
+	
+	public ShopItemType getShopItemType(ItemStack stack)
+	{
+		String type = itemM.getPersistenData(stack, pd_type, PersistentDataType.STRING);
+		if(type != null)
+		{
+			return ShopItemType.valueOf(type);
+		}
+		return ShopItemType.NONE;
+
 	}
 	
 	public void setOnlySell(boolean onlySell)
@@ -207,8 +240,7 @@ public class Shop implements Listener
 			@Override
 			public void run() 
 			{
-				//System.out.println("run");
-				
+
 				if(cds.isCooldownReady(cdName))
 				{
 					checkExpireTime();				
@@ -495,7 +527,8 @@ public class Shop implements Listener
 		player_currentShopPage.remove(player);
 		player_currentLabel.remove(player);
 		
-		//player_runnables.remove(player);		
+		player_runnables.remove(player);		 // oli kommentoitou ?
+		clearEmptysINinv(player);
 	}
 	
 	@EventHandler
@@ -550,7 +583,7 @@ public class Shop implements Listener
 				if(click_count < 0)
 				{
 					player.closeInventory();
-					int warnings_count = player_clicks_warnings.containsKey(player) ? player_clicks_warnings.get(player) : 0;
+					int warnings_count = player_clicks_warnings.containsKey(player) ? player_clicks_warnings.get(player) : 0;     //player_clicks_warning => ei koskaan poisteta ?
 					player_clicks_warnings.put(player, ++warnings_count);
 					player.sendMessage(ChatColor.RED + "Please click slower! WARNING!");
 					if(player_clicks_warnings.get(player) > 2)
@@ -579,13 +612,22 @@ public class Shop implements Listener
 				{
 					return;
 				}
-								
+					
+				ShopItemType shopItemType = getShopItemType(stack);
+				if(shopItemType == ShopItemType.EMPTY)
+				{
+					return;
+				}
+				
 				//shop side
 				if(raw_slot > -1 && raw_slot < 27)
 				{					
 					//BUY FROM SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
+					
+					clearEmptysINinv(player);
+					
 					if(click == ClickType.LEFT && withdrawPlayerHasMoney(player, price_one))
 					{
 						putItemToPlayerInv(player, stack, 1, false);
@@ -629,9 +671,16 @@ public class Shop implements Listener
 					//SELL TO THE SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
+
 					if(click == ClickType.LEFT)
 					{						
-						removeItemPlayerInv(player, stack, 1);
+				
+						if(removeItemPlayerInv(player, stack, 1)) // if its stack has gone 0 => true
+						{
+							setEmptyToInv(player, e.getInventory(), raw_slot);
+							
+						}
+						
 						putItemToShop(stack, 1,false);
 						depositMoney(player, price_one);
 						return;
@@ -645,7 +694,11 @@ public class Shop implements Listener
 						if(stack_count < 8)
 							c = stack_count;
 						
-						removeItemPlayerInv(player, stack, c);
+						if(removeItemPlayerInv(player, stack, c))
+						{
+							setEmptyToInv(player, e.getInventory(), raw_slot);
+						}
+						
 						putItemToShop(stack, c,false);
 						depositMoney(player, price_eight);
 						return;
@@ -658,7 +711,10 @@ public class Shop implements Listener
 						if(stack_count < 64)
 							c = stack_count;
 						
-						removeItemPlayerInv(player, stack, c);
+						if(removeItemPlayerInv(player, stack, c))
+						{
+							setEmptyToInv(player, e.getInventory(), raw_slot);
+						}
 						putItemToShop(stack, c,false);
 						depositMoney(player, price_stack);
 						return;
@@ -667,7 +723,10 @@ public class Shop implements Listener
 					double price_all = itemM.getPersistenData(stack, pd_pall, PersistentDataType.DOUBLE);
 					if(click == ClickType.SHIFT_RIGHT)
 					{
-						removeItemPlayerInv(player, stack, stack_count);
+						if(removeItemPlayerInv(player, stack, stack_count))
+						{
+							setEmptyToInv(player, e.getInventory(), raw_slot);
+						}
 						putItemToShop(stack, stack_count,false);
 						depositMoney(player, price_all);
 						return;
@@ -679,7 +738,8 @@ public class Shop implements Listener
 					//mid panel
 					Integer data = itemM.getPersistenData(stack, pd_switcher, PersistentDataType.INTEGER);
 					if(data != null && data == 1)
-					{					
+					{		
+						clearEmptysINinv(player);
 						setStuffPlayerSlots(player, switcher2000(player_currentLabel.get(player)));
 						return;
 					}
@@ -687,6 +747,8 @@ public class Shop implements Listener
 					data = itemM.getPersistenData(stack, pd_shopSwitchButton, PersistentDataType.INTEGER);
 					if(data != null && data != 0)
 					{
+
+						
 						int currentPage = player_currentShopPage.get(player);
 						if(data == -1)
 						{
@@ -727,6 +789,8 @@ public class Shop implements Listener
 					data = itemM.getPersistenData(stack, pd_playerSwitchButton, PersistentDataType.INTEGER);
 					if(data != null && data != 0)
 					{
+						clearEmptysINinv(player);
+						
 						int cur_player_page = player_currentPlayerPage.get(player);
 						if(data == -1)
 						{
@@ -738,9 +802,9 @@ public class Shop implements Listener
 									page_next = 0;
 								}
 								player_currentPlayerPage.put(player,page_next);
-								setStuffPlayerSlots(player, player_currentLabel.get(player));
-								return;
 							}
+							setStuffPlayerSlots(player, player_currentLabel.get(player));
+							return;
 						}
 						
 						if(data == 1)
@@ -757,6 +821,42 @@ public class Shop implements Listener
 		}
 		
 	}
+	
+	public Boolean clearEmptysINinv(Player p)
+	{
+		ArrayList<ItemStack> empties = player_emptyStacks.get(p);
+		boolean something_remove = false;
+		if(empties == null || empties.isEmpty())
+		{
+			return false;
+		}
+		
+		for(ItemStack s : empties)
+		{
+			if(s != null)
+			{
+				s.setAmount(0);
+				something_remove = true;
+			}
+			
+		}		
+		player_emptyStacks.remove(p);
+		return something_remove;
+		
+	}
+	
+	public void setEmptyToInv(Player p, Inventory inv, int slot)
+	{
+		ArrayList<ItemStack> empties = player_emptyStacks.get(p);
+		if(empties == null)
+		{
+			empties = new ArrayList<ItemStack>();
+		}
+		inv.setItem(slot, label_icons.get(2));
+		empties.add(inv.getItem(slot));
+		player_emptyStacks.put(p, empties);
+	}
+	
 	public void depositMoney(Player player, double price)
 	{
 		if(_econ == null)
@@ -791,18 +891,30 @@ public class Shop implements Listener
 	void putItemToPlayerInv(Player player, ItemStack stack, int add_amount, boolean removeTotaly)
 	{		
 		ItemStack testing= new ItemStack(stack);
+		
 		removeAddedShopPDdata(testing);
 		removeToolTip(testing);
 		
 		ItemStack copy = null;
 		int i = 0;
 		boolean remove = false;
+		//System.out.println("Shop stuff stack size: "+shop_stuff_stacks.size());
+		//itemM.printArray("test", shop_stuff_stacks.toArray());
 		for(; i < shop_stuff_stacks.size() ; ++i)
 		{
 			ItemStack s = new ItemStack(shop_stuff_stacks.get(i));
+			
 			removeAddedShopPDdata(s);
 			removeToolTip(s);
-			
+//			
+//			System.out.println("====================");
+//			System.out.println("testing: ===>"+testing);
+//			System.out.println("   ");
+//			System.out.println("   ");
+//			System.out.println("   ");
+//			System.out.println("S:       ===>"+ s);
+//			System.out.println("====================");
+//			
 			if(s.isSimilar(testing))
 			{
 				copy = new ItemStack(s);
@@ -875,23 +987,27 @@ public class Shop implements Listener
 		}
 	}
 	
-	void removeItemPlayerInv(Player player,ItemStack stack, int remove_amount)
+	Boolean removeItemPlayerInv(Player player,ItemStack stack, int remove_amount)
 	{
 		configSelledItemCount(stack, remove_amount);
 		configSellLogItem(player, stack, remove_amount);
 		HashMap<ItemStack, ArrayList<ItemStack>> refs = player_refs.get(player);
 		
+		boolean isEmpty = false;
+		int whole_remove_amount = remove_amount;
 		for(Map.Entry<ItemStack, ArrayList<ItemStack>> entry : refs.entrySet())
 		{
 			if(entry.getKey().isSimilar(stack))
 			{
+				int total_amount = itemM.getPersistenData(entry.getKey(), pd_count, PersistentDataType.INTEGER);
 				for(ItemStack s : entry.getValue())
 				{
 					int stack_total = s.getAmount()-remove_amount;
-					if(stack_total < 0)
+					if(stack_total < 1)
 					{
 						remove_amount = Math.abs(stack_total);
-						s.setAmount(0);
+						s.setAmount(0);  // checkkaa tää jos myy yli 64
+
 					}else
 					{
 						s.setAmount(stack_total);
@@ -899,11 +1015,19 @@ public class Shop implements Listener
 					}
 					
 				}
+
+				if((total_amount-whole_remove_amount)  < 1)
+				{
+					isEmpty = true;
+				}
+					
 				break;
 			}
+			
 		}
 		
-		setStuffPlayerSlots(player, player_currentLabel.get(player));
+		//setStuffPlayerSlots(player, player_currentLabel.get(player));
+		return isEmpty;
 	}
 	public int switcher2000(int current)
 	{
@@ -984,6 +1108,7 @@ public class Shop implements Listener
 		
 		int count = _firstPlayerSlot;
 		Inventory inv = player_invs.get(player);
+
 		if(!_shopOnlySell)
 		{
 			HashMap<ItemStack, Integer> same_stacks = player_stuff.get(player);
@@ -1021,26 +1146,41 @@ public class Shop implements Listener
 			
 			for(int i = start; i < stacks.size(); ++i)
 			{
-				ItemStack stack = stacks.get(i);			
-				setToolTip(stack,true);				
-				inv.setItem(count,stack);				
-				count++;
+				ItemStack stack = stacks.get(i);
+
+				for(; count < _size;)
+				{
+					ItemStack c_stack = inv.getItem(count);
+					if(c_stack != null && getShopItemType(c_stack) == ShopItemType.EMPTY)
+					{
+						count++;
+					}
+					else
+					{
+						setToolTip(stack,true);	
+						inv.setItem(count,stack);						
+						count++;
+						break;
+					}						
+				}
 				
-				if(count >_size-1)
+				if(count > _size-1)
 					break;			
 			}	
 		}
-				
-		ItemStack empty = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-		itemM.setDisplayName(empty, ChatColor.DARK_GRAY +"-");
+
 		for(int i = count; i < _size ; ++i)
 		{			
 			if(!_shopOnlySell)
 			{
-				inv.setItem(i, null);	
+				if(getShopItemType(inv.getItem(i)) != ShopItemType.EMPTY)
+				{
+					inv.setItem(i, null);	
+				}
+				
 			}else
 			{
-				inv.setItem(i, empty);	
+				inv.setItem(i, label_icons.get(2));	//black staned glass empty
 			}
 					
 		}
@@ -1048,6 +1188,8 @@ public class Shop implements Listener
 	
 	void setToolTip(ItemStack stack, boolean sell)
 	{
+		
+		
 		stack.setAmount(1);
 		int amount = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 		String action_str = "SELL";
@@ -1114,6 +1256,7 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_peight);
 		itemM.removePersistenData(stack, pd_pstack);
 		itemM.removePersistenData(stack, pd_pall);
+		itemM.removePersistenData(stack, pd_type);
 		//itemM.removePersistenData(stack, pd_infItem);
 		
 	}
@@ -1797,7 +1940,8 @@ public class Shop implements Listener
 		
 		if(isInfinity)
 		{
-			itemM.setPersistenData(stack, pd_infItem, PersistentDataType.INTEGER, 1);
+			//itemM.setPersistenData(stack, pd_infItem, PersistentDataType.INTEGER, 1);
+			setStackInfItem(stack);
 		}
 		
 		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
@@ -1853,6 +1997,10 @@ public class Shop implements Listener
 			{
 				ItemStack stack = new ItemStack(s);
 				boolean found = false;
+				if(itemM.findLoreIndex(stack, "Soulbound") > -1)
+				{
+					continue;
+				}
 				
 				if(itemM.isArmor(stack) || itemM.isTool(stack))
 				{

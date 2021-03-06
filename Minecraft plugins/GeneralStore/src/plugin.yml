@@ -50,4 +50,13 @@ commands:
      usage: /<command>
    gs type:
      description: Set shop type sell only or sell and buy
-     usage: /<command> {shop_name}  
+     usage: /<command> {shop_name}
+   gs assign:
+     description: Make denizen assign script for the shop. Gives name for access to the script
+     usage: /<command> {script_name(without _script)} {shopname}
+   g:
+     description: Normal players
+     usage: /<command>
+   g price:
+     description: Give player the price of holded item's material
+     usage: /<command>
