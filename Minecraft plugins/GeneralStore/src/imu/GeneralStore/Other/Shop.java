@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.data.type.Switch;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
@@ -100,10 +101,25 @@ public class Shop implements Listener
 	
 	String pd_type="gs.itemType";
 	
+	String pd_custom_amount ="gs.customAmount";
+	String pd_custom_permission="gs.customPermission";
+	String pd_custom_price="gs.customPrice";
+	String pd_custom_worlds="gs.customWorlds";
+	
+	String pd_custom_stock_amount = "gs.customStockAmount";
+	String pd_custom_stock_delay = "gs.customStockDelay";
+	String pd_custom_stock_timeStamp = "gs.customStockTimeStamp";
+	String pd_custom_soldBack = "gs.customSoldBack";
+	
+	String pd_custom_SoldDistance = "gs.customSoldDistance";
+	
 	int _maxClicksInHalfSecond=10/2;
 	
 	Cooldowns cds = new Cooldowns();
+	
 	String cdName = "expireTime";
+	String cd_stock_check = "stock_time";
+	int cd_stock_check_time = 20; // in seconds
 	
 	String[] str_lores = {  ChatColor.GREEN+ "M1  :"+ChatColor.DARK_PURPLE+"  1   : "+ChatColor.GOLD+" ",
 							ChatColor.GREEN+ "M2  :"+ChatColor.DARK_PURPLE+"  8   : "+ChatColor.GOLD+" ",
@@ -133,6 +149,7 @@ public class Shop implements Listener
 			setLabelIcons();
 			//makeShop();
 			cds.addCooldownInSeconds(cdName, _main.getExpireTime());
+			cds.addCooldownInSeconds(cd_stock_check, cd_stock_check_time);
 			runnable();
 		
 		}
@@ -142,6 +159,7 @@ public class Shop implements Listener
 		setOnlySell(onlySelling);
 	
 	}
+	
 	
 	public enum LABELS
 	{
@@ -165,11 +183,44 @@ public class Shop implements Listener
 	{
 		NONE,
 		EMPTY,
-		INFINITY;
+		INFINITY,
+		STOCK_ABLE;
 		
 		
 	}
 		
+	void removeAddedShopPDdata(ItemStack stack)
+	{
+		itemM.removePersistenData(stack, pd_count);
+		itemM.removePersistenData(stack, pd_text);
+		itemM.removePersistenData(stack, pd_switcher);
+		itemM.removePersistenData(stack, pd_isArmor);
+		itemM.removePersistenData(stack, pd_pone);
+		itemM.removePersistenData(stack, pd_peight);
+		itemM.removePersistenData(stack, pd_pstack);
+		itemM.removePersistenData(stack, pd_pall);
+		itemM.removePersistenData(stack, pd_type);
+		itemM.removePersistenData(stack, pd_custom_amount);
+		itemM.removePersistenData(stack, pd_custom_permission);
+		itemM.removePersistenData(stack, pd_custom_price);
+		itemM.removePersistenData(stack, pd_custom_worlds);
+		
+		itemM.removePersistenData(stack, pd_custom_stock_amount);
+		itemM.removePersistenData(stack, pd_custom_stock_delay);
+		itemM.removePersistenData(stack, pd_custom_stock_timeStamp);
+		itemM.removePersistenData(stack, pd_custom_soldBack);
+		itemM.removePersistenData(stack, pd_custom_SoldDistance);
+		
+		
+		//itemM.removePersistenData(stack, pd_infItem);
+		
+	}
+	
+	public ArrayList<ItemStack> getShopStacks()
+	{
+		return shop_stuff_stacks;
+	}
+	
 	void setLabelIcons()
 	{
 		ItemStack armor = new ItemStack(Material.DIAMOND_CHESTPLATE);
@@ -205,6 +256,242 @@ public class Shop implements Listener
 
 	}
 	
+	
+	//===========================
+	public void setPDCustomAmount(ItemStack stack, int amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_amount,PersistentDataType.INTEGER, amount);
+	}
+	
+	public Integer getPDCustomAmount(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_amount, PersistentDataType.INTEGER);
+	}
+	
+	public boolean removePDCustomAmount(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomAmount(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_amount);
+		return hadValue;
+	}
+	//===========================
+	public void setPDCustomPermission(ItemStack stack, String perm)
+	{
+		itemM.setPersistenData(stack, pd_custom_permission,PersistentDataType.STRING, perm);
+	}
+	
+	public String getPDCustomPermission(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_permission, PersistentDataType.STRING);
+	}
+	
+	public boolean removePDCustomPermission(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomPermission(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_permission);
+		return hadValue;
+	}
+	
+	//===========================
+	public void setPDCustomStockDelay(ItemStack stack, int amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_stock_delay,PersistentDataType.INTEGER, amount);
+		setPDCustomStockTimeStamp(stack,System.currentTimeMillis()); 
+	}
+	
+	public Integer getPDCustomStockDelay(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_stock_delay, PersistentDataType.INTEGER);
+	}
+	
+	public boolean removePDCustomStockDelay(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomStockDelay(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_stock_delay);
+		removePDCustomStockTimeStamp(stack);
+		return hadValue;
+	}
+	//===========================
+	public void setPDCustomStockAmount(ItemStack stack, int amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_stock_amount,PersistentDataType.INTEGER, amount);
+	}
+	
+	public Integer getPDCustomStockAmount(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_stock_amount, PersistentDataType.INTEGER);
+	}
+	
+	public boolean removePDCustomStockAmount(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomStockAmount(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_stock_amount);
+		return hadValue;
+	}
+	//===========================
+	void setPDCustomStockTimeStamp(ItemStack stack, Long amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_stock_timeStamp ,PersistentDataType.LONG, amount);
+	}
+	
+	Long getPDCustomStockTimeStamp(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_stock_timeStamp, PersistentDataType.LONG);
+	}
+	
+	void removePDCustomStockTimeStamp(ItemStack stack)
+	{
+		itemM.removePersistenData(stack, pd_custom_stock_timeStamp);
+	}
+	//===========================
+	public void setPDCustomPrice(ItemStack stack, String amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_price,PersistentDataType.STRING, amount);
+	}
+	
+	public String getPDCustomPrice(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_price, PersistentDataType.STRING);
+	}
+	
+	public boolean removePDCustomPrice(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomPrice(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_price);
+		return hadValue;
+	}
+	//===========================
+	
+	public void setPDCustomWorlds(ItemStack stack, String amount)
+	{
+		itemM.setPersistenData(stack, pd_custom_worlds,PersistentDataType.STRING, amount);
+	}
+	
+	public String getPDCustomWorlds(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_worlds, PersistentDataType.STRING);
+	}
+	
+	public boolean removePDCustomWorlds(ItemStack stack)
+	{
+		boolean hadValue = false;
+		
+		if(getPDCustomWorlds(stack) != null)
+			hadValue = true;
+		
+		itemM.removePersistenData(stack, pd_custom_worlds);
+		return hadValue;
+	}
+	//===========================
+	public void setPDCustomCanSoldBack(ItemStack stack)
+	{
+		itemM.setPersistenData(stack, pd_custom_soldBack,PersistentDataType.INTEGER, 0);
+	}
+	
+	public Integer getPDCustomCanSoldBack(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_soldBack, PersistentDataType.INTEGER);
+	}
+	
+	public void removePDCustomCanSoldBack(ItemStack stack)
+	{
+		itemM.removePersistenData(stack, pd_custom_soldBack);
+	}
+	//===========================
+	public void setPDCustomSoldDistance(ItemStack stack, String distance_x_y_z_world)
+	{
+		itemM.setPersistenData(stack, pd_custom_SoldDistance,PersistentDataType.STRING, distance_x_y_z_world);
+	}
+	
+	public String getPDCustomSoldDistance(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_SoldDistance, PersistentDataType.STRING);
+	}
+	
+	public boolean removePDCustomSoldDistance(ItemStack stack)
+	{
+		boolean hadValue = false;
+	
+		if(getPDCustomSoldDistance(stack) != null)
+			hadValue = true;
+	
+		itemM.removePersistenData(stack, pd_custom_SoldDistance);
+		return hadValue;
+	}
+	//===========================
+	
+	public boolean isInsideCustomSoldDistance(ItemStack stack, Player player)
+	{
+		String str = getPDCustomSoldDistance(stack);
+		if(str != null)
+		{
+			String[] csd_str = str.split(" ");
+			double dis =  Double.parseDouble(csd_str[0]);
+			double x = Double.parseDouble(csd_str[1]);
+			double y = Double.parseDouble(csd_str[2]);
+			double z = Double.parseDouble(csd_str[3]);
+			if(player.getLocation().distance(new Location(Bukkit.getWorld(csd_str[4]),x,y,z)) < dis)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isWorldInCustomWorlds(ItemStack stack, String target_world)
+	{
+		String worlds_str =getPDCustomWorlds(stack);
+		
+		if(worlds_str == null)
+			return false;
+		
+		for(String w_str : worlds_str.split(" "))
+		{
+			if(w_str.equalsIgnoreCase(target_world))
+			{
+				return true;
+			}
+				
+		}
+		return false;
+	}
+	
+	Double[] getCoveredCustomPriceData(ItemStack stack)
+	{
+		String str = itemM.getPersistenData(stack, pd_custom_price, PersistentDataType.STRING);
+		
+		if(str == null)
+			return null;
+		
+		String[] strs = str.split(":");
+		Double[] ds = {Double.parseDouble(strs[0]),Double.parseDouble(strs[1]),Double.parseDouble(strs[2])};
+		return ds;
+	}
+	
+	public int getStockCheckTime()
+	{
+		return cd_stock_check_time;
+	}
 	public void setOnlySell(boolean onlySell)
 	{
 		_shopOnlySell = onlySell;
@@ -247,8 +534,44 @@ public class Shop implements Listener
 					cds.addCooldownInSeconds(cdName, _main.getExpireTime());
 				}
 				
+				if(cds.isCooldownReady(cd_stock_check))
+				{
+					fillStock();
+					cds.addCooldownInSeconds(cd_stock_check, cd_stock_check_time);
+					
+				}
+				
 			}
-		}.runTaskTimer(_main, 0, 20 * refTime);
+		}.runTaskTimer(_main, 0, 20 * refTime); //reftime
+	}
+	
+	void fillStock()
+	{
+		if(shop_stuff_stacks.size() <= 0)
+		{
+			return;
+		}
+		
+		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
+		{
+			ItemStack stack = shop_stuff_stacks.get(i);
+			
+			if(isStackInf(stack) && getPDCustomStockDelay(stack) != null)
+			{
+				Integer fill_amount = getPDCustomStockAmount(stack);
+				Integer fill_delay = getPDCustomStockDelay(stack);
+				Long timeStamp = getPDCustomStockTimeStamp(stack);
+				if(fill_amount != null && fill_delay != null)
+				{
+					if((System.currentTimeMillis() > (fill_delay*60*1000 + timeStamp)))
+					{
+						addItemToShopNEW(stack, fill_amount);
+						setPDCustomStockTimeStamp(stack, System.currentTimeMillis());
+					}
+					
+				}
+			}
+		}
 	}
 	
 	void checkExpireTime()
@@ -296,7 +619,7 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_infItem);
 	}
 	
-	boolean isStackInf(ItemStack stack)
+	public boolean isStackInf(ItemStack stack)
 	{
 		Integer inf = itemM.getPersistenData(stack, pd_infItem, PersistentDataType.INTEGER);
 		if(inf != null && inf > 0)
@@ -332,17 +655,19 @@ public class Shop implements Listener
 		if(cm.isExists())
 		{
 			
-			if(shop_stuff_stacks.size() <= 0 || shop_stuff_values.size() <= 0)
+			if(shop_stuff_stacks.size() == 0 || shop_stuff_values.size() == 0)
 			{
 				System.out.println("CLEAR shop");
 				shop_stuff_stacks.clear();
 				shop_stuff_values.clear();
 			}
+			System.out.println(shop_stuff_stacks.size());
+			System.out.println(shop_stuff_values.size());
 			
 			for(int i = 0 ; i < shop_stuff_stacks.size(); ++i)
 			{
 				Integer count = getShopStackAmount(shop_stuff_stacks.get(i));
-				if(count == null || count <= 0)
+				if(count == null || (count <= 0 && !isStackInf(shop_stuff_stacks.get(i))))
 				{
 					shop_stuff_stacks.remove(i);					
 				}
@@ -351,7 +676,7 @@ public class Shop implements Listener
 			for(int i = 0 ; i < shop_stuff_values.size(); ++i)
 			{
 				int count = shop_stuff_values.get(i);
-				if(count <= 0)
+				if(count <= 0 && !isStackInf(shop_stuff_stacks.get(i)))
 				{
 					shop_stuff_values.remove(i);				
 				}
@@ -527,7 +852,7 @@ public class Shop implements Listener
 		player_currentShopPage.remove(player);
 		player_currentLabel.remove(player);
 		
-		player_runnables.remove(player);		 // oli kommentoitou ?
+		//player_runnables.remove(player);		 // oli kommentoitou ?
 		clearEmptysINinv(player);
 	}
 	
@@ -681,7 +1006,8 @@ public class Shop implements Listener
 							
 						}
 						
-						putItemToShop(stack, 1,false);
+						//putItemToShop(stack, 1);
+						addItemToShopNEW(stack, 1);
 						depositMoney(player, price_one);
 						return;
 						
@@ -699,7 +1025,8 @@ public class Shop implements Listener
 							setEmptyToInv(player, e.getInventory(), raw_slot);
 						}
 						
-						putItemToShop(stack, c,false);
+						//putItemToShop(stack, c);
+						addItemToShopNEW(stack, c);
 						depositMoney(player, price_eight);
 						return;
 					}
@@ -715,7 +1042,8 @@ public class Shop implements Listener
 						{
 							setEmptyToInv(player, e.getInventory(), raw_slot);
 						}
-						putItemToShop(stack, c,false);
+						//putItemToShop(stack, c);
+						addItemToShopNEW(stack, c);
 						depositMoney(player, price_stack);
 						return;
 					}
@@ -727,7 +1055,8 @@ public class Shop implements Listener
 						{
 							setEmptyToInv(player, e.getInventory(), raw_slot);
 						}
-						putItemToShop(stack, stack_count,false);
+						//putItemToShop(stack, stack_count);
+						addItemToShopNEW(stack, stack_count);
 						depositMoney(player, price_all);
 						return;
 					}
@@ -892,33 +1221,32 @@ public class Shop implements Listener
 	{		
 		ItemStack testing= new ItemStack(stack);
 		
-		removeAddedShopPDdata(testing);
 		removeToolTip(testing);
+		removeAddedShopPDdata(testing);
+		
 		
 		ItemStack copy = null;
 		int i = 0;
 		boolean remove = false;
-		//System.out.println("Shop stuff stack size: "+shop_stuff_stacks.size());
-		//itemM.printArray("test", shop_stuff_stacks.toArray());
+		
+		String worlds_str = getPDCustomWorlds(stack);
+		Integer canBeSoldBack = getPDCustomCanSoldBack(stack);
+		
+		//System.out.println("STACK: "+stack);
+		
 		for(; i < shop_stuff_stacks.size() ; ++i)
 		{
 			ItemStack s = new ItemStack(shop_stuff_stacks.get(i));
+			ItemStack stack_check_pd = new ItemStack(s);
 			
-			removeAddedShopPDdata(s);
 			removeToolTip(s);
-//			
-//			System.out.println("====================");
-//			System.out.println("testing: ===>"+testing);
-//			System.out.println("   ");
-//			System.out.println("   ");
-//			System.out.println("   ");
-//			System.out.println("S:       ===>"+ s);
-//			System.out.println("====================");
-//			
+			removeAddedShopPDdata(s);
+			
+
 			if(s.isSimilar(testing))
 			{
 				copy = new ItemStack(s);
-				
+
 				if(!isStackInf(copy) || removeTotaly)
 				{
 					int amount = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
@@ -932,7 +1260,25 @@ public class Shop implements Listener
 					}
 
 					itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, total);	
-				}else
+				}
+				else if(isStackInf(stack_check_pd) && getPDCustomStockAmount(stack_check_pd) != null)
+				{
+					//TODO
+					removeInfItemPd(copy);
+
+					int amount = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
+
+					int total = amount - add_amount;
+					if(total < 1)
+					{
+						add_amount = add_amount + total;
+						total = 0;
+						remove = false;
+					}
+
+					itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, total);	
+				}
+				else
 				{
 					removeInfItemPd(copy);
 				}
@@ -962,6 +1308,22 @@ public class Shop implements Listener
 		int remainder = add_amount % 64;
 				
 		copy.setAmount(64);
+		
+		if(worlds_str != null)
+		{
+			setPDCustomWorlds(copy, worlds_str);
+			
+			itemM.addLore(copy, ChatColor.AQUA +"Working in worlds: "+ ChatColor.YELLOW + worlds_str, true);
+			itemM.addLore(copy, ChatColor.AQUA +"Bought from world: "+ ChatColor.YELLOW + player.getWorld().getName(), true);
+			itemM.addLore(copy, ChatColor.BLUE + "If entered other worlds than", true);
+			itemM.addLore(copy, ChatColor.BLUE + "above.. This item will disapear", true);
+		}
+		
+		if(canBeSoldBack != null)
+		{
+			setPDCustomCanSoldBack(copy);
+		}
+		
 		for(int j = 0; j < num; ++j)
 		{
 			ItemStack item_spawn = new ItemStack(copy);
@@ -1055,19 +1417,49 @@ public class Shop implements Listener
 		{
 			ItemStack stack;
 			ItemStack copy;
+//			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
+//			{
+//				stack = shop_stuff_stacks.get(i);
+//
+//				//TODO STOCABLE
+////				
+////				if(getShopStackAmount(stack) < 1)
+////				{
+////					if(getPDCustomStockDelay(stack) == null)
+////					{
+////						shop_stuff_stacks.remove(i);
+////						shop_stuff_values.remove(i);
+////					}
+////					
+////				}
+//			}
+//			
 			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
 			{
 				stack = shop_stuff_stacks.get(i);
-				if(getShopStackAmount(stack) <= 0)
+				
+				String custom_permission = getPDCustomPermission(stack);
+				if(custom_permission != null)
 				{
-					shop_stuff_stacks.remove(i);
-					shop_stuff_values.remove(i);
+					if(!player.hasPermission(custom_permission))
+						continue;
 				}
-			}
-			
-			for(int i = start ; i < shop_stuff_stacks.size(); ++i)
-			{
-				stack = shop_stuff_stacks.get(i);
+				else if(getPDCustomWorlds(stack) != null)
+				{
+					if(!isWorldInCustomWorlds(stack, player.getWorld().getName()))
+					{
+						continue;
+					}					
+				}
+				
+				if(getPDCustomSoldDistance(stack) != null)
+				{
+					if(!isInsideCustomSoldDistance(stack, player))
+					{
+						System.out.println("You arent in range");
+						continue;
+					}
+				}
 				
 				copy = new ItemStack(stack);
 				setToolTip(copy,false);
@@ -1111,6 +1503,7 @@ public class Shop implements Listener
 
 		if(!_shopOnlySell)
 		{
+			//============================ SORT===========================
 			HashMap<ItemStack, Integer> same_stacks = player_stuff.get(player);
 			List<ItemStack> stacks = new ArrayList<>();
 			for(Map.Entry<ItemStack, Integer> entry : same_stacks.entrySet())
@@ -1132,7 +1525,7 @@ public class Shop implements Listener
 				}
 				
 			});
-
+			//============================ SORT===========================
 			int cur_playerPage = player_currentPlayerPage.get(player);
 			int pageCount = (int) Math.round(((stacks.size()-1)/(_size-_firstPlayerSlot))+0.5)-1;
 
@@ -1186,12 +1579,103 @@ public class Shop implements Listener
 		}
 	}
 	
+	public Integer FindIndexForShopStack(ItemStack stack)
+	{
+		ItemStack copy = new ItemStack(stack);
+		removeToolTip(copy);
+		removeAddedShopPDdata(copy);
+		for(int i = 0; i < shop_stuff_stacks.size();++i)
+		{
+			ItemStack test = new ItemStack(shop_stuff_stacks.get(i));
+			removeToolTip(test);
+			removeAddedShopPDdata(test);
+			
+			if(test.isSimilar(copy))
+			{
+				return i;
+			}			
+		}
+		return null;
+	}
+	public void removeItemFromShopNEW(ItemStack stack)
+	{
+		Integer idx = FindIndexForShopStack(stack);
+		if(idx != null)
+		{
+			shop_stuff_stacks.remove((int)idx);
+			shop_stuff_values.remove((int)idx);
+			RefresAllInvs();
+		}
+	}
+	public void addItemToShopNEW(ItemStack stack, int amount)
+	{
+		Integer idx = FindIndexForShopStack(stack);
+		if(idx != null)
+		{
+			ItemStack s = shop_stuff_stacks.get(idx);
+			int count = getShopStackAmount(s)+amount;
+			if(isStackInf(s))
+			{
+				Integer custom_amount = getPDCustomAmount(s);
+				
+				if(custom_amount != null)
+				{
+					if(getPDCustomStockAmount(s) != null)
+					{
+						if(count > custom_amount)
+							count = custom_amount;
+					}
+					else
+					{
+						count = custom_amount;
+					}
+				}
+			}
+						
+			setShopStackAmount(s, count);
+			shop_stuff_values.set(idx, count);
+			
+		}else
+		{
+			// as new item
+			ItemStack new_stack = new ItemStack(stack);
+			new_stack.setAmount(1);
+			removeToolTip(new_stack);
+			removeAddedShopPDdata(new_stack);
+			
+			
+			String worlds_str = getPDCustomWorlds(stack);
+			if(worlds_str != null)
+			{
+				setPDCustomWorlds(new_stack, worlds_str);
+			}
+			
+			setShopStackAmount(new_stack, amount);
+			shop_stuff_stacks.add(new_stack);
+			shop_stuff_values.add(amount);
+		}
+		RefresAllInvs();
+	}
+	
 	void setToolTip(ItemStack stack, boolean sell)
 	{
-		
+		//System.out.println("STACK: "+stack);
 		
 		stack.setAmount(1);
 		int amount = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
+		Integer custom_amount = getPDCustomAmount(stack);
+		
+		if(custom_amount != null)
+		{
+			//TODO
+			if(getPDCustomStockDelay(stack) == null)
+			{
+				amount = custom_amount;
+			}
+			
+			itemM.setPersistenData(stack, pd_count, PersistentDataType.INTEGER, amount);
+		}
+		
 		String action_str = "SELL";
 		if(!sell)
 		{
@@ -1210,6 +1694,7 @@ public class Shop implements Listener
 			if(test.isSimilar(copy))
 			{
 				amount_in_shop = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
+				
 				break;
 			} 
 			
@@ -1232,6 +1717,19 @@ public class Shop implements Listener
 		itemM.addLore(stack, ChatColor.DARK_PURPLE+"Amount  : "+ChatColor.YELLOW+""+amount, false);
 		
 		itemM.addLore(stack, ChatColor.AQUA+ "===================", false);
+		
+		if(!sell)
+		{
+			if(getPDCustomWorlds(stack) != null)
+			{
+				itemM.addLore(stack, ChatColor.DARK_BLUE +""+ChatColor.BOLD+"World Spesific item!", true);
+			}
+			if(getPDCustomCanSoldBack(stack) != null)
+			{
+				itemM.addLore(stack, ChatColor.RED +""+ChatColor.BOLD+"Can't be sold back!", true);
+			}
+		}
+		
 	}
 	
 	void removeToolTip(ItemStack stack)
@@ -1244,22 +1742,23 @@ public class Shop implements Listener
 		itemM.removeLore(stack, str_lores[2]);
 		itemM.removeLore(stack, str_lores[3]);	
 		itemM.removeLore(stack, "===================");
-	}
-	
-	void removeAddedShopPDdata(ItemStack stack)
-	{
-		itemM.removePersistenData(stack, pd_count);
-		itemM.removePersistenData(stack, pd_text);
-		itemM.removePersistenData(stack, pd_switcher);
-		itemM.removePersistenData(stack, pd_isArmor);
-		itemM.removePersistenData(stack, pd_pone);
-		itemM.removePersistenData(stack, pd_peight);
-		itemM.removePersistenData(stack, pd_pstack);
-		itemM.removePersistenData(stack, pd_pall);
-		itemM.removePersistenData(stack, pd_type);
-		//itemM.removePersistenData(stack, pd_infItem);
+		
+		if(getPDCustomWorlds(stack) != null)
+		{
+			itemM.removeLore(stack,"Working in worlds: ");
+			itemM.removeLore(stack,"Bought from world: ");
+			itemM.removeLore(stack,"If entered other worlds than");
+			itemM.removeLore(stack,"This item will disapear");
+			itemM.removeLore(stack,"World Spesific item!");
+		}
+		if(getPDCustomCanSoldBack(stack) != null)
+		{
+			itemM.removeLore(stack, "Can't be sold back!");
+		}
 		
 	}
+	
+	
 	
 	public double priceCalculation(double levelNow, double maxLevel, double minPrice, double maxPrice)
 	{
@@ -1818,22 +2317,34 @@ public class Shop implements Listener
 		removeInfItemPd(uniqueTest);
 		
 		Double[] uniquePrice = _main.getShopManager().getUniqueItemPrice(uniqueTest);
-
-		if(uniquePrice == null)
+		Double[] custom_price_str = getCoveredCustomPriceData(stack);
+		if(custom_price_str == null)
 		{
-			if(_main.isEnableSmartPrices() && !_main.isLoadSmartPricesUpFront())
+			if(uniquePrice == null)
 			{
-				material_values = getSmartPrice(stack, false, 0).clone();
+				if(_main.isEnableSmartPrices() && !_main.isLoadSmartPricesUpFront())
+				{
+					material_values = getSmartPrice(stack, false, 0).clone();
+				}else
+				{
+					material_values = getPrices(stack.getType(), true, true).clone();//min,max,pros
+				}
 			}else
 			{
-				material_values = getPrices(stack.getType(), true, true).clone();//min,max,pros
+				isUnique = true;
+				material_values = uniquePrice;
+				enchantcost = 0;
 			}
-		}else
+		}
+		else
 		{
+			//TODO
 			isUnique = true;
-			material_values = uniquePrice;
+			material_values = custom_price_str;
 			enchantcost = 0;
 		}
+		
+		
 	
 		double material_values2 = material_values[2]/100;
 		
@@ -1921,7 +2432,10 @@ public class Shop implements Listener
 	public void putInfItemToShop(ItemStack stack)
 	{
 		ItemStack copy = new ItemStack(stack);
-		putItemToShop(copy, stack.getAmount(), true);
+		setStackInfItem(copy);
+		
+		//putItemToShop(copy, stack.getAmount());
+		addItemToShopNEW(copy, copy.getAmount());
 	}
 	
 	public void removeInfItemFromShop(ItemStack stack)
@@ -1931,56 +2445,88 @@ public class Shop implements Listener
 		putItemToPlayerInv(null, copy, 1, true);
 	}
 	
-	void putItemToShop(ItemStack stack, int amount,boolean isInfinity)
-	{
-		boolean found = false;
-		stack.setAmount(1);
-		removeToolTip(stack);
-		removeAddedShopPDdata(stack);
-		
-		if(isInfinity)
-		{
-			//itemM.setPersistenData(stack, pd_infItem, PersistentDataType.INTEGER, 1);
-			setStackInfItem(stack);
-		}
-		
-		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
-		{
-			
-			ItemStack shop_stack = shop_stuff_stacks.get(i);
-			int shop_amount = getShopStackAmount(shop_stack);
-			shop_stack.setAmount(1);
-			removeAddedShopPDdata(shop_stack);
-			removeToolTip(stack);
-			if(shop_stack.isSimilar(stack))
-			{
-				int count = shop_amount+amount;
-				
-				shop_stuff_stacks.set(i, shop_stack);
-				shop_stuff_values.set(i, count);
-				
-				found = true;
-				break;
-			}
-		}
-		if(!found)
-		{
+	
 
-			shop_stuff_stacks.add(stack);
-			shop_stuff_values.add(amount);
-		}
-		
-		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
-		{
-			itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, shop_stuff_values.get(i));
-		}
-		
-		for(Player p : player_invs.keySet())
-		{
-			setStuffPlayerSlots(p, player_currentLabel.get(p));
-		}
-		
-	}
+//	void putItemToShop(ItemStack stack, int amount)
+//	{
+//
+//		boolean found = false;		
+//		stack.setAmount(1);
+//		removeToolTip(stack);
+//		removeAddedShopPDdata(stack);
+//
+//		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
+//		{
+//			
+//			ItemStack shop_stack = shop_stuff_stacks.get(i);
+//			ItemStack clone_test = new ItemStack(shop_stack);
+//
+//			Integer shop_amount = getShopStackAmount(shop_stack);
+//
+//			clone_test.setAmount(1);
+//			
+//			removeAddedShopPDdata(clone_test);
+//			removeToolTip(stack);
+//			
+//			if(shop_stack.isSimilar(stack) && !isStackInf(clone_test))
+//			{
+//				System.out.println("put to the shop: "+clone_test);
+//				int count = shop_amount+amount;
+//				
+//				shop_stuff_stacks.set(i, clone_test);
+//				shop_stuff_values.set(i, count);
+//				
+//				found = true;
+//				break;
+//			}
+//			else if(isStackInf(shop_stack) && shop_stack.isSimilar(stack))
+//			{
+//				System.out.println("its inf stack");
+//				
+//				if(getPDCustomStockAmount(shop_stack) != null)
+//				{
+//					System.out.println("its STOCKABLE");
+//					int count = shop_amount+amount;
+//					if(count > getPDCustomAmount(shop_stack))
+//					{
+//						count = getPDCustomAmount(shop_stack);
+//					}
+//					shop_stuff_stacks.set(i, clone_test);
+//					shop_stuff_values.set(i, count);
+//					
+//					found = true;
+//					
+//				}else
+//				{
+//					shop_stuff_values.set(i, shop_amount);
+//				}
+//				
+//				
+//			}
+//			else if(isStackInf(shop_stack))
+//			{
+//				shop_stuff_values.set(i, shop_amount);
+//			}
+//		}
+//		
+//		if(!found)
+//		{
+//
+//			shop_stuff_stacks.add(stack);
+//			shop_stuff_values.add(amount);
+//		}
+//		
+//		for(int i = 0; i < shop_stuff_stacks.size(); ++i)
+//		{
+//			itemM.setPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER, shop_stuff_values.get(i));
+//		}
+//		
+//		for(Player p : player_invs.keySet())
+//		{
+//			setStuffPlayerSlots(p, player_currentLabel.get(p));
+//		}
+//		
+//	}
 	
 	public void analysePlayerInv(Player player)
 	{
@@ -1997,10 +2543,12 @@ public class Shop implements Listener
 			{
 				ItemStack stack = new ItemStack(s);
 				boolean found = false;
-				if(itemM.findLoreIndex(stack, "Soulbound") > -1)
+				if(getPDCustomCanSoldBack(stack) != null ||itemM.findLoreIndex(stack, "Soulbound") > -1)
 				{
 					continue;
 				}
+				
+				
 				
 				if(itemM.isArmor(stack) || itemM.isTool(stack))
 				{

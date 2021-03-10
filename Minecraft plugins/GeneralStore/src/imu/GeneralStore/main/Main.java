@@ -14,8 +14,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.GeneralStore.Commands.GeneralStoreCmd;
 import imu.GeneralStore.Commands.GeneralStoreCmd2;
-import imu.GeneralStore.Events.InventoriesClass;
+import imu.GeneralStore.Events.SomeSmallEventsClass;
 import imu.GeneralStore.Handlers.CommandHandler;
+import imu.GeneralStore.Managers.ShopModManager;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.DenizenScriptCreator;
 import imu.GeneralStore.Other.EnchantsManager;
@@ -30,6 +31,7 @@ import imu.GeneralStore.SubCommands.subStoreCreateCmd;
 import imu.GeneralStore.SubCommands.subStoreEnchantInvCmd;
 import imu.GeneralStore.SubCommands.subStoreListCmd;
 import imu.GeneralStore.SubCommands.subStoreLockCmd;
+import imu.GeneralStore.SubCommands.subStoreModifyInvCmd;
 import imu.GeneralStore.SubCommands.subStorePlayerCostCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
@@ -51,6 +53,8 @@ public class Main extends JavaPlugin
 	ShopManager shopManager = null;
 	EnchantsManager enchManager = null;
 	DenizenScriptCreator denSC = null;
+	ShopModManager shopModManager = null;
+	SomeSmallEventsClass inventoriesClass = null;
 	
 	
 
@@ -62,7 +66,7 @@ public class Main extends JavaPlugin
 	
 	int expireTime = 60*60; 
 	double expireProsent = 10; 
-	int runnableDelay = 60;
+	int runnableDelay = 30;
 	
 	Double[] default_prices= {0.1, 1.0, 2.0};
 	
@@ -98,6 +102,7 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "lock", new subStoreLockCmd(this));
         handler.registerSubCmd(cmd1, "type", new subStoreSetSellTypeCmd(this));
         handler.registerSubCmd(cmd1, "assign", new subStoreAssignCmd(this,"assign"));
+        handler.registerSubCmd(cmd1, "mod", new subStoreModifyInvCmd(this));
         
         
         
@@ -120,13 +125,18 @@ public class Main extends JavaPlugin
 		enchManager = new EnchantsManager(this);
 		shopManager  = new ShopManager(this);
 		denSC = new DenizenScriptCreator(this);
-
+		shopModManager = new ShopModManager(this);
+		
+		inventoriesClass = new SomeSmallEventsClass(this);
+		
+		getServer().getPluginManager().registerEvents(inventoriesClass, this);
 		
 		ConfigsSetup();
 
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" General Store has been activated!");
-		getServer().getPluginManager().registerEvents(new InventoriesClass(this), this);
+		
+		
 		
 		shopManager.setLockShops(locked,false);
 	}
@@ -166,6 +176,11 @@ public class Main extends JavaPlugin
 	public ShopManager getShopManager()
 	{
 		return shopManager;
+	}
+	
+	public ShopModManager getShopModManager()
+	{
+		return shopModManager;
 	}
 	
 	public void setLocked(boolean lock)
@@ -262,6 +277,7 @@ public class Main extends JavaPlugin
 			enableSmartPrices = cm.addDefault("EnableSmartPrices",enableSmartPrices , "EnableSmartPrices: Allow shop calculate prices from recipies");
 			loadSmartPricesUpFront=cm.addDefault("LoadSmartPricesUpFront", loadSmartPricesUpFront, "LoadSmartPricesUpFront: Load smart prices before using shops, false means doing it when it opens.. can be laggy at first");
 			locked = cm.addDefault("AllcommandsLocked", locked, "If true all Ops can only use commands. Normally used in if you don't wanna people use shops");
+			inventoriesClass.setEnable_soulbound_nerf(cm.addDefault("Soulbound_anvil_disabled", inventoriesClass.getEnable_soulbound_nerf(), "If true, you can't combine normal item and item with lore 'Soulbound' in anvil"));
 			cm.addComments();
 			
 		} catch (Exception e) 

@@ -392,7 +392,7 @@ public class ShopManager implements DelaySendable
 		itemM.setPersistenData(stack, pd_unique, PersistentDataType.STRING, price[0]+":"+price[1]+":"+price[2]);
 	}
 	
-	Double[] getUniquePriceData(ItemStack stack)
+	public Double[] getUniquePriceData(ItemStack stack)
 	{
 		String[] strs = itemM.getPersistenData(stack, pd_unique, PersistentDataType.STRING).split(":");
 		Double[] ds = {Double.parseDouble(strs[0]),Double.parseDouble(strs[1]),Double.parseDouble(strs[2])};

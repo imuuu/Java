@@ -180,7 +180,16 @@ public class ItemMetods
     	}
 		return -1;
 	}
-	
+	public ItemStack reSetLore(ItemStack stack, String lore, int index)
+	{
+		ItemMeta meta = stack.getItemMeta();
+		ArrayList<String> lores = new ArrayList<String>();	
+		lores.addAll(meta.getLore());
+		lores.set(index, lore);
+		meta.setLore(lores);
+		stack.setItemMeta(meta);
+		return stack;
+	}
 	public int getStringFirstUpperLetter(String str)
 	{
 		int i = -1;
@@ -440,7 +449,7 @@ public class ItemMetods
 	
 	public ItemStack removePersistenData(ItemStack stack, String keyName)
 	{
-		if(stack.getType() == Material.AIR)
+		if(stack == null ||stack.getType() == Material.AIR)
 			return stack;
 
 		NamespacedKey key = new NamespacedKey(_main, keyName);
@@ -576,6 +585,12 @@ public class ItemMetods
 	
 	public <T> void printArray(String id, T[] arr)
 	{
+		if(arr == null)
+		{
+			System.out.println(id+" : Array NULL");
+			return;
+		}
+
 		System.out.println("====================");
 		for(int i = 0; i < arr.length ; ++i)
 		{

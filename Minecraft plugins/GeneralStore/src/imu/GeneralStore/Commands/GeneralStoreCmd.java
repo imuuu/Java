@@ -1,14 +1,10 @@
 package imu.GeneralStore.Commands;
 
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-
 //Imports for the base command class.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.ShopManager;
@@ -46,7 +42,8 @@ public class GeneralStoreCmd implements CommandInterface
     		
     		
     	}
-    	
+    	Player p = (Player)sender;
+    	System.out.println("Player in hand: "+ p.getInventory().getItemInMainHand());
     	
 //    	try 
 //    	{

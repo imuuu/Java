@@ -11,13 +11,13 @@ import imu.GeneralStore.main.Main;
 
 public class CustomInvLayout 
 {
-	Main _main = null;
-	ItemMetods itemM = null;
+	protected Main _main = null;
+	protected ItemMetods itemM = null;
 	String _name="";
-	int _size = 0;
+	protected int _size = 0;
 	
-	Inventory _inv = null;
-	Player _player = null;
+	protected Inventory _inv = null;
+	protected Player _player = null;
 	String pd_switch = "gs.buttonSwitch";
 	
 	public CustomInvLayout(Main main,Player player, String name, int size)
