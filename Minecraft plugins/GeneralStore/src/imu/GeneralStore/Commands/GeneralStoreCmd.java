@@ -43,7 +43,7 @@ public class GeneralStoreCmd implements CommandInterface
     		
     	}
     	Player p = (Player)sender;
-    	System.out.println("Player in hand: "+ p.getInventory().getItemInMainHand());
+    	//System.out.println("Player in hand: "+ p.getInventory().getItemInMainHand());
     	
 //    	try 
 //    	{

@@ -277,7 +277,8 @@ public class Main extends JavaPlugin
 			enableSmartPrices = cm.addDefault("EnableSmartPrices",enableSmartPrices , "EnableSmartPrices: Allow shop calculate prices from recipies");
 			loadSmartPricesUpFront=cm.addDefault("LoadSmartPricesUpFront", loadSmartPricesUpFront, "LoadSmartPricesUpFront: Load smart prices before using shops, false means doing it when it opens.. can be laggy at first");
 			locked = cm.addDefault("AllcommandsLocked", locked, "If true all Ops can only use commands. Normally used in if you don't wanna people use shops");
-			inventoriesClass.setEnable_soulbound_nerf(cm.addDefault("Soulbound_anvil_disabled", inventoriesClass.getEnable_soulbound_nerf(), "If true, you can't combine normal item and item with lore 'Soulbound' in anvil"));
+			inventoriesClass.setEnable_soulbound_nerf(cm.addDefault("Soulbound_anvil_disabled", inventoriesClass.getEnable_soulbound_nerf(), "Soulbound_anvil_disabled: If true, you can't combine normal item and item with lore 'Soulbound' in anvil"));
+			//shopManager.set_logSoldShopsConsole(cm.addDefault("ShopsLogConsole", shopManager.is_logSoldShopsConsole(), "ShopsLogConsole: If true every sold item will be shown in console too!"));
 			cm.addComments();
 			
 		} catch (Exception e) 

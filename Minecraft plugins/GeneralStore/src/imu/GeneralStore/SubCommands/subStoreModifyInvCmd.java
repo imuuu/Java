@@ -11,6 +11,7 @@ import imu.GeneralStore.Interfaces.CommandInterface;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.main.Main;
+import net.md_5.bungee.api.ChatColor;
 
 public class subStoreModifyInvCmd implements CommandInterface
 {
@@ -29,21 +30,18 @@ public class subStoreModifyInvCmd implements CommandInterface
     {
         player = (Player) sender;
         
-        
-        player.sendMessage("Modify inv");
         //shopManager.openUniqueINV(player);
         //player.sendMessage("/gs uniques");
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
 
         if(shopManager.isExists(nameShop))
         {
-        	player.sendMessage("Shop found!");
         	Shop shop = shopManager.getShop(nameShop);
         	_main.getShopModManager().openModShopInv(player, shop);
         }
         else
         {
-        	player.sendMessage("Shop no found");
+        	player.sendMessage(ChatColor.RED + "Shop no found!");
         }
 		
         return false;

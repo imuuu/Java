@@ -48,7 +48,9 @@ public class ShopModINV extends CustomInvLayout implements Listener
 		NONE,
 		GO_LEFT,
 		GO_RIGHT,
-		SHOP_ITEM;
+		SHOP_ITEM,
+		SAVE_SHOP_DATA,
+		OVERRIDE_ALL;
 		
 	}
 	
@@ -97,14 +99,31 @@ public class ShopModINV extends CustomInvLayout implements Listener
 				
 		ItemStack left_button = new ItemStack(Material.BIRCH_SIGN);
 		ItemStack right_button = left_button.clone();
+		
+		ItemStack saveAll_button = new ItemStack(Material.GOLD_INGOT);
+		itemM.setDisplayName(saveAll_button, ChatColor.AQUA + "Save shop items to config!");
+		itemM.addLore(saveAll_button, ChatColor.BLUE + "Press this after you have edited some items", true);
+		itemM.addLore(saveAll_button, ChatColor.BLUE + "Normally this will be done onDisabled", true);
+		itemM.addLore(saveAll_button, ChatColor.BLUE + "If server crashes the onDisable never initialize(data lost) ", true);
+		
+		ItemStack override_button = new ItemStack(Material.PAPER);
+		itemM.setDisplayName(override_button, ChatColor.AQUA +"Override all");
+		itemM.addLore(override_button, ChatColor.BLUE + "Set same data to all", true);
+		itemM.addLore(override_button, ChatColor.BLUE + "if modify is none, it will be removed from all items too", true);
+		
+		
 		itemM.setDisplayName(left_button, ChatColor.AQUA + "<<");
 		itemM.setDisplayName(right_button, ChatColor.AQUA + ">>");
 		
 		setButton(left_button, BUTTON.GO_LEFT);
 		setButton(right_button, BUTTON.GO_RIGHT);
+		setButton(saveAll_button, BUTTON.SAVE_SHOP_DATA);
+		setButton(override_button, BUTTON.OVERRIDE_ALL);
 		
 		_inv.setItem(unique_slots, left_button);
+		_inv.setItem(unique_slots+2, saveAll_button);
 		_inv.setItem(_size-1, right_button);
+		_inv.setItem(unique_slots+4, override_button);
 		
 		//refreshItems();
 	}
@@ -114,6 +133,7 @@ public class ShopModINV extends CustomInvLayout implements Listener
 	{
 		if(isThisInv(e))
 		{
+			_shop.set_closed(true);
 			makeInv();
 			refreshItems();
 		}
@@ -125,6 +145,7 @@ public class ShopModINV extends CustomInvLayout implements Listener
 		if(isThisInv(e))
 		{
 			HandlerList.unregisterAll(this);
+			_shop.set_closed(false);
 		}
 	}
 	
@@ -158,7 +179,13 @@ public class ShopModINV extends CustomInvLayout implements Listener
 				chanceCurrentPage(1);
 				refreshItems();
 				return;
-				
+			case SAVE_SHOP_DATA:
+				_shop.configSaveContent();
+				_player.closeInventory();
+				_player.sendMessage(ChatColor.GOLD + "(Shop) "+_shop.getDisplayName()+ " items has been saved!");
+			case OVERRIDE_ALL:
+				_smm.openModShopModifyOVERRIDE_ALL_Inv(_player, stack, _shop, null);
+				break;
 			default:
 				break;
 			}
@@ -171,16 +198,20 @@ public class ShopModINV extends CustomInvLayout implements Listener
 		String modifyStr =ChatColor.YELLOW +"== Click to modify ==";
 		itemM.addLore(stack, modifyStr, false);
 		
-		String custom_amount, c_permission, c_price ,c_worlds, c_stock_delay_amount, c_soldBack, c_soldDistance;
+		String custom_amount, c_permission, c_price ,c_worlds, c_stock_delay_amount, c_soldBack, c_soldDistance, c_selltime;
+		String none_color = ChatColor.RED + "";
+		String true_color = ChatColor.AQUA + "";
 		
-		custom_amount = _shop.getPDCustomAmount(stack) != null ? _shop.getPDCustomAmount(stack).toString(): "None";
-		c_permission = _shop.getPDCustomPermission(stack) != null ? _shop.getPDCustomPermission(stack) : "None";
-		c_price = _shop.getPDCustomPrice(stack) != null ? _shop.getPDCustomPrice(stack).toString() : "None";
-		c_worlds = _shop.getPDCustomWorlds(stack) != null ? _shop.getPDCustomWorlds(stack) : "None";
-		c_stock_delay_amount = _shop.getPDCustomStockDelay(stack) != null ? _shop.getPDCustomStockDelay(stack).toString()+" "+_shop.getPDCustomStockAmount(stack).toString() : "None";
-		c_soldBack = _shop.getPDCustomCanSoldBack(stack) != null ? "false" : "true";
-		c_soldDistance = _shop.getPDCustomSoldDistance(stack) != null ? _shop.getPDCustomSoldDistance(stack).toString() : "None";
+		String none_str = none_color + "None";
 		
+		custom_amount =        _shop.getPDCustomAmount(stack) != null ?     true_color+_shop.getPDCustomAmount(stack).toString(): none_str;
+		c_permission =         _shop.getPDCustomPermission(stack) != null ? true_color+_shop.getPDCustomPermission(stack) : none_str;
+		c_price =              _shop.getPDCustomPrice(stack) != null ?      true_color+_shop.getPDCustomPrice(stack).toString() : none_str;
+		c_worlds =             _shop.getPDCustomWorlds(stack) != null ?     true_color+_shop.getPDCustomWorlds(stack) : none_str;
+		c_stock_delay_amount = _shop.getPDCustomStockDelay(stack) != null ? true_color+_shop.getPDCustomStockDelay(stack).toString()+" "+_shop.getPDCustomStockAmount(stack).toString() : none_str;
+		c_soldBack =           _shop.getPDCustomCanSoldBack(stack) != null ? none_color+"false" : ChatColor.AQUA + "true";
+		c_soldDistance =       _shop.getPDCustomSoldDistance(stack) != null ?true_color+ _shop.getPDCustomSoldDistance(stack).toString() : none_str;
+		c_selltime =           _shop.getPDCustomTimeSell(stack) != null ?    true_color+_shop.getPDCustomTimeSell(stack) : none_str;
 		String color = ChatColor.BLUE+"";
 		String color2 = ChatColor.YELLOW+"";
 		
@@ -191,6 +222,7 @@ public class ShopModINV extends CustomInvLayout implements Listener
 		itemM.addLore(stack, color +"World(s): "+color2+c_worlds, true);
 		itemM.addLore(stack, color +"Can be Sold: "+color2+c_soldBack, true);
 		itemM.addLore(stack, color +"Sold Distance&Loc: "+color2+c_soldDistance, true);
+		itemM.addLore(stack, color +"Sell time: "+color2+c_selltime, true);
 		
 		
 		

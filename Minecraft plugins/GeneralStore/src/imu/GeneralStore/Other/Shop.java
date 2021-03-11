@@ -52,6 +52,11 @@ public class Shop implements Listener
 	int _size=9*6;
 	
 	boolean _shopOnlySell = false;
+	boolean _closed = false;
+	//boolean _shopLogConsole = true;
+
+	
+
 
 	HashMap<Player,Inventory> player_invs = new HashMap<>();
 	HashMap<Player,Integer> player_currentLabel = new HashMap<>();
@@ -112,6 +117,7 @@ public class Shop implements Listener
 	String pd_custom_soldBack = "gs.customSoldBack";
 	
 	String pd_custom_SoldDistance = "gs.customSoldDistance";
+	String pd_custom_TimeSell = "gs.customTimeSell";
 	
 	int _maxClicksInHalfSecond=10/2;
 	
@@ -119,7 +125,7 @@ public class Shop implements Listener
 	
 	String cdName = "expireTime";
 	String cd_stock_check = "stock_time";
-	int cd_stock_check_time = 20; // in seconds
+	int cd_stock_check_time = 60 * 10; // in seconds
 	
 	String[] str_lores = {  ChatColor.GREEN+ "M1  :"+ChatColor.DARK_PURPLE+"  1   : "+ChatColor.GOLD+" ",
 							ChatColor.GREEN+ "M2  :"+ChatColor.DARK_PURPLE+"  8   : "+ChatColor.GOLD+" ",
@@ -151,10 +157,16 @@ public class Shop implements Listener
 			cds.addCooldownInSeconds(cdName, _main.getExpireTime());
 			cds.addCooldownInSeconds(cd_stock_check, cd_stock_check_time);
 			runnable();
+			
 		
 		}
 		shopManager = _main.getShopManager();
 		enchantsManager = _main.getEnchManager();
+		
+//		if(realShop)
+//		{
+//			_shopLogConsole = shopManager.is_logSoldShopsConsole();
+//		}
 		
 		setOnlySell(onlySelling);
 	
@@ -210,6 +222,7 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_custom_stock_timeStamp);
 		itemM.removePersistenData(stack, pd_custom_soldBack);
 		itemM.removePersistenData(stack, pd_custom_SoldDistance);
+		itemM.removePersistenData(stack, pd_custom_TimeSell);
 		
 		
 		//itemM.removePersistenData(stack, pd_infItem);
@@ -255,7 +268,21 @@ public class Shop implements Listener
 		return ShopItemType.NONE;
 
 	}
-	
+
+	public boolean is_closed() 
+	{
+		return _closed;
+	}
+
+	public void set_closed(boolean closed) {
+		if(_closed)
+		{
+			closeShopInvs();
+		}
+		this._closed = closed;
+	}
+
+
 	
 	//===========================
 	public void setPDCustomAmount(ItemStack stack, int amount)
@@ -440,6 +467,50 @@ public class Shop implements Listener
 	}
 	//===========================
 	
+	public void setPDCustomTimeSell(ItemStack stack, String time_range)
+	{
+		itemM.setPersistenData(stack, pd_custom_TimeSell,PersistentDataType.STRING, time_range);
+	}
+	
+	public String getPDCustomTimeSell(ItemStack stack)
+	{
+		return itemM.getPersistenData(stack, pd_custom_TimeSell, PersistentDataType.STRING);
+	}
+	
+	public boolean removePDCustomTimeSell(ItemStack stack)
+	{
+		boolean hadValue = false;
+	
+		if(getPDCustomTimeSell(stack) != null)
+			hadValue = true;
+	
+		itemM.removePersistenData(stack, pd_custom_TimeSell);
+		return hadValue;
+	}
+	//===========================
+	
+	public boolean notInsideCustomTimeSell(ItemStack stack, int world_time)
+	{
+		String[] times = getPDCustomTimeSell(stack).split(" ");
+		int t1 = Integer.parseInt(times[0]);
+		int t2 = Integer.parseInt(times[1]);
+		int w_t = (int) world_time;
+		if(t1 < t2)
+		{
+			if(!(w_t > t1 && w_t < t2))
+			{
+				return true;
+			}
+		}else
+		{
+			if((w_t < t1) && (w_t > t2))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean isInsideCustomSoldDistance(ItemStack stack, Player player)
 	{
 		String str = getPDCustomSoldDistance(stack);
@@ -527,19 +598,39 @@ public class Shop implements Listener
 			@Override
 			public void run() 
 			{
-
+				
+				boolean sendLog = false;
 				if(cds.isCooldownReady(cdName))
 				{
-					checkExpireTime();				
-					cds.addCooldownInSeconds(cdName, _main.getExpireTime());
+					if(!is_closed())
+					{
+							checkExpireTime();				
+							cds.addCooldownInSeconds(cdName, _main.getExpireTime());
+					}
+					else
+					{
+							sendLog = true;
+					}
+						
 				}
-				
+					
 				if(cds.isCooldownReady(cd_stock_check))
 				{
-					fillStock();
-					cds.addCooldownInSeconds(cd_stock_check, cd_stock_check_time);
-					
+					if(!is_closed())
+					{
+						fillStock();
+						cds.addCooldownInSeconds(cd_stock_check, cd_stock_check_time);
+					}else
+					{
+						sendLog = true;
+					}
 				}
+				
+				if(sendLog)
+				{
+					System.out.println("Shop: "+_displayName + " is closed.. so expired time and fill stock hasent checked");
+				}
+				
 				
 			}
 		}.runTaskTimer(_main, 0, 20 * refTime); //reftime
@@ -661,8 +752,8 @@ public class Shop implements Listener
 				shop_stuff_stacks.clear();
 				shop_stuff_values.clear();
 			}
-			System.out.println(shop_stuff_stacks.size());
-			System.out.println(shop_stuff_values.size());
+			//System.out.println(shop_stuff_stacks.size());
+			//System.out.println(shop_stuff_values.size());
 			
 			for(int i = 0 ; i < shop_stuff_stacks.size(); ++i)
 			{
@@ -836,6 +927,12 @@ public class Shop implements Listener
 	
 	public void openShopInv(Player player)
 	{
+		if(is_closed())
+		{
+			player.sendMessage(ChatColor.RED + ""+ChatColor.BOLD+"Shop is closed! Come back laiter!");
+			return;
+		}
+		
 		makeShop(player);
 		player.openInventory(player_invs.get(player));
 	}
@@ -1263,7 +1360,6 @@ public class Shop implements Listener
 				}
 				else if(isStackInf(stack_check_pd) && getPDCustomStockAmount(stack_check_pd) != null)
 				{
-					//TODO
 					removeInfItemPd(copy);
 
 					int amount = itemM.getPersistenData(shop_stuff_stacks.get(i), pd_count, PersistentDataType.INTEGER);
@@ -1353,6 +1449,20 @@ public class Shop implements Listener
 	{
 		configSelledItemCount(stack, remove_amount);
 		configSellLogItem(player, stack, remove_amount);
+		
+		//TODO SHOP LOG ERRORII
+//		if(_shopLogConsole)
+//		{
+////			if(stack.hasItemMeta() && stack.getItemMeta().hasDisplayName())
+////			{
+////				System.out.println("(ShopLog) "+ _displayName + player.getName() + "Sold: "+ remove_amount +" : "+itemM.getDisplayName(stack));
+////			}else
+////			{
+////				
+////			}
+//			System.out.println("(ShopLog) "+ _displayName + ": " +player.getName() + " Sold: "+ remove_amount +" : "+stack.getType());
+//		}
+		
 		HashMap<ItemStack, ArrayList<ItemStack>> refs = player_refs.get(player);
 		
 		boolean isEmpty = false;
@@ -1421,7 +1531,7 @@ public class Shop implements Listener
 //			{
 //				stack = shop_stuff_stacks.get(i);
 //
-//				//TODO STOCABLE
+//				
 ////				
 ////				if(getShopStackAmount(stack) < 1)
 ////				{
@@ -1456,9 +1566,13 @@ public class Shop implements Listener
 				{
 					if(!isInsideCustomSoldDistance(stack, player))
 					{
-						System.out.println("You arent in range");
 						continue;
 					}
+				}
+				
+				if(getPDCustomTimeSell(stack) != null && notInsideCustomTimeSell(stack, (int)player.getWorld().getTime()))
+				{
+					continue;
 				}
 				
 				copy = new ItemStack(stack);
@@ -1607,6 +1721,13 @@ public class Shop implements Listener
 			RefresAllInvs();
 		}
 	}
+	public void removeALLItemsFromShopNEW()
+	{
+
+		shop_stuff_stacks.clear();
+		shop_stuff_stacks.clear();
+		RefresAllInvs();
+	}
 	public void addItemToShopNEW(ItemStack stack, int amount)
 	{
 		Integer idx = FindIndexForShopStack(stack);
@@ -1667,7 +1788,6 @@ public class Shop implements Listener
 		
 		if(custom_amount != null)
 		{
-			//TODO
 			if(getPDCustomStockDelay(stack) == null)
 			{
 				amount = custom_amount;
@@ -2338,7 +2458,6 @@ public class Shop implements Listener
 		}
 		else
 		{
-			//TODO
 			isUnique = true;
 			material_values = custom_price_str;
 			enchantcost = 0;

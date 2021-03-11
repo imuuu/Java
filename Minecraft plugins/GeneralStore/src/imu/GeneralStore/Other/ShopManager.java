@@ -39,7 +39,10 @@ public class ShopManager implements DelaySendable
 	
 	boolean calculationReady = true;
 	boolean lock_shops = false;
+	boolean _logSoldShopsConsole = true;
 	
+	
+
 	ItemMetods itemM = null;
 	
 	String pd_unique = "gs.unique";
@@ -79,6 +82,14 @@ public class ShopManager implements DelaySendable
 			closeShopsInvs();
 		}
 		
+	}
+	
+	public boolean is_logSoldShopsConsole() {
+		return _logSoldShopsConsole;
+	}
+
+	public void set_logSoldShopsConsole(boolean _logSoldShopsConsole) {
+		this._logSoldShopsConsole = _logSoldShopsConsole;
 	}
 	public String get_pd_modify() 
 	{

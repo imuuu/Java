@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.main.Main;
 
-public class ConvPromptAmount extends StringPrompt
+public class ConvPromptModModifyOVERRIDE_ALL_INV extends StringPrompt
 {
 
 	Main _main;
@@ -21,7 +21,7 @@ public class ConvPromptAmount extends StringPrompt
 	Shop _shop;
 	
 	String _question;
-	public ConvPromptAmount(Main main, Player p, ItemStack stack, Shop shop ,String[] answers, int ans_id, String question)
+	public ConvPromptModModifyOVERRIDE_ALL_INV(Main main, Player p, ItemStack stack, Shop shop ,String[] answers, int ans_id, String question)
 	{
 		_main = main;
 		_player  = p;
@@ -30,13 +30,15 @@ public class ConvPromptAmount extends StringPrompt
 		_stack = stack;
 		_shop = shop;
 		_question = question;
+		_shop.set_closed(true);
 	}
 	@Override
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
 		//con.getForWhom().sendRawMessage("Thank you for ur awnser!: "+anwser );
 		_answers[_ans_id] = anwser;
-		_main.getShopModManager().openModShopModifyInv(_player, _stack, _shop, _answers);
+		//_main.getShopModManager().openModShopModifyInv(_player, _stack, _shop, _answers);
+		_main.getShopModManager().openModShopModifyOVERRIDE_ALL_Inv(_player, _stack, _shop, _answers);
 		return null;
 	}
 

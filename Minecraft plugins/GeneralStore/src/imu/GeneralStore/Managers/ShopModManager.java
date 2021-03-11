@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Invs.ShopModINV;
 import imu.GeneralStore.Invs.ShopModModifyINV;
+import imu.GeneralStore.Invs.ShopModModifyOverrideAllINV;
 import imu.GeneralStore.Other.ItemMetods;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.main.Main;
@@ -37,6 +38,11 @@ public class ShopModManager
 	public void openModShopModifyInv(Player player, ItemStack stack, Shop shop, String[] anwsers)
 	{		
 		new ShopModModifyINV(_main, player, ChatColor.DARK_PURPLE + " ==> MODIFY", stack, shop, anwsers);
+	}
+	
+	public void openModShopModifyOVERRIDE_ALL_Inv(Player player, ItemStack stack, Shop shop, String[] anwsers)
+	{		
+		new ShopModModifyOverrideAllINV(_main, player, ChatColor.GOLD +""+ChatColor.BOLD +"OVERRIDE ALL", stack, shop, anwsers);
 	}
 	
 //	void openModShopModifyInvLAST(Player player)

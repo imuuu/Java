@@ -54,6 +54,9 @@ commands:
    gs assign:
      description: Make denizen assign script for the shop. Gives name for access to the script
      usage: /<command> {script_name(without _script)} {shopname}
+   gs mod:
+     description: Opens modify inv for spesific shop
+     usage: /<command> {shop_name}
    g:
      description: Normal players
      usage: /<command>

@@ -111,6 +111,13 @@ public class MainEvents implements Listener
 		
 		ItemStack[] s_items = saved_items.get(player.getUniqueId());
 		int prosent = 0;
+		
+		if(s_items == null)
+		{
+			return;
+		}
+			
+		
 		for(int i = 0; i < inv.getContents().length; ++i)
 		{
 			ItemStack item = s_items[i];
@@ -135,6 +142,7 @@ public class MainEvents implements Listener
 		{
 			player.sendMessage(ChatColor.GRAY + "All your items has lost durability: " + ChatColor.RED+ prosent +"%");
 		}
+		saved_items.remove(player.getUniqueId());
 		
 	}
 	
