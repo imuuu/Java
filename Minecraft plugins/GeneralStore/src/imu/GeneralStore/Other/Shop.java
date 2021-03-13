@@ -77,7 +77,7 @@ public class Shop implements Listener
 	
 	Economy _econ = null;
 	
-	ShopManager shopManager=null;
+	ShopManager shopManager = null;
 	EnchantsManager enchantsManager = null;
 	
 	int _firstPlayerSlot = 36;
@@ -212,6 +212,7 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_pstack);
 		itemM.removePersistenData(stack, pd_pall);
 		itemM.removePersistenData(stack, pd_type);
+		
 		itemM.removePersistenData(stack, pd_custom_amount);
 		itemM.removePersistenData(stack, pd_custom_permission);
 		itemM.removePersistenData(stack, pd_custom_price);
@@ -656,13 +657,15 @@ public class Shop implements Listener
 				{
 					if((System.currentTimeMillis() > (fill_delay*60*1000 + timeStamp)))
 					{
-						addItemToShopNEW(stack, fill_amount);
+						addItemToShopNEW(stack, fill_amount,false);
 						setPDCustomStockTimeStamp(stack, System.currentTimeMillis());
 					}
 					
 				}
 			}
 		}
+		
+		RefresAllInvs();
 	}
 	
 	void checkExpireTime()
@@ -684,8 +687,18 @@ public class Shop implements Listener
 			Integer amount = getShopStackAmount(stack);
 			double removeAmount = Math.round(((amount * removeP)+0.5));
 			int now_amount = (int) (amount-removeAmount);
-			setShopStackAmount(stack, now_amount);
-			shop_stuff_values.set(i, now_amount);			
+			if(now_amount < 1)
+			{
+				removeItemFromShopNEW(stack, false);
+			}else
+			{
+				//addItemToShopNEW(stack, now_amount,false);
+				setShopStackAmount(stack, now_amount);
+				shop_stuff_values.set(i, now_amount);
+				//TODO
+				
+			}
+					
 			
 		}
 		RefresAllInvs();
@@ -1104,7 +1117,7 @@ public class Shop implements Listener
 						}
 						
 						//putItemToShop(stack, 1);
-						addItemToShopNEW(stack, 1);
+						addItemToShopNEW(stack, 1,true);
 						depositMoney(player, price_one);
 						return;
 						
@@ -1123,7 +1136,7 @@ public class Shop implements Listener
 						}
 						
 						//putItemToShop(stack, c);
-						addItemToShopNEW(stack, c);
+						addItemToShopNEW(stack, c,true);
 						depositMoney(player, price_eight);
 						return;
 					}
@@ -1140,7 +1153,7 @@ public class Shop implements Listener
 							setEmptyToInv(player, e.getInventory(), raw_slot);
 						}
 						//putItemToShop(stack, c);
-						addItemToShopNEW(stack, c);
+						addItemToShopNEW(stack, c,true);
 						depositMoney(player, price_stack);
 						return;
 					}
@@ -1153,7 +1166,7 @@ public class Shop implements Listener
 							setEmptyToInv(player, e.getInventory(), raw_slot);
 						}
 						//putItemToShop(stack, stack_count);
-						addItemToShopNEW(stack, stack_count);
+						addItemToShopNEW(stack, stack_count,true);
 						depositMoney(player, price_all);
 						return;
 					}
@@ -1711,14 +1724,19 @@ public class Shop implements Listener
 		}
 		return null;
 	}
-	public void removeItemFromShopNEW(ItemStack stack)
+	public void removeItemFromShopNEW(ItemStack stack, boolean refreshInvs)
 	{
 		Integer idx = FindIndexForShopStack(stack);
 		if(idx != null)
 		{
 			shop_stuff_stacks.remove((int)idx);
 			shop_stuff_values.remove((int)idx);
-			RefresAllInvs();
+			
+			if(refreshInvs)
+			{
+				RefresAllInvs();
+			}
+			
 		}
 	}
 	public void removeALLItemsFromShopNEW()
@@ -1728,7 +1746,7 @@ public class Shop implements Listener
 		shop_stuff_stacks.clear();
 		RefresAllInvs();
 	}
-	public void addItemToShopNEW(ItemStack stack, int amount)
+	public void addItemToShopNEW(ItemStack stack, int amount, boolean refresInvs)
 	{
 		Integer idx = FindIndexForShopStack(stack);
 		if(idx != null)
@@ -1775,7 +1793,12 @@ public class Shop implements Listener
 			shop_stuff_stacks.add(new_stack);
 			shop_stuff_values.add(amount);
 		}
-		RefresAllInvs();
+		
+		if(refresInvs)
+		{
+			RefresAllInvs();
+		}
+		
 	}
 	
 	void setToolTip(ItemStack stack, boolean sell)
@@ -2548,13 +2571,18 @@ public class Shop implements Listener
 		return prices;
 	}
 	
+	
+	
 	public void putInfItemToShop(ItemStack stack)
 	{
 		ItemStack copy = new ItemStack(stack);
 		setStackInfItem(copy);
-		
+
+		shopManager.checkAndRemoveEliteMobSouldBound(copy);
+		//.checkAndRemoveEliteMobSouldBound(copy);
 		//putItemToShop(copy, stack.getAmount());
-		addItemToShopNEW(copy, copy.getAmount());
+		addItemToShopNEW(copy, copy.getAmount(),true);
+		
 	}
 	
 	public void removeInfItemFromShop(ItemStack stack)

@@ -1,4 +1,4 @@
-package imu.GeneralStore.Other;
+package imu.def.Other;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,20 +20,16 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import imu.GeneralStore.Interfaces.DelaySendable;
-import imu.GeneralStore.main.Main;
+import imu.def.Interfaces.DelaySendable;
+import imu.def.main.Main;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_16_R3.ItemArmor;
 import net.minecraft.server.v1_16_R3.ItemElytra;
 import net.minecraft.server.v1_16_R3.ItemShield;
-
-
-
 
 public class ItemMetods 
 {
@@ -155,6 +151,18 @@ public class ItemMetods
 		}
 		return stack;
 	}
+	
+	public ItemStack reSetLore(ItemStack stack, String lore, int index)
+	{
+		ItemMeta meta = stack.getItemMeta();
+		ArrayList<String> lores = new ArrayList<String>();	
+		lores.addAll(meta.getLore());
+		lores.set(index, lore);
+		meta.setLore(lores);
+		stack.setItemMeta(meta);
+		return stack;
+	}
+	
 	public int findLoreIndex(ItemStack stack, String lore)
 	{
 		if(stack != null && stack.getType() != Material.AIR)
@@ -181,16 +189,7 @@ public class ItemMetods
     	}
 		return -1;
 	}
-	public ItemStack reSetLore(ItemStack stack, String lore, int index)
-	{
-		ItemMeta meta = stack.getItemMeta();
-		ArrayList<String> lores = new ArrayList<String>();	
-		lores.addAll(meta.getLore());
-		lores.set(index, lore);
-		meta.setLore(lores);
-		stack.setItemMeta(meta);
-		return stack;
-	}
+	
 	public int getStringFirstUpperLetter(String str)
 	{
 		int i = -1;
@@ -446,22 +445,11 @@ public class ItemMetods
 		
 	}
 	
-	public ItemStack removePersistenDataOtherPlugin(Plugin plugin,ItemStack stack, String keyName)
-	{
-		if(stack == null ||stack.getType() == Material.AIR)
-			return stack;
-
-		NamespacedKey key = new NamespacedKey(plugin, keyName);
-		ItemMeta meta = stack.getItemMeta();
-		meta.getPersistentDataContainer().remove(key);
-		stack.setItemMeta(meta);
-
-		return stack;
-	}
+	
 	
 	public ItemStack removePersistenData(ItemStack stack, String keyName)
 	{
-		if(stack == null ||stack.getType() == Material.AIR)
+		if(stack.getType() == Material.AIR)
 			return stack;
 
 		NamespacedKey key = new NamespacedKey(_main, keyName);
@@ -503,7 +491,6 @@ public class ItemMetods
 				
 		return value;
 	}
-	
 	
 	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
 	{
@@ -598,12 +585,6 @@ public class ItemMetods
 	
 	public <T> void printArray(String id, T[] arr)
 	{
-		if(arr == null)
-		{
-			System.out.println(id+" : Array NULL");
-			return;
-		}
-
 		System.out.println("====================");
 		for(int i = 0; i < arr.length ; ++i)
 		{
@@ -761,7 +742,7 @@ public class ItemMetods
 	
 	public void sendYesNoConfirm(Player player, String yesCommandStr, String noCommandStr)
 	{
-		TextComponent msgYes = new TextComponent("YES");
+		TextComponent msgYes = new TextComponent("         YES");
 		msgYes.setColor(ChatColor.GREEN);
 		msgYes.setBold(true);
 		msgYes.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, yesCommandStr));
@@ -780,6 +761,35 @@ public class ItemMetods
 		player.spigot().sendMessage(msgYes);
 	}
 	
+	
+	/**
+	 * 
+	 * @param player
+	 * @param table text is key and value would be command. Remember command: /command pal pla
+	 * @param seperator
+	 */
+	public void SendMessageCommands(Player player, HashMap<String, String> table, String seperator)
+	{
+		TextComponent main_msg = new TextComponent();
+		for (Map.Entry<String, String> entry : table.entrySet()) 
+		{
+		    String text = entry.getKey();
+		    String cmd_str = entry.getValue();
+		    
+		    TextComponent msg = new TextComponent(text);
+		    msg.setBold(true);
+		    msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd_str));
+		    
+		    TextComponent msgSlash = new TextComponent(" "+seperator+" ");
+			msgSlash.setColor(ChatColor.DARK_GREEN);
+		    
+		    main_msg.addExtra(msg);
+		    main_msg.addExtra(msgSlash);
+		    
+		}
+		player.spigot().sendMessage(main_msg);
+	}
+	
 	public boolean doesStrArrayCointainStr(String[] args, String option)
     {
     	for(String str : args)
@@ -791,19 +801,6 @@ public class ItemMetods
     	}
     	return false;
     }
-	
-	public void cloneItemStackData(ItemStack stack, ItemStack clonable)
-	{
-		if(clonable != null)
-		{
-			stack.setType(clonable.getType());
-			stack.setAmount(clonable.getAmount());
-			if(clonable.hasItemMeta())
-			{
-				stack.setItemMeta(clonable.getItemMeta());
-			}
-		}
-	}
 	
 	
 }

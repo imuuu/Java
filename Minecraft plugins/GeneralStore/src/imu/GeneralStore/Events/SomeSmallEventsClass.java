@@ -2,11 +2,11 @@ package imu.GeneralStore.Events;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GeneralStore.Other.Shop;
@@ -58,7 +58,7 @@ public class SomeSmallEventsClass implements Listener
 		
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onChangeWorld(PlayerChangedWorldEvent event)
 	{
 		
@@ -79,6 +79,7 @@ public class SomeSmallEventsClass implements Listener
 		if(remove_item)
 		{
 			p.sendMessage(ChatColor.RED + "Items in your inventory that doesn't belong this world has been removed!");
+			p.updateInventory();
 		}
 		
 	}

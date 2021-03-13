@@ -26,7 +26,8 @@ public class subStoreCmd implements CommandInterface
         if(args.length == 1)
         {
         	newInvenotry(player, "General Store");
-        }else
+        }
+        else
         {
         	 String nameShop = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
         	 newInvenotry(player, nameShop);

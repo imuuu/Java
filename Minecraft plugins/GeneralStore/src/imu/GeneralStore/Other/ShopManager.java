@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.datafixers.util.Pair;
@@ -54,11 +56,17 @@ public class ShopManager implements DelaySendable
 	{
 		_main = main;
 		itemM = _main.getItemM();
+		
 		if(_main.isLoadSmartPricesUpFront())
 		{
 			calculateAllSmart();
 		}		
 		
+
+	}
+	
+	final public void setupConfigs()
+	{
 		loadUniqueItemsConfig();
 		makeShopsConfig();
 	}
@@ -336,7 +344,7 @@ public class ShopManager implements DelaySendable
 		
 		cm.saveConfig();
 	}
-	public void makeShopsConfig() 
+	void makeShopsConfig() 
 	{
 		ConfigMaker cm = new ConfigMaker(_main, shopYAML);
 		FileConfiguration config = cm.getConfig();
@@ -465,7 +473,7 @@ public class ShopManager implements DelaySendable
 		cm.saveConfig();
 	}
 	
-	public void loadUniqueItemsConfig()
+	void loadUniqueItemsConfig()
 	{
 		ConfigMaker cm = new ConfigMaker(_main, uniqueYAML);
 		FileConfiguration config = cm.getConfig();
@@ -558,6 +566,16 @@ public class ShopManager implements DelaySendable
 		ui.openThis();
 		
 		
+	}
+	
+	public void checkAndRemoveEliteMobSouldBound(ItemStack stack)
+	{
+		Plugin plugin = Bukkit.getPluginManager().getPlugin("EliteMobs");
+		if( stack != null && plugin != null)
+		{
+			itemM.removePersistenDataOtherPlugin(plugin, stack, "soulbind");
+			itemM.removeLore(stack, "Soulbound");
+		}
 	}
 
 

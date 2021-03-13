@@ -21,7 +21,6 @@ import org.bukkit.persistence.PersistentDataType;
 import imu.GeneralStore.Managers.ShopModManager;
 import imu.GeneralStore.Other.CustomInvLayout;
 import imu.GeneralStore.Other.Shop;
-import imu.GeneralStore.Prompts.ConvPromptModModifyINV;
 import imu.GeneralStore.Prompts.ConvPromptModModifyOVERRIDE_ALL_INV;
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
@@ -701,7 +700,7 @@ public class ShopModModifyOverrideAllINV extends CustomInvLayout implements List
 					_player.closeInventory();
 				case SET_CAN_BE_SOLD:
 					
-					if(_answers[slot].equalsIgnoreCase("true"))
+					if(_answers[slot] != null && _answers[slot].equalsIgnoreCase("true"))
 					{
 						_answers[slot]="false";
 					}else

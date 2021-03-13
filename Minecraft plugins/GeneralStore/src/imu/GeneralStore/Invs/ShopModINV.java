@@ -183,6 +183,7 @@ public class ShopModINV extends CustomInvLayout implements Listener
 				_shop.configSaveContent();
 				_player.closeInventory();
 				_player.sendMessage(ChatColor.GOLD + "(Shop) "+_shop.getDisplayName()+ " items has been saved!");
+				break;
 			case OVERRIDE_ALL:
 				_smm.openModShopModifyOVERRIDE_ALL_Inv(_player, stack, _shop, null);
 				break;

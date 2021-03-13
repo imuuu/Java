@@ -182,6 +182,8 @@ public class UniquesINV extends CustomInvLayout implements Listener
 		ItemStack newItem = stack.clone();
 		stack.setAmount(0);
 		
+		_shopManager.checkAndRemoveEliteMobSouldBound(newItem);
+		
 		Double[] newPrice = {0.0,0.0,0.0};		
 		_shopManager.addUniqueItem(newItem, newPrice, false);	
 		setInModify(newItem);

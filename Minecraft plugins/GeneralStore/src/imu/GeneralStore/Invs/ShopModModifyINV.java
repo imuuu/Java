@@ -18,12 +18,10 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.GeneralStore.Invs.ShopModModifyOverrideAllINV.BUTTON;
 import imu.GeneralStore.Managers.ShopModManager;
 import imu.GeneralStore.Other.CustomInvLayout;
 import imu.GeneralStore.Other.Shop;
 import imu.GeneralStore.Prompts.ConvPromptModModifyINV;
-import imu.GeneralStore.Prompts.ConvPromptModModifyOVERRIDE_ALL_INV;
 import imu.GeneralStore.main.Main;
 import net.md_5.bungee.api.ChatColor;
 
@@ -773,7 +771,7 @@ public class ShopModModifyINV extends CustomInvLayout implements Listener
 				case REMOVE_INF:
 					if(_answers[slot].equalsIgnoreCase("sure"))
 					{
-						_shop.removeItemFromShopNEW(orginal_item);
+						_shop.removeItemFromShopNEW(orginal_item,true);
 						_main.getShopModManager().openModShopInv(_player, _shop);
 					}
 					break;

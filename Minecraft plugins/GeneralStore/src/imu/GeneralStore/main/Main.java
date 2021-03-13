@@ -123,8 +123,12 @@ public class Main extends JavaPlugin
 		itemM = new ItemMetods(this);
 		setupEconomy();
 		enchManager = new EnchantsManager(this);
+		
 		shopManager  = new ShopManager(this);
+		shopManager.setupConfigs();
+		
 		denSC = new DenizenScriptCreator(this);
+		
 		shopModManager = new ShopModManager(this);
 		
 		inventoriesClass = new SomeSmallEventsClass(this);
