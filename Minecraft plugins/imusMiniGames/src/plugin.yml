@@ -1,0 +1,13 @@
+name: imusMiniGames
+author: imukuppikorva
+version: 1.0
+main: imu.iMiniGames.Main.Main
+description: imusMiniGames
+api-version: 1.16
+commands:
+   img:
+     description: Create arenas
+     usage: /<command> [spleef] arenaName
+   mg:
+     description: Player commands
+     usage: /<command> [spleef]
