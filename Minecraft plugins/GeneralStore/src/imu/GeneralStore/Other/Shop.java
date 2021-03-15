@@ -104,6 +104,13 @@ public class Shop implements Listener
 	String pd_pall= "gs.priceAll";
 	String pd_infItem="gs.infItem";
 	
+	String pd_last_count = "gs.Lastcount";
+	String pd_last_one = "gs.Lastone";
+	String pd_last_eight = "gs.Lasteight";
+	String pd_last_stack = "gs.Laststack";
+	String pd_last_all= "gs.Lastall";
+	
+	
 	String pd_type="gs.itemType";
 	
 	String pd_custom_amount ="gs.customAmount";
@@ -225,6 +232,12 @@ public class Shop implements Listener
 		itemM.removePersistenData(stack, pd_custom_SoldDistance);
 		itemM.removePersistenData(stack, pd_custom_TimeSell);
 		
+		itemM.removePersistenData(stack, pd_last_count);
+		itemM.removePersistenData(stack, pd_last_one);
+		itemM.removePersistenData(stack, pd_last_eight);
+		itemM.removePersistenData(stack, pd_last_stack);
+		itemM.removePersistenData(stack, pd_last_all);
+		
 		
 		//itemM.removePersistenData(stack, pd_infItem);
 		
@@ -283,7 +296,23 @@ public class Shop implements Listener
 		this._closed = closed;
 	}
 
-
+	// LAST
+//	public void setPDLastCount(ItemStack stack, int amount)
+//	{
+//		itemM.setPersistenData(stack, pd_last_count,PersistentDataType.INTEGER, amount);
+//	}
+//	
+//	public Integer getPDLastCount(ItemStack stack)
+//	{
+//		return itemM.getPersistenData(stack, pd_last_count, PersistentDataType.INTEGER);
+//	}
+//	
+//	public void removePDLastCount(ItemStack stack)
+//	{
+//		itemM.removePersistenData(stack, pd_last_count);
+//		
+//	}
+	// LAST
 	
 	//===========================
 	public void setPDCustomAmount(ItemStack stack, int amount)
@@ -975,6 +1004,14 @@ public class Shop implements Listener
 			InventoryView view = e.getView();
 			if(view.getTitle().equalsIgnoreCase(_displayName))
 			{
+				for(ItemStack s : shop_stuff_stacks)
+				{
+					if(s != null)
+					{
+						itemM.removePersistenData(s, pd_last_count);
+					}
+				}
+				
 				player_currentLabel.put(player, LABELS.STUFF.getType());
 				player_currentShopPage.put(player, 0);
 				player_currentPlayerPage.put(player, 0);
@@ -1589,7 +1626,7 @@ public class Shop implements Listener
 				}
 				
 				copy = new ItemStack(stack);
-				setToolTip(copy,false);
+				setToolTip(copy,stack,false);
 				
 				inv.setItem(count, copy);
 
@@ -1677,7 +1714,7 @@ public class Shop implements Listener
 					}
 					else
 					{
-						setToolTip(stack,true);	
+						setToolTip(stack,stack,true);	
 						inv.setItem(count,stack);						
 						count++;
 						break;
@@ -1801,7 +1838,7 @@ public class Shop implements Listener
 		
 	}
 	
-	void setToolTip(ItemStack stack, boolean sell)
+	void setToolTip(ItemStack stack, ItemStack realStack, boolean sell)
 	{
 		//System.out.println("STACK: "+stack);
 		
@@ -1842,8 +1879,30 @@ public class Shop implements Listener
 			} 
 			
 		}
+
+		Integer last_amount = itemM.getPersistenData(realStack, pd_last_count, PersistentDataType.INTEGER);
+		Double[] prices = {0.0, 0.0, 0.0, 0.0};
+		if(last_amount != null && last_amount == amount)
+		{
+			prices[0] = itemM.getPersistenData(realStack, pd_last_one, PersistentDataType.DOUBLE);
+			prices[1] = itemM.getPersistenData(realStack, pd_last_eight, PersistentDataType.DOUBLE);
+			prices[2] = itemM.getPersistenData(realStack, pd_last_stack, PersistentDataType.DOUBLE);
+			prices[3] = itemM.getPersistenData(realStack, pd_last_all, PersistentDataType.DOUBLE);
+			
+		}else
+		{
+			prices = calculatePriceOfItem(stack, amount_in_shop, sell);
+			
+			
+		}
+				
+		itemM.setPersistenData(realStack, pd_last_one, PersistentDataType.DOUBLE, prices[0]);
+		itemM.setPersistenData(realStack, pd_last_eight, PersistentDataType.DOUBLE, prices[1]);
+		itemM.setPersistenData(realStack, pd_last_stack, PersistentDataType.DOUBLE, prices[2]);
+		itemM.setPersistenData(realStack, pd_last_all, PersistentDataType.DOUBLE, prices[3]);
 		
-		Double[] prices = calculatePriceOfItem(stack, amount_in_shop, sell);
+		itemM.setPersistenData(realStack, pd_last_count, PersistentDataType.INTEGER, amount);
+		
 		itemM.setPersistenData(stack, pd_pone, PersistentDataType.DOUBLE, prices[0]);
 		itemM.setPersistenData(stack, pd_peight, PersistentDataType.DOUBLE, prices[1]);
 		itemM.setPersistenData(stack, pd_pstack, PersistentDataType.DOUBLE, prices[2]);
@@ -1865,11 +1924,11 @@ public class Shop implements Listener
 		{
 			if(getPDCustomWorlds(stack) != null)
 			{
-				itemM.addLore(stack, ChatColor.DARK_BLUE +""+ChatColor.BOLD+"World Spesific item!", true);
+				itemM.addLore(stack, ChatColor.MAGIC + "!"+ChatColor.RED +""+ChatColor.BOLD+"World Spesific item!"+ChatColor.MAGIC + "!", true);
 			}
 			if(getPDCustomCanSoldBack(stack) != null)
 			{
-				itemM.addLore(stack, ChatColor.RED +""+ChatColor.BOLD+"Can't be sold back!", true);
+				itemM.addLore(stack, ChatColor.MAGIC + "!" + ChatColor.RED +""+ChatColor.BOLD+"Can't be sold back!"+ChatColor.MAGIC + "!", true);
 			}
 		}
 		
@@ -2550,7 +2609,6 @@ public class Shop implements Listener
 		prices[1]=Math.round((materialCost_eight   * durProsent)* 100.0) / 100.0;
 		prices[2]=Math.round((materialCost_stack * durProsent)* 100.0) / 100.0;
 		prices[3]=Math.round((materialCost_all   * durProsent)* 100.0) / 100.0;
-		
 		
 		
 		if(!sell)
