@@ -10,6 +10,9 @@ public class SpleefArena extends Arena
 {
 	Location[] _platformCorners = new Location[2];
 	
+	Location _spectator_lobby = null;
+	
+	
 	public SpleefArena(String name) 
 	{
 		super(name);		
@@ -27,6 +30,15 @@ public class SpleefArena extends Arena
 	public void clearPlatformCorners()
 	{
 		_platformCorners = new Location[_platformCorners.length];
+	}
+	
+	public Location get_spectator_lobby() {
+		return _spectator_lobby;
+	}
+
+
+	public void set_spectator_lobby(Location _spectator_lobby) {
+		this._spectator_lobby = _spectator_lobby;
 	}
 	
 	public void calculateCorners()
@@ -80,6 +92,10 @@ public class SpleefArena extends Arena
 		
 	}
 	
+	public void fillWithSnowpPlatform()
+	{
+		fillWithSnow(_platformCorners[0], _platformCorners[1]);
+	}
 	
 	public void fillWithSnow(Location startLoc, Location endLoc)
 	{

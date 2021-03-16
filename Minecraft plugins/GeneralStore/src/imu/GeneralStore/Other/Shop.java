@@ -2555,9 +2555,14 @@ public class Shop implements Listener
 		double materialCost_stack = 0 + enchantcost;
 		
 		boolean lock = false;
+		double cost = 0;
+		
+		int back_i = 0;
+		
 		for(int i = 0 + amount_inShop; i < total_amount+amount_inShop; ++i)
 		{
-			double cost = material_values[0];
+			cost = material_values[0];
+			back_i = i;
 			if(!lock)
 			{
 				if(sell)
@@ -2573,6 +2578,7 @@ public class Shop implements Listener
 				{
 					lock=true;
 					cost = material_values[0];
+					break;
 				}
 					
 			}
@@ -2594,6 +2600,22 @@ public class Shop implements Listener
 			
 			materialCost_all += cost;
 		}
+		
+		if(lock)
+		{
+			if(back_i < 8 + amount_inShop)
+			{
+				materialCost_eight += cost * ((8 + amount_inShop) - back_i);
+			}
+			
+			if(back_i < 64 + amount_inShop)
+			{
+				materialCost_stack += cost * ((64 + amount_inShop) - back_i);
+			}
+			
+			materialCost_all += cost * ((total_amount+amount_inShop) - back_i);
+		}
+		
 		
 		double durProsent = itemM.getDurabilityProsent(stack);
 		if(durProsent != 1)

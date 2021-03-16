@@ -156,7 +156,15 @@ public class SpleefGamePlaner extends GamePlaner
 							{
 								found = true;
 								gameCard.putPlayer(p);
+								
 							}
+						}
+						
+						if(gameCard.get_players_accept().size() > gameCard.get_arena().get_maxPlayers())
+						{
+							//TODO chckkaa et toimii
+							_player.sendMessage(ChatColor.RED+ "Too many players for the arena!");
+							wrongs.add(i);
 						}
 						
 						if(!found)

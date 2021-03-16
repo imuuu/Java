@@ -1,6 +1,7 @@
 package imu.iMiniGames.Managers;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -52,7 +53,15 @@ public class SpleefManager
 		}
 		return null;
 	}
-	
+	public ArrayList<SpleefArena> getArenas()
+	{
+		ArrayList<SpleefArena> ar = new ArrayList<SpleefArena>();
+		for(Entry<String, SpleefArena> entry : _spleefArenas.entrySet())
+		{
+			ar.add(entry.getValue());
+		}
+		return ar;
+	}
 	public SpleefArena getArena(int idx)
 	{
 		File[] f = new File(_main.getDataFolder().getAbsoluteFile()+File.separator + text_arena_yml).listFiles();
@@ -90,6 +99,7 @@ public class SpleefManager
 		config.set("MaxPlayers",arena.get_maxPlayers());
 		config.set("CornerLoc1", arena.getPlatformCorner(0));
 		config.set("CornerLoc2", arena.getPlatformCorner(1));
+		config.set("LobbyLoc", arena.get_spectator_lobby());
 		
 		for(int i = 0; i < arena.getTotalSpawnPositions(); ++i)
 		{
@@ -116,12 +126,14 @@ public class SpleefManager
 			Integer max_p = config.getInt("MaxPlayers");
 			Location loc1 = config.getLocation("CornerLoc1");
 			Location loc2 = config.getLocation("CornerLoc2");
+			Location lobby_loc = config.getLocation("LobbyLoc");
 			
 			SpleefArena arena = new SpleefArena(name);
 			arena.set_displayName(d_name);
 			arena.set_maxPlayers(max_p);
 			arena.setPlatformCorner(0, loc1);
 			arena.setPlatformCorner(1, loc2);
+			arena.set_spectator_lobby(lobby_loc);
 			
 			for(int i = 0; i < max_p; ++i)
 			{
