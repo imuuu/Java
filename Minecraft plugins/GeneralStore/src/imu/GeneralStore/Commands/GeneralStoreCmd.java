@@ -31,7 +31,7 @@ public class GeneralStoreCmd implements CommandInterface
     	
     	if(_shopM.isShopsLocked())
     	{
-    		if(!sender.isOp())
+    		if(!sender.isOp() && !sender.hasPermission("gs"))
     		{
     			sender.sendMessage(ChatColor.RED + "Closed");
     			return true;

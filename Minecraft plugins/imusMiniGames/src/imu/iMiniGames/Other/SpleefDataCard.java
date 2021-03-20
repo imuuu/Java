@@ -2,21 +2,83 @@ package imu.iMiniGames.Other;
 
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import imu.iMiniGames.Arenas.SpleefArena;
 
 public class SpleefDataCard 
 {
 	Player _owner;
 	
-
+	SpleefArena _arena;
+	
+	
 	HashMap<Integer, String> _invDataValues = new HashMap<>();
-
+	
+	HashMap<PotionEffectType, PotionEffect> _invPotionEffects = new HashMap<>();
+	
+	String _potions_names_str = "";
+	
+	int _best_of_amount = 1;
+	int _best_of_max = 1;
 	
 	public SpleefDataCard(Player owner)
 	{
 		_owner = owner;
 	}
-	public HashMap<Integer, String> get_invDataValues() {
+	
+	public void addBestOfAmount(int amount)
+	{
+		_best_of_amount+=amount;
+		
+		if(_best_of_amount < 1)
+			_best_of_amount = 1;
+		
+		if(_best_of_amount > _best_of_max)
+			_best_of_amount = _best_of_max;
+	}
+	
+	public int get_bestOfAmount()
+	{
+		return _best_of_amount;
+	}
+	
+	public void set_bestOfMax(int max)
+	{
+		_best_of_max = max;
+	}
+	
+	public void clearPotionEffect()
+	{
+		_invPotionEffects.clear();
+		_potions_names_str = "";
+	}
+	
+	public HashMap<PotionEffectType, PotionEffect> get_invPotionEffects() {
+		return _invPotionEffects;
+	}
+	
+	public void removePotionEffect(PotionEffectType t)
+	{
+		_invPotionEffects.remove(t);
+	}
+	
+	public void putPotionEffect(PotionEffectType t, PotionEffect ef)
+	{
+		_invPotionEffects.put(t, ef);
+		_potions_names_str += ChatColor.GOLD+ t.getName()+":"+ChatColor.LIGHT_PURPLE+ef.getAmplifier()+" ";
+	}
+	
+	public PotionEffect get_PotionEffect(PotionEffectType t) 
+	{
+		return _invPotionEffects.get(t);
+	}
+	
+	public HashMap<Integer, String> get_invDataValues()
+	{
 		return _invDataValues;
 	}
 	
@@ -38,4 +100,14 @@ public class SpleefDataCard
 	public Player get_owner() {
 		return _owner;
 	}
+	public SpleefArena get_arena() {
+		return _arena;
+	}
+	public void set_arena(SpleefArena _arena) {
+		this._arena = _arena;
+	}
+	public String get_potions_names_str() {
+		return _potions_names_str;
+	}
+
 }

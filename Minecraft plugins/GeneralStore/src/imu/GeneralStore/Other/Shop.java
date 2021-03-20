@@ -53,7 +53,7 @@ public class Shop implements Listener
 	
 	boolean _shopOnlySell = false;
 	boolean _closed = false;
-	//boolean _shopLogConsole = true;
+	boolean _shopLogConsole = true;
 
 	
 
@@ -551,10 +551,14 @@ public class Shop implements Listener
 			double x = Double.parseDouble(csd_str[1]);
 			double y = Double.parseDouble(csd_str[2]);
 			double z = Double.parseDouble(csd_str[3]);
-			if(player.getLocation().distance(new Location(Bukkit.getWorld(csd_str[4]),x,y,z)) < dis)
+			Location item_loc = new Location(Bukkit.getWorld(csd_str[4]),x,y,z);
+			if(item_loc.getWorld() == player.getWorld())
 			{
-				return true;
-			}
+				if(player.getLocation().distance(item_loc) < dis)
+				{
+					return true;
+				}
+			}			
 		}
 		return false;
 	}
@@ -828,8 +832,10 @@ public class Shop implements Listener
 	
 	public void configSellLogItem(Player player, ItemStack stack, int amount)
 	{
+		
 		Date date = new Date(System.currentTimeMillis());
 		String str = _name+":"+player.getName() +":"+stack.getType().name()+":"+amount;
+		
 		_main.getShopManager().logAddSold(new Pair<Date, String>(date,str));
 	}
 	
@@ -995,6 +1001,8 @@ public class Shop implements Listener
 		clearEmptysINinv(player);
 	}
 	
+	//TODO inv
+	
 	@EventHandler
 	void invOpen(InventoryOpenEvent e)
 	{
@@ -1009,6 +1017,10 @@ public class Shop implements Listener
 					if(s != null)
 					{
 						itemM.removePersistenData(s, pd_last_count);
+						itemM.removePersistenData(s, pd_last_one);
+						itemM.removePersistenData(s, pd_last_eight);
+						itemM.removePersistenData(s, pd_last_stack);
+						itemM.removePersistenData(s, pd_last_all);
 					}
 				}
 				
@@ -1097,12 +1109,17 @@ public class Shop implements Listener
 					//BUY FROM SHOP
 					int stack_count = itemM.getPersistenData(stack, pd_count, PersistentDataType.INTEGER);
 					double price_one = itemM.getPersistenData(stack, pd_pone, PersistentDataType.DOUBLE);
-					
+
 					clearEmptysINinv(player);
 					
 					if(click == ClickType.LEFT && withdrawPlayerHasMoney(player, price_one))
 					{
 						putItemToPlayerInv(player, stack, 1, false);
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Bought "+stack.getType()+": 1"+" and lost: "+price_one);
+						}
+						
 						return;
 					}
 					
@@ -1113,6 +1130,12 @@ public class Shop implements Listener
 						if(stack_count < 8)
 							c = stack_count;
 						putItemToPlayerInv(player, stack, c,false);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Bought "+stack.getType()+": "+c+" and lost: "+price_eight);
+						}
+						
 						return;
 					}
 					
@@ -1123,6 +1146,12 @@ public class Shop implements Listener
 						if(stack_count < 64)
 							c = stack_count;
 						putItemToPlayerInv(player, stack, c,false);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Bought "+stack.getType()+": "+c+" and lost: "+price_stack);
+						}
+						
 						return;
 					}
 					
@@ -1131,6 +1160,11 @@ public class Shop implements Listener
 					{
 						
 						putItemToPlayerInv(player, stack, stack_count,false);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Bought "+stack.getType()+": "+stack_count+" and lost: "+price_all);
+						}
 						return;
 					}
 					return;
@@ -1156,6 +1190,13 @@ public class Shop implements Listener
 						//putItemToShop(stack, 1);
 						addItemToShopNEW(stack, 1,true);
 						depositMoney(player, price_one);
+						
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Sold "+stack.getType()+": "+1+" and got: "+price_one);
+						}
+						
 						return;
 						
 					}
@@ -1175,6 +1216,12 @@ public class Shop implements Listener
 						//putItemToShop(stack, c);
 						addItemToShopNEW(stack, c,true);
 						depositMoney(player, price_eight);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Sold "+stack.getType()+": "+c+" and got: "+price_eight);
+						}
+						
 						return;
 					}
 					
@@ -1192,6 +1239,12 @@ public class Shop implements Listener
 						//putItemToShop(stack, c);
 						addItemToShopNEW(stack, c,true);
 						depositMoney(player, price_stack);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Sold "+stack.getType()+": "+c+" and got: "+price_stack);
+						}
+						
 						return;
 					}
 					
@@ -1205,6 +1258,12 @@ public class Shop implements Listener
 						//putItemToShop(stack, stack_count);
 						addItemToShopNEW(stack, stack_count,true);
 						depositMoney(player, price_all);
+						
+						if(_shopLogConsole)
+						{
+							System.out.println(_displayName + ": "+player.getName() + " Sold "+stack.getType()+": "+stack_count+" and got: "+price_all);
+						}
+						
 						return;
 					}
 					return;
@@ -1614,6 +1673,7 @@ public class Shop implements Listener
 				
 				if(getPDCustomSoldDistance(stack) != null)
 				{
+					//TODO sold distance
 					if(!isInsideCustomSoldDistance(stack, player))
 					{
 						continue;
@@ -1838,6 +1898,7 @@ public class Shop implements Listener
 		
 	}
 	
+	//TODO tooltip
 	void setToolTip(ItemStack stack, ItemStack realStack, boolean sell)
 	{
 		//System.out.println("STACK: "+stack);
@@ -1891,11 +1952,10 @@ public class Shop implements Listener
 			
 		}else
 		{
-			prices = calculatePriceOfItem(stack, amount_in_shop, sell);
-			
-			
+			prices = calculatePriceOfItem(stack, amount_in_shop, sell);			
 		}
-				
+		
+		
 		itemM.setPersistenData(realStack, pd_last_one, PersistentDataType.DOUBLE, prices[0]);
 		itemM.setPersistenData(realStack, pd_last_eight, PersistentDataType.DOUBLE, prices[1]);
 		itemM.setPersistenData(realStack, pd_last_stack, PersistentDataType.DOUBLE, prices[2]);
@@ -2557,12 +2617,12 @@ public class Shop implements Listener
 		boolean lock = false;
 		double cost = 0;
 		
-		int back_i = 0;
+		//int back_i = 0;
 		
 		for(int i = 0 + amount_inShop; i < total_amount+amount_inShop; ++i)
 		{
 			cost = material_values[0];
-			back_i = i;
+			//back_i = i;
 			if(!lock)
 			{
 				if(sell)
@@ -2578,7 +2638,7 @@ public class Shop implements Listener
 				{
 					lock=true;
 					cost = material_values[0];
-					break;
+					//break;
 				}
 					
 			}
@@ -2601,20 +2661,20 @@ public class Shop implements Listener
 			materialCost_all += cost;
 		}
 		
-		if(lock)
-		{
-			if(back_i < 8 + amount_inShop)
-			{
-				materialCost_eight += cost * ((8 + amount_inShop) - back_i);
-			}
-			
-			if(back_i < 64 + amount_inShop)
-			{
-				materialCost_stack += cost * ((64 + amount_inShop) - back_i);
-			}
-			
-			materialCost_all += cost * ((total_amount+amount_inShop) - back_i);
-		}
+//		if(lock)
+//		{
+//			if(back_i < 8 + amount_inShop)
+//			{
+//				materialCost_eight += cost * ((8 + amount_inShop) - back_i);
+//			}
+//			
+//			if(back_i < 64 + amount_inShop)
+//			{
+//				materialCost_stack += cost * ((64 + amount_inShop) - back_i);
+//			}
+//			
+//			materialCost_all += cost * ((total_amount+amount_inShop) - back_i);
+//		}
 		
 		
 		double durProsent = itemM.getDurabilityProsent(stack);

@@ -13,6 +13,7 @@ public class MiniGame
 	String _miniGameName;
 	
 	int _roundTime = 0;
+	protected int _round = 1;
 	
 	
 

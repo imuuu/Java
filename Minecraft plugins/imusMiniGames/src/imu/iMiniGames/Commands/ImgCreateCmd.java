@@ -24,7 +24,6 @@ public class ImgCreateCmd implements CommandInterface
     	if(args.length > 0)
     		return false;
         
-    	_main.get_spleefManager().loadArenas();
     	
         return true;
     }

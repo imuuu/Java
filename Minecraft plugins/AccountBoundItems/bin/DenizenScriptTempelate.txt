@@ -15,7 +15,7 @@ generalstore_script:
         on assignment: 
 
         - trigger name:damage toggle:true
-        - trigger name:click toggle:true
+#        - trigger name:click toggle:true
 
 
 

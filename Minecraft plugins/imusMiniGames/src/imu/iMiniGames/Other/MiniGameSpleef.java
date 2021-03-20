@@ -3,6 +3,7 @@ package imu.iMiniGames.Other;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -14,11 +15,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.datafixers.util.Pair;
@@ -41,8 +47,12 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	int _total_players = 0;
 	int _anti_stand = 0;  // if 0, its disabled
 	
+
+	int _roundEnd_warning = 10;
 	HashMap<Player, Pair<Location, Integer>> _player_anti_stands = new HashMap<>();
 	ArrayList<Block> _remove_blocks = new ArrayList<>();
+	
+	int _best_of = 1;
 	
 	public MiniGameSpleef(Main main, SpleefGameHandler spleefHandler,SpleefGameCard gameCard,String minigameName) 
 	{
@@ -54,19 +64,35 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_layer_y = gameCard.get_arena().getPlatformCorner(0).getY();
 		_main.getServer().getPluginManager().registerEvents(this, main);
 		_total_players = _gameCard._players_accept.size();
-		System.out.println("match starts with players: "+ _total_players);
+		_best_of = _gameCard.get_spleefDataCard().get_bestOfAmount();
 		
-		
+	}
+	
+	void putPotionEffects(Player p)
+	{
+		if(!_gameCard.get_spleefDataCard().get_invPotionEffects().isEmpty())
+		{
+			for(Entry<PotionEffectType, PotionEffect> potion :_gameCard.get_spleefDataCard().get_invPotionEffects().entrySet())
+			{
+				PotionEffect ef =new PotionEffect(potion.getKey(), _roundTime* 20, potion.getValue().getAmplifier());
+				p.addPotionEffect(ef);
+				
+			}
+		}
 	}
 	
 	void setupPlayerForStart(Player p)
 	{
 		p.setGameMode(GameMode.SURVIVAL);
 		PlayerInventory inv = p.getInventory();
+		inv.clear();
 		
 		p.setHealth(20);
+		p.setFoodLevel(20);
+		p.setFireTicks(0);
+		_spleefHandler.removePotionEffects(p);
 		
-		inv.clear();
+		putPotionEffects(p);
 		
 		ItemStack shovel = new ItemStack(Material.IRON_SHOVEL);
 		_itemM.setDisplayName(shovel, ChatColor.GOLD + "SPLEEF SHOVEL");
@@ -79,9 +105,57 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		
 	}
 	
+	public int get_anti_stand() {
+		return _anti_stand;
+	}
+
+	public void set_anti_stand(int _anti_stand) {
+		this._anti_stand = _anti_stand;
+	}
+	
+	void broadCastStart()
+	{
+		if(!_main.isEnable_broadcast_spleef())
+			return;
+		
+		_main.getServer().broadcastMessage(ChatColor.AQUA + "=== SPLEEF GAME STARTED! ===");
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+ChatColor.AQUA+_gameCard.get_arena().get_displayName());
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
+		if(_gameCard._bet > 0)
+		{
+			_main.getServer().broadcastMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
+		}
+		_main.getServer().broadcastMessage(ChatColor.AQUA + "==========================");
+	}
+	
+	void broadCastEnd(Player winner)
+	{
+		if(!_main.isEnable_broadcast_spleef())
+			return;
+		
+		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== SPLEEF GAME ENDED! ===");
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+ChatColor.DARK_AQUA+_gameCard.get_arena().get_displayName());
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+_gameCard.getPlayersString());
+		if(_gameCard._bet > 0 && winner != null)
+		{
+			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner and got: "+ChatColor.GREEN+_gameCard.get_total_bet()+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
+		}else if(winner != null)
+		{
+			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner!"+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
+		}else
+		{
+			_main.getServer().broadcastMessage(ChatColor.RED + "The game was DRAW!");
+		}
+		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "========================");
+	}
+	
 	public void Start()
 	{
 		int count = 0;
+		
+		broadCastStart();
+		
+		
 		for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
 		{
 			Player p = entry.getKey();
@@ -92,17 +166,40 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		}
 		
 		_cd.setCooldownInSeconds("round", _roundTime);
+		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);
+		
 		_cd.setCooldownInSeconds("start", _start_delay);
 		_gameCard.get_arena().fillWithSnowpPlatform();
-		runnableAsyc();
+		runnable();
+		
+		String str1 = ChatColor.YELLOW + "========================";
+		
+		
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(str1);
+		_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "ROUND: "+ChatColor.WHITE+_round 
+		+ ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "ROUND LASTS "+ChatColor.WHITE+_roundTime+" s");
+		_gameCard.sendMessageToALL(str1);
+		if(_gameCard.get_bet() > 0)
+		{
+			_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Winner gets: "+ChatColor.DARK_GREEN+_gameCard.get_total_bet());
+			_gameCard.sendMessageToALL(str1);
+		}
 	}
 	
 	public void endGame()
 	{
 		has_ended = true;
+		
+		
+		
 		String msg = ChatColor.DARK_PURPLE +""+ChatColor.BOLD+ "Spleef Game Has Ended";
 		Player winner;
-		if(_total_players > 1)
+		if(_total_players > 1 || _total_players == 0)
 		{
 			winner = null;
 		}else
@@ -110,6 +207,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			 winner = (Player)_players_score.keySet().toArray()[0];
 		}
 		
+		broadCastEnd(winner);
 				
 		for(Map.Entry<Player,Boolean> entry : _gameCard.get_players_accept().entrySet())
 		{
@@ -119,11 +217,20 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			{
 				continue;
 			}
+			p.sendMessage(" ");
+			p.sendMessage(" ");
+			p.sendMessage(" ");
+			p.sendMessage(" ");
+			p.sendMessage(" ");
 			p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			p.sendMessage(msg);
 			
+			_spleefHandler.removePotionEffects(p);
+			p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 40, 5));
+			
 			if(winner == null )
 			{
+				p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 				if(_gameCard.get_bet() > 0)
 				{
 					p.sendMessage(ChatColor.RED + ""+ChatColor.BOLD + "It was DRAW! Money has send to the server! Thanks for playing!");
@@ -131,7 +238,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 				{
 					p.sendMessage(ChatColor.RED + ""+ChatColor.BOLD + "It was DRAW!");
 				}
-				
+				p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			}
 
 			_spleefHandler.gameEndForPlayer(p);
@@ -153,6 +260,10 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_players_lobby.put(p, _players_score.get(p));
 		_players_score.remove(p);
 		p.setHealth(20);
+		
+		_spleefHandler.removePotionEffects(p);
+		p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 40, 5));
+		
 		p.sendMessage(ChatColor.DARK_GRAY + "You have been moved to spetator lobby! Better luck next time!");
 		
 		_total_players--;
@@ -184,13 +295,11 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	@EventHandler
 	void onFoodLevel(FoodLevelChangeEvent event)
 	{
-		System.out.println("food level 1");
 		if(event.getEntity() instanceof Player)
 		{
 			Player p =(Player) event.getEntity();
 			if(_players_score.containsKey(p))
 			{
-				System.out.println("food level 1");
 				event.setCancelled(true);
 			}
 		}
@@ -204,11 +313,50 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		if(_players_score.containsKey(p) || _players_lobby.containsKey(p))
 		{
 			moveToLobbyPlayer(p);
-			_spleefHandler.gameEndForPlayer(p);
 			
 		}
 	}
 	
+	@EventHandler
+	void onDrop(PlayerDropItemEvent event)
+	{
+		Player p = event.getPlayer();
+		if(_players_score.containsKey(p))
+		{
+			event.setCancelled(true);		
+		}
+	}
+	
+	@EventHandler
+	void onCMDwrite(PlayerCommandPreprocessEvent event)
+	{
+		if(_players_score.containsKey(event.getPlayer()) || _players_lobby.containsKey(event.getPlayer()))
+		{
+			event.getPlayer().sendMessage(ChatColor.RED + "You are in Spleef game! Can't use commands!");
+			event.setCancelled(true);
+		}
+		
+	}
+	
+	@EventHandler
+	void onBlockBreak(BlockBreakEvent event)
+	{
+		Player p = event.getPlayer();
+		if(!has_started)
+		{
+			if(_players_score.containsKey(p))
+			{
+				event.setCancelled(true);
+			}
+		}else
+		{
+			if(_players_score.containsKey(p))
+			{
+				event.setDropItems(false);
+			}
+		}
+	
+	}
 	void anti_standBlocks(Player p, Material mat)
 	{
 		p.sendMessage(ChatColor.RED + "[ANTI_STAND]: You have stand too long same spot!");
@@ -226,7 +374,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		}
 	}
 	
-	void runnableAsyc()
+	void runnable()
 	{
 		new BukkitRunnable() 
 		{
@@ -255,7 +403,15 @@ public class MiniGameSpleef extends MiniGame implements Listener
 						String str = ChatColor.GREEN + ""+ChatColor.BOLD + "Game starts in: "+ChatColor.WHITE+"GO!";
 						_gameCard.sendMessageToALL(str);
 					}
+					
+
 					has_started = true;
+					
+					if(_cd.isCooldownReady("roundCloseToEnd"))
+					{
+						String str = ChatColor.RED + ""+ChatColor.BOLD + "Ends in "+ChatColor.WHITE+ (_cd.GetCdInSeconds("round")+1) + " s";
+						_gameCard.sendMessageToALL(str);
+					}
 					
 					if(!_remove_blocks.isEmpty())
 					{

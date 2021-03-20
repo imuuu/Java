@@ -12,3 +12,33 @@ commands:
    mg:
      description: Player commands
      usage: /<command> [spleef]
+   img pos spleef:
+     description: Set corner positions of arena
+     usage: /<command> [arenaName]
+   img create spleef:
+     description: Create arena with name
+     usage: /<command> [arenaName]
+   img spawn spleef:
+     description: Set arenas spawnpoints
+     usage: /<command> [arenaName]
+   img save spleef:
+     description: Save arena made arena
+     usage: /<command> [arenaName]
+   img clear spawn spleef:
+     description: Clear spawnpoints
+     usage: /<command> [arenaName]
+   img remove spleef:
+     description: Remove arena by name
+     usage: /<command> [arenaName]
+   img lobby spleef:
+     description: Set arena's lobby
+     usage: /<command> [arenaName]
+   img reload:
+     description: Reload configs
+     usage: /<command>
+   mg spleef:
+     description: Opens Spleef planer UI
+     usage: /<command>
+   img desc spleef:
+     description: Set description for arena
+     usage: /<command> [arenaname]

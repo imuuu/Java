@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Main.Main;
@@ -18,10 +21,11 @@ import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.Cooldowns;
 import imu.iMiniGames.Other.ItemMetods;
 import imu.iMiniGames.Other.MiniGameSpleef;
+import imu.iMiniGames.Other.PlayerDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
 import net.milkbowl.vault.economy.Economy;
 
-public class SpleefGameHandler 
+public class SpleefGameHandler implements Listener
 {
 	Main _main;
 	ItemMetods _itemM;
@@ -36,17 +40,22 @@ public class SpleefGameHandler
 	
 	HashMap<UUID,String> _request_arenas = new HashMap<>();
 	
-	HashMap<UUID,ItemStack[]> _player_invs = new HashMap<>();
+	HashMap<UUID,PlayerDataCard> _player_datas = new HashMap<>();
 	
-	HashMap<UUID,Location> _player_last_loc = new HashMap<>();
-	HashMap<UUID,Integer> _player_last_xp = new HashMap<>();
-	HashMap<UUID,GameMode> _player_last_gamemode = new HashMap<>();
+	ArrayList<SpleefGameCard> _queue_arena = new ArrayList<>();
 	
 	Cooldowns _cd;
 	
-	String cd_invite = "invite_";
-	int cd_invite_time = 10; //seconds
-	int spleef_roundTime = 60;
+	String _cd_invite = "invite_";
+	int _cd_invite_time = 10; //seconds
+	int _spleef_roundTime = 90;
+	
+	double _bet_fee_percent = 0.05;
+	int _anti_block_time = 7;
+	
+	
+
+	String _playerDataFolderName="Spleef";
 	
 	public SpleefGameHandler(Main main)
 	{
@@ -55,60 +64,101 @@ public class SpleefGameHandler
 		_spleefManager = main.get_spleefManager();
 		_cd = new Cooldowns();
 		_econ = main.get_econ();
+		_main.getServer().getPluginManager().registerEvents(this, _main);
 	}
 	
-	public void putPlayerInvContent(Player p)
-	{
-		_player_invs.put(p.getUniqueId(), p.getInventory().getContents());
+	public int get_anti_block_time() {
+		return _anti_block_time;
+	}
+
+
+	public void set_anti_block_time(int _anti_block_time) {
+		this._anti_block_time = _anti_block_time;
 	}
 	
-	public ItemStack[] getPlayerInv(Player p)
-	{
-		if(_player_invs.containsKey(p.getUniqueId()))
-		{
-			return _player_invs.get(p.getUniqueId());
-		}else
-		{
-			System.out.println("Didnt find player inv: "+p.getName());
-		}
-		return null;
+	public double getBet_fee_percent() {
+		return _bet_fee_percent;
 	}
-	
-	public void putPlayerLastLoc(Player p)
-	{
-		_player_last_loc.put(p.getUniqueId(), p.getLocation());
+
+
+	public void setBet_fee_percent(double bet_fee_percent) {
+		this._bet_fee_percent = bet_fee_percent;
 	}
-	public void putPlayerLastGM(Player p )
-	{
-		_player_last_gamemode.put(p.getUniqueId(), p.getGameMode());
+
+
+	public int getCd_invite_time() {
+		return _cd_invite_time;
 	}
-	public GameMode getPlayerLastGM(Player p)
-	{
-		return _player_last_gamemode.get(p.getUniqueId());
+
+
+	public void setCd_invite_time(int cd_invite_time) {
+		this._cd_invite_time = cd_invite_time;
 	}
-	public void putPlayerLastXP(Player p)
-	{
-		_player_last_xp.put(p.getUniqueId(), p.getTotalExperience());
+
+
+	public int getSpleef_roundTime() {
+		return _spleef_roundTime;
 	}
-	public Integer getPlayerLastXP(Player p)
-	{
-		return _player_last_xp.get(p.getUniqueId());
+
+
+	public void setSpleef_roundTime(int spleef_roundTime) {
+		this._spleef_roundTime = spleef_roundTime;
 	}
-	public Location getPlayerLastLoc(Player p)
-	{
-		return _player_last_loc.get(p.getUniqueId());
-	}
-	
-	
+
+
 	public boolean repearStartGame(Player player, SpleefGameCard card)
 	{
 		_player_gameCards.put(player.getUniqueId(), card);
-		if(!_games.containsKey(card.get_arena().get_name()))
+		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
+		{
+			if(isPlayerInArena(entry.getKey()))
+			{
+				card.get_maker().sendMessage(ChatColor.RED + "Somebody is in already in game! Invitations canceled");
+				card.get_maker().sendMessage(ChatColor.DARK_AQUA + "Your plan has been saved!");
+				return false;
+			}
+		}
+
+		if(_queue_arena.isEmpty() &&!_games.containsKey(card.get_arena().get_name()))
 		{
 			_games.put(card.get_arena().get_name(), card);
 			player.sendMessage(ChatColor.AQUA + "Game starting.. sending invites");
 			sendInvitesToPlayers(card);
 			return true;
+		}
+		
+		card.get_maker().sendMessage(ChatColor.DARK_AQUA + "Arena was busy! Your plan has been saved!");
+		card.sendMessageToALL(ChatColor.AQUA + "You are placed in spleef queue! You will get invitation when arena is free to use!");
+		_queue_arena.add(card);
+		
+		
+		return false;
+	}
+	
+	public boolean isPlayerPlanInQueue(Player p)
+	{
+		for(SpleefGameCard card : _queue_arena)
+		{
+			if(card.isPlayerInThisCard(p))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isPlayerInArena(Player p)
+	{
+		for(Map.Entry<String, SpleefGameCard> entry : _games.entrySet())
+		{
+			SpleefGameCard card = entry.getValue();
+			for(Map.Entry<Player,Boolean> card_entry : card.get_players_accept().entrySet())
+			{
+				if(card_entry.getKey() == p)
+				{
+					return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -120,15 +170,30 @@ public class SpleefGameHandler
 	
 	void requestTooltip(Player p, SpleefGameCard card)
 	{		
+		
+
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "======== SPLEEF REQUEST ========");
 		p.sendMessage(ChatColor.GOLD + "Arena name: "+ ChatColor.AQUA+ card.get_arena().get_displayName());
 		p.sendMessage(ChatColor.GOLD + "Players: "+ ChatColor.AQUA+ card.getPlayersString());
-		p.sendMessage(ChatColor.GOLD + "You pay: "+ ChatColor.AQUA+ card.get_bet());		
-		p.sendMessage(ChatColor.GOLD + "Able to WIN: "+ ChatColor.AQUA+ card.get_total_bet());		
-		p.sendMessage(ChatColor.GOLD + "Maker: "+ ChatColor.AQUA+ card.get_maker().getName());		
+		p.sendMessage(ChatColor.GOLD + "Best of  "+ChatColor.DARK_PURPLE +ChatColor.BOLD+ card.get_spleefDataCard().get_bestOfAmount());
+		
+		if(!card.get_spleefDataCard().get_invPotionEffects().isEmpty())
+		{
+			p.sendMessage(ChatColor.DARK_PURPLE + "PotionEffects: "+ card.get_spleefDataCard().get_potions_names_str());			
+		}
+		
+		p.sendMessage(ChatColor.GOLD + "You pay: "+ ChatColor.RED+ card.get_bet());		
+		p.sendMessage(ChatColor.GOLD + "Able to WIN: "+ ChatColor.GREEN+ card.get_total_bet());		
+		//p.sendMessage(ChatColor.GOLD + "Maker: "+ ChatColor.AQUA+ card.get_maker().getName());		
+//		p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
+//		if(card.get_bet() > 0)
+//		{
+//			p.sendMessage(ChatColor.GOLD + "Disclaimer: "+ChatColor.AQUA + "If game ends draw, the money will be send to server!");			
+//		}	
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
 		p.sendMessage(ChatColor.AQUA+"Would you like to join spleef?");		
 		_main.get_itemM().sendYesNoConfirm(p, "/mg spleef accept confirm:yes", "/mg spleef accept confirm:no");
+		//p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
 	}
 	
 	void sendInvitesToPlayers(SpleefGameCard card)
@@ -137,9 +202,10 @@ public class SpleefGameHandler
 		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
 		{
 			Player p = entry.getKey();
+			
 			_request_arenas.put(p.getUniqueId(), card.get_arena().get_name());
 			requestTooltip(p, card);
-			_cd.setCooldownInSeconds(cd_invite+p.getName(), cd_invite_time);
+			_cd.setCooldownInSeconds(_cd_invite+p.getName(), _cd_invite_time);
 			players.add(p);
 		}
 		inviteTracker(players, card);
@@ -155,7 +221,6 @@ public class SpleefGameHandler
 			{
 				if(gameCard.putPlayerAccept(Bukkit.getPlayer(uuid)))
 				{
-					System.out.println("EVERYBODY HAS ACCEPTED.. START THE MATCH");
 					if(gameCard.isEveryPlayerAvailable())
 					{
 						startTHEmatch(gameCard);
@@ -201,6 +266,8 @@ public class SpleefGameHandler
 		{
 			gameCard.get_maker().sendMessage(ChatColor.DARK_RED + "Match has been canceled. You can redo same plan with same command!");
 			_games.remove(gameCard.get_arena().get_name());
+			CheckQueue();
+			
 		}
 		
 			
@@ -219,7 +286,7 @@ public class SpleefGameHandler
 				boolean c = false;
 				for(Player p : players)
 				{
-					if(_request_arenas.containsKey(p.getUniqueId()) && _cd.isCooldownReady(cd_invite+p.getName()))
+					if(_request_arenas.containsKey(p.getUniqueId()) && _cd.isCooldownReady(_cd_invite+p.getName()))
 					{
 						cancelArena(p, card);
 						c = true;
@@ -242,22 +309,27 @@ public class SpleefGameHandler
 		if(p == null || !p.isOnline())
 			return;
 		
-		ItemStack[] content =getPlayerInv(p);
-		
-		if(content != null)
+
+		if(_player_datas.containsKey(p.getUniqueId()))
 		{
-			p.getInventory().setContents(content);			
-			p.teleport(getPlayerLastLoc(p));
-			p.setTotalExperience(getPlayerLastXP(p));
-			p.setGameMode(getPlayerLastGM(p));
+			PlayerDataCard pData = _player_datas.get(p.getUniqueId());
+			pData.setDataToPLAYER(p);
+			pData.removeDataFile();			
 		}
 			
 		
 		_request_arenas.remove(p.getUniqueId());
-		_player_last_loc.remove(p.getUniqueId());
-		_player_invs.remove(p.getUniqueId());
-		_player_last_xp.remove(p.getUniqueId());
-		_player_last_gamemode.remove(p.getUniqueId());
+		_player_datas.remove(p.getUniqueId());
+	}
+	
+	void CheckQueue()
+	{
+		if(!_queue_arena.isEmpty())
+		{
+			SpleefGameCard spleefGameCard = _queue_arena.get(0);
+			_queue_arena.remove(0);
+			repearStartGame(spleefGameCard.get_maker(), spleefGameCard);
+		}
 	}
 	
 	public void gameHasEnded(SpleefGameCard card, Player winner)
@@ -268,9 +340,13 @@ public class SpleefGameHandler
 		
 		if(winner != null)
 		{
-			winner.sendMessage(ChatColor.DARK_PURPLE + "=================================");
-			winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "You have won the SPLEEF!");
-			winner.sendMessage(ChatColor.DARK_PURPLE + "=================================");
+			String str_sides = ChatColor.DARK_PURPLE + "=================================";
+			
+			card.sendMessageToALL(str_sides);			
+			card.sendMessageToALL(ChatColor.RED+""+ChatColor.BOLD+ "You have LOST the SPLEEF!", winner);
+			winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "You have WON the SPLEEF!");
+			card.sendMessageToALL(str_sides);
+
 			if(card.get_total_bet() > 0 && _econ != null)
 			{
 				winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "Received: "+ card.get_total_bet());
@@ -280,9 +356,18 @@ public class SpleefGameHandler
 			}
 		}
 		
+		CheckQueue();
+		
 		
 	}
 	
+	public void removePotionEffects(Player p)
+	{
+		for(PotionEffect effect : p.getActivePotionEffects())
+		{
+			p.removePotionEffect(effect.getType());
+		}
+	}
 	
 	void startTHEmatch(SpleefGameCard gameCard)
 	{
@@ -309,16 +394,19 @@ public class SpleefGameHandler
 		
 		
 		MiniGameSpleef spleef = new MiniGameSpleef(_main, this, gameCard,"SPLEEF");
-		spleef.set_roundTime(spleef_roundTime);
+		spleef.set_roundTime(_spleef_roundTime);
+		spleef.set_anti_stand(_anti_block_time);
 
 		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
 		{
 			Player p = entry.getKey();
 			
-			putPlayerInvContent(p);
-			putPlayerLastLoc(p);
-			putPlayerLastXP(p);
-			putPlayerLastGM(p);
+			PlayerDataCard pData=new PlayerDataCard(_main, p,_playerDataFolderName);
+			pData.saveDataToFile(false);			
+			_player_datas.put(p.getUniqueId(), pData);
+			
+			PlayerDataCard pDataBackup=new PlayerDataCard(_main, p,_playerDataFolderName+"Backups/"+p.getName()+"_"+p.getUniqueId());
+			pDataBackup.saveDataToFile(true);
 			
 			spleef.addPlayer(p);
 			
@@ -342,6 +430,20 @@ public class SpleefGameHandler
 		
 		spleef.Start();
 		_live_games.put(gameCard.get_arena().get_name(),spleef);
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event)
+	{
+		PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
+		if(pData.isFile())
+		{
+			System.out.println("imusMiniGames: Restoring player data");
+			pData.loadDataFileAndSetData();
+			pData.setDataToPLAYER(event.getPlayer());
+			pData.removeDataFile();
+			_player_datas.remove(event.getPlayer().getUniqueId());
+		}
 	}
 	
 	public void onnDisable()

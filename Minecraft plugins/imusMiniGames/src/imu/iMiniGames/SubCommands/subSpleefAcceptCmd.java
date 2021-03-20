@@ -24,24 +24,33 @@ public class subSpleefAcceptCmd implements CommandInterface
     {
         Player player = (Player) sender;
 	
+        player.sendMessage(" ");
+        player.sendMessage(" ");
+        player.sendMessage(" ");
         if(_main.get_itemM().doesStrArrayCointainStr(args, "confirm:yes"))
         {
-        	player.sendMessage(ChatColor.DARK_GREEN + "You have accept match");
+        	player.sendMessage(" ");
+        	
         	if(!_main.get_spleefGameHandler().requestAnwser(player.getUniqueId(), true))
         	{
-        		player.sendMessage("You have already awnsered or your request has expired");
+        		player.sendMessage("You have already answered or your request has expired");
+        	}else
+        	{
+        		player.sendMessage(ChatColor.DARK_GREEN + "You have accept match");
         	}
         }
         if(_main.get_itemM().doesStrArrayCointainStr(args, "confirm:no"))
         {
-        	player.sendMessage(ChatColor.RED + "You have denied match");
+        	
         	if(!_main.get_spleefGameHandler().requestAnwser(player.getUniqueId(), false))
         	{
-        		player.sendMessage("You have already awnsered or your request has expired");
+        		player.sendMessage("You have already answered or your request has expired");
+        	}else
+        	{
+        		player.sendMessage(ChatColor.RED + "You have denied match");
         	}
         }
-        
-  
+       
         
 		
         return false;

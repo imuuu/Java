@@ -45,7 +45,8 @@ public class subStorePlayerCostCmd implements CommandInterface
     				+ChatColor.DARK_PURPLE+" 9x64: "+ChatColor.GOLD+prices[3]
     				+ChatColor.DARK_PURPLE+" 27x64: "+ChatColor.GOLD+prices2[3]);
     		player.sendMessage("");
-    		    		
+    		    
+    		System.out.println(player.getName() + "asked price for: "+stack.getType());
     		return false;
     	}else
     	{

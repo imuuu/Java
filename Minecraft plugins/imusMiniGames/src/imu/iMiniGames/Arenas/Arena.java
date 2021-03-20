@@ -9,7 +9,10 @@ public abstract class Arena
 {
 	String _name;
 	String _displayName;
+	String _description = "";
 	
+	
+
 	int _maxPlayers = 0;
 	
 	ArrayList<Location> _spawnPositions = new ArrayList<>();
@@ -72,7 +75,13 @@ public abstract class Arena
 		_maxPlayers = 0;
 	}
 
-	
+	public String get_description() {
+		return _description;
+	}
+
+	public void set_description(String _description) {
+		this._description = _description;
+	}
 	
 	
 }

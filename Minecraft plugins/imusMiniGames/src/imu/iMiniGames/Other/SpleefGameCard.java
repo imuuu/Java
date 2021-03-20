@@ -1,5 +1,6 @@
 package imu.iMiniGames.Other;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public class SpleefGameCard
 	Player _maker;
 	SpleefDataCard _spleefDataCard;
 	
-	SpleefArena _arena;
+	SpleefArena _arena = null;
 	
 	double _bet;
 	double _total_bet;
@@ -60,7 +61,16 @@ public class SpleefGameCard
 	public void set_spleefDataCard(SpleefDataCard _spleefDataCard) {
 		this._spleefDataCard = _spleefDataCard;
 	}
-
+	
+	public boolean isPlayerInThisCard(Player p)
+	{
+		if(_players_accept.get(p) != null)
+		{
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	 * Return true if all players has accepted
 	 */
@@ -109,6 +119,28 @@ public class SpleefGameCard
 		for(Map.Entry<Player,Boolean> entry : _players_accept.entrySet() )
 		{
 			entry.getKey().sendMessage(str);
+		}
+	}
+	public void sendMessageToALL(String str, ArrayList<Player> but_not_for_them)
+	{
+		for(Map.Entry<Player,Boolean> entry : _players_accept.entrySet() )
+		{
+			if(!but_not_for_them.contains(entry.getKey()))
+			{
+				entry.getKey().sendMessage(str);
+			}
+				
+		}
+	}
+	public void sendMessageToALL(String str, Player but_not_for)
+	{
+		for(Map.Entry<Player,Boolean> entry : _players_accept.entrySet() )
+		{
+			if(but_not_for != entry.getKey())
+			{
+				entry.getKey().sendMessage(str);
+			}
+				
 		}
 	}
 	

@@ -9,6 +9,7 @@ import imu.iMiniGames.Invs.SpleefGamePlaner;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.SpleefDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
+import net.md_5.bungee.api.ChatColor;
 
 public class subSpleefGamePlanerCmd implements CommandInterface
 {
@@ -26,15 +27,29 @@ public class subSpleefGamePlanerCmd implements CommandInterface
     {
         Player player = (Player) sender;
 	
-        SpleefGameCard gCard = _main.get_spleefGameHandler().getPlayerSGameCard(player.getUniqueId());
-        if(gCard != null)
+        if(!_main.get_spleefGameHandler().isPlayerPlanInQueue(player))
         {
-        	 new SpleefGamePlaner(_main, player,gCard.get_spleefDataCard());
+        	if(!_main.get_spleefGameHandler().isPlayerInArena(player))
+        	{
+        		SpleefGameCard gCard = _main.get_spleefGameHandler().getPlayerSGameCard(player.getUniqueId());
+                if(gCard != null)
+                {
+                	 new SpleefGamePlaner(_main, player,gCard.get_spleefDataCard());
+                }else
+                {
+                	 new SpleefGamePlaner(_main, player,new SpleefDataCard(player));
+                }
+        	}else
+        	{
+        		player.sendMessage(ChatColor.RED + "You are in game, Can't use this command!");
+        	}
+        	
+           
         }else
         {
-        	 new SpleefGamePlaner(_main, player,new SpleefDataCard(player));
+        	player.sendMessage(ChatColor.RED + "You are already in queue!"+ChatColor.DARK_AQUA+ " You will receive invitation when your game starts!");
         }
-       
+        
         
   
         

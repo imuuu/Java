@@ -35,7 +35,9 @@ public class GamePlaner extends CustomInvLayout implements Listener
 		RESET,
 		SET_ARENA,
 		ADD_BET,
-		ADD_PLAYERS;
+		ADD_PLAYERS,
+		POTION_EFFECTS,
+		ADD_BEST_OF_AMOUNT;
 	}
 	
 
