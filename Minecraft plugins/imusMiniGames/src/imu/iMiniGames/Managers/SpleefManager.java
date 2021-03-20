@@ -62,6 +62,7 @@ public class SpleefManager
 		_potionEffects_positive_enabled.put(PotionEffectType.HARM,false);
 		_potionEffects_positive_enabled.put(PotionEffectType.SATURATION,false);
 		_potionEffects_positive_enabled.put(PotionEffectType.HUNGER,false);
+		_potionEffects_positive_enabled.put(PotionEffectType.WATER_BREATHING,false);
 	}
 	
 	public HashMap<PotionEffectType, Boolean> getPotionEffects()
