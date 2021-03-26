@@ -160,7 +160,6 @@ public class PlayerDataCard
 		
 	}
 	
-	@SuppressWarnings("unused")
 	public void setDataToPLAYER(Player player)
 	{
 		if(player != null)

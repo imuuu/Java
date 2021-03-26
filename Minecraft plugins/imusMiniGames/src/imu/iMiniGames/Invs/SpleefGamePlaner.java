@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -22,7 +23,7 @@ import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Other.SpleefDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
-import imu.iMiniGames.Prompts.ConvPromptGamePlaner;
+import imu.iMiniGames.Prompts.ConvPromptSpleefGamePlaner;
 
 public class SpleefGamePlaner extends GamePlaner
 {
@@ -52,7 +53,9 @@ public class SpleefGamePlaner extends GamePlaner
 	{
 		ItemStack mod;
 		setupButton(BUTTON.EXIT, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "EXIT", _size-9);
-		setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "CONFIRM", _size-1);
+		mod = setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "CONFIRM", _size-1);
+		_itemM.addLore(mod, ChatColor.YELLOW + "Confirm your game plan and start sending invites..", true);
+		
 		setupButton(BUTTON.RESET, Material.LAVA_BUCKET, ChatColor.RED +""+ChatColor.BOLD+ "RESET", 8);
 		
 		addLoreSetRemove(setupButton(BUTTON.SET_ARENA, Material.PAINTING, ChatColor.AQUA + "Set Arena", 0));
@@ -243,6 +246,11 @@ public class SpleefGamePlaner extends GamePlaner
 								found = true;
 								gameCard.putPlayer(p);
 								
+								if(_main.isPlayerBlocked(p))
+								{
+									wrongs.add(i);
+									_player.sendMessage(ChatColor.RED + p.getName() + " has blocked minigames! You can't in invite him/her!");
+								}
 							}
 						}
 						// adds player if not added
@@ -300,7 +308,10 @@ public class SpleefGamePlaner extends GamePlaner
 			return gameCard;
 		}
 	}
-	
+	void saveDataCard()
+	{
+		_main.get_spleefManager().savePlayerDataCard(_player, _card);
+	}
 	@EventHandler
 	public void onClick(InventoryClickEvent e)
 	{
@@ -332,7 +343,9 @@ public class SpleefGamePlaner extends GamePlaner
 					SpleefGameCard gameCard = confirm();
 					if(gameCard != null)
 					{	
+						_main.get_spleefGameHandler().savePlayerGameCard(_player, gameCard);						
 						_main.get_spleefGameHandler().repearStartGame(_player, gameCard);
+						//saveDataCard();
 						_player.closeInventory();
 						
 					}
@@ -345,14 +358,14 @@ public class SpleefGamePlaner extends GamePlaner
 				case ADD_BET:
 					cf = new ConversationFactory(_main);
 					question = ChatColor.DARK_PURPLE + "Give your bet";
-					conv = cf.withFirstPrompt(new ConvPromptGamePlaner(_main, _player, _card, slot, question)).withLocalEcho(true).buildConversation(_player);
+					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
 					conv.begin();
 					_player.closeInventory();
 					break;
 				case ADD_PLAYERS:
 					cf = new ConversationFactory(_main);
 					question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
-					conv = cf.withFirstPrompt(new ConvPromptGamePlaner(_main, _player, _card, slot, question)).withLocalEcho(true).buildConversation(_player);
+					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
 					conv.begin();
 					_player.closeInventory();
 					break;
@@ -362,14 +375,15 @@ public class SpleefGamePlaner extends GamePlaner
 					break;
 					
 				case SET_ARENA:
-					new GamePlanerChooseArenaINV(_main, _player, _card);
+					new SpleefGamePlanerChooseArenaINV(_main, _player, _card);
 					break;
 				case POTION_EFFECTS:
-					new GamePlanerChoosePotionEffectsINV(_main, _player, _card);
+					new SpleefGamePlanerPotionEffectsINV(_main, _player, _card);
 					break;
 				case ADD_BEST_OF_AMOUNT:
 					_card.addBestOfAmount(1);
 					setupButtons();
+					checkAnwsers();
 					break;
 				default:
 					break;
@@ -405,6 +419,7 @@ public class SpleefGamePlaner extends GamePlaner
 				case ADD_BEST_OF_AMOUNT:
 					_card.addBestOfAmount(-1);
 					setupButtons();
+					checkAnwsers();
 					break;
 				default:
 					break;
@@ -417,5 +432,15 @@ public class SpleefGamePlaner extends GamePlaner
 			
 		}
 	
+	}
+	
+	@EventHandler
+	public void invClose(InventoryCloseEvent e)
+	{
+		if(isThisInv(e))
+		{
+			saveDataCard();
+			e.getPlayer().sendMessage(ChatColor.GOLD + "Spleef plan has saved!");
+		}
 	}
 }

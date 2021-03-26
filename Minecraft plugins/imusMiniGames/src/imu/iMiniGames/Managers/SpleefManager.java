@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,12 +16,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.ConfigMaker;
+import imu.iMiniGames.Other.SpleefDataCard;
 
 public class SpleefManager 
 {
 	Main _main;
 	
 	HashMap<Integer, SpleefArena> _spleefArenas = new HashMap<>();
+	HashMap<UUID, SpleefDataCard> _player_DataCards = new HashMap<>();
 	HashMap<PotionEffectType, Boolean> _potionEffects_positive_enabled = new HashMap<>();
 	
 	String text_arena_yml="Arenas_Spleef";
@@ -41,6 +44,21 @@ public class SpleefManager
 	public void onDisable()
 	{
 		//saveAllArenas();
+	}
+	
+	public void savePlayerDataCard(Player p, SpleefDataCard card)
+	{
+		_player_DataCards.put(p.getUniqueId(), card);
+	}
+	
+	public SpleefDataCard getPlayerDataCard(Player p)
+	{
+		return _player_DataCards.get(p.getUniqueId());
+	}
+	
+	public boolean hasPlayerDataCard(Player p)
+	{
+		return _player_DataCards.containsKey(p.getUniqueId());
 	}
 	
 	void addPotionEffects()
@@ -99,6 +117,26 @@ public class SpleefManager
 
 		return null;
 	}
+	
+	void removeArenaHash(String arena_name)
+	{
+		int key = -1;
+		for(Entry<Integer, SpleefArena> entry : _spleefArenas.entrySet())
+		{
+			if(entry.getValue().get_name().equalsIgnoreCase(arena_name))
+			{
+				key = entry.getKey();
+				break;
+			}
+		}
+		
+		if(key != -1)
+		{
+			_spleefArenas.remove(key);
+		}
+
+	}
+	
 	public ArrayList<SpleefArena> getArenas()
 	{
 		ArrayList<SpleefArena> ar = new ArrayList<SpleefArena>();
@@ -161,8 +199,13 @@ public class SpleefManager
 	
 	public void removeArena(SpleefArena arena)
 	{
+		removeArenaHash(arena.get_name());
 		ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/"+arena.get_name()+".yml");
-		cm.removeConfig();
+		if(cm.isExists())
+		{
+			cm.removeConfig();
+		}
+		
 	}
 	public void loadArenas()
 	{
@@ -171,36 +214,49 @@ public class SpleefManager
 			@Override
 			public void run() 
 			{
-				//TODO tulee error jos tyhjä servu
-				for(File file : new File(_main.getDataFolder().getAbsoluteFile()+File.separator + text_arena_yml).listFiles())
+//				ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/1temp1.yml");
+//				cm.saveConfig();
+//				cm.removeConfig();
+				try 
 				{
-					FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-					
-					String name = config.getString("Name");
-					String d_name = config.getString("DisplayName");
-					String desc = config.getString("Desc");
-					Integer max_p = config.getInt("MaxPlayers");
-					Location loc1 = config.getLocation("CornerLoc1");
-					Location loc2 = config.getLocation("CornerLoc2");
-					Location lobby_loc = config.getLocation("LobbyLoc");
-					
-					SpleefArena arena = new SpleefArena(name);
-					arena.set_displayName(d_name);
-					arena.set_maxPlayers(max_p);
-					arena.setPlatformCorner(0, loc1);
-					arena.setPlatformCorner(1, loc2);
-					arena.set_spectator_lobby(lobby_loc);
-					arena.set_description(desc);
-					
-					for(int i = 0; i < max_p; ++i)
+					for(File file : new File(_main.getDataFolder().getAbsoluteFile()+File.separator + text_arena_yml).listFiles())
 					{
-						arena.addSpawnPosition(config.getLocation("spawn_pos"+i));
+						if(!file.exists())
+							continue;
+						
+						FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+						
+						
+						String name = config.getString("Name");
+						String d_name = config.getString("DisplayName");
+						String desc = config.getString("Desc");
+						Integer max_p = config.getInt("MaxPlayers");
+						Location loc1 = config.getLocation("CornerLoc1");
+						Location loc2 = config.getLocation("CornerLoc2");
+						Location lobby_loc = config.getLocation("LobbyLoc");
+						
+						SpleefArena arena = new SpleefArena(name);
+						arena.set_displayName(d_name);
+						arena.set_maxPlayers(max_p);
+						arena.setPlatformCorner(0, loc1);
+						arena.setPlatformCorner(1, loc2);
+						arena.set_spectator_lobby(lobby_loc);
+						arena.set_description(desc);
+						
+						for(int i = 0; i < max_p; ++i)
+						{
+							arena.addSpawnPosition(config.getLocation("spawn_pos"+i));
+						}
+						
+						addArena(arena);
+						System.out.println("Arena added: "+name+" dis: "+arena.get_displayName());
 					}
-					
-					addArena(arena);
-					System.out.println("Arena added: "+name+" dis: "+arena.get_displayName());
-					//System.out.println("Total arenas: "+_spleefArenas.size());
+				} 
+				catch (Exception e) 
+				{
+					System.out.println("imusMiniGames: Didn't find any created spleef arenas");
 				}
+				
 			}
 		}.runTaskAsynchronously(_main);
 		

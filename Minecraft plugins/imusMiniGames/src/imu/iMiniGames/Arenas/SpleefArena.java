@@ -12,7 +12,6 @@ public class SpleefArena extends Arena
 	
 	Location _spectator_lobby = null;
 	
-	
 	public SpleefArena(String name) 
 	{
 		super(name);		
@@ -88,7 +87,7 @@ public class SpleefArena extends Arena
 		setPlatformCorner(0, positive_loc);
 		setPlatformCorner(1, longest_loc);
 		
-		fillWithSnow(positive_loc, longest_loc);
+		//fillWithSnow(positive_loc, longest_loc);
 		
 	}
 	

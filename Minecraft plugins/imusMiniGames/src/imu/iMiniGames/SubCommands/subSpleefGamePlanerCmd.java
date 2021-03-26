@@ -8,7 +8,6 @@ import imu.iMiniGames.Interfaces.CommandInterface;
 import imu.iMiniGames.Invs.SpleefGamePlaner;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.SpleefDataCard;
-import imu.iMiniGames.Other.SpleefGameCard;
 import net.md_5.bungee.api.ChatColor;
 
 public class subSpleefGamePlanerCmd implements CommandInterface
@@ -26,15 +25,20 @@ public class subSpleefGamePlanerCmd implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         Player player = (Player) sender;
-	
+        
+        if(_main.isPlayerBlocked(player))
+        {
+        	_main.sendBlockedmsg(player);
+        	return false;
+        }
+        
         if(!_main.get_spleefGameHandler().isPlayerPlanInQueue(player))
         {
         	if(!_main.get_spleefGameHandler().isPlayerInArena(player))
         	{
-        		SpleefGameCard gCard = _main.get_spleefGameHandler().getPlayerSGameCard(player.getUniqueId());
-                if(gCard != null)
+                if(_main.get_spleefManager().hasPlayerDataCard(player))
                 {
-                	 new SpleefGamePlaner(_main, player,gCard.get_spleefDataCard());
+                	 new SpleefGamePlaner(_main, player,_main.get_spleefManager().getPlayerDataCard(player));
                 }else
                 {
                 	 new SpleefGamePlaner(_main, player,new SpleefDataCard(player));

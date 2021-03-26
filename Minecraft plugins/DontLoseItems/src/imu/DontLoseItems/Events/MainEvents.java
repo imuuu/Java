@@ -143,18 +143,24 @@ public class MainEvents implements Listener
 			@Override
 			public void run() 
 			{
+				ArrayList<Player> removeThesePlayers = new ArrayList<>();
 				for(Map.Entry<Player,ArrayList<EntityType>> entry : _player_combat_with.entrySet())
 				{
 					Player p = entry.getKey();
 					if(_cd.isCooldownReady(_cd_in_combat_dmg+p.getName()))
 					{
 						p.sendMessage(ChatColor.GREEN +"" +ChatColor.BOLD+"Your combat with mob has ended!");
-						_player_combat_with.remove(p);
+						removeThesePlayers.add(p);
 					}
 				}
 				
+				for(Player p : removeThesePlayers)
+				{
+					_player_combat_with.remove(p);
+				}
+				
 			}
-		}.runTaskTimerAsynchronously(_plugin, 0, 20);
+		}.runTaskTimer(_plugin, 0, 20);
 	}
 	
 	void removeCooldownAndCombat(Player p)

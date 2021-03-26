@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Main.Main;
@@ -105,10 +103,14 @@ public class SpleefGameHandler implements Listener
 		this._spleef_roundTime = spleef_roundTime;
 	}
 
-
+	public void savePlayerGameCard(Player p , SpleefGameCard card)
+	{
+		_player_gameCards.put(p.getUniqueId(), card);
+	}
+	
 	public boolean repearStartGame(Player player, SpleefGameCard card)
 	{
-		_player_gameCards.put(player.getUniqueId(), card);
+		
 		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
 		{
 			if(isPlayerInArena(entry.getKey()))
@@ -395,6 +397,7 @@ public class SpleefGameHandler implements Listener
 		
 		MiniGameSpleef spleef = new MiniGameSpleef(_main, this, gameCard,"SPLEEF");
 		spleef.set_roundTime(_spleef_roundTime);
+		
 		spleef.set_anti_stand(_anti_block_time);
 
 		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
@@ -435,15 +438,31 @@ public class SpleefGameHandler implements Listener
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event)
 	{
-		PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
-		if(pData.isFile())
-		{
-			System.out.println("imusMiniGames: Restoring player data");
-			pData.loadDataFileAndSetData();
-			pData.setDataToPLAYER(event.getPlayer());
-			pData.removeDataFile();
-			_player_datas.remove(event.getPlayer().getUniqueId());
-		}
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				try 
+				{
+					PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
+					if(pData.isFile())
+					{
+						System.out.println("imusMiniGames: Restoring player data");
+						pData.loadDataFileAndSetData();
+						pData.setDataToPLAYER(event.getPlayer());
+						pData.removeDataFile();
+						_player_datas.remove(event.getPlayer().getUniqueId());
+					}
+				} 
+				catch (Exception e) 
+				{
+					System.out.println("Counldnt find player data");
+				}
+				
+			}
+		}.runTaskAsynchronously(_main);
+		
 	}
 	
 	public void onnDisable()

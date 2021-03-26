@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import net.md_5.bungee.api.ChatColor;
 
 public abstract class Arena 
 {
@@ -16,6 +19,7 @@ public abstract class Arena
 	int _maxPlayers = 0;
 	
 	ArrayList<Location> _spawnPositions = new ArrayList<>();
+	Location _spectator_lobby = null;
 	
 	public Arena(String name) 
 	{	
@@ -24,6 +28,18 @@ public abstract class Arena
 		
 	}
 	
+	public void sendArenaCreationgINFO(Player p)
+	{
+		String pre1 = ChatColor.GOLD+"";
+		String pre2 = ChatColor.AQUA+"";
+		p.sendMessage(ChatColor.DARK_PURPLE + "==== "+ _name+" ====");
+		p.sendMessage(pre1 + "DisplayName: "+pre2+_displayName);
+		p.sendMessage(pre1 + "Description: "+pre2+_description);
+		p.sendMessage(pre1 + "MaxPlayers: "+pre2+_maxPlayers);
+		p.sendMessage(pre1 + "Total SpawnPos: "+pre2+getTotalSpawnPositions());
+		p.sendMessage(pre1 + "Lobby set: "+pre2+ _spectator_lobby == null ? "false":"true");
+
+	}
 	public String get_name() {
 		return _name;
 	}
@@ -82,6 +98,17 @@ public abstract class Arena
 	public void set_description(String _description) {
 		this._description = _description;
 	}
+	
+
+	public Location get_spectator_lobby() {
+		return _spectator_lobby;
+	}
+
+
+	public void set_spectator_lobby(Location _spectator_lobby) {
+		this._spectator_lobby = _spectator_lobby;
+	}
+	
 	
 	
 }

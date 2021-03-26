@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -54,6 +55,9 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	ArrayList<Block> _remove_blocks = new ArrayList<>();
 	
 	int _best_of = 1;
+	
+	Location mid_loc = null;
+	double _max_distance = 0;
 	BukkitTask run;
 	public MiniGameSpleef(Main main, SpleefGameHandler spleefHandler,SpleefGameCard gameCard,String minigameName) 
 	{
@@ -66,6 +70,9 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_main.getServer().getPluginManager().registerEvents(this, main);
 		_best_of = _gameCard.get_spleefDataCard().get_bestOfAmount();
 		broadCastStart();
+
+		mid_loc =_gameCard.get_arena().getPlatformCorner(1).toVector().getMidpoint(_gameCard.get_arena().getPlatformCorner(0).toVector()).toLocation(_gameCard.get_arena().getPlatformCorner(0).getWorld());
+		_max_distance = _gameCard.get_arena().getPlatformCorner(1).distance(_gameCard.get_arena().getPlatformCorner(0));
 		
 	}
 	
@@ -328,7 +335,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		p.getInventory().clear();
 		p.teleport(_gameCard.get_arena().get_spectator_lobby());
 		
-		movePlayerToLobby(p);
+		movePlayerToLobbyHash(p);
 		
 		p.setHealth(20);
 		
@@ -349,16 +356,27 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	@EventHandler
 	void onMove(PlayerMoveEvent event)
 	{
+		if(has_ended)
+			return;
+		
 		Player p = event.getPlayer();
 		if(_players_score.containsKey(p))
 		{
 			if(!has_started)
 			{
 				event.setCancelled(true);
+				return;
 			}
 			if(p.getLocation().getBlockY() < _layer_y-3)
 			{
-				moveToLobbyPlayer(p);				
+				moveToLobbyPlayer(p);
+				return;
+			}
+			if(p.getLocation().distance(mid_loc) > _max_distance)
+			{
+				p.sendMessage(ChatColor.RED + "You went too far from arena!");
+				moveToLobbyPlayer(p);
+				return;
 			}
 		}
 	}
@@ -366,6 +384,9 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	@EventHandler
 	void onFoodLevel(FoodLevelChangeEvent event)
 	{
+		if(has_ended)
+			return;
+		
 		if(event.getEntity() instanceof Player)
 		{
 			Player p =(Player) event.getEntity();
@@ -407,6 +428,24 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			event.setCancelled(true);
 		}
 		
+	}
+	
+	@EventHandler
+	void onEntityDamage(EntityDamageEvent event)
+	{
+		if(event.getEntity() instanceof Player)
+		{
+			Player p = (Player)event.getEntity();
+			if(_players_score.containsKey(p))
+			{
+				event.setCancelled(true);
+//				if(p.getHealth() - event.getFinalDamage() <= 0.5)
+//				{
+//					p.setHealth(0.5);
+//					event.setCancelled(true);
+//				}
+			}
+		}
 	}
 	
 	@EventHandler
@@ -516,6 +555,8 @@ public class MiniGameSpleef extends MiniGame implements Listener
 							{
 								_player_anti_stands.put(p, new Pair<>(p_loc, 0));
 							}
+							
+							
 						}
 					}
 					

@@ -5,7 +5,7 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
-import imu.iMiniGames.Arenas.SpleefArena;
+import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.ChatColor;
 
@@ -18,8 +18,8 @@ public class ConvPromptSetDescriptionArena extends StringPrompt
 	int _ans_id;
 
 	String _question;
-	SpleefArena _arena;
-	public ConvPromptSetDescriptionArena(Main main, Player p, String question, SpleefArena arena)
+	Arena _arena;
+	public ConvPromptSetDescriptionArena(Main main, Player p, String question, Arena arena)
 	{
 		_main = main;
 		_player  = p;
@@ -35,6 +35,7 @@ public class ConvPromptSetDescriptionArena extends StringPrompt
 		//new SpleefGamePlaner(_main, _player, _card);
 		_arena.set_description(anwser);
 		_player.sendMessage(ChatColor.GOLD + "Description set!");
+		_arena.sendArenaCreationgINFO(_player);
 		return null;
 	}
 

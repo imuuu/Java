@@ -41,7 +41,7 @@ public class MiniGame
 		this._roundTime = _roundTime;
 	}
 	
-	public void movePlayerToLobby(Player p)
+	public void movePlayerToLobbyHash(Player p)
 	{
 		_players_lobby.put(p, _players_score.get(p));
 		_players_score.remove(p);
