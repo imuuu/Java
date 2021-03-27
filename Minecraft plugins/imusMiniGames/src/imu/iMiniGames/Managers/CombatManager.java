@@ -52,8 +52,7 @@ public class CombatManager
 	{
 		//saveAllArenas();
 	}
-	
-	
+		
 	public ArrayList<ArenaKit> getArena_kits() {
 		return arena_kits;
 	}
@@ -120,6 +119,8 @@ public class CombatManager
 		_potionEffects_positive_enabled.put(PotionEffectType.BAD_OMEN,false);
 		_potionEffects_positive_enabled.put(PotionEffectType.HERO_OF_THE_VILLAGE,false);
 		_potionEffects_positive_enabled.put(PotionEffectType.HARM,false);
+		_potionEffects_positive_enabled.put(PotionEffectType.WITHER,false);
+		
 
 	}
 	
@@ -213,8 +214,7 @@ public class CombatManager
 				ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/"+arena.get_name().toLowerCase()+".yml");
 				FileConfiguration config = cm.getConfig();
 				
-				config.set("Name", arena.get_name());
-				config.set("DisplayName", arena.get_displayName());
+				config.set("Name", arena.get_name().toString());
 				config.set("Desc", arena.get_description());
 				config.set("MaxPlayers",arena.get_maxPlayers());
 				config.set("MiddleLoc", arena.getArenas_middleloc());
@@ -278,8 +278,7 @@ public class CombatManager
 						arena_kits.add(new ArenaKit(name, stacks));
 						System.out.println("Combat kit added: "+name);
 					}
-					
-					
+									
 				} 
 				catch (Exception e) 
 				{
@@ -311,14 +310,12 @@ public class CombatManager
 						
 						
 						String name = config.getString("Name");
-						String d_name = config.getString("DisplayName");
 						String desc = config.getString("Desc");
 						Integer max_p = config.getInt("MaxPlayers");
 						Location lobby_loc = config.getLocation("LobbyLoc");
 						Location middle_loc = config.getLocation("MiddleLoc");
 						
 						CombatArena arena = new CombatArena(name);
-						arena.set_displayName(d_name);
 						arena.set_maxPlayers(max_p);
 						arena.set_spectator_lobby(lobby_loc);
 						arena.set_description(desc);
@@ -330,7 +327,7 @@ public class CombatManager
 						}
 						
 						addArena(arena);
-						System.out.println("Combat arena added: "+name+" dis: "+arena.get_displayName());
+						System.out.println("Combat arena added: "+name);
 					}
 				} 
 				catch (Exception e) 

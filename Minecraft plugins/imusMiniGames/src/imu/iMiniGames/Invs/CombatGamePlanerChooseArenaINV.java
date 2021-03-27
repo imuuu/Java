@@ -74,7 +74,7 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 			{
 				Arena arena = _arenas.get(idx);
 				
-				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.BEDROCK,ChatColor.GOLD + arena.get_displayName(),i);
+				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.BEDROCK,arena.get_arenaNameWithColor(),i);
 				_itemM.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
 				_itemM.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
 				

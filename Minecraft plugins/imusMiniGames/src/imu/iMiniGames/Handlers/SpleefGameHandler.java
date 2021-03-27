@@ -175,7 +175,7 @@ public class SpleefGameHandler implements Listener
 		
 
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "======== SPLEEF REQUEST ========");
-		p.sendMessage(ChatColor.GOLD + "Arena name: "+ ChatColor.AQUA+ card.get_arena().get_displayName());
+		p.sendMessage(ChatColor.GOLD + "Arena name: "+ ChatColor.AQUA+ card.get_arena().get_arenaNameWithColor());
 		p.sendMessage(ChatColor.GOLD + "Players: "+ ChatColor.AQUA+ card.getPlayersString());
 		p.sendMessage(ChatColor.GOLD + "Best of  "+ChatColor.DARK_PURPLE +ChatColor.BOLD+ card.get_spleefDataCard().get_bestOfAmount());
 		
@@ -457,7 +457,7 @@ public class SpleefGameHandler implements Listener
 				} 
 				catch (Exception e) 
 				{
-					System.out.println("Counldnt find player data");
+					System.out.println("ERRoR: Counldnt find player data");
 				}
 				
 			}

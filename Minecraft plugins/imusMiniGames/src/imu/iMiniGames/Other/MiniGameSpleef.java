@@ -127,7 +127,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			return;
 		
 		_main.getServer().broadcastMessage(ChatColor.AQUA + "=== SPLEEF GAME STARTED! ===");
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+ChatColor.AQUA+_gameCard.get_arena().get_displayName());
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
 		if(_gameCard._bet > 0)
 		{
@@ -142,7 +142,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			return;
 		
 		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== SPLEEF GAME ENDED! ===");
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+ChatColor.DARK_AQUA+_gameCard.get_arena().get_displayName());
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+_gameCard.getPlayersString());
 		if(_gameCard._bet > 0 && winner != null)
 		{

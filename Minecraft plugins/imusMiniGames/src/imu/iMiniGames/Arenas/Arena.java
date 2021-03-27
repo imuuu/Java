@@ -11,7 +11,6 @@ import net.md_5.bungee.api.ChatColor;
 public abstract class Arena 
 {
 	String _name;
-	String _displayName;
 	String _description = "";
 	
 	
@@ -24,7 +23,7 @@ public abstract class Arena
 	public Arena(String name) 
 	{	
 		_name = name;
-		_displayName = name;
+		//_displayName = name;
 		
 	}
 	
@@ -32,12 +31,11 @@ public abstract class Arena
 	{
 		String pre1 = ChatColor.GOLD+"";
 		String pre2 = ChatColor.AQUA+"";
-		p.sendMessage(ChatColor.DARK_PURPLE + "==== "+ _name+" ====");
-		p.sendMessage(pre1 + "DisplayName: "+pre2+_displayName);
+		p.sendMessage(ChatColor.DARK_PURPLE + "==== "+ get_arenaNameWithColor()+" ====");
 		p.sendMessage(pre1 + "Description: "+pre2+_description);
 		p.sendMessage(pre1 + "MaxPlayers: "+pre2+_maxPlayers);
 		p.sendMessage(pre1 + "Total SpawnPos: "+pre2+getTotalSpawnPositions());
-		p.sendMessage(pre1 + "Lobby set: "+pre2+ _spectator_lobby == null ? "false":"true");
+		p.sendMessage(pre1 + "Lobby set: "+pre2+ (_spectator_lobby == null ? "false":"true"));
 
 	}
 	public String get_name() {
@@ -48,14 +46,18 @@ public abstract class Arena
 		this._name = _name;
 	}
 
-	public String get_displayName() {
-		return _displayName;
+//	public String get_displayName() {
+//		return _displayName;
+//	}
+//
+//	public void set_displayName(String _displayName) {
+//		this._displayName = _displayName;
+//	}
+	
+	public String get_arenaNameWithColor()
+	{
+		return ChatColor.translateAlternateColorCodes('&', _name);
 	}
-
-	public void set_displayName(String _displayName) {
-		this._displayName = _displayName;
-	}
-
 	public int get_maxPlayers() {
 		return _maxPlayers;
 	}

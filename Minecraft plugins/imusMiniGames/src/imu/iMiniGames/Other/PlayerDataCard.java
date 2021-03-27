@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -165,21 +166,32 @@ public class PlayerDataCard
 		if(player != null)
 		{
 			player.setHealth(_health);
-			
 			player.setFoodLevel(_foodLevel);
-			
 			changeExp(player, Integer.MAX_VALUE);
-			changeExp(player, _xp);
-			
-			player.teleport(_location);
-			
+			changeExp(player, _xp);		
 			player.getInventory().setContents(_invContent);
-			
 			player.setGameMode(_gamemode);
-			
 			player.addPotionEffects(_potionEffects);
-			
+
 			player.setFireTicks(_fireTick);
+			
+			if(!Bukkit.isPrimaryThread())
+			{
+				new BukkitRunnable() 
+				{
+					
+					@Override
+					public void run() 
+					{
+						_player.teleport(_location);
+						
+					}
+				};
+			}else
+			{
+				_player.teleport(_location);
+			}
+			
 		}
 		else
 		{

@@ -12,35 +12,34 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.iMiniGames.Arenas.Arena;
-import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Managers.SpleefManager;
+import imu.iMiniGames.Managers.CombatManager;
+import imu.iMiniGames.Other.ArenaKit;
+import imu.iMiniGames.Other.CombatDataCard;
 import imu.iMiniGames.Other.CustomInvLayout;
-import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
-public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements Listener
+public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Listener
 {
-	SpleefManager _spleefManager;
+	CombatManager _combatManager;
 	
-	ArrayList<SpleefArena> _arenas;
+	ArrayList<ArenaKit> _kits;
 	
 	String pd_buttonType = "img.GPCAIbt";
-	String pd_arena_name = "img.AIarenaName";
+	String pd_arena_name = "img.AIkitname";
 	
 	
 	int _tooltip_starts = 0;
 	int _current_page = 0;
-	SpleefDataCard _card;
+	CombatDataCard _card;
 	
-	public SpleefGamePlanerChooseArenaINV(Main main, Player player, SpleefDataCard card) 
+	public CombatGamePlanerChooseKitINV(Main main, Player player, CombatDataCard card) 
 	{
-		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
+		super(main, player, ChatColor.DARK_AQUA + "====== Available Kits =====", 2*9);
 		
 		_main.getServer().getPluginManager().registerEvents(this,_main);
-		_spleefManager = main.get_spleefManager();
-		_arenas = _spleefManager.getArenas();
+		_combatManager = main.get_combatManager();
+		_kits = _combatManager.getArena_kits();
 		
 		_tooltip_starts = _size-9;
 		_card = card;
@@ -51,7 +50,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	public enum BUTTON
 	{
 		NONE,
-		ARENA,
+		KIT,
 		GO_LEFT,
 		GO_RIGHT,
 		BACK;
@@ -70,15 +69,15 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		for(int i = 0; i < _tooltip_starts ; ++i)
 		{
 			int idx = i +start;
-			if(idx < _arenas.size())
+			if(idx < _kits.size())
 			{
-				Arena arena = _arenas.get(idx);
+				ArenaKit kit = _kits.get(idx);
 				
-				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.SNOW_BLOCK,arena.get_arenaNameWithColor(),i);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
+				ItemStack item_arena = setupButton(BUTTON.KIT, Material.DIAMOND_SWORD,kit.get_kitNameWithColor(),i);
+				_itemM.hideAttributes(item_arena);
 				
-				_itemM.setPersistenData(item_arena, pd_arena_name, PersistentDataType.STRING, arena.get_name());
+				
+				_itemM.setPersistenData(item_arena, pd_arena_name, PersistentDataType.INTEGER, idx);
 			}
 			else
 			{
@@ -96,7 +95,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	
 	int totalPages()
 	{
-		int pages =(int) Math.round(((_arenas.size()-1)/(_tooltip_starts))+0.5);
+		int pages =(int) Math.round(((_kits.size()-1)/(_tooltip_starts))+0.5);
 		return pages-1;
 	}
 	
@@ -164,12 +163,12 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 				break;
 				
 			case BACK:
-				new SpleefGamePlaner(_main, _player, _card);
+				new CombatGamePlaner(_main, _player, _card);
 				break;
-			case ARENA:
-				String ar_name = _itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.STRING);
-				_card.set_arena(_spleefManager.getArena(ar_name));
-				new SpleefGamePlaner(_main, _player, _card);
+			case KIT:
+				ArenaKit kit = _kits.get(_itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.INTEGER));
+				_card.set_kit(kit);
+				new CombatGamePlaner(_main, _player, _card);
 				break;
 			default:
 				break;

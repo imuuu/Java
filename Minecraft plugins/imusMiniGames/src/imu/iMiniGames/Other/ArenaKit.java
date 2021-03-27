@@ -1,5 +1,6 @@
 package imu.iMiniGames.Other;
 
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 public class ArenaKit 
@@ -23,6 +24,10 @@ public class ArenaKit
 	}
 	public void set_kitInv(ItemStack[] _kitInv) {
 		this._kitInv = _kitInv;
+	}
+	public String get_kitNameWithColor()
+	{
+		return ChatColor.translateAlternateColorCodes('&', _kitName);
 	}
 	
 }

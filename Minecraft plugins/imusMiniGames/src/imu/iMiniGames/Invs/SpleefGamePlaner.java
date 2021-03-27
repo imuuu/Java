@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
@@ -59,7 +58,7 @@ public class SpleefGamePlaner extends GamePlaner
 		setupButton(BUTTON.RESET, Material.LAVA_BUCKET, ChatColor.RED +""+ChatColor.BOLD+ "RESET", 8);
 		
 		addLoreSetRemove(setupButton(BUTTON.SET_ARENA, Material.PAINTING, ChatColor.AQUA + "Set Arena", 0));
-		String arenaName = _card.get_arena() != null ? _card.get_arena().get_displayName() : "Random";
+		String arenaName = _card.get_arena() != null ? _card.get_arena().get_arenaNameWithColor() : "Random";
 		_card.putDataValue(0, arenaName);
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_BET,Material.GOLD_INGOT, ChatColor.AQUA + "Place Bet", 2));
@@ -67,6 +66,21 @@ public class SpleefGamePlaner extends GamePlaner
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_PLAYERS, Material.WITHER_SKELETON_SKULL, ChatColor.AQUA + "Add Players", 4));
 		 _itemM.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
+		 
+		 if(!_card.get_invitePlayers().isEmpty())
+		 {
+			 int count = 1;
+			 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added players! ==", true);
+			 for(Entry<Player, Boolean> entry : _card.get_invitePlayers().entrySet())
+			 {
+				 Player p = entry.getKey();
+				 if(p != null)
+				 {
+					 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&',"&2"+count+ ": &5"+p.getName()) ,true);
+					 count++;
+				 }
+			 }
+		 }
 		 
 		 mod = addLoreSetRemove(setupButton(BUTTON.POTION_EFFECTS, Material.EXPERIENCE_BOTTLE, ChatColor.AQUA + "Add Potion Effects", 6));
 		 _itemM.addLore(mod, ChatColor.YELLOW + "Add Potion effects to your match!", true);
@@ -232,27 +246,29 @@ public class SpleefGamePlaner extends GamePlaner
 					}
 					break;
 				case ADD_PLAYERS:
-					Player p;
-					String[] players_str = value != null ? value.trim().replaceAll(" +"," ").split(" ") : null;
-
-					if(value != null && players_str.length > 0)
+					_card.addInvitePlayer(_player, true);
+					if(!_card.get_invitePlayers().isEmpty() && _card.get_invitePlayers().size() > 1)
 					{
 						boolean found = false;
-						for(String pName : players_str)
-						{
-							p = Bukkit.getPlayer(pName);
-							if(p != null)
-							{
-								found = true;
+						
+						 for(Entry<Player, Boolean> entry : _card.get_invitePlayers().entrySet())
+						 {
+							 Player p = entry.getKey();
+							 if(p != null)
+							 {
+								 found = true;
 								gameCard.putPlayer(p);
-								
+									
 								if(_main.isPlayerBlocked(p))
 								{
 									wrongs.add(i);
 									_player.sendMessage(ChatColor.RED + p.getName() + " has blocked minigames! You can't in invite him/her!");
 								}
-							}
-						}
+							 }
+						
+						 } 
+							 
+						
 						// adds player if not added
 						gameCard.putPlayer(_player);
 						
@@ -363,11 +379,12 @@ public class SpleefGamePlaner extends GamePlaner
 					_player.closeInventory();
 					break;
 				case ADD_PLAYERS:
-					cf = new ConversationFactory(_main);
-					question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
-					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
-					conv.begin();
-					_player.closeInventory();
+//					cf = new ConversationFactory(_main);
+//					question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
+//					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
+//					conv.begin();
+//					_player.closeInventory();
+					new SpleefGamePlanerChoosePlayerINV(_main, _player, _card);
 					break;
 				case RESET:
 					_card = new SpleefDataCard(_player);
@@ -401,11 +418,8 @@ public class SpleefGamePlaner extends GamePlaner
 					checkAnwsers();
 					break;
 				case ADD_PLAYERS:
-					_card.removeDataValue(slot);
-					if(wrongs.contains(slot))
-						wrongs.remove(slot);
-					//setupButtons();
-					checkAnwsers();
+					_card.clearInvitePlayers();
+					setupButtons();
 					break;
 
 				case SET_ARENA:

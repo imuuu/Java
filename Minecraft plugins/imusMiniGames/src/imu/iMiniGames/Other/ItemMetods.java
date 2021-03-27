@@ -1,10 +1,12 @@
 package imu.iMiniGames.Other;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,10 +16,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -75,6 +79,18 @@ public class ItemMetods
 			
     	}
     	return stack;
+	}
+	
+	public ItemStack hideAttributes(ItemStack stack)
+	{
+		if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta =stack.getItemMeta();
+			meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+			stack.setItemMeta(meta);
+			
+    	}
+		return stack;
 	}
 	
 	public void printLores(ItemStack stack)
@@ -801,6 +817,22 @@ public class ItemMetods
     	}
     	return false;
     }
+	
+	@SuppressWarnings("deprecation")
+	public ItemStack getPlayerHead(Player p) 
+	{
+		boolean isNewVersion = Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList()).contains("PLAYER_HEAD");
+		Material type = Material.matchMaterial(isNewVersion ? "PLAYER_HEAD" : "SKULL_ITEM");
+		ItemStack item = new ItemStack(type,1);
+		
+		if(!isNewVersion)
+			item.setDurability((short) 3);
+		
+		SkullMeta meta = (SkullMeta) item.getItemMeta();
+		meta.setOwner(p.getName());
+		item.setItemMeta(meta);
+		return item;
+	}
 	
 	
 }

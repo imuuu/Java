@@ -6,10 +6,8 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Invs.CombatGamePlaner;
-import imu.iMiniGames.Invs.SpleefGamePlaner;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.CombatDataCard;
-import imu.iMiniGames.Other.SpleefDataCard;
 
 public class ConvPromptCombatGamePlaner extends StringPrompt
 {

@@ -1,7 +1,9 @@
 package imu.iMiniGames.Invs;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,35 +14,30 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.iMiniGames.Arenas.Arena;
-import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Managers.SpleefManager;
+import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CustomInvLayout;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
-public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements Listener
+public class SpleefGamePlanerChoosePlayerINV extends CustomInvLayout implements Listener
 {
-	SpleefManager _spleefManager;
-	
-	ArrayList<SpleefArena> _arenas;
+	CombatManager _combatManager;
 	
 	String pd_buttonType = "img.GPCAIbt";
-	String pd_arena_name = "img.AIarenaName";
+	String pd_uuid = "img.AIuuid";
 	
 	
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	SpleefDataCard _card;
 	
-	public SpleefGamePlanerChooseArenaINV(Main main, Player player, SpleefDataCard card) 
+	public SpleefGamePlanerChoosePlayerINV(Main main, Player player, SpleefDataCard card) 
 	{
-		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
+		super(main, player, ChatColor.DARK_AQUA + "====== Available Players =====", 3*9);
 		
 		_main.getServer().getPluginManager().registerEvents(this,_main);
-		_spleefManager = main.get_spleefManager();
-		_arenas = _spleefManager.getArenas();
+		_combatManager = main.get_combatManager();
 		
 		_tooltip_starts = _size-9;
 		_card = card;
@@ -51,7 +48,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	public enum BUTTON
 	{
 		NONE,
-		ARENA,
+		PLAYER_HEAD,
 		GO_LEFT,
 		GO_RIGHT,
 		BACK;
@@ -60,30 +57,61 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
+		
 		_itemM.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
 			_inv.setItem(i, optionLine);
 		}
+		
 		int start = 0 + _current_page * (_tooltip_starts);
-		for(int i = 0; i < _tooltip_starts ; ++i)
+		ArrayList<Player> players = new ArrayList<>( _main.getServer().getOnlinePlayers());
+		players.remove(_player);
+		for(int i = 0; i < 9 ; ++i)
 		{
 			int idx = i +start;
-			if(idx < _arenas.size())
+			
+			
+			if(players.size() > idx)
 			{
-				Arena arena = _arenas.get(idx);
-				
-				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.SNOW_BLOCK,arena.get_arenaNameWithColor(),i);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
-				
-				_itemM.setPersistenData(item_arena, pd_arena_name, PersistentDataType.STRING, arena.get_name());
+				Player p = players.get(idx);
+				if(p != null)
+				{
+					ItemStack head = _itemM.getPlayerHead(p);
+					_itemM.setDisplayName(head, ChatColor.translateAlternateColorCodes('&', "&6&l"+p.getName()));					
+					ItemStack optionItem = new ItemStack(Material.BLACK_CONCRETE);
+					_itemM.setDisplayName(optionItem, ChatColor.DARK_RED + "Not wanna be invited!");
+					if(!_main.isPlayerBlocked(p))
+					{
+						optionItem.setType(Material.RED_CONCRETE);
+						_itemM.setDisplayName(optionItem, ChatColor.RED + "Not selected");
+						if(_card.isInvitePlayer(p) && _card.getInvitePlayer(p))
+						{
+							_itemM.setDisplayName(optionItem, ChatColor.GREEN + "SELECTED");
+							optionItem.setType(Material.GREEN_CONCRETE);
+						}
+						
+						
+						setButton(head,BUTTON.PLAYER_HEAD);
+						setButton(optionItem,BUTTON.PLAYER_HEAD);
+						
+						_itemM.setPersistenData(head, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
+						_itemM.setPersistenData(optionItem, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
+						
+						
+					}else
+					{
+						_card.removeInvitePlayer(p);
+					}
+					_inv.setItem(i+9, optionItem);
+					_inv.setItem(i, head);
+					
+					continue;
+				}
 			}
-			else
-			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
-			}
+			_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+			_inv.setItem(i+9, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 		}
 		
 		setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, ChatColor.AQUA + "<<", _tooltip_starts+3);
@@ -96,7 +124,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	
 	int totalPages()
 	{
-		int pages =(int) Math.round(((_arenas.size()-1)/(_tooltip_starts))+0.5);
+		int pages =(int) Math.round(((_main.getServer().getOnlinePlayers().size()-1)/(_tooltip_starts))+0.5);
 		return pages-1;
 	}
 	
@@ -136,6 +164,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		return _inv.getItem(itemSlot);
 	}
 	
+	
 	@EventHandler
 	public void onInvClickEvent(InventoryClickEvent e) 
 	{
@@ -166,10 +195,20 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 			case BACK:
 				new SpleefGamePlaner(_main, _player, _card);
 				break;
-			case ARENA:
-				String ar_name = _itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.STRING);
-				_card.set_arena(_spleefManager.getArena(ar_name));
-				new SpleefGamePlaner(_main, _player, _card);
+			case PLAYER_HEAD:
+				UUID uuid  = UUID.fromString(_itemM.getPersistenData(stack, pd_uuid, PersistentDataType.STRING));
+				Player p = Bukkit.getPlayer(uuid);
+				if(p != null)
+				{
+					if(_card.isInvitePlayer(p) && _card.getInvitePlayer(p))
+					{
+						_card.removeInvitePlayer(p);
+					}else
+					{
+						_card.addInvitePlayer(p, true);
+					}
+				}
+				refresh();
 				break;
 			default:
 				break;

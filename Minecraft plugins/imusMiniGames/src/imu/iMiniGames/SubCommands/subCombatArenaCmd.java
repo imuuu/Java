@@ -110,12 +110,12 @@ public class subCombatArenaCmd implements CommandInterface
     			ConversationFactory cf = null;
     			String question = null;
     			Conversation conv = null;
-    			
+    			System.out.println("POP HERE");
     			cf = new ConversationFactory(_main);
     			question = ChatColor.DARK_PURPLE + "Give "+arena.get_name()+" description";
     			conv = cf.withFirstPrompt(new ConvPromptSetDescriptionArena(_main, player, question,arena)).withLocalEcho(true).buildConversation(player);
     			conv.begin();
-    			return true;
+    			return false;
         	}
     	}else
     	{

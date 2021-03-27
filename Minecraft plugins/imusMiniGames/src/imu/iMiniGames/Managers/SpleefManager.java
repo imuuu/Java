@@ -178,8 +178,7 @@ public class SpleefManager
 				ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/"+arena.get_name().toLowerCase()+".yml");
 				FileConfiguration config = cm.getConfig();
 				
-				config.set("Name", arena.get_name());
-				config.set("DisplayName", arena.get_displayName());
+				config.set("Name", arena.get_name().toString());
 				config.set("Desc", arena.get_description());
 				config.set("MaxPlayers",arena.get_maxPlayers());
 				config.set("CornerLoc1", arena.getPlatformCorner(0));
@@ -228,7 +227,6 @@ public class SpleefManager
 						
 						
 						String name = config.getString("Name");
-						String d_name = config.getString("DisplayName");
 						String desc = config.getString("Desc");
 						Integer max_p = config.getInt("MaxPlayers");
 						Location loc1 = config.getLocation("CornerLoc1");
@@ -236,7 +234,6 @@ public class SpleefManager
 						Location lobby_loc = config.getLocation("LobbyLoc");
 						
 						SpleefArena arena = new SpleefArena(name);
-						arena.set_displayName(d_name);
 						arena.set_maxPlayers(max_p);
 						arena.setPlatformCorner(0, loc1);
 						arena.setPlatformCorner(1, loc2);
@@ -249,7 +246,7 @@ public class SpleefManager
 						}
 						
 						addArena(arena);
-						System.out.println("Arena added: "+name+" dis: "+arena.get_displayName());
+						System.out.println("Arena added: "+name);
 					}
 				} 
 				catch (Exception e) 

@@ -10,11 +10,9 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 
-import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Interfaces.CommandInterface;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Prompts.ConvPromptSetDescriptionArena;
 import net.md_5.bungee.api.ChatColor;

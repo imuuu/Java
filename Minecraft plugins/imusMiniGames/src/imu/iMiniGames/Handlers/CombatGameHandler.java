@@ -17,15 +17,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
-import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.CombatGameCard;
 import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.Cooldowns;
 import imu.iMiniGames.Other.ItemMetods;
 import imu.iMiniGames.Other.MiniGameCombat;
-import imu.iMiniGames.Other.MiniGameSpleef;
 import imu.iMiniGames.Other.PlayerDataCard;
-import imu.iMiniGames.Other.SpleefGameCard;
 import net.milkbowl.vault.economy.Economy;
 
 public class CombatGameHandler implements Listener
@@ -51,7 +48,7 @@ public class CombatGameHandler implements Listener
 	
 	String _cd_invite = "invite_";
 	int _cd_invite_time = 10; //seconds
-	int _combat_roundTime = 90;
+	int _combat_roundTime = 600;
 	
 	double _bet_fee_percent = 0.05;
 	
@@ -176,7 +173,7 @@ public class CombatGameHandler implements Listener
 		
 
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "======== Combat REQUEST ========");
-		p.sendMessage(ChatColor.GOLD + "Arena name: "+ ChatColor.AQUA+ card.get_arena().get_displayName());
+		p.sendMessage(ChatColor.GOLD + "Arena name: "+ card.get_arena().get_arenaNameWithColor());
 		p.sendMessage(ChatColor.GOLD + "Players: "+ ChatColor.AQUA+ card.getPlayersString());
 		p.sendMessage(ChatColor.GOLD + "Best of  "+ChatColor.DARK_PURPLE +ChatColor.BOLD+ card.get_combatDataCard().get_bestOfAmount());
 		
@@ -347,8 +344,8 @@ public class CombatGameHandler implements Listener
 			String str_sides = ChatColor.DARK_PURPLE + "=================================";
 			
 			card.sendMessageToALL(str_sides);			
-			card.sendMessageToALL(ChatColor.RED+""+ChatColor.BOLD+ "You have LOST the SPLEEF!", winner);
-			winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "You have WON the SPLEEF!");
+			card.sendMessageToALL(ChatColor.RED+""+ChatColor.BOLD+ "You have LOST the COMBAT!", winner);
+			winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "You have WON the COMBAT!");
 			card.sendMessageToALL(str_sides);
 
 			if(card.get_total_bet() > 0 && _econ != null)
@@ -414,7 +411,7 @@ public class CombatGameHandler implements Listener
 			
 			combat.addPlayer(p);
 			
-			String title_str = ChatColor.BLUE + "SPLEEF";
+			String title_str = ChatColor.BLUE + "COMBAT";
 			String bet_str = ChatColor.GOLD +"Winner takes: "+ChatColor.DARK_GREEN +gameCard.get_total_bet();
 			if(_econ != null && gameCard.get_bet() > 0)
 			{
@@ -458,7 +455,7 @@ public class CombatGameHandler implements Listener
 				} 
 				catch (Exception e) 
 				{
-					System.out.println("Counldnt find player data");
+					System.out.println("ERRoR: Counldnt find player data");
 				}
 				
 			}
@@ -499,7 +496,7 @@ public class CombatGameHandler implements Listener
 				try 
 				{
 					setCd_invite_time(cm.addDefault("Cd_for_invite_acceptTime", getCd_invite_time(),"Cd_for_invite_acceptTime: how long invite stays before expires"));
-					setRoundTime(cm.addDefault("RoundTime", getRoundTime(),"RoundTime: Round time for spleef"));
+					setRoundTime(cm.addDefault("RoundTime", getRoundTime(),"RoundTime: Round time"));
 					setBet_fee_percent(cm.addDefault("Bet_fee", getBet_fee_percent(),"Bet_fee: How much fee is. Between 0.00 - 1.00 (0.05 = 5%)"));
 					_enable_broadcast = cm.addDefault("BroadCast", _enable_broadcast,"BroadCast: If true everybody see in server who startet game and result");
 					

@@ -18,6 +18,8 @@ public class SpleefDataCard
 	
 	HashMap<Integer, String> _invDataValues = new HashMap<>();
 	
+	HashMap<Player, Boolean> _invitePlayers = new HashMap<>();
+	
 	HashMap<PotionEffectType, PotionEffect> _invPotionEffects = new HashMap<>();
 	
 	String _potions_names_str = "";
@@ -41,6 +43,29 @@ public class SpleefDataCard
 			_best_of_amount = _best_of_max;
 	}
 	
+	public HashMap<Player, Boolean> get_invitePlayers() {
+		return _invitePlayers;
+	}
+	public void addInvitePlayer(Player p, boolean b)
+	{
+		_invitePlayers.put(p, b);
+	}
+	public void removeInvitePlayer(Player p)
+	{
+		_invitePlayers.remove(p);
+	}
+	public Boolean getInvitePlayer(Player p)
+	{
+		return _invitePlayers.get(p);
+	}
+	public Boolean isInvitePlayer(Player p)
+	{
+		return _invitePlayers.containsKey(p);
+	}
+	public void clearInvitePlayers()
+	{
+		_invitePlayers.clear();
+	}
 	public int get_bestOfAmount()
 	{
 		return _best_of_amount;

@@ -20,10 +20,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
-import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import imu.iMiniGames.Other.CustomInvLayout;
-import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
 public class CombatGamePlanerPotionEffectsINV extends CustomInvLayout implements Listener
