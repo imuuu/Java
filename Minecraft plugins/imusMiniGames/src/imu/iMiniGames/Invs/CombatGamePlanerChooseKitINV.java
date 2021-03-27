@@ -168,6 +168,7 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 			case KIT:
 				ArenaKit kit = _kits.get(_itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.INTEGER));
 				_card.set_kit(kit);
+				_card.setRandomKit(false);
 				new CombatGamePlaner(_main, _player, _card);
 				break;
 			default:

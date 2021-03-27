@@ -10,18 +10,18 @@ import org.bukkit.entity.Player;
 import imu.iMiniGames.Interfaces.CommandInterface;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
+import imu.iMiniGames.Other.ArenaKit;
 import net.md_5.bungee.api.ChatColor;
 
-public class subKitCmd implements CommandInterface
+public class subKitGetCmd implements CommandInterface
 {
 	Main _main = null;
 	String _subCmd = "";
 	CombatManager _com;
-	String[] _subs; // {"create"};	 
- 	public subKitCmd(Main main, String[] sub_cmds) 
+
+ 	public subKitGetCmd(Main main) 
 	{
 		_main = main;
-		_subs = sub_cmds;
 		_com = _main.get_combatManager();
 	}
 
@@ -30,18 +30,23 @@ public class subKitCmd implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
         Player player = (Player) sender;
-
         if(args.length < 4)
     	{
-        	player.sendMessage(ChatColor.RED + "Something wrong");
     		return false;
     	}
         
         String kitName = StringUtils.join(Arrays.copyOfRange(args, 3, args.length)," ");
 
-    	_com.addKit(kitName, player.getInventory().getContents());
-    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', kitName +" &6has been saved!"));
-    	
+        ArenaKit kit = _main.get_combatManager().getKit(kitName);
+        if(kit != null)
+        {
+        	player.getInventory().setContents(kit.get_kitInv());
+        	//_main.get_itemM().printArray(kitName, kit.get_kitInv());
+        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', kit.get_kitName() +" &6inv has been spawned"));
+        	return true;
+        }
+
+    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cCoulnd't find a kit!"));
     	
   
         

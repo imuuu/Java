@@ -66,7 +66,7 @@ public class SpleefGamePlaner extends GamePlaner
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_PLAYERS, Material.WITHER_SKELETON_SKULL, ChatColor.AQUA + "Add Players", 4));
 		 _itemM.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
-		 
+		 _card.get_invitePlayers().remove(_player);
 		 if(!_card.get_invitePlayers().isEmpty())
 		 {
 			 int count = 1;

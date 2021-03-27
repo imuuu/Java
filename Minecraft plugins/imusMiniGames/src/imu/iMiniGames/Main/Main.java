@@ -26,6 +26,8 @@ import imu.iMiniGames.SubCommands.subBlockMECmd;
 import imu.iMiniGames.SubCommands.subCombatArenaCmd;
 import imu.iMiniGames.SubCommands.subCombatGamePlanerCmd;
 import imu.iMiniGames.SubCommands.subKitCmd;
+import imu.iMiniGames.SubCommands.subKitGetCmd;
+import imu.iMiniGames.SubCommands.subKitListCmd;
 import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subSpleefArenaCmd;
 import imu.iMiniGames.SubCommands.subSpleefGamePlanerCmd;
@@ -139,17 +141,24 @@ public class Main extends JavaPlugin
 	     handler.registerSubCmd(cmd2, cmd2_sub11, new subSpleefArenaCmd(this, cmd2_sub11_sub));
 	     
 	     String cmd2_sub10 ="combat";
-	     String[] cmd2_sub10_sub = {"create", "spawn", "middle", "save", "remove", "lobby","desc"};	     
+	     String[] cmd2_sub10_sub = {"create", "spawn", "middle", "save", "remove", "lobby","desc","kit"};	     
 	     handler.registerSubCmd(cmd2, cmd2_sub10, new subCombatArenaCmd(this, cmd2_sub10_sub));
 	     cmd2AndArguments.put(cmd2_sub10, cmd2_sub10_sub);
 	     	     
-	     String cmd2_sub12 ="kit";
-	     String[] cmd2_sub12_sub = {"create"};	     
+	     String cmd2_sub12 ="combat kit";
+	     String[] cmd2_sub12_sub = {"create","list"};	     
 	     handler.registerSubCmd(cmd2, cmd2_sub12, new subKitCmd(this, cmd2_sub12_sub));
-	     cmd2AndArguments.put(cmd2_sub10, cmd2_sub10_sub);
+	     cmd2AndArguments.put("kit", cmd2_sub12_sub);
+	     
+	     String cmd2_sub13 ="combat kit list";    
+	     handler.registerSubCmd(cmd2, cmd2_sub13, new subKitListCmd(this, cmd2_sub13));
+	     
+	     String cmd2_sub14 ="combat kit get";    
+	     handler.registerSubCmd(cmd2, cmd2_sub14, new subKitGetCmd(this));
+	     
 	     
 	     cmd2AndArguments.put(cmd2_sub11, cmd2_sub11_sub);
-	     cmd2AndArguments.put(cmd2, new String[] {cmd2_sub11,cmd2_sub10,"reload",cmd2_sub12});
+	     cmd2AndArguments.put(cmd2, new String[] {cmd2_sub11,cmd2_sub10,"reload"});
 	     
 	    
 	     

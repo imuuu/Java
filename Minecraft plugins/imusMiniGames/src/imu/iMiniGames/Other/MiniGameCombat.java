@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -45,6 +44,8 @@ public class MiniGameCombat extends MiniGame implements Listener
 	Location mid_loc = null;
 	double _max_distance = 0;
 	BukkitTask run;
+	
+	ItemStack[] _kit;
 	public MiniGameCombat(Main main, CombatGameHandler combatHandler,CombatGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
@@ -58,6 +59,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 
 		mid_loc = _gameCard.get_arena().getArenas_middleloc();
 		_max_distance = 30;
+		_kit = _gameCard.get_combatDataCard().get_kit().get_kitInv();
 		
 	}
 	
@@ -85,9 +87,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 		p.setFireTicks(0);
 		_combatHandler.removePotionEffects(p);
 		
+		inv.setContents(_kit);
 		putPotionEffects(p);
 		
-		inv.addItem(new ItemStack(Material.DIAMOND_SWORD));
+		//inv.addItem(new ItemStack(Material.DIAMOND_SWORD));
 		
 	}
 	

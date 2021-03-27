@@ -67,7 +67,7 @@ public class CombatGamePlaner extends GamePlaner
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_PLAYERS, Material.WITHER_SKELETON_SKULL, ChatColor.AQUA + "Add Players", 4));
 		 _itemM.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
-		 
+		 _card.get_invitePlayers().remove(_player);
 		 if(!_card.get_invitePlayers().isEmpty())
 		 {
 			 int count = 1;
@@ -105,6 +105,9 @@ public class CombatGamePlaner extends GamePlaner
 		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all players use in combat!!!"), true);
 		 _itemM.hideAttributes(mod);
 		 lore ="&bSelected Kit: &aRandom";
+		 if(_card.isRandomKit())
+			 _card.set_kit(null);
+		 
 		 if(_card.get_kit() != null)
 		 {
 			 lore ="&bSelected Kit: "+_card.get_kit().get_kitName();
@@ -313,6 +316,23 @@ public class CombatGamePlaner extends GamePlaner
 					}
 					break;
 				case SET_ARENA:					
+					break;
+				case SET_KIT:
+					if(_card.get_kit() == null && _card.isRandomKit())
+					{
+						int kits_size = _main.get_combatManager().getArena_kits().size();
+						if(kits_size > 0)
+						{
+							//Random rand = new Random();
+							int r = new Random().nextInt(kits_size);
+							_card.set_kit(_main.get_combatManager().getArena_kits().get(r));
+						}else
+						{
+							wrongs.add(i);
+							_player.sendMessage(ChatColor.RED + "There isnt any kit!");
+						}
+						
+					}
 					break;
 				default:
 					break;

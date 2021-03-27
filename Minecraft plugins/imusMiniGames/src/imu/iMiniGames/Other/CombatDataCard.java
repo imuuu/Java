@@ -29,6 +29,8 @@ public class CombatDataCard
 	int _best_of_amount = 1;
 	int _best_of_max = 1;
 	
+	boolean isRandomKit = true;
+	
 	public CombatDataCard(Player owner)
 	{
 		_owner = owner;
@@ -44,8 +46,18 @@ public class CombatDataCard
 		if(_best_of_amount > _best_of_max)
 			_best_of_amount = _best_of_max;
 	}
+	
+	public boolean isRandomKit() {
+		return isRandomKit;
+	}
 
-	public HashMap<Player, Boolean> get_invitePlayers() {
+	public void setRandomKit(boolean isRandomKit) 
+	{
+		this.isRandomKit = isRandomKit;
+	}
+	
+	public HashMap<Player, Boolean> get_invitePlayers() 
+	{
 		return _invitePlayers;
 	}
 	public void addInvitePlayer(Player p, boolean b)
@@ -73,7 +85,8 @@ public class CombatDataCard
 		return _kit;
 	}
 
-	public void set_kit(ArenaKit _kit) {
+	public void set_kit(ArenaKit _kit) 
+	{
 		this._kit = _kit;
 	}
 

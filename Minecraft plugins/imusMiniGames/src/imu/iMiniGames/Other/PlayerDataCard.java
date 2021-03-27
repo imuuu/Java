@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,6 +35,7 @@ public class PlayerDataCard
 	Collection<PotionEffect> _potionEffects;
 	int _fireTick = 0;
 
+	boolean _isFlying;
 	public PlayerDataCard(Main main, Player p, String dataFolderName)
 	{
 		_main = main;
@@ -51,6 +51,7 @@ public class PlayerDataCard
 		_potionEffects = p.getActivePotionEffects();
 		_fireTick = p.getFireTicks();
 		
+		_isFlying = p.isFlying();
 	}
 	
 	public void saveDataToFile(boolean putTimeStamp)
@@ -83,6 +84,7 @@ public class PlayerDataCard
 				config.set("Xp", _xp);
 				config.set("Loc",_location);
 				config.set("FireTick", _fireTick);
+				config.set("Flying", _isFlying);
 				
 				for(int i = 0; i < _invContent.length; ++i)
 				{
@@ -127,6 +129,7 @@ public class PlayerDataCard
 		_location=config.getLocation("Loc");
 		_fireTick = config.getInt("FireTick");
 		_gamemode = GameMode.valueOf(config.getString("Gamemode"));
+		_isFlying = config.getBoolean("Flying");
 		
 		ItemStack[] stacks = new ItemStack[_invContent.length];
 		for (String key : config.getConfigurationSection("InvContent.").getKeys(false)) 
@@ -162,35 +165,31 @@ public class PlayerDataCard
 	}
 	
 	public void setDataToPLAYER(Player player)
-	{
+	{	
 		if(player != null)
 		{
-			player.setHealth(_health);
-			player.setFoodLevel(_foodLevel);
-			changeExp(player, Integer.MAX_VALUE);
-			changeExp(player, _xp);		
-			player.getInventory().setContents(_invContent);
-			player.setGameMode(_gamemode);
-			player.addPotionEffects(_potionEffects);
-
-			player.setFireTicks(_fireTick);
-			
-			if(!Bukkit.isPrimaryThread())
-			{
-				new BukkitRunnable() 
+			new BukkitRunnable() 
+			{			
+				@Override
+				public void run() 
 				{
-					
-					@Override
-					public void run() 
+					player.setHealth(_health);
+					player.setFoodLevel(_foodLevel);
+					changeExp(player, Integer.MAX_VALUE);
+					changeExp(player, _xp);		
+					player.getInventory().setContents(_invContent);
+					player.setGameMode(_gamemode);
+					player.addPotionEffects(_potionEffects);
+
+					player.setFireTicks(_fireTick);
+					if(player.getAllowFlight() && _isFlying)
 					{
-						_player.teleport(_location);
-						
+						player.setFlying(_isFlying);
 					}
-				};
-			}else
-			{
-				_player.teleport(_location);
-			}
+					_player.teleport(_location);
+				}
+			}.runTask(_main);
+			
 			
 		}
 		else

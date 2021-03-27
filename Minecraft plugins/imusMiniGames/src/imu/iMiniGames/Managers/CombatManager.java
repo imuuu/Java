@@ -56,10 +56,34 @@ public class CombatManager
 	public ArrayList<ArenaKit> getArena_kits() {
 		return arena_kits;
 	}
-
+	
+	public ArenaKit getKit(String name)
+	{
+		for(int i = 0 ; i < arena_kits.size(); ++i)
+		{
+			if(arena_kits.get(i).get_kitName().equalsIgnoreCase(name))
+			{
+				return arena_kits.get(i);
+			}
+		}
+		return null;
+	}
+		
+	
 	public void addKit(String name, ItemStack[] _kitInv)
 	{
 		ArenaKit kit = new ArenaKit(name, _kitInv);
+		for(int i = 0 ; i < arena_kits.size(); ++i)
+		{
+			if(arena_kits.get(i).get_kitName().equalsIgnoreCase(name))
+			{
+				arena_kits.set(i, kit);
+				saveKit(kit);
+				return;
+			}
+				
+		}
+		
 		arena_kits.add(kit);
 		saveKit(kit);
 	}
@@ -270,7 +294,7 @@ public class CombatManager
 								stacks[Integer.parseInt(key)] = null;
 							}else
 							{
-								stacks[Integer.parseInt(key)] = config.getItemStack("InvContent."+key);
+								stacks[Integer.parseInt(key)] = config.getItemStack("KitContent."+key);
 							}
 							
 						}

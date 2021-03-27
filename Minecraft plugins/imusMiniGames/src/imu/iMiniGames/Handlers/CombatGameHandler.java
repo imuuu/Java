@@ -175,6 +175,7 @@ public class CombatGameHandler implements Listener
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "======== Combat REQUEST ========");
 		p.sendMessage(ChatColor.GOLD + "Arena name: "+ card.get_arena().get_arenaNameWithColor());
 		p.sendMessage(ChatColor.GOLD + "Players: "+ ChatColor.AQUA+ card.getPlayersString());
+		p.sendMessage(ChatColor.GOLD + "Combat Kit: "+ card.get_combatDataCard().get_kit().get_kitNameWithColor());
 		p.sendMessage(ChatColor.GOLD + "Best of  "+ChatColor.DARK_PURPLE +ChatColor.BOLD+ card.get_combatDataCard().get_bestOfAmount());
 		
 		if(!card.get_combatDataCard().get_invPotionEffects().isEmpty())
@@ -441,22 +442,16 @@ public class CombatGameHandler implements Listener
 			@Override
 			public void run() 
 			{
-				try 
+				PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
+				if(pData.isFile())
 				{
-					PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
-					if(pData.isFile())
-					{
-						System.out.println("imusMiniGames: Restoring player data");
-						pData.loadDataFileAndSetData();
-						pData.setDataToPLAYER(event.getPlayer());
-						pData.removeDataFile();
-						_player_datas.remove(event.getPlayer().getUniqueId());
-					}
-				} 
-				catch (Exception e) 
-				{
-					System.out.println("ERRoR: Counldnt find player data");
+					System.out.println("imusMiniGames: Restoring player data");
+					pData.loadDataFileAndSetData();
+					pData.setDataToPLAYER(event.getPlayer());
+					pData.removeDataFile();
+					_player_datas.remove(event.getPlayer().getUniqueId());
 				}
+				
 				
 			}
 		}.runTaskAsynchronously(_main);

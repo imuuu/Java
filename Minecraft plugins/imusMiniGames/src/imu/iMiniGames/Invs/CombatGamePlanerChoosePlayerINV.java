@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.iMiniGames.Invs.SpleefGamePlanerChoosePlayerINV.BUTTON;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
