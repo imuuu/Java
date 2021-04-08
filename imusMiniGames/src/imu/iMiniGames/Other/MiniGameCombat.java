@@ -1,19 +1,26 @@
 package imu.iMiniGames.Other;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -24,7 +31,12 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.iMiniGames.Handlers.CombatGameHandler;
 import imu.iMiniGames.Main.Main;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
+@SuppressWarnings("deprecation")
 public class MiniGameCombat extends MiniGame implements Listener
 {
 	CombatGameHandler _combatHandler;
@@ -44,8 +56,16 @@ public class MiniGameCombat extends MiniGame implements Listener
 	Location mid_loc = null;
 	double _max_distance = 0;
 	BukkitTask run;
+	BukkitTask runAsync;
 	
 	ItemStack[] _kit;
+	
+	int draw_count = 0;
+	int draw_max = 3;
+	
+	
+	ArrayList<Entity> _entities = new ArrayList<>();
+	
 	public MiniGameCombat(Main main, CombatGameHandler combatHandler,CombatGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
@@ -60,6 +80,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		mid_loc = _gameCard.get_arena().getArenas_middleloc();
 		_max_distance = _gameCard.get_arena().getArena_radius();
 		_kit = _gameCard.get_combatDataCard().get_kit().get_kitInv();
+		_spectator_loc = gameCard.get_arena().get_spectator_lobby();
 		
 	}
 	
@@ -75,7 +96,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 			}
 		}
 	}
-	
+
 	void setupPlayerForStart(Player p)
 	{
 		p.setGameMode(GameMode.SURVIVAL);
@@ -84,30 +105,51 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		p.setHealth(20);
 		p.setFoodLevel(20);
-		p.setFireTicks(0);
+		p.setFireTicks(-20);
 		_combatHandler.removePotionEffects(p);
 		
 		inv.setContents(_kit);
 		putPotionEffects(p);
 		
-		//inv.addItem(new ItemStack(Material.DIAMOND_SWORD));
-		
+		//inv.addItem(new ItemStack(Material.DIAMOND_SWORD));		
 	}
 	
+	
+	void keepFighterAlive()
+	{
+		for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+		{
+			Player p = entry.getKey();
+			p.setHealth(20);
+			p.setFoodLevel(20);
+			p.setFireTicks(-20);
+		}
+	}
 	
 	void broadCastStart()
 	{
 		if(!_combatHandler.is_enable_broadcast())
 			return;
 		
-		_main.getServer().broadcastMessage(ChatColor.AQUA + "=== COMBAT GAME STARTED! ===");
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
-		if(_gameCard._bet > 0)
+		for(Player p : _main.getServer().getOnlinePlayers())
 		{
-			_main.getServer().broadcastMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
+			if(_main.get_combatGameHandler().isPlayerInArena(p))
+			continue;
+			
+			p.sendMessage(ChatColor.AQUA + "=== COMBAT GAME STARTED! ===");
+			p.sendMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
+			p.sendMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
+			if(_gameCard.get_bet() > 0)
+			{
+				p.sendMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
+			}
+
+			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&b=== &dSTART SPECTATING &l&a(Click) &b==="));
+			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate combat "+_gameCard.get_arena().get_name()));
+			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
+			p.spigot().sendMessage(msg);
 		}
-		_main.getServer().broadcastMessage(ChatColor.AQUA + "==========================");
+		
 	}
 	
 	void broadCastEnd(Player winner)
@@ -118,7 +160,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== COMBAT GAME ENDED! ===");
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+_gameCard.getPlayersString());
-		if(_gameCard._bet > 0 && winner != null)
+		if(_gameCard.get_bet() > 0 && winner != null)
 		{
 			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner and got: "+ChatColor.GREEN+_gameCard.get_total_bet()+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
 		}else if(winner != null)
@@ -131,13 +173,25 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "========================");
 	}
 	
+	void stopRunnables()
+	{
+		if(run != null)
+		{
+			run.cancel();
+		}
+		if(runAsync != null)
+		{
+			runAsync.cancel();
+		}
+	}
+	
 	public void Start()
 	{
 		has_started = false;
 		has_ended = false;
 		_cd = new Cooldowns();
 
-		_total_players = _gameCard._players_accept.size();
+		_total_players = _gameCard.get_players_accept().size();
 		int count = 0;
 		_round++;
 		
@@ -155,12 +209,11 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);
 		
 		_cd.setCooldownInSeconds("start", _start_delay);
-		if(run != null)
-		{
-			run.cancel();
-		}
+		
+		stopRunnables();
 		
 		runnable();
+		runnableAsync();
 		
 		String str1 = ChatColor.YELLOW + "========================";
 		
@@ -210,6 +263,12 @@ public class MiniGameCombat extends MiniGame implements Listener
 	public void endGame()
 	{
 		has_ended = true;
+		
+		for(Entity e : _entities)
+		{
+			e.remove();
+		}
+		_entities.clear();
 				
 		Player round_winner;
 		if(_total_players > 1 || _total_players == 0)
@@ -226,7 +285,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		if(_best_of != 1)
 		{
 			Player real_winner = checkBestOf();
-			if(real_winner == null)
+			if(real_winner == null && _round < _gameCard.get_players_accept().size()*_best_of-1+5)
 			{
 				Start();
 				return;
@@ -236,9 +295,9 @@ public class MiniGameCombat extends MiniGame implements Listener
 		broadCastEnd(round_winner);
 		
 		String msg = ChatColor.DARK_PURPLE +""+ChatColor.BOLD+ "Combat Game Has Ended";	
-		for(Map.Entry<Player,Boolean> entry : _gameCard.get_players_accept().entrySet())
+		for(UUID uuid: _gameCard.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
 			
 			if(!p.isOnline())
 			{
@@ -270,6 +329,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_players_lobby.clear();
 		_players_score.clear();
 		_combatHandler.gameHasEnded(_gameCard, round_winner);
+		stopRunnables();
 		HandlerList.unregisterAll(this);
 	}
 	
@@ -281,6 +341,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		movePlayerToLobbyHash(p);
 		
 		p.setHealth(20);
+		p.setFireTicks(-20);
 		
 		_combatHandler.removePotionEffects(p);
 		p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 40, 5));
@@ -288,12 +349,43 @@ public class MiniGameCombat extends MiniGame implements Listener
 		p.sendMessage(ChatColor.DARK_GRAY + "You have been moved to spetator lobby! Better luck next time!");
 		
 		_total_players--;
-		if(_total_players <= 1)
+		checkIFendGame();
+		
+		//move to lobby
+	}
+	void checkIFendGame()
+	{
+		if(_total_players <= 1 || _gameCard.get_players_accept().size() < 2)
 		{
 			endGame();
 		}
+	}
+	void playerLeft(Player p)
+	{
+		//_combatHandler.removePotionEffects(p);
+		_total_players--;
+		_players_score.remove(p);
+		_gameCard.get_players_accept().remove(p.getUniqueId());
+
+		checkIFendGame();
+	}
+	
+	@EventHandler
+	void onProjectileLaunch(ProjectileLaunchEvent event)
+	{
+		if(event.getEntity().getShooter() instanceof Player)
+		{
+			Player p = (Player) event.getEntity().getShooter();
+			if(_players_score.containsKey(p) || _players_lobby.containsKey(p))
+			{
+				if(event.getEntity().getType() == EntityType.TRIDENT)
+				{
+					_entities.add(event.getEntity());
+				}
+			}
+			
+		}
 		
-		//move to lobby
 	}
 	
 	@EventHandler
@@ -324,10 +416,18 @@ public class MiniGameCombat extends MiniGame implements Listener
 	void onQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p) || _players_lobby.containsKey(p))
+		if(_players_score.containsKey(p) )
 		{
-			moveToLobbyPlayer(p);
+			playerLeft(p);
 			
+		}
+		if(_players_lobby.containsKey(p))
+		{
+			playerLeft(p);
+		}
+		if(_players_spectators.containsKey(p))
+		{
+			teleportSpectatorToBack(p);
 		}
 	}
 	
@@ -335,9 +435,37 @@ public class MiniGameCombat extends MiniGame implements Listener
 	void onDrop(PlayerDropItemEvent event)
 	{
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p))
+				
+		if(_players_score.containsKey(p) || _players_spectators.containsKey(p) || _players_lobby.containsKey(p))
 		{
-			event.setCancelled(true);		
+			event.setCancelled(true);
+					
+		}
+	}
+	
+	@EventHandler
+	void onPickUp( PlayerPickupItemEvent event)
+	{
+		Player p = event.getPlayer();
+		if(_players_score.containsKey(p) || _players_spectators.containsKey(p) || _players_lobby.containsKey(p))
+		{
+			Entity entity = null;
+			for(Entity ent : _entities)
+			{
+				if(ent.getUniqueId() == event.getItem().getUniqueId())
+				{
+					entity = ent;
+					break;
+				}
+				
+			}
+			
+			if(entity != null)
+			{
+				_entities.remove(entity);
+				return;
+			}
+			event.setCancelled(true);	
 		}
 	}
 	
@@ -360,6 +488,9 @@ public class MiniGameCombat extends MiniGame implements Listener
 			Player p = (Player)event.getEntity();
 			if(_players_score.containsKey(p))
 			{
+				if(!has_started)
+					event.setCancelled(true);
+				
 				if(p.getHealth() - event.getFinalDamage() <= 0.5)
 				{
 					event.setCancelled(true);
@@ -370,6 +501,33 @@ public class MiniGameCombat extends MiniGame implements Listener
 		}
 	}
 		
+	void runnableAsync()
+	{
+		runAsync = new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				if(has_started)
+				{
+					if(!_gameCard.get_combatDataCard().get_invPotionEffects().containsKey(PotionEffectType.GLOWING))
+					{
+						for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+						{
+							Player p = entry.getKey();
+							if(p.isGlowing())
+							{
+								p.setGlowing(false);
+							}
+						}
+					}
+					
+					
+				}
+			}
+		}.runTaskTimerAsynchronously(_main, 0, 20);
+	}
 	void runnable()
 	{
 		run = new BukkitRunnable() 
@@ -391,6 +549,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 				{					
 					String str = ChatColor.GREEN + ""+ChatColor.BOLD + "Game starts in: "+ChatColor.WHITE+(_cd.GetCdInSeconds("start")+1) + " s";
 					_gameCard.sendMessageToALL(str);
+					keepFighterAlive();
 				}
 				else
 				{
@@ -407,10 +566,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 					{
 						String str = ChatColor.RED + ""+ChatColor.BOLD + "Ends in "+ChatColor.WHITE+ (_cd.GetCdInSeconds("round")+1) + " s";
 						_gameCard.sendMessageToALL(str);
-					}
-					
-					
-					
+					}					
 				}
 				
 				

@@ -34,11 +34,20 @@ public class subSpleefGamePlanerCmd implements CommandInterface
         
         if(!_main.get_spleefGameHandler().isPlayerPlanInQueue(player))
         {
-        	if(!_main.get_spleefGameHandler().isPlayerInArena(player))
+        	if(!_main.get_spleefGameHandler().isPlayerInArena(player.getUniqueId()))
         	{
                 if(_main.get_spleefManager().hasPlayerDataCard(player))
                 {
-                	 new SpleefGamePlaner(_main, player,_main.get_spleefManager().getPlayerDataCard(player));
+                	try 
+                	{
+                		 new SpleefGamePlaner(_main, player,_main.get_spleefManager().getPlayerDataCard(player));
+					} catch (Exception e) 
+                	{
+						_main.get_spleefManager().clearPlayerDataCards();
+						new SpleefGamePlaner(_main, player,new SpleefDataCard(player));
+						System.out.println("Error planer happend!");
+					}
+                	
                 }else
                 {
                 	 new SpleefGamePlaner(_main, player,new SpleefDataCard(player));

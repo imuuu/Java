@@ -1,8 +1,10 @@
 package imu.iMiniGames.Invs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,6 +18,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
@@ -31,7 +34,7 @@ public class SpleefGamePlaner extends GamePlaner
 	PlanerManager _pm;
 	
 	ArrayList<Integer> wrongs = new ArrayList<>();
-	
+	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
 	public SpleefGamePlaner(Main main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.BLUE + ""+ChatColor.BOLD + "Spleef Planer");
@@ -39,6 +42,7 @@ public class SpleefGamePlaner extends GamePlaner
 		_card = card;
 		_pm = main.get_planerManager();
 		_card.set_bestOfMax(_main.get_spleefManager().get_maximum_best_of());
+		loadPlayerHeads();
 		reset();
 	}
 	
@@ -46,6 +50,22 @@ public class SpleefGamePlaner extends GamePlaner
 	{
 		setupButtons();
 		checkAnwsers();
+	}
+	
+	void loadPlayerHeads()
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				for(Player p : _main.getServer().getOnlinePlayers())
+				{
+					_playerHeads.put(p.getUniqueId(),_itemM.getPlayerHead(p));
+				}
+				
+			}
+		}.runTaskAsynchronously(_main);
 	}
 	
 	void setupButtons() 
@@ -257,7 +277,7 @@ public class SpleefGamePlaner extends GamePlaner
 							 if(p != null)
 							 {
 								 found = true;
-								gameCard.putPlayer(p);
+								gameCard.putPlayer(p.getUniqueId());
 									
 								if(_main.isPlayerBlocked(p))
 								{
@@ -270,7 +290,7 @@ public class SpleefGamePlaner extends GamePlaner
 							 
 						
 						// adds player if not added
-						gameCard.putPlayer(_player);
+						gameCard.putPlayer(_player.getUniqueId());
 						
 
 						if(gameCard.get_players_accept().size() > gameCard.get_arena().get_maxPlayers())
@@ -384,7 +404,7 @@ public class SpleefGamePlaner extends GamePlaner
 //					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
 //					conv.begin();
 //					_player.closeInventory();
-					new SpleefGamePlanerChoosePlayerINV(_main, _player, _card);
+					new SpleefGamePlanerChoosePlayerINV(_main, _player, _card,_playerHeads);
 					break;
 				case RESET:
 					_card = new SpleefDataCard(_player);

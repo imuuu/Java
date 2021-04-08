@@ -36,7 +36,16 @@ public class subCombatGamePlanerCmd implements CommandInterface
         {
         	if(_main.get_combatManager().hasPlayerDataCard(player))
             {
-            	 new CombatGamePlaner(_main, player,_main.get_combatManager().getPlayerDataCard(player));
+        		try {
+        			new CombatGamePlaner(_main, player,_main.get_combatManager().getPlayerDataCard(player));
+				} 
+        		catch (Exception e) 
+        		{
+        			_main.get_combatManager().clearPlayerDataCards();
+        			new CombatGamePlaner(_main, player, new CombatDataCard(player));
+					System.out.println("Error planer happend!");
+				}
+            	 
             	 return true;
             } 
         	new CombatGamePlaner(_main, player, new CombatDataCard(player));

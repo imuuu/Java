@@ -1,6 +1,7 @@
 package imu.iMiniGames.Invs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -31,14 +32,14 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	CombatDataCard _card;
-	
-	public CombatGamePlanerChoosePlayerINV(Main main, Player player, CombatDataCard card) 
+	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
+	public CombatGamePlanerChoosePlayerINV(Main main, Player player, CombatDataCard card, HashMap<UUID, ItemStack> playerHeads) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Players =====", 3*9);
 		
 		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_combatManager = main.get_combatManager();
-		
+		_playerHeads =playerHeads;
 		_tooltip_starts = _size-9;
 		_card = card;
 		openThis();
@@ -78,7 +79,8 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 				Player p = players.get(idx);
 				if(p != null)
 				{
-					ItemStack head = _itemM.getPlayerHead(p);
+					ItemStack head = _playerHeads.containsKey(p.getUniqueId()) ? _playerHeads.get(p.getUniqueId()) : _itemM.getPlayerHead(p);
+					
 					_itemM.setDisplayName(head, ChatColor.translateAlternateColorCodes('&', "&6&l"+p.getName()));					
 					
 					ItemStack optionItem = new ItemStack(Material.BLACK_CONCRETE);

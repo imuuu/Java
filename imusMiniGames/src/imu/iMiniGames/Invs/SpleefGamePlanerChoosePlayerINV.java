@@ -1,6 +1,7 @@
 package imu.iMiniGames.Invs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -31,8 +32,8 @@ public class SpleefGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	SpleefDataCard _card;
-	
-	public SpleefGamePlanerChoosePlayerINV(Main main, Player player, SpleefDataCard card) 
+	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
+	public SpleefGamePlanerChoosePlayerINV(Main main, Player player, SpleefDataCard card,HashMap<UUID, ItemStack> playerHeads) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Players =====", 3*9);
 		
@@ -41,6 +42,7 @@ public class SpleefGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 		
 		_tooltip_starts = _size-9;
 		_card = card;
+		_playerHeads =playerHeads;
 		openThis();
 		refresh();
 	}

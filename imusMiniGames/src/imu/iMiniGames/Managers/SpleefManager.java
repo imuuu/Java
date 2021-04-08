@@ -46,6 +46,11 @@ public class SpleefManager
 		//saveAllArenas();
 	}
 	
+	public void clearPlayerDataCards()
+	{
+		_player_DataCards.clear();
+	}
+	
 	public void savePlayerDataCard(Player p, SpleefDataCard card)
 	{
 		_player_DataCards.put(p.getUniqueId(), card);

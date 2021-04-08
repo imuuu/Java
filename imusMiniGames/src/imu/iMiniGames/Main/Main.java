@@ -28,6 +28,7 @@ import imu.iMiniGames.SubCommands.subCombatGamePlanerCmd;
 import imu.iMiniGames.SubCommands.subKitCmd;
 import imu.iMiniGames.SubCommands.subKitGetCmd;
 import imu.iMiniGames.SubCommands.subKitListCmd;
+import imu.iMiniGames.SubCommands.subSpectateCmd;
 import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subSpleefArenaCmd;
 import imu.iMiniGames.SubCommands.subSpleefGamePlanerCmd;
@@ -180,6 +181,9 @@ public class Main extends JavaPlugin
 	     
 	     String cmd3_sub5 = "combat accept";
 	     handler.registerSubCmd(cmd3, cmd3_sub5, new subAcceptCmd(this, cmd3_sub5));
+	     
+	     String cmd3_sub6 = "spectate";
+	     handler.registerSubCmd(cmd3, cmd3_sub6, new subSpectateCmd(this, cmd3_sub6));
 	     
 	     
 	     cmd3AndArguments.put(cmd3, new String[] {cmd3_sub1,cmd3_sub3,cmd3_sub4});

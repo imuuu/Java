@@ -63,3 +63,6 @@ commands:
    g price:
      description: Give player the price of holded item's material
      usage: /<command>
+   g baltop:
+     description: Gives players balance top
+     usage: /<command>

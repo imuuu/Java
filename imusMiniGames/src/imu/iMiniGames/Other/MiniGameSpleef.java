@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -33,6 +35,10 @@ import com.mojang.datafixers.util.Pair;
 
 import imu.iMiniGames.Handlers.SpleefGameHandler;
 import imu.iMiniGames.Main.Main;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class MiniGameSpleef extends MiniGame implements Listener
 {
@@ -73,6 +79,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 
 		mid_loc =_gameCard.get_arena().getPlatformCorner(1).toVector().getMidpoint(_gameCard.get_arena().getPlatformCorner(0).toVector()).toLocation(_gameCard.get_arena().getPlatformCorner(0).getWorld());
 		_max_distance = _gameCard.get_arena().getPlatformCorner(1).distance(_gameCard.get_arena().getPlatformCorner(0));
+		_spectator_loc = gameCard.get_arena().get_spectator_lobby();
 		
 	}
 	
@@ -126,14 +133,25 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		if(!_main.isEnable_broadcast_spleef())
 			return;
 		
-		_main.getServer().broadcastMessage(ChatColor.AQUA + "=== SPLEEF GAME STARTED! ===");
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
-		if(_gameCard._bet > 0)
+		for(Player p : _main.getServer().getOnlinePlayers())
 		{
-			_main.getServer().broadcastMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
+			if(_main.get_combatGameHandler().isPlayerInArena(p))
+				continue;
+			
+			p.sendMessage(ChatColor.AQUA + "=== SPLEEF GAME STARTED! ===");
+			p.sendMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
+			p.sendMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
+			if(_gameCard.get_bet() > 0)
+			{
+				p.sendMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
+			}
+			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&d=== &9START SPECTATING &l&a(Click) &b==="));
+			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate combat "+_gameCard.get_arena().get_name()));
+			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
+			p.spigot().sendMessage(msg);
 		}
-		_main.getServer().broadcastMessage(ChatColor.AQUA + "==========================");
+		
+		
 	}
 	
 	void broadCastEnd(Player winner)
@@ -144,7 +162,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== SPLEEF GAME ENDED! ===");
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
 		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+_gameCard.getPlayersString());
-		if(_gameCard._bet > 0 && winner != null)
+		if(_gameCard.get_bet() > 0 && winner != null)
 		{
 			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner and got: "+ChatColor.GREEN+_gameCard.get_total_bet()+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
 		}else if(winner != null)
@@ -164,7 +182,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_cd = new Cooldowns();
 		_player_anti_stands.clear();
 		_remove_blocks.clear();
-		_total_players = _gameCard._players_accept.size();
+		_total_players = _gameCard.get_players_accept().size();
 		int count = 0;
 		_round++;
 		
@@ -286,9 +304,9 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		broadCastEnd(round_winner);
 		
 		String msg = ChatColor.DARK_PURPLE +""+ChatColor.BOLD+ "Spleef Game Has Ended";	
-		for(Map.Entry<Player,Boolean> entry : _gameCard.get_players_accept().entrySet())
+		for(UUID uuid : _gameCard.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
 			
 			if(!p.isOnline())
 			{
@@ -345,12 +363,26 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		p.sendMessage(ChatColor.DARK_GRAY + "You have been moved to spetator lobby! Better luck next time!");
 		
 		_total_players--;
-		if(_total_players <= 1)
+		checkIFendGame();
+		
+		//move to lobby
+	}
+	
+	void checkIFendGame()
+	{
+		if(_total_players <= 1 || _gameCard.get_players_accept().size() < 2)
 		{
 			endGame();
 		}
-		
-		//move to lobby
+	}
+	void playerLeft(Player p)
+	{
+		//_combatHandler.removePotionEffects(p);
+		_total_players--;
+		_players_score.remove(p);
+		_gameCard.get_players_accept().remove(p.getUniqueId());
+
+		checkIFendGame();
 	}
 	
 	@EventHandler
@@ -402,10 +434,20 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	void onQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p) || _players_lobby.containsKey(p))
+		if(_players_score.containsKey(p) )
 		{
-			moveToLobbyPlayer(p);
+			playerLeft(p);
 			
+		}
+		
+		if(_players_lobby.containsKey(p))
+		{
+			playerLeft(p);
+		}
+		
+		if(_players_spectators.containsKey(p))
+		{
+			teleportSpectatorToBack(p);
 		}
 	}
 	

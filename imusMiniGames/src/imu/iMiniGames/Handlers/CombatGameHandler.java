@@ -15,12 +15,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatGameCard;
 import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.Cooldowns;
 import imu.iMiniGames.Other.ItemMetods;
+import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameCombat;
 import imu.iMiniGames.Other.PlayerDataCard;
 import net.milkbowl.vault.economy.Economy;
@@ -41,6 +43,8 @@ public class CombatGameHandler implements Listener
 	HashMap<UUID,String> _request_arenas = new HashMap<>();
 	
 	HashMap<UUID,PlayerDataCard> _player_datas = new HashMap<>();
+	
+	HashMap<UUID,PlayerDataCard> _player_spectators = new HashMap<>();
 	
 	ArrayList<CombatGameCard> _queue_arena = new ArrayList<>();
 	
@@ -109,9 +113,10 @@ public class CombatGameHandler implements Listener
 	public boolean repearStartGame(Player player, CombatGameCard card)
 	{
 		
-		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
+		for(UUID uuid: card.get_players_accept().keySet())
 		{
-			if(isPlayerInArena(entry.getKey()))
+			Player p = Bukkit.getPlayer(uuid);
+			if(isPlayerInArena(p))
 			{
 				card.get_maker().sendMessage(ChatColor.RED + "Somebody is in already in game! Invitations canceled");
 				card.get_maker().sendMessage(ChatColor.DARK_AQUA + "Your plan has been saved!");
@@ -139,7 +144,7 @@ public class CombatGameHandler implements Listener
 	{
 		for(CombatGameCard card : _queue_arena)
 		{
-			if(card.isPlayerInThisCard(p))
+			if(card.isPlayerInThisCard(p.getUniqueId()))
 			{
 				return true;
 			}
@@ -152,9 +157,10 @@ public class CombatGameHandler implements Listener
 		for(Map.Entry<String, CombatGameCard> entry : _games.entrySet())
 		{
 			CombatGameCard card = entry.getValue();
-			for(Map.Entry<Player,Boolean> card_entry : card.get_players_accept().entrySet())
+			for(UUID uuid: card.get_players_accept().keySet())
 			{
-				if(card_entry.getKey() == p)
+				Player pp = Bukkit.getPlayer(uuid);
+				if(p == pp)
 				{
 					return true;
 				}
@@ -167,6 +173,8 @@ public class CombatGameHandler implements Listener
 	{
 		return _player_gameCards.get(uuid);
 	}
+	
+	
 	
 	void requestTooltip(Player p, CombatGameCard card)
 	{		
@@ -200,17 +208,45 @@ public class CombatGameHandler implements Listener
 	
 	void sendInvitesToPlayers(CombatGameCard card)
 	{
+		
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
+		ArrayList<UUID> failed_players = new ArrayList<UUID>();
+		
+		for(UUID uuid: card.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
+			if(p != null)
+			{
+				
+				requestTooltip(p, card);				
+				players.add(p);
+			}else
+			{
+				failed_players.add(uuid);
+			}
+			_request_arenas.put(uuid, card.get_arena().get_name());
+			_cd.setCooldownInSeconds(_cd_invite+uuid, _cd_invite_time);
 			
-			_request_arenas.put(p.getUniqueId(), card.get_arena().get_name());
-			requestTooltip(p, card);
-			_cd.setCooldownInSeconds(_cd_invite+p.getName(), _cd_invite_time);
-			players.add(p);
 		}
 		inviteTracker(players, card);
+		
+		if(failed_players.isEmpty())
+			return;
+		
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				for(UUID uuid : failed_players)
+				{
+					requestAnwser(uuid, false);
+				}
+				
+			}
+		}.runTaskLater(_main, 20*2);
+		
 	}
 	
 	public boolean requestAnwser(UUID uuid, boolean yesORno)
@@ -247,9 +283,9 @@ public class CombatGameHandler implements Listener
 	
 	public void cancelArena(Player whoCanceled, CombatGameCard gameCard)
 	{
-		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+		for(Map.Entry<UUID,Boolean> entry : gameCard.get_players_accept().entrySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(entry.getKey());
 			if(p == null)
 				continue;
 			
@@ -288,7 +324,7 @@ public class CombatGameHandler implements Listener
 				boolean c = false;
 				for(Player p : players)
 				{
-					if(_request_arenas.containsKey(p.getUniqueId()) && _cd.isCooldownReady(_cd_invite+p.getName()))
+					if(_request_arenas.containsKey(p.getUniqueId()) && _cd.isCooldownReady(_cd_invite+p.getUniqueId()))
 					{
 						cancelArena(p, card);
 						c = true;
@@ -334,11 +370,32 @@ public class CombatGameHandler implements Listener
 		}
 	}
 	
+	public void addSpectator(String arenaName, Player p)
+	{
+		MiniGame minigame = _live_games.get(arenaName);
+		if(minigame == null)
+			return;
+		
+		minigame.addSpectator(_main, p);
+		minigame.teleportSpectatorToSpectate(p);
+	}
+	
 	public void gameHasEnded(CombatGameCard card, Player winner)
 	{
+		Arena arena = card.get_arena();
 
-		_games.remove(card.get_arena().get_name());
-		_live_games.remove(card.get_arena().get_name());
+		for(PlayerDataCard pdc : _live_games.get(arena.get_name()).getSpectators())
+		{
+			Player p = _main.getServer().getPlayer(pdc.get_uuid());
+			if(p != null)
+			{
+				p.teleport(pdc.get_location());
+			}
+			
+		}
+		
+		_games.remove(arena.get_name());
+		_live_games.remove(arena.get_name());
 		
 		if(winner != null)
 		{
@@ -376,14 +433,22 @@ public class CombatGameHandler implements Listener
 		boolean no_money = false;
 		if(_econ != null && gameCard.get_bet() > 0)
 		{			
-			for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+			for(Map.Entry<UUID,Boolean> entry : gameCard.get_players_accept().entrySet())
 			{
-				Player p = entry.getKey();
-				double balance = _econ.getBalance(p);
-				if(balance > gameCard.get_bet())
+				Player p = Bukkit.getPlayer(entry.getKey());
+				
+				if(p != null)
+				{
+					double balance = _econ.getBalance(p);
+					if(balance > gameCard.get_bet())
+					{
+						no_money = true;
+					}
+				}else
 				{
 					no_money = true;
 				}
+				
 				
 			}
 			if(!no_money)
@@ -399,9 +464,10 @@ public class CombatGameHandler implements Listener
 		combat.set_roundTime(_combat_roundTime);
 		
 
-		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+		for(UUID uuid : gameCard.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
+
 			
 			PlayerDataCard pData=new PlayerDataCard(_main, p,_playerDataFolderName);
 			pData.saveDataToFile(false);			

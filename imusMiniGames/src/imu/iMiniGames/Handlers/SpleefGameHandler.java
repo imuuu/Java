@@ -14,10 +14,12 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.Cooldowns;
 import imu.iMiniGames.Other.ItemMetods;
+import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameSpleef;
 import imu.iMiniGames.Other.PlayerDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
@@ -111,9 +113,9 @@ public class SpleefGameHandler implements Listener
 	public boolean repearStartGame(Player player, SpleefGameCard card)
 	{
 		
-		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
+		for(UUID uuid : card.get_players_accept().keySet())
 		{
-			if(isPlayerInArena(entry.getKey()))
+			if(isPlayerInArena(uuid))
 			{
 				card.get_maker().sendMessage(ChatColor.RED + "Somebody is in already in game! Invitations canceled");
 				card.get_maker().sendMessage(ChatColor.DARK_AQUA + "Your plan has been saved!");
@@ -139,9 +141,9 @@ public class SpleefGameHandler implements Listener
 	
 	public boolean isPlayerPlanInQueue(Player p)
 	{
-		for(SpleefGameCard card : _queue_arena)
+		for(GameCard card : _queue_arena)
 		{
-			if(card.isPlayerInThisCard(p))
+			if(card.isPlayerInThisCard(p.getUniqueId()))
 			{
 				return true;
 			}
@@ -149,14 +151,14 @@ public class SpleefGameHandler implements Listener
 		return false;
 	}
 	
-	public boolean isPlayerInArena(Player p)
+	public boolean isPlayerInArena(UUID uuid)
 	{
 		for(Map.Entry<String, SpleefGameCard> entry : _games.entrySet())
 		{
 			SpleefGameCard card = entry.getValue();
-			for(Map.Entry<Player,Boolean> card_entry : card.get_players_accept().entrySet())
+			for(UUID uuid2 : card.get_players_accept().keySet())
 			{
-				if(card_entry.getKey() == p)
+				if(uuid2 == uuid)
 				{
 					return true;
 				}
@@ -201,9 +203,9 @@ public class SpleefGameHandler implements Listener
 	void sendInvitesToPlayers(SpleefGameCard card)
 	{
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Map.Entry<Player,Boolean> entry : card.get_players_accept().entrySet())
+		for(UUID uuid: card.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
 			
 			_request_arenas.put(p.getUniqueId(), card.get_arena().get_name());
 			requestTooltip(p, card);
@@ -247,9 +249,9 @@ public class SpleefGameHandler implements Listener
 	
 	public void cancelArena(Player whoCanceled, SpleefGameCard gameCard)
 	{
-		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+		for(UUID uuid : gameCard.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
 			if(p == null)
 				continue;
 			
@@ -334,12 +336,34 @@ public class SpleefGameHandler implements Listener
 		}
 	}
 	
+	public void addSpectator(String arenaName, Player p)
+	{
+		MiniGame minigame = _live_games.get(arenaName);
+		if(minigame == null)
+			return;
+		
+		minigame.addSpectator(_main, p);
+		minigame.teleportSpectatorToSpectate(p);
+	}
+	
 	public void gameHasEnded(SpleefGameCard card, Player winner)
 	{
 
-		_games.remove(card.get_arena().get_name());
-		_live_games.remove(card.get_arena().get_name());
-		
+		Arena arena = card.get_arena();
+
+		for(PlayerDataCard pdc : _live_games.get(arena.get_name()).getSpectators())
+		{
+			Player p = _main.getServer().getPlayer(pdc.get_uuid());
+			if(p != null)
+			{
+				p.teleport(pdc.get_location());
+			}
+			
+		}
+
+		_games.remove(arena.get_name());
+		_live_games.remove(arena.get_name());
+
 		if(winner != null)
 		{
 			String str_sides = ChatColor.DARK_PURPLE + "=================================";
@@ -376,14 +400,22 @@ public class SpleefGameHandler implements Listener
 		boolean no_money = false;
 		if(_econ != null && gameCard.get_bet() > 0)
 		{			
-			for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+			for(Map.Entry<UUID,Boolean> entry : gameCard.get_players_accept().entrySet())
 			{
-				Player p = entry.getKey();
-				double balance = _econ.getBalance(p);
-				if(balance > gameCard.get_bet())
+				Player p = Bukkit.getPlayer(entry.getKey());
+				
+				if(p != null)
+				{
+					double balance = _econ.getBalance(p);
+					if(balance > gameCard.get_bet())
+					{
+						no_money = true;
+					}
+				}else
 				{
 					no_money = true;
 				}
+				
 				
 			}
 			if(!no_money)
@@ -400,9 +432,10 @@ public class SpleefGameHandler implements Listener
 		
 		spleef.set_anti_stand(_anti_block_time);
 
-		for(Map.Entry<Player,Boolean> entry : gameCard.get_players_accept().entrySet())
+		for(UUID uuid : gameCard.get_players_accept().keySet())
 		{
-			Player p = entry.getKey();
+			Player p = Bukkit.getPlayer(uuid);
+
 			
 			PlayerDataCard pData=new PlayerDataCard(_main, p,_playerDataFolderName);
 			pData.saveDataToFile(false);			

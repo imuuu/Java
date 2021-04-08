@@ -53,6 +53,10 @@ public class CombatManager
 		//saveAllArenas();
 	}
 		
+	public void clearPlayerDataCards()
+	{
+		_player_DataCards.clear();
+	}
 	public ArrayList<ArenaKit> getArena_kits() {
 		return arena_kits;
 	}
@@ -174,7 +178,7 @@ public class CombatManager
 	{
 		for(Entry<Integer, CombatArena> entry : _combatArenas.entrySet())
 		{
-			if(entry.getValue().get_name().equalsIgnoreCase(arena_name))
+			if(entry.getValue().get_name().toLowerCase().contains(arena_name.toLowerCase()))
 			{
 				return entry.getValue();
 			}
@@ -243,6 +247,7 @@ public class CombatManager
 				config.set("MaxPlayers",arena.get_maxPlayers());
 				config.set("MiddleLoc", arena.getArenas_middleloc());
 				config.set("LobbyLoc", arena.get_spectator_lobby());
+				config.set("Max_Radius", arena.getArena_radius());
 				
 				for(int i = 0; i < arena.getTotalSpawnPositions(); ++i)
 				{
@@ -292,7 +297,8 @@ public class CombatManager
 							if(config.getString("KitContent."+key).equalsIgnoreCase("null"))
 							{
 								stacks[Integer.parseInt(key)] = null;
-							}else
+							}
+							else
 							{
 								stacks[Integer.parseInt(key)] = config.getItemStack("KitContent."+key);
 							}
@@ -338,12 +344,14 @@ public class CombatManager
 						Integer max_p = config.getInt("MaxPlayers");
 						Location lobby_loc = config.getLocation("LobbyLoc");
 						Location middle_loc = config.getLocation("MiddleLoc");
+						Integer max_radius = config.getInt("Max_Radius");
 						
 						CombatArena arena = new CombatArena(name);
 						arena.set_maxPlayers(max_p);
 						arena.set_spectator_lobby(lobby_loc);
 						arena.set_description(desc);
 						arena.setArenas_middleloc(middle_loc);
+						arena.setArena_radius(max_radius);
 						
 						for(int i = 0; i < max_p; ++i)
 						{

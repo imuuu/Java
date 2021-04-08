@@ -1,8 +1,10 @@
 package imu.iMiniGames.Invs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -16,6 +18,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Main.Main;
@@ -31,7 +34,7 @@ public class CombatGamePlaner extends GamePlaner
 	PlanerManager _pm;
 	
 	ArrayList<Integer> wrongs = new ArrayList<>();
-	
+	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
 	public CombatGamePlaner(Main main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + ""+ChatColor.BOLD + "Combat Planer");
@@ -39,6 +42,8 @@ public class CombatGamePlaner extends GamePlaner
 		_card = card;
 		_pm = main.get_planerManager();
 		_card.set_bestOfMax(_main.get_combatManager().get_maximum_best_of());
+		
+		loadPlayerHeads();
 		reset();
 	}
 	
@@ -48,13 +53,30 @@ public class CombatGamePlaner extends GamePlaner
 		checkAnwsers();
 	}
 	
+	void loadPlayerHeads()
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				for(Player p : _main.getServer().getOnlinePlayers())
+				{
+					_playerHeads.put(p.getUniqueId(),_itemM.getPlayerHead(p));
+				}
+				
+			}
+		}.runTaskAsynchronously(_main);
+	}
+	
 	void setupButtons() 
 	{
 		ItemStack mod;
 		String lore;
 		setupButton(BUTTON.EXIT, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "EXIT", _size-9);
 		mod = setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "CONFIRM", _size-1);
-		_itemM.addLore(mod, ChatColor.YELLOW + "Confirm your game plan and start sending invites..", true);
+		_itemM.addLore(mod, ChatColor.YELLOW + "Confirm your game plan", true);
+		_itemM.addLore(mod, ChatColor.YELLOW + "and start sending invites..", true);
 		
 		setupButton(BUTTON.RESET, Material.LAVA_BUCKET, ChatColor.RED +""+ChatColor.BOLD+ "RESET", 8);
 		
@@ -97,12 +119,14 @@ public class CombatGamePlaner extends GamePlaner
 		 }
 		 
 		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Best of (amount)", 10);
-		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);	
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add how many wins person needs to win the small tournament!", true);
+		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);
+		 _itemM.addLore(mod, ChatColor.YELLOW + "Add how many wins ", true);
+		 _itemM.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
 		 _itemM.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
 		 
 		 mod = addLoreSetRemove(setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12));
-		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all players use in combat!!!"), true);
+		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all"), true);
+		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eplayers use in combat"), true);
 		 _itemM.hideAttributes(mod);
 		 lore ="&bSelected Kit: &aRandom";
 		 if(_card.isRandomKit())
@@ -272,7 +296,7 @@ public class CombatGamePlaner extends GamePlaner
 							 if(p != null)
 							 {
 								 found = true;
-								gameCard.putPlayer(p);
+								gameCard.putPlayer(p.getUniqueId());
 									
 								if(_main.isPlayerBlocked(p))
 								{
@@ -285,7 +309,7 @@ public class CombatGamePlaner extends GamePlaner
 							 
 						
 						// adds player if not added
-						gameCard.putPlayer(_player);
+						gameCard.putPlayer(_player.getUniqueId());
 						
 
 						if(gameCard.get_players_accept().size() > gameCard.get_arena().get_maxPlayers())
@@ -417,7 +441,7 @@ public class CombatGamePlaner extends GamePlaner
 //					conv = cf.withFirstPrompt(new ConvPromptCombatGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
 //					conv.begin();
 //					_player.closeInventory();
-					new CombatGamePlanerChoosePlayerINV(_main, _player, _card);
+					new CombatGamePlanerChoosePlayerINV(_main, _player, _card,_playerHeads);
 					break;
 				case RESET:
 					_card = new CombatDataCard(_player);

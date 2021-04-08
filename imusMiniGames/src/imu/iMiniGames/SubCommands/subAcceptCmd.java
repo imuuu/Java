@@ -3,6 +3,7 @@ package imu.iMiniGames.SubCommands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
 import imu.iMiniGames.Main.Main;
@@ -13,10 +14,12 @@ public class subAcceptCmd implements CommandInterface
 	Main _main = null;
 
 	String _subCmd = "";
+	Inventory _tempInv;
 	public subAcceptCmd(Main main, String subCmd) 
 	{
 		_main = main;
 		_subCmd=subCmd;
+		_tempInv = _main.getServer().createInventory(null, 9, "temp");
 	}
 	
     @Override
@@ -83,7 +86,8 @@ public class subAcceptCmd implements CommandInterface
             	}
             }
         }
-        
+        player.openInventory(_tempInv);
+        player.closeInventory();
        
         
 		

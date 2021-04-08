@@ -1044,6 +1044,7 @@ public class Shop implements Listener
 				closeShopInv(player);
 				checkIfAbleToSaveData();
 				_main.getShopManager().checkIfAbleToSaveData();
+				_main.getBalanceTracker().saveBalanceOfPlayer(player);
 			}			
 		}		
 	}

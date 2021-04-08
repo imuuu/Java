@@ -17,6 +17,7 @@ import imu.GeneralStore.Commands.GeneralStoreCmd2;
 import imu.GeneralStore.Events.SomeSmallEventsClass;
 import imu.GeneralStore.Handlers.CommandHandler;
 import imu.GeneralStore.Managers.ShopModManager;
+import imu.GeneralStore.Other.BalanceTracker;
 import imu.GeneralStore.Other.ConfigMaker;
 import imu.GeneralStore.Other.DenizenScriptCreator;
 import imu.GeneralStore.Other.EnchantsManager;
@@ -25,6 +26,7 @@ import imu.GeneralStore.Other.ShopManager;
 import imu.GeneralStore.SubCommands.subStoreAddAllCmd;
 import imu.GeneralStore.SubCommands.subStoreAddCmd;
 import imu.GeneralStore.SubCommands.subStoreAssignCmd;
+import imu.GeneralStore.SubCommands.subStoreBalanceTopCmd;
 import imu.GeneralStore.SubCommands.subStoreCmd;
 import imu.GeneralStore.SubCommands.subStoreCostCmd;
 import imu.GeneralStore.SubCommands.subStoreCreateCmd;
@@ -55,6 +57,7 @@ public class Main extends JavaPlugin
 	DenizenScriptCreator denSC = null;
 	ShopModManager shopModManager = null;
 	SomeSmallEventsClass inventoriesClass = null;
+	BalanceTracker balanceTracker = null;
 	
 	
 
@@ -111,6 +114,8 @@ public class Main extends JavaPlugin
         handler.setPermissionOnLastCmd("gs.g");
         handler.registerSubCmd(cmd2, "price", new subStorePlayerCostCmd(this));
         
+        handler.registerSubCmd(cmd2, "baltop", new subStoreBalanceTopCmd(this));
+        
         getCommand(cmd1).setExecutor(handler);
         getCommand(cmd2).setExecutor(handler);
         
@@ -133,6 +138,9 @@ public class Main extends JavaPlugin
 		
 		inventoriesClass = new SomeSmallEventsClass(this);
 		
+		balanceTracker = new BalanceTracker(this);
+		balanceTracker.loadAllbalances();
+		
 		getServer().getPluginManager().registerEvents(inventoriesClass, this);
 		
 		ConfigsSetup();
@@ -145,6 +153,10 @@ public class Main extends JavaPlugin
 		shopManager.setLockShops(locked,false);
 	}
 	
+	public BalanceTracker getBalanceTracker() {
+		return balanceTracker;
+	}
+
 	public DenizenScriptCreator getDenSC() {
 		return denSC;
 	}
@@ -153,6 +165,7 @@ public class Main extends JavaPlugin
 	 public void onDisable()
 	{
 		saveShopsContent();
+		balanceTracker.saveALLbalances();
 	}
 	
 	public Main getInstance()
