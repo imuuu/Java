@@ -1,9 +1,11 @@
 package imu.iMiniGames.Other;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -22,6 +24,8 @@ public class CombatDataCard
 	
 	HashMap<PotionEffectType, PotionEffect> _invPotionEffects = new HashMap<>();
 	
+	HashMap<UUID, ItemStack[]> _ownGear = new HashMap<>();
+	
 	ArenaKit _kit = null;
 	
 	String _potions_names_str = "";
@@ -30,6 +34,7 @@ public class CombatDataCard
 	int _best_of_max = 1;
 	
 	boolean isRandomKit = true;
+	boolean isOwnGearKit = false;
 	
 	public CombatDataCard(Player owner)
 	{
@@ -45,6 +50,26 @@ public class CombatDataCard
 		
 		if(_best_of_amount > _best_of_max)
 			_best_of_amount = _best_of_max;
+	}
+	public HashMap<UUID, ItemStack[]> get_ownGear() {
+		return _ownGear;
+	}
+	public void setPlayerGear(UUID uuid, ItemStack[] gear)
+	{
+		_ownGear.put(uuid, gear);
+	}
+	
+	public ItemStack[] getPlayerGear(UUID uuid)
+	{
+		return _ownGear.get(uuid);
+	}
+	
+	public boolean isOwnGearKit() {
+		return isOwnGearKit;
+	}
+
+	public void setOwnGearKit(boolean isOwnGearKit) {
+		this.isOwnGearKit = isOwnGearKit;
 	}
 	
 	public boolean isRandomKit() {

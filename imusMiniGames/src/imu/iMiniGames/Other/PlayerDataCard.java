@@ -197,6 +197,49 @@ public class PlayerDataCard
 			System.out.println("Couldn't find player with uuid PlayerDataCard:setDataToPLAYER");
 		}
 	}
+	public void setDataToPLAYER(CombatGameCard card, Player player)
+	{	
+		
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				if(player != null)
+				{
+					player.setHealth(_health);
+					player.setFoodLevel(_foodLevel);
+					changeExp(player, Integer.MAX_VALUE);
+					changeExp(player, _xp);		
+					
+					player.setGameMode(_gamemode);
+					player.addPotionEffects(_potionEffects);
+
+					player.setFireTicks(_fireTick);
+					if(player.getAllowFlight() && _isFlying)
+					{
+						player.setFlying(_isFlying);
+					}
+					
+					
+					if(card != null && card.get_combatDataCard().isOwnGearKit)
+					{
+						player.getInventory().setContents(card.checkAndApplyCombatConsumambles(player,_invContent));
+					}else
+					{
+						player.getInventory().setContents(_invContent);
+					}
+					_player.teleport(_location);	
+				}
+				else
+				{
+					System.out.println("Couldn't find player with uuid PlayerDataCard:setDataToPLAYER");
+				}
+			}
+		}.runTask(_main);
+		
+	}
 	
 	public void removeDataFile()
 	{

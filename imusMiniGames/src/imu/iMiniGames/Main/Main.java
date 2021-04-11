@@ -28,6 +28,7 @@ import imu.iMiniGames.SubCommands.subCombatGamePlanerCmd;
 import imu.iMiniGames.SubCommands.subKitCmd;
 import imu.iMiniGames.SubCommands.subKitGetCmd;
 import imu.iMiniGames.SubCommands.subKitListCmd;
+import imu.iMiniGames.SubCommands.subReloadCmd;
 import imu.iMiniGames.SubCommands.subSpectateCmd;
 import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subSpleefArenaCmd;
@@ -128,8 +129,8 @@ public class Main extends JavaPlugin
 //	     String cmd2_sub7 ="lobby spleef";
 //	     handler.registerSubCmd(cmd2, cmd2_sub7, new subSpleefSpecLobbyPosCmd(this, cmd2_sub7));
 //	     
-//	     String cmd2_sub8 ="reload";
-//	     handler.registerSubCmd(cmd2, cmd2_sub8, new subReloadCmd(this, cmd2_sub8));
+	     String cmd2_sub8 ="reload";
+	     handler.registerSubCmd(cmd2, cmd2_sub8, new subReloadCmd(this, cmd2_sub8));
 //	     
 //	     String cmd2_sub9 ="desc spleef";
 //	     handler.registerSubCmd(cmd2, cmd2_sub9, new subSpleefSetDescriptionCmd(this, cmd2_sub9));

@@ -1,7 +1,7 @@
 package imu.iMiniGames.Other;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -9,16 +9,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -26,8 +32,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.fusesource.jansi.internal.Kernel32.KEY_EVENT_RECORD;
 
 import imu.iMiniGames.Handlers.CombatGameHandler;
 import imu.iMiniGames.Main.Main;
@@ -58,15 +66,15 @@ public class MiniGameCombat extends MiniGame implements Listener
 	BukkitTask run;
 	BukkitTask runAsync;
 	
-	ItemStack[] _kit;
-	
+	HashMap<UUID, ItemStack[]> _ownGear = new HashMap<>();
 	int draw_count = 0;
 	int draw_max = 3;
 	
+	HashMap<UUID, ArrayList<ItemStack>> _player_gears_check = new HashMap<>();
 	
 	ArrayList<Entity> _entities = new ArrayList<>();
 	
-	public MiniGameCombat(Main main, CombatGameHandler combatHandler,CombatGameCard gameCard,String minigameName) 
+	public MiniGameCombat(Main main, CombatGameHandler combatHandler, CombatGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
 		
@@ -79,9 +87,35 @@ public class MiniGameCombat extends MiniGame implements Listener
 
 		mid_loc = _gameCard.get_arena().getArenas_middleloc();
 		_max_distance = _gameCard.get_arena().getArena_radius();
-		_kit = _gameCard.get_combatDataCard().get_kit().get_kitInv();
+		//_kit = _gameCard.get_combatDataCard().get_kit().get_kitInv();
+		_ownGear = _gameCard.get_combatDataCard().get_ownGear();
 		_spectator_loc = gameCard.get_arena().get_spectator_lobby();
 		
+		setupGearData();
+		
+	}
+	
+	void setupGearData()
+	{
+
+		for(UUID uuid : _gameCard.get_players_accept().keySet())
+		{
+			ArrayList<ItemStack> arr = new ArrayList<>();
+			for(ItemStack s : _ownGear.get(uuid))
+			{
+				if(s == null)
+					continue;
+				
+				ItemStack clone  = s.clone();
+				if(_itemM.isArmor(clone) || _itemM.isTool(clone))
+				{
+					_itemM.setDamage(clone, 0);
+				}
+				
+				arr.add(clone);
+			}
+			_player_gears_check.put(uuid, arr);
+		}
 	}
 	
 	void putPotionEffects(Player p)
@@ -108,7 +142,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		p.setFireTicks(-20);
 		_combatHandler.removePotionEffects(p);
 		
-		inv.setContents(_kit);
+		inv.setContents(_ownGear.get(p.getUniqueId()));
 		putPotionEffects(p);
 		
 		//inv.addItem(new ItemStack(Material.DIAMOND_SWORD));		
@@ -117,9 +151,8 @@ public class MiniGameCombat extends MiniGame implements Listener
 	
 	void keepFighterAlive()
 	{
-		for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+		for(Player p : _players_score.keySet())
 		{
-			Player p = entry.getKey();
 			p.setHealth(20);
 			p.setFoodLevel(20);
 			p.setFireTicks(-20);
@@ -196,9 +229,8 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_round++;
 		
 		
-		for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+		for(Player p  : _players_score.keySet())
 		{
-			Player p = entry.getKey();
 			setupPlayerForStart(p);
 			p.teleport(_gameCard.get_arena().getSpawnpointLoc(count));
 
@@ -217,10 +249,6 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		String str1 = ChatColor.YELLOW + "========================";
 		
-		
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
 		_gameCard.sendMessageToALL(" ");
 		_gameCard.sendMessageToALL(" ");
 		_gameCard.sendMessageToALL(str1);
@@ -234,24 +262,17 @@ public class MiniGameCombat extends MiniGame implements Listener
 			_gameCard.sendMessageToALL(str1);
 		}
 		
-		if(_round > 1)
-		{
-			for(Entry<Player,Integer> p : _players_score.entrySet())
-			{
-				_gameCard.sendMessageToALL(ChatColor.AQUA + p.getKey().getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+p.getValue()); 
-			}
-		}
+		
+		
 		_gameCard.sendMessageToALL(" ");
 	}
 	
 	Player checkBestOf()
-	{
-		addLobbyPlayersToScore();
-		
+	{		
 		Player winner = null;
-		for(Entry<Player,Integer> p : _players_score.entrySet())
+		for(Entry<Player,MiniGamePlayerStats> p : _players_score.entrySet())
 		{
-			if(p.getValue() >= _best_of)
+			if(p.getValue().get_score() >= _best_of)
 			{
 				winner = p.getKey();
 				break;
@@ -260,9 +281,18 @@ public class MiniGameCombat extends MiniGame implements Listener
 		return winner;
 	}
 	
+	double twoDesimals(double d)
+	{
+		return Math.round(d * 100.0)/100.0;
+	}
+	
 	public void endGame()
 	{
+		if(has_ended)
+			return;
+		
 		has_ended = true;
+		stopRunnables();
 		
 		for(Entity e : _entities)
 		{
@@ -280,6 +310,28 @@ public class MiniGameCombat extends MiniGame implements Listener
 			 addPointsPlayer(round_winner, 1);
 		}
 		
+		addLobbyPlayersToScore();
+		
+		for(Entry<Player,MiniGamePlayerStats> pStats : _players_score.entrySet()) // LOOP ALL PLEARYS
+		{
+			//TODO MAKE NICER
+			Player p = pStats.getKey();
+			MiniGamePlayerStats stats = pStats.getValue();
+			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+stats.get_score());
+			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&9=== &b"+p.getName()+" &2STATS &9 ===="));
+			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &6Score: &f"+stats.get_score()));
+			if(stats.get_hp() > 0)
+			{
+				//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.RED+" Hp left:  "+ChatColor.WHITE+stats.get_hp());
+				_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &cHp left: &f"+twoDesimals(stats.get_hp())));
+			}
+			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.GREEN+" Total dmg done:  "+ChatColor.WHITE+stats.get_damage_done());
+			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &2Total dmg done: &f"+twoDesimals(stats.get_damage_done()) ));
+			
+			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.DARK_RED+" Total dmg taken:  "+ChatColor.WHITE+stats.get_damage_taken());
+			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &4Total dmg taken: &f"+twoDesimals(stats.get_damage_taken())));
+			_gameCard.sendMessageToALL(" ");
+		}
 		
 		
 		if(_best_of != 1)
@@ -322,14 +374,14 @@ public class MiniGameCombat extends MiniGame implements Listener
 				p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			}
 
-			_combatHandler.gameEndForPlayer(p);
+			_combatHandler.gameEndForPlayer(_gameCard, p);
 			
 		}
 		
 		_players_lobby.clear();
 		_players_score.clear();
 		_combatHandler.gameHasEnded(_gameCard, round_winner);
-		stopRunnables();
+		
 		HandlerList.unregisterAll(this);
 	}
 	
@@ -371,6 +423,29 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
+	void onUse(PlayerInteractEvent event)
+	{
+		if(!has_started)
+		{
+			if(_players_score.containsKey(event.getPlayer()))
+			{
+				event.setCancelled(true);
+			}
+		}
+		if(event.getItem() == null || event.getItem().getType() == Material.AIR)
+			return;
+		
+		if(has_started && _players_score.containsKey(event.getPlayer()))
+		{
+			Material used_mat = event.getItem().getType();
+			if(used_mat == Material.SPLASH_POTION || used_mat == Material.LINGERING_POTION)
+			{
+				_gameCard.checkAndReduceCombatConsumable(event.getPlayer().getUniqueId(), event.getItem(), -1);
+			}
+		}
+	}
+	
+	@EventHandler
 	void onProjectileLaunch(ProjectileLaunchEvent event)
 	{
 		if(event.getEntity().getShooter() instanceof Player)
@@ -378,10 +453,18 @@ public class MiniGameCombat extends MiniGame implements Listener
 			Player p = (Player) event.getEntity().getShooter();
 			if(_players_score.containsKey(p) || _players_lobby.containsKey(p))
 			{
-				if(event.getEntity().getType() == EntityType.TRIDENT)
+				if(event.getEntity().getType() == EntityType.TRIDENT || event.getEntity().getType() == EntityType.ARROW)
 				{
 					_entities.add(event.getEntity());
 				}
+				
+				if(event.getEntity().getType() == EntityType.ARROW)
+				{
+					Arrow arrow = (Arrow)event.getEntity();
+					arrow.setVelocity(p.getLocation().getDirection().multiply(arrow.getVelocity().length()));
+				}
+				
+				
 			}
 			
 		}
@@ -409,6 +492,15 @@ public class MiniGameCombat extends MiniGame implements Listener
 				moveToLobbyPlayer(p);
 				return;
 			}
+		}
+	}
+	
+	@EventHandler
+	void onConsumeItem(PlayerItemConsumeEvent event)
+	{
+		if(_players_score.containsKey(event.getPlayer()))
+		{
+			_gameCard.checkAndReduceCombatConsumable(event.getPlayer().getUniqueId(), event.getItem(), -1);
 		}
 	}
 	
@@ -481,8 +573,58 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
+	void onEntityDamageByEntity(EntityDamageByEntityEvent event)
+	{
+		if(has_ended)
+			return;
+		
+		if(event.getDamager() instanceof Projectile)
+		{
+			Projectile projectile = (Projectile)event.getDamager();
+			projectile.getShooter();
+		}
+		
+		if(event.getEntity() instanceof Player )
+		{
+			Player victim = (Player) event.getEntity();
+			double dmg = event.getFinalDamage();
+			if(_players_score.containsKey(victim))
+			{
+				
+				Player damager = null;
+				
+				if(event.getDamager() instanceof Projectile)
+				{
+					Projectile projectile = (Projectile)event.getDamager();
+					if(projectile.getShooter() instanceof Player)
+					{
+						damager = (Player) projectile.getShooter();
+					}
+					
+				}
+				if(event.getDamager() instanceof Player)
+				{
+					damager = (Player) event.getDamager();
+				}
+				
+				victim.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cDamage Taken: &5"+twoDesimals(dmg)+ " &7dmg"));
+				
+				if(damager != null && _players_score.containsKey(damager))
+				{
+					_players_score.get(damager).addDamageDone(dmg);
+					damager.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2Damage Done: &5"+twoDesimals(dmg)+" &7dmg"));
+				}
+				
+			}
+		}
+	}
+	
+	@EventHandler
 	void onEntityDamage(EntityDamageEvent event)
 	{
+		if(has_ended)
+			return;
+		
 		if(event.getEntity() instanceof Player)
 		{
 			Player p = (Player)event.getEntity();
@@ -490,7 +632,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 			{
 				if(!has_started)
 					event.setCancelled(true);
-				
+
+				_players_score.get(p).set_hp(p.getHealth() - event.getFinalDamage());
+				_players_score.get(p).addDamageTaken(event.getFinalDamage());
+								
 				if(p.getHealth() - event.getFinalDamage() <= 0.5)
 				{
 					event.setCancelled(true);
@@ -501,30 +646,77 @@ public class MiniGameCombat extends MiniGame implements Listener
 		}
 	}
 		
+	boolean isItemValid(UUID uuid, ItemStack s)
+	{
+		ArrayList<ItemStack> gear = _player_gears_check.get(uuid);
+		ItemStack copy = s.clone();
+		
+		if(_itemM.isArmor(copy) || _itemM.isTool(copy))
+		{
+			_itemM.setDamage(copy, 0);
+		}
+		
+		for(ItemStack ge : gear)
+		{
+			if(ge == null)
+				continue;
+			
+			if(ge.isSimilar(copy))
+			{
+				return true;
+			}
+			
+		}
+		
+		return false;
+	}
 	void runnableAsync()
 	{
 		runAsync = new BukkitRunnable() 
 		{
-			
+			int count = 0;
 			@Override
 			public void run() 
 			{
+				if(has_ended)
+					return;
+				
 				if(has_started)
 				{
 					if(!_gameCard.get_combatDataCard().get_invPotionEffects().containsKey(PotionEffectType.GLOWING))
 					{
-						for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+						for(Player p : _players_score.keySet())
 						{
-							Player p = entry.getKey();
 							if(p.isGlowing())
 							{
 								p.setGlowing(false);
 							}
 						}
 					}
-					
-					
 				}
+				
+				if(count % 3 == 0)
+				{
+					for(Player p : _players_score.keySet())
+					{
+						
+						if(_player_gears_check.containsKey(p.getUniqueId()))
+						{
+							for(ItemStack s : p.getInventory().getContents())
+							{
+								if(s == null)
+									continue;
+								
+								if(!isItemValid(p.getUniqueId(), s))
+								{
+									System.out.println("imusMiniGames:Combat: item isnt valid!: "+s);
+									s.setAmount(0);
+								}
+							}
+						}
+					}
+				}
+				count++;
 			}
 		}.runTaskTimerAsynchronously(_main, 0, 20);
 	}

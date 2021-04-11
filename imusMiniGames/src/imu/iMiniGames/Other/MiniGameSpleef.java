@@ -2,7 +2,6 @@ package imu.iMiniGames.Other;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -187,9 +186,8 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_round++;
 		
 		
-		for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+		for(Player p: _players_score.keySet())
 		{
-			Player p = entry.getKey();
 			setupPlayerForStart(p);
 			p.teleport(_gameCard.get_arena().getSpawnpointLoc(count));
 			_player_anti_stands.put(p, new Pair<Location, Integer>(new Location(p.getWorld(), 0, 0, 0),0));
@@ -229,9 +227,9 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		
 		if(_round > 1)
 		{
-			for(Entry<Player,Integer> p : _players_score.entrySet())
+			for(Entry<Player,MiniGamePlayerStats> stats : _players_score.entrySet())
 			{
-				_gameCard.sendMessageToALL(ChatColor.AQUA + p.getKey().getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+p.getValue()); 
+				_gameCard.sendMessageToALL(ChatColor.AQUA + stats.getKey().getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+stats.getValue().get_score()); 
 			}
 		}
 		_gameCard.sendMessageToALL(" ");
@@ -243,12 +241,12 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		
 		//ArrayList<Player> winners = new ArrayList<>();
 		Player winner = null;
-		for(Entry<Player,Integer> p : _players_score.entrySet())
+		for(Entry<Player,MiniGamePlayerStats> stats : _players_score.entrySet())
 		{
-			if(p.getValue() >= _best_of)
+			if(stats.getValue().get_score() >= _best_of)
 			{
 				//winners.add(p.getKey());
-				winner = p.getKey();
+				winner = stats.getKey();
 				break;
 			}
 		}
@@ -576,10 +574,8 @@ public class MiniGameSpleef extends MiniGame implements Listener
 					
 					if(_anti_stand > 0)
 					{
-						for(Map.Entry<Player,Integer> entry : _players_score.entrySet())
+						for(Player p : _players_score.keySet())
 						{
-							Player p = entry.getKey();
-							
 							Pair<Location, Integer> data = _player_anti_stands.get(p);
 							Location p_loc = p.getLocation();
 							Location last_loc = data.getFirst();

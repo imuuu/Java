@@ -19,8 +19,8 @@ public class MiniGame
 	int _roundTime = 0;
 	protected int _round = 0;
 	
-	HashMap<Player, Integer> _players_score = new HashMap<>();
-	HashMap<Player, Integer> _players_lobby = new HashMap<>();
+	HashMap<Player, MiniGamePlayerStats> _players_score = new HashMap<>();
+	HashMap<Player, MiniGamePlayerStats> _players_lobby = new HashMap<>();
 	
 	HashMap<Player, PlayerDataCard> _players_spectators = new HashMap<>();
 	
@@ -35,7 +35,7 @@ public class MiniGame
 	
 	public void addPlayer(Player p)
 	{
-		_players_score.put(p, 0);
+		_players_score.put(p, new MiniGamePlayerStats());
 	}
 	
 	public int get_roundTime() {
@@ -55,13 +55,12 @@ public class MiniGame
 	
 	public void addPointsPlayer(Player p,int amount)
 	{
-		int score = _players_score.get(p) + amount;
-		_players_score.put(p, score);
+		_players_score.get(p).addScore(amount);
 	}
 	
 	public void addLobbyPlayersToScore()
 	{
-		for(Entry<Player,Integer> p : _players_lobby.entrySet())
+		for(Entry<Player,MiniGamePlayerStats> p : _players_lobby.entrySet())
 		{
 			_players_score.put(p.getKey(), p.getValue());
 		}

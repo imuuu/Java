@@ -116,6 +116,7 @@ public class GameCard
 			}
 			
 		}
+		
 	}
 	public void sendMessageToALL(String str, ArrayList<Player> but_not_for_them)
 	{

@@ -7,10 +7,14 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -41,6 +45,7 @@ public class CombatGameHandler implements Listener
 	HashMap<UUID, CombatGameCard> _player_gameCards = new HashMap<>();
 	
 	HashMap<UUID,String> _request_arenas = new HashMap<>();
+	HashMap<UUID,Boolean> _hasAccepted = new HashMap<>();
 	
 	HashMap<UUID,PlayerDataCard> _player_datas = new HashMap<>();
 	
@@ -60,11 +65,15 @@ public class CombatGameHandler implements Listener
 	
 	boolean _enable_broadcast = true;
 	
-	public boolean is_enable_broadcast() {
-		return _enable_broadcast;
-	}
-
-
+	Material[] blackList_mat_gear = 
+		{
+				Material.PAPER,
+				Material.SHULKER_BOX,
+				Material.TOTEM_OF_UNDYING,
+				
+				
+		};
+	
 	public CombatGameHandler(Main main)
 	{
 		_main = main;
@@ -75,6 +84,14 @@ public class CombatGameHandler implements Listener
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 	}
 	
+	public boolean isAccepted(Player p)
+	{
+		return _hasAccepted.containsKey(p.getUniqueId());
+	}
+	
+	public boolean is_enable_broadcast() {
+		return _enable_broadcast;
+	}
 	
 	public double getBet_fee_percent() {
 		return _bet_fee_percent;
@@ -191,6 +208,7 @@ public class CombatGameHandler implements Listener
 			p.sendMessage(ChatColor.DARK_PURPLE + "PotionEffects: "+ card.get_combatDataCard().get_potions_names_str());			
 		}
 		
+		
 		p.sendMessage(ChatColor.GOLD + "You pay: "+ ChatColor.RED+ card.get_bet());		
 		p.sendMessage(ChatColor.GOLD + "Able to WIN: "+ ChatColor.GREEN+ card.get_total_bet());		
 		//p.sendMessage(ChatColor.GOLD + "Maker: "+ ChatColor.AQUA+ card.get_maker().getName());		
@@ -199,7 +217,12 @@ public class CombatGameHandler implements Listener
 //		{
 //			p.sendMessage(ChatColor.GOLD + "Disclaimer: "+ChatColor.AQUA + "If game ends draw, the money will be send to server!");			
 //		}
-
+		
+		if(card.get_combatDataCard().isOwnGearKit())
+		{
+			p.sendMessage(ChatColor.GRAY + "Tip: Consumed consumables in arena will not recover after the battle! Mostly food and potions");
+		}
+		
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
 		p.sendMessage(ChatColor.AQUA+"Would you like to join Combat?");		
 		_main.get_itemM().sendYesNoConfirm(p, "/mg combat accept confirm:yes", "/mg combat accept confirm:no");
@@ -234,29 +257,28 @@ public class CombatGameHandler implements Listener
 			return;
 		
 		new BukkitRunnable() 
-		{
-			
+		{			
 			@Override
 			public void run() 
 			{
 				for(UUID uuid : failed_players)
 				{
 					requestAnwser(uuid, false);
-				}
-				
+				}			
 			}
 		}.runTaskLater(_main, 20*2);
 		
 	}
 	
-	public boolean requestAnwser(UUID uuid, boolean yesORno)
+	public boolean requestAnwser(UUID uuid, boolean yes)
 	{
 		if(_request_arenas.containsKey(uuid))
 		{
 			String arenaName = _request_arenas.get(uuid);
 			CombatGameCard gameCard = _games.get(arenaName);
-			if(yesORno)
+			if(yes)
 			{
+				_hasAccepted.put(uuid, true);
 				if(gameCard.putPlayerAccept(Bukkit.getPlayer(uuid)))
 				{
 					if(gameCard.isEveryPlayerAvailable())
@@ -266,8 +288,7 @@ public class CombatGameHandler implements Listener
 					else
 					{
 						cancelArena(null, gameCard);
-					}
-					
+					}					
 				}
 								
 			}
@@ -285,6 +306,8 @@ public class CombatGameHandler implements Listener
 	{
 		for(Map.Entry<UUID,Boolean> entry : gameCard.get_players_accept().entrySet())
 		{
+			_hasAccepted.remove(entry.getKey());
+			
 			Player p = Bukkit.getPlayer(entry.getKey());
 			if(p == null)
 				continue;
@@ -342,7 +365,7 @@ public class CombatGameHandler implements Listener
 		}.runTaskTimer(_main, 0, 20);
 	}
 	
-	public void gameEndForPlayer(Player p)
+	public void gameEndForPlayer(CombatGameCard card, Player p)
 	{
 		if(p == null || !p.isOnline())
 			return;
@@ -351,8 +374,13 @@ public class CombatGameHandler implements Listener
 		if(_player_datas.containsKey(p.getUniqueId()))
 		{
 			PlayerDataCard pData = _player_datas.get(p.getUniqueId());
-			pData.setDataToPLAYER(p);
-			pData.removeDataFile();			
+			pData.setDataToPLAYER(card,p);
+			pData.removeDataFile();	
+			
+//			if(card != null)
+//			{
+//				card.checkAndApplyCombatConsumambles(p);
+//			}
 		}
 			
 		
@@ -384,16 +412,27 @@ public class CombatGameHandler implements Listener
 	{
 		Arena arena = card.get_arena();
 
-		for(PlayerDataCard pdc : _live_games.get(arena.get_name()).getSpectators())
-		{
-			Player p = _main.getServer().getPlayer(pdc.get_uuid());
-			if(p != null)
-			{
-				p.teleport(pdc.get_location());
-			}
-			
-		}
+		//spectators back
+		//TODO		
 		
+		try{
+			for(PlayerDataCard pdc : _live_games.get(arena.get_name()).getSpectators())
+			{
+				Player p = _main.getServer().getPlayer(pdc.get_uuid());
+				if(p != null)
+				{
+					p.teleport(pdc.get_location());
+				}					
+			}
+		} 
+		catch (Exception e) {
+			System.out.println("Get spect: "+_live_games.get(arena.get_name()).getSpectators());
+			System.out.println("Arena: "+arena.get_name());
+			System.out.println("If this error happens spectators will be stuck in arena: teleport somewhere?");
+			System.out.println("SOMETHING WENT WRONG: ERROR HERE: combatGameHanddler:424");
+			System.out.println(e);
+		}
+				
 		_games.remove(arena.get_name());
 		_live_games.remove(arena.get_name());
 		
@@ -413,8 +452,7 @@ public class CombatGameHandler implements Listener
 				_econ.depositPlayer(winner, card.get_total_bet());
 				
 			}
-		}
-		
+		}		
 		CheckQueue();
 		
 		
@@ -433,9 +471,9 @@ public class CombatGameHandler implements Listener
 		boolean no_money = false;
 		if(_econ != null && gameCard.get_bet() > 0)
 		{			
-			for(Map.Entry<UUID,Boolean> entry : gameCard.get_players_accept().entrySet())
+			for(UUID uuid : gameCard.get_players_accept().keySet())
 			{
-				Player p = Bukkit.getPlayer(entry.getKey());
+				Player p = Bukkit.getPlayer(uuid);
 				
 				if(p != null)
 				{
@@ -447,9 +485,7 @@ public class CombatGameHandler implements Listener
 				}else
 				{
 					no_money = true;
-				}
-				
-				
+				}				
 			}
 			if(!no_money)
 			{
@@ -459,7 +495,7 @@ public class CombatGameHandler implements Listener
 			}
 		}
 		
-		
+		gameCard.setupKits(blackList_mat_gear);
 		MiniGameCombat combat = new MiniGameCombat(_main, this, gameCard,"COMBAT");
 		combat.set_roundTime(_combat_roundTime);
 		
@@ -467,7 +503,8 @@ public class CombatGameHandler implements Listener
 		for(UUID uuid : gameCard.get_players_accept().keySet())
 		{
 			Player p = Bukkit.getPlayer(uuid);
-
+			_hasAccepted.remove(uuid);
+			
 			
 			PlayerDataCard pData=new PlayerDataCard(_main, p,_playerDataFolderName);
 			pData.saveDataToFile(false);			
@@ -475,7 +512,7 @@ public class CombatGameHandler implements Listener
 			
 			PlayerDataCard pDataBackup=new PlayerDataCard(_main, p,_playerDataFolderName+"Backups/"+p.getName()+"_"+p.getUniqueId());
 			pDataBackup.saveDataToFile(true);
-			
+
 			combat.addPlayer(p);
 			
 			String title_str = ChatColor.BLUE + "COMBAT";
@@ -491,13 +528,61 @@ public class CombatGameHandler implements Listener
 			{
 				p.sendTitle(title_str, null, 40, 20, 5);
 			}
-			
-			
-			
+					
 		}
 		
 		combat.Start();
 		_live_games.put(gameCard.get_arena().get_name(),combat);
+	}
+	
+	@EventHandler
+	public void onInvOpen(InventoryClickEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+		
+		if(event.getWhoClicked() instanceof Player)
+		{
+			Player p = (Player) event.getWhoClicked();
+			if(isAccepted(p))
+			{
+				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
+				p.closeInventory();
+				event.setCancelled(true);
+				return;
+			}
+		}
+	}
+	
+	@EventHandler
+	void onCMDwrite(PlayerCommandPreprocessEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+		
+		if(isAccepted(event.getPlayer()))
+		{
+			event.getPlayer().sendMessage(ChatColor.RED + "You are waiting for arena, you can't do that!");
+			event.setCancelled(true);
+		}
+		
+	}
+	
+	@EventHandler
+	public void onInvOpen(InventoryOpenEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+		
+		if(event.getPlayer() instanceof Player)
+		{
+			Player p = (Player) event.getPlayer();
+			if(isAccepted(p))
+			{
+				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
+				event.setCancelled(true);
+			}
+		}
 	}
 	
 	@EventHandler
@@ -511,6 +596,7 @@ public class CombatGameHandler implements Listener
 				PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
 				if(pData.isFile())
 				{
+					//TODO here too
 					System.out.println("imusMiniGames: Restoring player data");
 					pData.loadDataFileAndSetData();
 					pData.setDataToPLAYER(event.getPlayer());
@@ -518,7 +604,10 @@ public class CombatGameHandler implements Listener
 					_player_datas.remove(event.getPlayer().getUniqueId());
 				}
 				
-				
+				if(_hasAccepted.containsKey(event.getPlayer().getUniqueId()))
+				{
+					_hasAccepted.remove(event.getPlayer().getUniqueId());
+				}				
 			}
 		}.runTaskAsynchronously(_main);
 		

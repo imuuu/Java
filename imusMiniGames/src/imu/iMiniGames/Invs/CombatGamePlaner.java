@@ -23,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.PlanerManager;
+import imu.iMiniGames.Other.ArenaKit;
 import imu.iMiniGames.Other.CombatDataCard;
 import imu.iMiniGames.Other.CombatGameCard;
 import imu.iMiniGames.Prompts.ConvPromptCombatGamePlaner;
@@ -124,7 +125,8 @@ public class CombatGamePlaner extends GamePlaner
 		 _itemM.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
 		 _itemM.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
 		 
-		 mod = addLoreSetRemove(setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12));
+		 mod = setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12);
+		 _itemM.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bM3:&9 &k# &5Own Gear&9 &k#"),false);
 		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all"), true);
 		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eplayers use in combat"), true);
 		 _itemM.hideAttributes(mod);
@@ -500,10 +502,30 @@ public class CombatGamePlaner extends GamePlaner
 					setupButtons();
 					checkAnwsers();
 					break;
+				case SET_KIT:
+					_card.set_kit(null);
+					_card.setOwnGearKit(false);
+					_card.setRandomKit(true);
+					setupButtons();
+					break;
 				default:
 					break;
 				
 				
+				
+				}
+			}else if(e.getClick()== ClickType.MIDDLE)
+			{
+				switch(button)
+				{
+				case SET_KIT:
+					_card.set_kit(new ArenaKit("&9 &k# &5OWN GEAR &9 &k#", new ItemStack[] {}));
+					_card.setRandomKit(false);
+					_card.setOwnGearKit(true);
+					setupButtons();
+					break;
+				default:
+					break;
 				
 				}
 			}
