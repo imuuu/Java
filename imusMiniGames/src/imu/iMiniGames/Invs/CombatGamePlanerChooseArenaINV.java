@@ -127,7 +127,7 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		return BUTTON.NONE;
 	}
 	
-	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
+	ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
 		_itemM.setDisplayName(sbutton, displayName);

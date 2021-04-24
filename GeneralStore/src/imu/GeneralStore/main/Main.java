@@ -34,6 +34,7 @@ import imu.GeneralStore.SubCommands.subStoreEnchantInvCmd;
 import imu.GeneralStore.SubCommands.subStoreListCmd;
 import imu.GeneralStore.SubCommands.subStoreLockCmd;
 import imu.GeneralStore.SubCommands.subStoreModifyInvCmd;
+import imu.GeneralStore.SubCommands.subStorePayCmd;
 import imu.GeneralStore.SubCommands.subStorePlayerCostCmd;
 import imu.GeneralStore.SubCommands.subStoreReloadCmd;
 import imu.GeneralStore.SubCommands.subStoreRemoveCmd;
@@ -82,6 +83,8 @@ public class Main extends JavaPlugin
 	ItemMetods itemM = null;
 	
 	String materialPriceYML ="material_prices.yml";
+	
+	subStorePayCmd _payCMD;
 	public void registerCommands() 
     {  	
         CommandHandler handler = new CommandHandler();
@@ -115,6 +118,9 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd2, "price", new subStorePlayerCostCmd(this));
         
         handler.registerSubCmd(cmd2, "baltop", new subStoreBalanceTopCmd(this));
+        
+        _payCMD = new subStorePayCmd(this);
+        handler.registerSubCmd(cmd2, "pay", _payCMD);
         
         getCommand(cmd1).setExecutor(handler);
         getCommand(cmd2).setExecutor(handler);
@@ -295,6 +301,8 @@ public class Main extends JavaPlugin
 			loadSmartPricesUpFront=cm.addDefault("LoadSmartPricesUpFront", loadSmartPricesUpFront, "LoadSmartPricesUpFront: Load smart prices before using shops, false means doing it when it opens.. can be laggy at first");
 			locked = cm.addDefault("AllcommandsLocked", locked, "If true all Ops can only use commands. Normally used in if you don't wanna people use shops");
 			inventoriesClass.setEnable_soulbound_nerf(cm.addDefault("Soulbound_anvil_disabled", inventoriesClass.getEnable_soulbound_nerf(), "Soulbound_anvil_disabled: If true, you can't combine normal item and item with lore 'Soulbound' in anvil"));
+			_payCMD.set_tax(cm.addDefault("PayCommandTax", _payCMD.get_tax(), "PayCommandTax how much tax is if play use command /pay amount player"));
+			_payCMD.set_minPayment(cm.addDefault("PayCommandMinPayment", _payCMD.get_minPayment(), "PayCommandMinPayment minimum payment"));
 			//shopManager.set_logSoldShopsConsole(cm.addDefault("ShopsLogConsole", shopManager.is_logSoldShopsConsole(), "ShopsLogConsole: If true every sold item will be shown in console too!"));
 			cm.addComments();
 			

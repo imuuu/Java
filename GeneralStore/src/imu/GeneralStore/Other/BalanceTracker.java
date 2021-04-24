@@ -26,10 +26,12 @@ public class BalanceTracker
 	Economy _econ ;
 	String yml_path = "balances";
 	HashMap<UUID, Pair<String, Double>> _balances = new HashMap<>();
+	Cooldowns _cd;
 	public BalanceTracker(Main main)
 	{
 		_main = main;
 		_econ = main.getEconomy();
+		_cd = new Cooldowns();
 	}
 	
 	public void printTop(Player p, int range)
@@ -47,6 +49,12 @@ public class BalanceTracker
 			@Override
 			public void run() 
 			{
+				if(_cd.isCooldownReady("balance"))
+				{
+					refreshOnlineBalances();
+					_cd.addCooldownInSeconds("balance", 60);
+				}
+				
 				HashMap<String, Double> name_bal = new HashMap<>();
 				HashMap<Double, String> bal_name = new HashMap<>();
 				for(Map.Entry<UUID, Pair<String, Double>> entry : _balances.entrySet())
@@ -83,6 +91,17 @@ public class BalanceTracker
 			return;
 		
 		setBalance(p.getUniqueId(), p.getName(), _econ.getBalance(p));
+	}
+	
+	public void refreshOnlineBalances()
+	{
+		if(_econ == null)
+			return;
+		
+		for(Player p : _main.getServer().getOnlinePlayers())
+		{
+			saveBalanceOfPlayer(p);
+		}
 	}
 	
 	public void setBalance(UUID uuid, String name, double balance)

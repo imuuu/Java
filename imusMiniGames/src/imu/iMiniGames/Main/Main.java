@@ -17,11 +17,14 @@ import imu.iMiniGames.Commands.ImgMgCmd;
 import imu.iMiniGames.Handlers.CombatGameHandler;
 import imu.iMiniGames.Handlers.CommandHandler;
 import imu.iMiniGames.Handlers.SpleefGameHandler;
+import imu.iMiniGames.Leaderbords.LeaderboardUUIDData;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.ItemMetods;
+import imu.iMiniGames.SubCommands.SubLeaderBoardsCmd;
+import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subBlockMECmd;
 import imu.iMiniGames.SubCommands.subCombatArenaCmd;
 import imu.iMiniGames.SubCommands.subCombatGamePlanerCmd;
@@ -30,7 +33,6 @@ import imu.iMiniGames.SubCommands.subKitGetCmd;
 import imu.iMiniGames.SubCommands.subKitListCmd;
 import imu.iMiniGames.SubCommands.subReloadCmd;
 import imu.iMiniGames.SubCommands.subSpectateCmd;
-import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subSpleefArenaCmd;
 import imu.iMiniGames.SubCommands.subSpleefGamePlanerCmd;
 import imu.iMiniGames.TabCompletes.cmd2_tab;
@@ -46,7 +48,7 @@ public class Main extends JavaPlugin
 	SpleefGameHandler _spleefGameHandler;
 	CombatGameHandler _combatGameHandler;
 	
-	
+	LeaderboardUUIDData _leaderboardUUIDData;
 	Economy _econ = null;
 	
 	
@@ -63,8 +65,10 @@ public class Main extends JavaPlugin
 	{
 		setupEconomy();
 		_itemM = new ItemMetods(this);
+		_leaderboardUUIDData = new LeaderboardUUIDData(this);
 		_spleefManager = new SpleefManager(this);
 		_combatManager = new CombatManager(this);
+		_combatManager.onEnable();
 		_planerManager = new PlanerManager(this);
 		_spleefGameHandler = new SpleefGameHandler(this);
 		_combatGameHandler = new CombatGameHandler(this);
@@ -82,9 +86,8 @@ public class Main extends JavaPlugin
 		make_BlockMeConfig(false);
 		
 		_combatManager.loadPotionsConfig();
-		_combatManager.loadArenas();
 		_combatGameHandler.loadSettingConfig(false);
-		_combatManager.loadKits();
+
 	}
 	
 	@Override
@@ -92,6 +95,9 @@ public class Main extends JavaPlugin
 	{
 		_spleefManager.onDisable();
 		_spleefGameHandler.onnDisable();
+		_combatManager.onDisable();
+		_combatGameHandler.onnDisable();
+		_leaderboardUUIDData.onDisabled();
 		make_BlockMeConfig(true);
 	}
 	
@@ -186,8 +192,12 @@ public class Main extends JavaPlugin
 	     String cmd3_sub6 = "spectate";
 	     handler.registerSubCmd(cmd3, cmd3_sub6, new subSpectateCmd(this, cmd3_sub6));
 	     
+	     String cmd3_sub7 = "combat leaderboards";
+	     handler.registerSubCmd(cmd3, cmd3_sub7, new SubLeaderBoardsCmd(this, cmd3_sub7));
+	     
 	     
 	     cmd3AndArguments.put(cmd3, new String[] {cmd3_sub1,cmd3_sub3,cmd3_sub4});
+	     cmd3AndArguments.put("combat", new String[] {"leaderboards"});
 	     
 	     getCommand(cmd3).setExecutor(handler);
 	     getCommand(cmd2).setExecutor(handler);
@@ -197,6 +207,10 @@ public class Main extends JavaPlugin
 	 }
 	 
 	
+	public LeaderboardUUIDData get_leaderboardUUIDData() {
+		return _leaderboardUUIDData;
+	}
+
 	public CombatGameHandler get_combatGameHandler() {
 		return _combatGameHandler;
 	}

@@ -1,0 +1,435 @@
+package imu.iMiniGames.Invs;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.UUID;
+
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+
+import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
+import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
+import imu.iMiniGames.Leaderbords.PlayerBoard;
+import imu.iMiniGames.Leaderbords.PlayerVsPlayerBoard;
+import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Other.CustomInvLayout;
+import net.md_5.bungee.api.ChatColor;
+
+public class CombatLeaderBoardStats extends CustomInvLayout implements Listener {
+	String pd_buttonType = "img.buttonType";
+	CombatLeaderBoard _leaderboards;
+	CombatPlayerBoard _board;
+
+	int _page = 0;
+	BUTTON _state = BUTTON.NONE;
+	SORT_TYPE _sortType = SORT_TYPE.GAMES;
+	boolean _sortConfirm = true;
+	boolean _sorted = false;
+	
+	ArrayList<PlayerBoard> _boards;
+	ArrayList<PlayerBoard> _boards_weekly = new ArrayList<>();
+	ArrayList<PlayerVsPlayerBoard> _pvp_boards;
+	
+	
+	boolean _ascending = false; //ascending
+	boolean _weekly = false;
+	public CombatLeaderBoardStats(Main main, Player player) {
+		super(main, player, ChatColor.BLACK + "" + ChatColor.BOLD + "====== Leaderboards ======", 9 * 3);
+		_leaderboards = main.get_combatManager().getLeaderBoard();
+		_board = (CombatPlayerBoard) _leaderboards.getPlayerBoard(player.getUniqueId());
+		_pvp_boards = new ArrayList<>(_board.get_pvp_target_board().values());
+		_boards = new ArrayList<>(_leaderboards.getBoards().values());
+		for(PlayerBoard b : _boards)
+		{
+			CombatPlayerBoard bo = (CombatPlayerBoard) b;
+			bo.checkWeekly();
+			_boards_weekly.add( bo.get_weekly());
+		}
+		
+		
+		_main.getServer().getPluginManager().registerEvents(this, _main);
+		openThis();
+		refreshMainMenu();
+
+		for (int i = 0; i < 17; i++) 
+		{
+			Random r = new Random();
+			CombatPlayerBoard cp = new CombatPlayerBoard("Random123", UUID.randomUUID());
+			cp.set_Loses(r.nextInt(100));
+			cp.set_Wins(r.nextInt(100));
+			cp.set_total_deaths(r.nextInt(100));
+			cp.set_total_kills(r.nextInt(100));
+			_boards.add(cp);
+		}
+	}
+	
+	void defValues()
+	{
+		_page = 0;
+		_state = BUTTON.NONE;
+		_sortType = SORT_TYPE.GAMES;
+		_sortConfirm = true;
+		_sorted = false;
+		_ascending = false;
+	}
+	
+	public enum BUTTON {
+		NONE, ALL_TIME, WEEKLY, PVP, BACK, PAGE_RIGHT, PAGE_LEFT,CHANGE_SORT;
+	}
+	
+	public enum SORT_TYPE{
+		WINS,LOSES, GAMES, KILLS, DEATHS, KD_RATIO, DAMAGE_DONE,DAMAGE_TAKEN, BET_WON,BET_LOST;
+	}
+
+	void setButton(ItemStack stack, BUTTON b) {
+		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+	}
+
+	BUTTON getButton(ItemStack stack) {
+		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		if (button != null)
+			return BUTTON.valueOf(button);
+
+		return BUTTON.NONE;
+	}
+
+	ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot) {
+		ItemStack sbutton = new ItemStack(material);
+		_itemM.setDisplayName(sbutton, displayName);
+		setButton(sbutton, b);
+		_inv.setItem(itemSlot, sbutton);
+		return _inv.getItem(itemSlot);
+	}
+
+	void refreshMainMenu() {
+		defValues();
+		for (int i = 0; i < _size; ++i) {
+			_inv.setItem(i, null);
+		}
+
+		setupButton(BUTTON.ALL_TIME, Material.NETHERITE_INGOT, ChatColor.AQUA + "All time", 9 + 2);
+		setupButton(BUTTON.WEEKLY, Material.DIAMOND, ChatColor.AQUA + "Weekly", 9 + 4);
+		setupButton(BUTTON.PVP, Material.PLAYER_HEAD, ChatColor.AQUA + "PlayerVsPlayer", 9 + 6);
+
+	}
+
+	double twoDesimals(double d) {
+		return Math.round(d * 100.00) / 100.00;
+	}
+
+	void setOptionPanel() {
+		ItemStack none_item = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
+		_itemM.setDisplayName(none_item, " ");
+		setupButton(BUTTON.BACK, Material.RED_WOOL, ChatColor.AQUA + "BACK", 18);
+		setupButton(BUTTON.BACK, Material.RED_WOOL, ChatColor.AQUA + "BACK", _size - 1);
+		setupButton(BUTTON.PAGE_RIGHT, Material.BIRCH_SIGN, ChatColor.AQUA + ">>>", 23);
+		setupButton(BUTTON.PAGE_LEFT, Material.BIRCH_SIGN, ChatColor.AQUA + "<<<", 21);
+		_inv.setItem(19, none_item);
+		_inv.setItem(20, none_item);
+		_inv.setItem(22, none_item);
+		_inv.setItem(24, none_item);
+		_inv.setItem(25, none_item);
+	}
+	
+	void setSortPanel()
+	{
+		ItemStack s = new ItemStack(Material.BOOK);
+		_itemM.setDisplayName(s, ChatColor.AQUA + "SORT BY..");
+		_itemM.addLore(s, _itemM.msgC("&5MODE: "+ (!_ascending ? "&cDescending " : "&2Ascending ") + "&e(&bChance by Middle Click!&e)"), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.GAMES ? "&e&l" : "")+"GAMES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.GAMES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.WINS ? "&e&l" : "")+"WINS "				+(!(!_sortConfirm && _sortType == SORT_TYPE.WINS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.LOSES ? "&e&l" : "")+"LOSES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.LOSES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.KILLS ? "&e&l" : "")+"KILLS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.KILLS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DEATHS ? "&e&l" : "")+"DEATHS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.DEATHS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.KD_RATIO ? "&e&l" : "")+"KD RATIO "		+(!(!_sortConfirm && _sortType == SORT_TYPE.KD_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_WON ? "&e&l" : "")+"BET WON "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_WON) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_LOST ? "&e&l" : "")+"BET LOST "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_LOST) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_DONE ? "&e&l" : "")+"DMG DONE "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_DONE) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_TAKEN ? "&e&l" : "")+"DMG TAKEN "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_TAKEN) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		
+		setButton(s, BUTTON.CHANGE_SORT);
+		_inv.setItem(22, s);
+		
+		
+	}
+	void refreshAllTimeAndWeekly() {
+
+		for (int i = 0; i < _size; ++i) {
+			_inv.setItem(i, null);
+		}
+
+		ItemStack stats_item;
+
+		int pages = (int) Math.round(((_boards.size() - 1) / (_size - 9)) + 0.5) - 1;
+		if (_page > pages)
+			_page = pages;
+
+		setOptionPanel();
+		setSortPanel();
+		
+		ArrayList<PlayerBoard> boards = (_weekly ? _boards_weekly : _boards);
+		int count = _page * (_size - 9);
+		if(!_sorted)
+		{
+			Comparator<PlayerBoard> comparator = new Comparator<PlayerBoard>() {
+
+				@Override
+				public int compare(PlayerBoard b1, PlayerBoard b2) 
+				{
+					CombatPlayerBoard bo1 = (CombatPlayerBoard) b1;
+					CombatPlayerBoard bo2 = (CombatPlayerBoard) b2;
+					
+					switch (_sortType) 
+					{
+					case KILLS:
+						if(!_ascending)
+							return (bo2.get_total_kills() - bo1.get_total_kills());
+						return (bo1.get_total_kills() - bo2.get_total_kills());
+					case DEATHS:
+						if(!_ascending)
+							return (bo2.get_total_deaths() - bo1.get_total_deaths());
+						return (bo1.get_total_deaths() - bo2.get_total_deaths());
+					case GAMES:
+						if(!_ascending)
+							return ((bo2.get_Wins()+bo2.get_Loses()) - (bo1.get_Wins() + bo1.get_Loses() ));
+						return ((bo1.get_Wins()+bo1.get_Loses()) - (bo2.get_Wins() + bo2.get_Loses() ));
+						
+					case WINS:
+						if(!_ascending)
+							return (bo2.get_Wins() - bo1.get_Wins());
+						return (bo1.get_Wins() - bo2.get_Wins());
+					case LOSES:
+						if(!_ascending)
+							return (bo2.get_Loses() - bo1.get_Loses());
+						return (bo1.get_Loses() - bo2.get_Loses());
+					case KD_RATIO:
+						
+						double r2 = bo2.get_total_kills() / (bo2.get_total_deaths() == 0 ? 1.0 : (double) bo2.get_total_deaths());
+						double r1 = bo1.get_total_kills() / (bo1.get_total_deaths() == 0 ? 1.0 : (double) bo1.get_total_deaths());
+						if(!_ascending)
+							return ((r1 - r2) < 0 ? 1 : -1);
+						return ((r2 - r1) < 0 ? 1 : -1);
+						
+					case BET_WON:
+						
+						if(!_ascending)
+							return ((bo2.get_total_bet_wins_amount() - bo1.get_total_bet_wins_amount()) < 0 ? 1 : -1);
+						return ((bo1.get_total_bet_wins_amount() - bo2.get_total_bet_wins_amount()) < 0 ? 1 : -1);
+					case BET_LOST:
+						if(!_ascending)
+							return ((bo2.get_total_bet_lost_amount() - bo1.get_total_bet_lost_amount()) < 0 ? 1 : -1);
+						return ((bo2.get_total_bet_lost_amount() - bo1.get_total_bet_lost_amount()) < 0 ? 1 : -1);
+					case DAMAGE_DONE:
+						if(!_ascending)
+							return ((bo1.get_total_dmg_done() - bo2.get_total_dmg_done())< 0 ? 1 : -1);
+						return ((bo2.get_total_dmg_done() - bo1.get_total_dmg_done())< 0 ? 1 : -1);
+					case DAMAGE_TAKEN:
+						if(!_ascending)
+							return ((bo1.get_total_dmg_taken() - bo2.get_total_dmg_taken()) < 0 ? 1 : -1);
+						return ((bo2.get_total_dmg_taken() - bo1.get_total_dmg_taken()) < 0 ? 1 : -1);
+					default:
+						break;
+										
+					}
+					return 0;	
+				}
+			};
+			Collections.sort(boards,comparator);
+			
+			_sorted=true;
+		}		
+		
+		
+		for (int i = 0; i < _size - 9; ++i) {
+			if (count >= boards.size())
+				break;
+
+			CombatPlayerBoard cp = (CombatPlayerBoard) boards.get(count++);
+			stats_item = (cp.get_uuid().equals(_player.getUniqueId()) ? new ItemStack(Material.SKELETON_SKULL):new ItemStack(Material.WITHER_SKELETON_SKULL));
+			_itemM.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + cp.get_pName()));
+
+			_itemM.addLore(stats_item, _itemM.msgC("&5Games played: &b" + (cp.get_Wins() + cp.get_Loses())), true);
+			_itemM.addLore(stats_item, _itemM.msgC(""), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&aWins&7/&cLoses&7/&eRatio: &a" + cp.get_Wins() + "&7/&c"
+					+ cp.get_Loses() + "&7/&e" + (cp.get_Wins() / (cp.get_Loses() == 0 ? 1 : cp.get_Loses()))), true);
+			_itemM.addLore(stats_item,
+					_itemM.msgC("&aKills&7/&cDeaths&7/&eRatio: &a" + cp.get_total_kills() + "&7/&c"
+							+ cp.get_total_deaths() + "&7/&e"
+							+twoDesimals(((double)cp.get_total_kills() / (cp.get_total_deaths() == 0.0 ? 1.0 : (double)cp.get_total_deaths())))),
+					true);
+			_itemM.addLore(stats_item, _itemM.msgC("&6Bets won: &9" + cp.get_total_bet_wins_amount()), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&6Bets lost: &9" + cp.get_total_bet_lost_amount()), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&3Damage done: &9" + twoDesimals(cp.get_total_dmg_done())), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&3Damage taken: &9" + twoDesimals(cp.get_total_dmg_taken())), true);
+			_inv.setItem(i, stats_item);
+
+		}
+
+	}
+
+	void refreshPVP()
+	{
+		for (int i = 0; i < _size; ++i) {
+			_inv.setItem(i, null);
+		}
+
+		ItemStack stats_item;
+
+		int pages = (int) Math.round(((_pvp_boards.size() - 1) / (_size - 9)) + 0.5) - 1;
+		if (_page > pages)
+			_page = pages;
+
+		setOptionPanel();
+		setSortPanel();
+
+		int count = _page * (_size - 9);
+		
+		for (int i = 0; i < _size - 9; ++i) {
+			
+			if (count >= _pvp_boards.size())
+				break;
+
+			PlayerVsPlayerBoard pvp_board = _pvp_boards.get(count++);
+			stats_item = new ItemStack(Material.WITHER_SKELETON_SKULL);
+			_itemM.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + _main.get_leaderboardUUIDData().getName(pvp_board.get_uuid())));
+
+			_itemM.addLore(stats_item, _itemM.msgC("&5Games played with him/her: &b" + (pvp_board.get_wins() + pvp_board.get_lost())), true);
+			_itemM.addLore(stats_item, _itemM.msgC(""), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&aYou have won agains him/her: &9"+pvp_board.get_wins()),true);
+			_itemM.addLore(stats_item, _itemM.msgC("&cYou have lost agains him/her: &9"+pvp_board.get_lost()),true);
+			_itemM.addLore(stats_item, _itemM.msgC("&eWin/Lost ratio: &9"+twoDesimals((pvp_board.get_wins() / (pvp_board.get_lost() == 0 ? 1.0 : (double)pvp_board.get_lost())))),true);
+			_itemM.addLore(stats_item, _itemM.msgC("&6Bets &2won&6 from him/her: &9" + pvp_board.get_total_bet_wons_amount()), true);
+			_itemM.addLore(stats_item, _itemM.msgC("&6Bets &clost&6 to him/her: &9" + pvp_board.get_total_bet_lost_amount()), true);
+
+			_inv.setItem(i, stats_item);
+
+		}
+	}
+	void pressButton(BUTTON button, ClickType cType) {
+		if (_state != button)
+			_page = 0;
+
+		switch (button) {
+		case NONE:
+			return;
+		case ALL_TIME:
+			_state = button;
+			_weekly = false;
+			refreshAllTimeAndWeekly();
+			break;
+		case BACK:
+			_state = BUTTON.NONE;
+			refreshMainMenu();
+			break;
+		case WEEKLY:
+			_state = button;
+			_weekly = true;
+			refreshAllTimeAndWeekly();
+			break;
+		case PVP:
+			_state = button;
+			refreshPVP();
+			break;
+		case PAGE_RIGHT:
+			_page++;
+			pressButton(_state,cType);
+			break;
+		case PAGE_LEFT:
+			_page--;
+			if (_page < 0)
+				_page = 0;
+
+			pressButton(_state,cType);
+			break;
+			
+		case CHANGE_SORT:
+			if(cType.isLeftClick())
+			{
+				switch (_sortType) 
+				{
+				case GAMES:
+					_sortType = SORT_TYPE.WINS;				
+					break;
+				case WINS:
+					_sortType = SORT_TYPE.LOSES;	
+					break;
+				case LOSES:
+					_sortType = SORT_TYPE.KILLS;
+					break;
+				case KILLS:
+					_sortType = SORT_TYPE.DEATHS;
+					break;
+				case DEATHS:
+					_sortType = SORT_TYPE.KD_RATIO;
+					break;
+				case KD_RATIO:
+					_sortType = SORT_TYPE.BET_WON;
+					break;
+				case BET_WON:
+					_sortType = SORT_TYPE.BET_LOST;
+					break;
+				case BET_LOST:
+					_sortType = SORT_TYPE.DAMAGE_DONE;
+					break;
+				case DAMAGE_DONE:
+					_sortType = SORT_TYPE.DAMAGE_TAKEN;
+					break;
+				case DAMAGE_TAKEN:
+					_sortType = SORT_TYPE.GAMES;
+					break;
+				default:
+					break;
+				}
+				_sortConfirm = false;
+				setSortPanel();
+				return;
+			}
+			
+			if(cType.isRightClick() && !_sortConfirm)
+			{
+				_sortConfirm = true;
+				_sorted = false;
+				pressButton(_state,cType);
+				return;
+			}
+			
+			if(cType == ClickType.MIDDLE)
+			{
+				_ascending = ((_ascending) ? false : true);
+				_sorted = false;
+				_sortConfirm = false;
+				setSortPanel();
+				return;
+				
+			}		
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	@EventHandler
+	public void onInvClickEvent(InventoryClickEvent e) {
+		int rawSlot = e.getRawSlot();
+		int slot = e.getSlot();
+
+		if (isThisInv(e) && (rawSlot == slot)) {
+			e.setCancelled(true);
+			ItemStack stack = e.getCurrentItem();
+
+			BUTTON button = getButton(stack);
+			// int item_id = (_current_page * _tooltip_starts)+slot;
+			pressButton(button, e.getClick());
+
+		}
+	}
+}

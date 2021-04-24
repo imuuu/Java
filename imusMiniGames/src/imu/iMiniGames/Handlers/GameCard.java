@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.Arena;
 
-public class GameCard 
+public abstract class GameCard 
 {
 	protected Player _maker;
 	protected HashMap<UUID,Boolean> _players_accept = new HashMap<>();
@@ -159,5 +159,10 @@ public class GameCard
 	{
 		_players_accept.put(p.getUniqueId(), true);
 		return isAllAccepted();
+	}
+	
+	public int getTotalPlayers()
+	{
+		return _players_accept.size();
 	}
 }

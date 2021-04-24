@@ -38,7 +38,8 @@ public class GamePlaner extends CustomInvLayout implements Listener
 		ADD_PLAYERS,
 		POTION_EFFECTS,
 		ADD_BEST_OF_AMOUNT,
-		SET_KIT;
+		SET_KIT,
+		ADD_ATTRIBUTES;
 	}
 	
 

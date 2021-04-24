@@ -1,6 +1,7 @@
 package imu.iMiniGames.Other;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -10,14 +11,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import imu.iMiniGames.Arenas.CombatArena;
+import imu.iMiniGames.Enums.COMBAT_ATTRIBUTE;
 
 public class CombatDataCard 
 {
 	Player _owner;
 	
 	CombatArena _arena;
-	
-	
+		
 	HashMap<Integer, String> _invDataValues = new HashMap<>();
 	
 	HashMap<Player, Boolean> _invitePlayers = new HashMap<>();
@@ -25,6 +26,9 @@ public class CombatDataCard
 	HashMap<PotionEffectType, PotionEffect> _invPotionEffects = new HashMap<>();
 	
 	HashMap<UUID, ItemStack[]> _ownGear = new HashMap<>();
+	
+	HashMap<String, Integer> _attributes = new HashMap<>();
+	
 	
 	ArenaKit _kit = null;
 	
@@ -39,6 +43,29 @@ public class CombatDataCard
 	public CombatDataCard(Player owner)
 	{
 		_owner = owner;
+		resetAttributes();
+	}
+	
+	public void resetAttributes()
+	{
+		setAttribute(COMBAT_ATTRIBUTE.NO_ARROW_SPREAD, 1);
+		setAttribute(COMBAT_ATTRIBUTE.SHOW_DMG, 1);
+	}
+	
+	public String getAttributStringWithColor()
+	{
+		String str = "";
+		for(Entry<String,Integer> entry : _attributes.entrySet())
+		{
+			str += ChatColor.translateAlternateColorCodes('&', "&9"+entry.getKey().replace("_", " ")+"&b : "+ (entry.getValue() == 0 ? "&cfalse" : "&atrue "));
+		}
+		
+		return str;
+				
+	}
+	
+	public HashMap<String, Integer> get_attributes() {
+		return _attributes;
 	}
 	
 	public void addBestOfAmount(int amount)
@@ -64,6 +91,23 @@ public class CombatDataCard
 		return _ownGear.get(uuid);
 	}
 	
+	public Integer getAttribute(COMBAT_ATTRIBUTE name)
+	{
+		if(_attributes.containsKey(name.toString()))
+		{
+			return _attributes.get(name.toString());
+		}
+		return 0;
+		
+	}
+	public void setAttribute(COMBAT_ATTRIBUTE att, int value)
+	{
+		_attributes.put(att.toString(), value);
+	}
+	public boolean containAttribute(COMBAT_ATTRIBUTE att)
+	{
+		return _attributes.containsKey(att.toString());
+	}
 	public boolean isOwnGearKit() {
 		return isOwnGearKit;
 	}

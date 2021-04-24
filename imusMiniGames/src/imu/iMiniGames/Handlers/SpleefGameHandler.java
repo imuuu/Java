@@ -407,7 +407,7 @@ public class SpleefGameHandler implements Listener
 				if(p != null)
 				{
 					double balance = _econ.getBalance(p);
-					if(balance > gameCard.get_bet())
+					if(balance < gameCard.get_bet())
 					{
 						no_money = true;
 					}
@@ -418,7 +418,7 @@ public class SpleefGameHandler implements Listener
 				
 				
 			}
-			if(!no_money)
+			if(no_money)
 			{
 				cancelArena(null, gameCard);
 				gameCard.sendMessageToALL(ChatColor.RED + "Someones balance werent enough!");

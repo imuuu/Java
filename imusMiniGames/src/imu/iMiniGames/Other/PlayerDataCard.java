@@ -86,6 +86,11 @@ public class PlayerDataCard
 				config.set("FireTick", _fireTick);
 				config.set("Flying", _isFlying);
 				
+				if(_main.get_econ() != null)
+				{
+					config.set("Money", _main.get_econ().getBalance(_player));
+				}
+				
 				for(int i = 0; i < _invContent.length; ++i)
 				{
 					ItemStack s = _invContent[i];

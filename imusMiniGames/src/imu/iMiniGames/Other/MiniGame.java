@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.ChatColor;
 
-public class MiniGame 
+public abstract class MiniGame 
 {
 	protected Main _main;
 	protected ItemMetods _itemM;

@@ -3,7 +3,6 @@ package imu.iMiniGames.Other;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 
 import imu.iMiniGames.Main.Main;
 
@@ -17,26 +16,20 @@ public class CustomInvLayout
 	
 	protected Inventory _inv = null;
 	protected Player _player = null;
-	
 
-	
 	public CustomInvLayout(Main main,Player player, String name, int size)
 	{
 		_main = main;
 		_name = name;
 		_size = size;
 		_player = player;		
-		_inv =  _main.getServer().createInventory(null, _size, _name);
-		
+		_inv =  _main.getServer().createInventory(null, _size, _name);		
 		_itemM = _main.get_itemM();
 	}
-	
-	
+		
 	public boolean isThisInv(InventoryEvent e) 
 	{
-		InventoryView view = e.getView();
-
-		if(view.getTitle().equalsIgnoreCase(_name) && view.getPlayer() == _player)
+		if(e.getInventory().equals(_inv))
 		{
 			return true;
 		}
@@ -47,7 +40,6 @@ public class CustomInvLayout
 	{
 		_player.closeInventory();
 	}
-	
 	
 	public void openThis() 
 	{

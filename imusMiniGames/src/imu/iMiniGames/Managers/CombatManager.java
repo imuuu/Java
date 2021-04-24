@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.CombatArena;
+import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.ArenaKit;
 import imu.iMiniGames.Other.CombatDataCard;
@@ -36,23 +37,35 @@ public class CombatManager
 	String text_kits_yml="Combat/Kits";
 	
 	int _maximum_best_of = 5;
-
+	
+	CombatLeaderBoard _leaderboard;
+	
 	public CombatManager(Main main) 
 	{
 		_main = main;
 		addPotionEffects();
+		_leaderboard = new CombatLeaderBoard(main, "CombatLeaderBoards");
+		
 	}
 	
 	public void onEnable()
 	{
 		loadArenas();
+		loadKits();
+		_leaderboard.loadFromFile();
 	}
 	
 	public void onDisable()
 	{
+		_leaderboard.saveToFile();
 		//saveAllArenas();
 	}
 		
+	public CombatLeaderBoard getLeaderBoard()
+	{
+		return _leaderboard;
+	}
+	
 	public void clearPlayerDataCards()
 	{
 		_player_DataCards.clear();

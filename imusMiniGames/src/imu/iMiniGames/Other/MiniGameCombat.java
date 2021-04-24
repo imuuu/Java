@@ -32,12 +32,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.fusesource.jansi.internal.Kernel32.KEY_EVENT_RECORD;
 
+import imu.iMiniGames.Enums.COMBAT_ATTRIBUTE;
 import imu.iMiniGames.Handlers.CombatGameHandler;
+import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
+import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
+import imu.iMiniGames.Leaderbords.PlayerVsPlayerBoard;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -49,6 +51,8 @@ public class MiniGameCombat extends MiniGame implements Listener
 {
 	CombatGameHandler _combatHandler;
 	CombatGameCard _gameCard;
+	CombatDataCard _dataCard;
+	CombatLeaderBoard _leaderBoard;
 	Cooldowns _cd;
 
 	boolean has_started = false;
@@ -74,12 +78,17 @@ public class MiniGameCombat extends MiniGame implements Listener
 	
 	ArrayList<Entity> _entities = new ArrayList<>();
 	
+	boolean _show_dps = false;
+	boolean _no_arrow_spread = false;
+	
+	
 	public MiniGameCombat(Main main, CombatGameHandler combatHandler, CombatGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
 		
 		_combatHandler = combatHandler;
 		_gameCard = gameCard;
+		_dataCard = gameCard.get_combatDataCard();
 		
 		_main.getServer().getPluginManager().registerEvents(this, main);
 		_best_of = _gameCard.get_combatDataCard().get_bestOfAmount();
@@ -90,6 +99,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 		//_kit = _gameCard.get_combatDataCard().get_kit().get_kitInv();
 		_ownGear = _gameCard.get_combatDataCard().get_ownGear();
 		_spectator_loc = gameCard.get_arena().get_spectator_lobby();
+		
+		_show_dps = _dataCard.getAttribute(COMBAT_ATTRIBUTE.SHOW_DMG) == 0 ? false : true;
+		_no_arrow_spread = _dataCard.getAttribute(COMBAT_ATTRIBUTE.NO_ARROW_SPREAD) == 0 ? false : true;
+		_leaderBoard = main.get_combatManager().getLeaderBoard();
 		
 		setupGearData();
 		
@@ -281,11 +294,70 @@ public class MiniGameCombat extends MiniGame implements Listener
 		return winner;
 	}
 	
-	double twoDesimals(double d)
+	double twoDesimalsAndHearts(double d)
 	{
-		return Math.round(d * 100.0)/100.0;
+		return (Math.round((d/2) * 100.0)/100.0);
 	}
-	
+	void leaderboardThings(Player p, Player winner)
+	{
+		UUID uuid = p.getUniqueId();
+		
+		CombatPlayerBoard board =(CombatPlayerBoard) _leaderBoard.getPlayerBoard(uuid);
+		MiniGamePlayerStats stats = _players_score.containsKey(p) == true ? _players_score.get(p) :_players_lobby.get(p);
+		if(board == null)
+		{
+			board = new CombatPlayerBoard(p.getName(), uuid);
+		}
+		
+		if(winner == null ||  winner.getUniqueId() !=  uuid)
+		{
+			board.set_Loses(board.get_Loses()+1);
+			board.set_total_bet_lost_amount(board.get_total_bet_lost_amount() + _gameCard.get_bet());
+			
+			board.get_weekly().set_Loses(board.get_weekly().get_Loses() + 1);
+			board.get_weekly().set_total_bet_lost_amount(board.get_weekly().get_total_bet_lost_amount() + _gameCard.get_bet());
+			System.out.println("TOTAL PLAYERS: "+_gameCard.getTotalPlayers());
+			if(_gameCard.getTotalPlayers() == 2 &&  winner != null)
+			{
+				System.out.println("make pvp things");
+				PlayerVsPlayerBoard pvpBoard = board.get_pvp_playerBoard(winner.getUniqueId());
+				pvpBoard.set_lost(pvpBoard.get_lost() + 1);
+				pvpBoard.set_total_bet_lost_amount(pvpBoard.get_total_bet_lost_amount() +_gameCard.get_bet());
+				//board.putPvpBoard(winner.getUniqueId(), pvpBoard);
+				
+				CombatPlayerBoard winner_board =(CombatPlayerBoard) _leaderBoard.getPlayerBoard(winner.getUniqueId());
+				pvpBoard = winner_board.get_pvp_playerBoard(uuid);
+				pvpBoard.set_wins(pvpBoard.get_wins()+1);
+				pvpBoard.set_total_bet_wons_amount(pvpBoard.get_total_bet_wons_amount() +(_gameCard.get_total_bet()-_gameCard.get_bet()));
+				//board.putPvpBoard(uuid, pvpBoard);
+				
+				
+			}
+		}
+		else
+		{
+			board.set_Wins(board.get_Wins() + 1);
+			board.set_total_bet_wins_amount(board.get_total_bet_wins_amount() + (_gameCard.get_total_bet() > 0 ? (_gameCard.get_total_bet()-_gameCard.get_bet()) : 0));
+			
+			board.get_weekly().set_Wins(board.get_weekly().get_Wins() + 1);
+			board.get_weekly().set_total_bet_wins_amount(board.get_weekly().get_total_bet_wins_amount() + (_gameCard.get_total_bet() > 0 ? (_gameCard.get_total_bet()-_gameCard.get_bet()) : 0));
+			
+			
+			
+		}	
+		board.set_total_kills(board.get_total_kills()+stats.get_kills());
+		board.set_total_deaths(board.get_total_deaths() + stats.get_deaths());
+		board.set_total_dmg_done(board.get_total_dmg_done()+stats.get_damage_done());
+		board.set_total_dmg_taken(board.get_total_dmg_taken() + stats.get_damage_taken());
+		
+		board.get_weekly().set_total_kills(board.get_weekly().get_total_kills() + stats.get_kills());
+		board.get_weekly().set_total_deaths(board.get_weekly().get_total_deaths() + stats.get_deaths());
+		board.get_weekly().set_total_dmg_done(board.get_weekly().get_total_dmg_done() + stats.get_damage_done());
+		board.get_weekly().set_total_dmg_taken(board.get_weekly().get_total_dmg_taken() + stats.get_damage_taken());
+		
+		_leaderBoard.setPlayerBoard(uuid, board);
+		
+	}
 	public void endGame()
 	{
 		if(has_ended)
@@ -314,22 +386,25 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		for(Entry<Player,MiniGamePlayerStats> pStats : _players_score.entrySet()) // LOOP ALL PLEARYS
 		{
-			//TODO MAKE NICER
 			Player p = pStats.getKey();
 			MiniGamePlayerStats stats = pStats.getValue();
 			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+stats.get_score());
 			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&9=== &b"+p.getName()+" &2STATS &9 ===="));
 			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &6Score: &f"+stats.get_score()));
-			if(stats.get_hp() > 0)
+			if(_show_dps)
 			{
-				//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.RED+" Hp left:  "+ChatColor.WHITE+stats.get_hp());
-				_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &cHp left: &f"+twoDesimals(stats.get_hp())));
+				if(stats.get_hp() > 0)
+				{
+					//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.RED+" Hp left:  "+ChatColor.WHITE+stats.get_hp());
+					_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &cHp left: &f"+twoDesimalsAndHearts(stats.get_hp())+" &7Hearts"));
+				}
+				//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.GREEN+" Total dmg done:  "+ChatColor.WHITE+stats.get_damage_done());
+				_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &2Total dmg done: &f"+twoDesimalsAndHearts(stats.get_damage_done())+" &7Hearts" ));
+				
+				//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.DARK_RED+" Total dmg taken:  "+ChatColor.WHITE+stats.get_damage_taken());
+				_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &4Total dmg taken: &f"+twoDesimalsAndHearts(stats.get_damage_taken())+" &7Hearts"));
 			}
-			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.GREEN+" Total dmg done:  "+ChatColor.WHITE+stats.get_damage_done());
-			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &2Total dmg done: &f"+twoDesimals(stats.get_damage_done()) ));
 			
-			//_gameCard.sendMessageToALL(ChatColor.AQUA + p.getName() + ChatColor.DARK_RED+" Total dmg taken:  "+ChatColor.WHITE+stats.get_damage_taken());
-			_gameCard.sendMessageToALL(ChatColor.translateAlternateColorCodes('&', "&1===> &4Total dmg taken: &f"+twoDesimals(stats.get_damage_taken())));
 			_gameCard.sendMessageToALL(" ");
 		}
 		
@@ -355,6 +430,9 @@ public class MiniGameCombat extends MiniGame implements Listener
 			{
 				continue;
 			}
+			
+			leaderboardThings(p, round_winner);
+			
 			p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			p.sendMessage(msg);
 			
@@ -372,14 +450,19 @@ public class MiniGameCombat extends MiniGame implements Listener
 					p.sendMessage(ChatColor.RED + ""+ChatColor.BOLD + "It was DRAW!");
 				}
 				p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
+			}else 
+			{
+				
 			}
 
+			
 			_combatHandler.gameEndForPlayer(_gameCard, p);
 			
 		}
 		
 		_players_lobby.clear();
 		_players_score.clear();
+		
 		_combatHandler.gameHasEnded(_gameCard, round_winner);
 		
 		HandlerList.unregisterAll(this);
@@ -448,6 +531,9 @@ public class MiniGameCombat extends MiniGame implements Listener
 	@EventHandler
 	void onProjectileLaunch(ProjectileLaunchEvent event)
 	{
+		if(has_ended)
+			return;
+		
 		if(event.getEntity().getShooter() instanceof Player)
 		{
 			Player p = (Player) event.getEntity().getShooter();
@@ -458,13 +544,11 @@ public class MiniGameCombat extends MiniGame implements Listener
 					_entities.add(event.getEntity());
 				}
 				
-				if(event.getEntity().getType() == EntityType.ARROW)
+				if(_no_arrow_spread && event.getEntity().getType() == EntityType.ARROW)
 				{
 					Arrow arrow = (Arrow)event.getEntity();
 					arrow.setVelocity(p.getLocation().getDirection().multiply(arrow.getVelocity().length()));
-				}
-				
-				
+				}			
 			}
 			
 		}
@@ -498,6 +582,9 @@ public class MiniGameCombat extends MiniGame implements Listener
 	@EventHandler
 	void onConsumeItem(PlayerItemConsumeEvent event)
 	{
+		if(has_ended)
+			return;
+		
 		if(_players_score.containsKey(event.getPlayer()))
 		{
 			_gameCard.checkAndReduceCombatConsumable(event.getPlayer().getUniqueId(), event.getItem(), -1);
@@ -575,48 +662,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 	@EventHandler
 	void onEntityDamageByEntity(EntityDamageByEntityEvent event)
 	{
-		if(has_ended)
+		if(has_ended || !_show_dps)
 			return;
 		
-		if(event.getDamager() instanceof Projectile)
-		{
-			Projectile projectile = (Projectile)event.getDamager();
-			projectile.getShooter();
-		}
 		
-		if(event.getEntity() instanceof Player )
-		{
-			Player victim = (Player) event.getEntity();
-			double dmg = event.getFinalDamage();
-			if(_players_score.containsKey(victim))
-			{
-				
-				Player damager = null;
-				
-				if(event.getDamager() instanceof Projectile)
-				{
-					Projectile projectile = (Projectile)event.getDamager();
-					if(projectile.getShooter() instanceof Player)
-					{
-						damager = (Player) projectile.getShooter();
-					}
-					
-				}
-				if(event.getDamager() instanceof Player)
-				{
-					damager = (Player) event.getDamager();
-				}
-				
-				victim.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cDamage Taken: &5"+twoDesimals(dmg)+ " &7dmg"));
-				
-				if(damager != null && _players_score.containsKey(damager))
-				{
-					_players_score.get(damager).addDamageDone(dmg);
-					damager.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2Damage Done: &5"+twoDesimals(dmg)+" &7dmg"));
-				}
-				
-			}
-		}
 	}
 	
 	@EventHandler
@@ -627,39 +676,108 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		if(event.getEntity() instanceof Player)
 		{
-			Player p = (Player)event.getEntity();
-			if(_players_score.containsKey(p))
+			
+			if(event instanceof EntityDamageByEntityEvent)
 			{
-				if(!has_started)
-					event.setCancelled(true);
-
-				_players_score.get(p).set_hp(p.getHealth() - event.getFinalDamage());
-				_players_score.get(p).addDamageTaken(event.getFinalDamage());
-								
-				if(p.getHealth() - event.getFinalDamage() <= 0.5)
+				EntityDamageByEntityEvent event2 = (EntityDamageByEntityEvent) event;
+				if(event2.getDamager() instanceof Projectile)
 				{
-					event.setCancelled(true);
-					moveToLobbyPlayer(p);
-					return;
+					Projectile projectile = (Projectile)event2.getDamager();
+					projectile.getShooter();
+				}
+				
+				if(event2.getEntity() instanceof Player )
+				{
+					Player victim = (Player) event2.getEntity();
+					double dmg = event2.getFinalDamage();
+					if(_players_score.containsKey(victim))
+					{						
+						Player damager = null;
+						
+						if(event2.getDamager() instanceof Projectile)
+						{
+							Projectile projectile = (Projectile)event2.getDamager();
+							if(projectile.getShooter() instanceof Player)
+							{
+								damager = (Player) projectile.getShooter();
+							}
+							
+						}
+						if(event2.getDamager() instanceof Player)
+						{
+							damager = (Player) event2.getDamager();
+						}
+						
+						victim.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cDamage Taken: &5"+twoDesimalsAndHearts(dmg)+ " &7Hearts"));
+						
+						if(damager != null && _players_score.containsKey(damager))
+						{
+							_players_score.get(damager).addDamageDone(dmg);
+							damager.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2Damage Done: &5"+twoDesimalsAndHearts(dmg)+" &7Hearts"));
+						}
+						_players_score.get(victim).set_hp(victim.getHealth() - event.getFinalDamage());
+						_players_score.get(victim).addDamageTaken(event.getFinalDamage());
+						
+						if(victim.getHealth() - dmg <= 0.5)
+						{
+							event2.setCancelled(true);
+							_players_score.get(victim).addDeaths(1);
+							_players_score.get(damager).addKills(1);
+							moveToLobbyPlayer(victim);
+							return;
+						}
+						
+					}
+				}
+				
+			}
+			else if (event instanceof EntityDamageEvent)
+			{
+				Player p = (Player)event.getEntity();
+				if(_players_score.containsKey(p))
+				{
+					if(!has_started)
+						event.setCancelled(true);
+
+					_players_score.get(p).set_hp(p.getHealth() - event.getFinalDamage());
+					_players_score.get(p).addDamageTaken(event.getFinalDamage());
+									
+					if(p.getHealth() - event.getFinalDamage() <= 0.5)
+					{
+						event.setCancelled(true);
+						moveToLobbyPlayer(p);
+						return;
+					}
 				}
 			}
+			
 		}
 	}
 		
 	boolean isItemValid(UUID uuid, ItemStack s)
 	{
+		if(s.getType() == Material.CROSSBOW)
+			return true;
+		
 		ArrayList<ItemStack> gear = _player_gears_check.get(uuid);
 		ItemStack copy = s.clone();
 		
 		if(_itemM.isArmor(copy) || _itemM.isTool(copy))
 		{
 			_itemM.setDamage(copy, 0);
+//			if(copy.getType() == Material.CROSSBOW)
+//			{
+//				CrossbowMeta meta = (CrossbowMeta)copy.getItemMeta();
+//				meta.addChargedProjectile(new ItemStack(Material.ARROW));
+//				copy.setItemMeta(meta);
+//			}
 		}
 		
 		for(ItemStack ge : gear)
 		{
 			if(ge == null)
 				continue;
+			
 			
 			if(ge.isSimilar(copy))
 			{
@@ -695,7 +813,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 					}
 				}
 				
-				if(count % 3 == 0)
+				if(count % 3 == 0 && !_gameCard.get_combatDataCard().isOwnGearKit)
 				{
 					for(Player p : _players_score.keySet())
 					{

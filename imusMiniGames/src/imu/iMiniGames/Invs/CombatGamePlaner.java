@@ -119,11 +119,11 @@ public class CombatGamePlaner extends GamePlaner
 			 }
 		 }
 		 
-		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Best of (amount)", 10);
+		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Needed wins", 10);
 		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);
 		 _itemM.addLore(mod, ChatColor.YELLOW + "Add how many wins ", true);
 		 _itemM.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
-		 _itemM.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
+		 _itemM.addLore(mod, ChatColor.AQUA + "Person needs " + ChatColor.DARK_GREEN + ChatColor.BOLD+ _card.get_bestOfAmount()+ChatColor.AQUA+" win(s)", true);
 		 
 		 mod = setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12);
 		 _itemM.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bM3:&9 &k# &5Own Gear&9 &k#"),false);
@@ -140,7 +140,15 @@ public class CombatGamePlaner extends GamePlaner
 		 }
 		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', lore), true);
 
-		 
+		 mod = setupButton(BUTTON.ADD_ATTRIBUTES, Material.BOOKSHELF, ChatColor.AQUA + "Add Attributes", 14);
+		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set values"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Default values", false);
+		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eEnable or Disable some attributes"), true);
+		 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added attributes! ==", true);
+		 for(Entry<String,Integer> att : _card.get_attributes().entrySet())
+		 {
+			 String name = att.getKey().replace("_", " ");
+			 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&5"+name+" : "+ (att.getValue() == 0 ? "&cfalse" : "&atrue")), true);
+		 }
 	}
 	
 	ItemStack addLoreSetRemove(ItemStack stack)
@@ -464,6 +472,9 @@ public class CombatGamePlaner extends GamePlaner
 				case SET_KIT:
 					new CombatGamePlanerChooseKitINV(_main, _player, _card);
 					break;
+				case ADD_ATTRIBUTES:
+					new CombatGamePlanerChooseAttributesINV(_main, _player, _card);
+					break;
 				default:
 					break;
 				}
@@ -506,6 +517,10 @@ public class CombatGamePlaner extends GamePlaner
 					_card.set_kit(null);
 					_card.setOwnGearKit(false);
 					_card.setRandomKit(true);
+					setupButtons();
+					break;
+				case ADD_ATTRIBUTES:
+					_card.resetAttributes();
 					setupButtons();
 					break;
 				default:

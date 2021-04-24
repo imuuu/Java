@@ -6,12 +6,9 @@ public class MiniGamePlayerStats
 	private double _hp = 0;
 	private double _damage_done = 0;
 	private double _damage_taken = 0;
+	private int _kills = 0;
+	private int _deaths = 0;
 	
-	public MiniGamePlayerStats()
-	{
-		
-	}
-
 	public int get_score() {
 		return _score;
 	}
@@ -55,6 +52,31 @@ public class MiniGamePlayerStats
 
 	public void set_damage_taken(double _damage_taken) {
 		this._damage_taken = _damage_taken;
+	}
+
+	public int get_kills() {
+		return _kills;
+	}
+
+	public void set_kills(int _kills) {
+		this._kills = _kills;
+	}
+
+	public int get_deaths() {
+		return _deaths;
+	}
+
+	public void set_deaths(int _deaths) {
+		this._deaths = _deaths;
+	}
+	
+	public void addDeaths(int amount)
+	{
+		_deaths +=amount;
+	}
+	public void addKills(int amount)
+	{
+		_kills +=amount;
 	}
 	
 }

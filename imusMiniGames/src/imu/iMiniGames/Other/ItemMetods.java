@@ -834,5 +834,10 @@ public class ItemMetods
 		return item;
 	}
 	
+	public String msgC(String s)
+	{
+		return ChatColor.translateAlternateColorCodes('&', s);
+	}
+	
 	
 }
