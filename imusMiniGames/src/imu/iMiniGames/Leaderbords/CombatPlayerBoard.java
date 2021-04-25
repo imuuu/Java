@@ -28,7 +28,7 @@ public class CombatPlayerBoard extends PlayerBoard
 		}
 	}
 	
-	public void set_weekly(CombatPlayerBoardWeekly _weekly) {
+	public void set_weekly(CombatPlayerBoard _weekly) {
 		this._weekly = _weekly;
 	}
 

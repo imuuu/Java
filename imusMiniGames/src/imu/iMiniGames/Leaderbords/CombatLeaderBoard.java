@@ -1,10 +1,15 @@
 package imu.iMiniGames.Leaderbords;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import imu.iMiniGames.Invs.CombatLeaderBoardStats;
 import imu.iMiniGames.Main.Main;
@@ -12,19 +17,21 @@ import imu.iMiniGames.Other.ConfigMaker;
 
 public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 {
-	long _creating_time = 0;
-	int _weekly_board_last_minutes = 3600; //
-	
+	LocalDate _weeklyStartDate = null;
+	LocalDate _weeklyEndDate = null;
+	BukkitTask _runnable = null;
 	public CombatLeaderBoard(Main main,String name) 
 	{
 		super(main,name);
 		_path = "/Combat/Leaderboards";
+		_weeklyStartDate = LocalDate.now();
+		_weeklyEndDate = _weeklyStartDate.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+		runnableAsync();
 	}
 	
 	@Override
 	public void saveToFile() 
 	{
-
 		ConfigMaker cm,cm2,cm3,cm4;
 		FileConfiguration config,config2,config3,config4 = null;
 		
@@ -40,12 +47,11 @@ public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 		cm4 = new ConfigMaker(_main, _path+"/LeaderBoardSettings.yml");
 		config4 = cm4.getConfig();
 		
-		config4.set("CreationTime", _creating_time);
-		config4.set("Weekly_board_reset_time_minutes",_weekly_board_last_minutes);
+		config4.set("WeeklyStartDate", _weeklyStartDate.toString());
+		config4.set("WeeklyEndDate",  _weeklyEndDate.toString());
 		
 		for(PlayerBoard board : _boards_alltime.values())
 		{
-			System.out.println("save: "+board);
 			CombatPlayerBoard cb = (CombatPlayerBoard) board;
 			
 			//alltime
@@ -171,14 +177,41 @@ public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 				}
 				_boards_alltime.put(uuid_real, cb);
 			}
-		}		
+		}
+		
+		cm = new ConfigMaker(_main, _path+"/LeaderBoardSettings.yml");
+		if(cm.isExists())
+		{
+			config = cm.getConfig();
+			_weeklyStartDate = LocalDate.parse(config.getString("WeeklyStartDate"));
+			_weeklyEndDate = LocalDate.parse(config.getString("WeeklyEndDate"));
+			
+			if(_weeklyEndDate.isBefore(LocalDate.now()))
+			{
+				_weeklyStartDate = LocalDate.now();
+				_weeklyEndDate = _weeklyStartDate.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+				for(PlayerBoard b : _boards_alltime.values())
+				{
+					CombatPlayerBoard bo = (CombatPlayerBoard) b;
+					bo.set_weekly(new CombatPlayerBoard(bo.get_pName(), bo.get_uuid()));
+				}
+				
+			}
+		}
+
 	}
 	
-
 	@Override
 	public PlayerBoard getPlayerBoard(UUID uuid) 
 	{
 		return _boards_alltime.get(uuid);
+	}
+	
+	public PlayerBoard getPlayerBoard(Player p) 
+	{
+		if(_boards_alltime.get(p.getUniqueId()) == null)
+			_boards_alltime.put(p.getUniqueId(), new CombatPlayerBoard(p.getName(), p.getUniqueId()));
+		return _boards_alltime.get(p.getUniqueId());
 	}
 
 	@Override
@@ -195,5 +228,18 @@ public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 		
 	}
 
-	
+	void runnableAsync()
+	{
+		if(_runnable != null)
+			_runnable.cancel();
+		
+		_runnable = new BukkitRunnable() 
+		{		
+			@Override
+			public void run() 
+			{
+				saveToFile();
+			}
+		}.runTaskTimerAsynchronously(_main, 20*60*29, 20*60*30);
+	}
 }

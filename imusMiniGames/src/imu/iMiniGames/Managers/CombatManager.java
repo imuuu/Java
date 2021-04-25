@@ -52,7 +52,16 @@ public class CombatManager
 	{
 		loadArenas();
 		loadKits();
-		_leaderboard.loadFromFile();
+		
+		new BukkitRunnable() 
+		{			
+			@Override
+			public void run() 
+			{
+				_leaderboard.loadFromFile();
+			}
+		}.runTaskAsynchronously(_main);
+		
 	}
 	
 	public void onDisable()

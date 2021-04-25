@@ -319,7 +319,6 @@ public class MiniGameCombat extends MiniGame implements Listener
 			System.out.println("TOTAL PLAYERS: "+_gameCard.getTotalPlayers());
 			if(_gameCard.getTotalPlayers() == 2 &&  winner != null)
 			{
-				System.out.println("make pvp things");
 				PlayerVsPlayerBoard pvpBoard = board.get_pvp_playerBoard(winner.getUniqueId());
 				pvpBoard.set_lost(pvpBoard.get_lost() + 1);
 				pvpBoard.set_total_bet_lost_amount(pvpBoard.get_total_bet_lost_amount() +_gameCard.get_bet());
