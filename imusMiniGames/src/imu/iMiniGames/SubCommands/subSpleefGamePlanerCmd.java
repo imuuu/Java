@@ -34,7 +34,7 @@ public class subSpleefGamePlanerCmd implements CommandInterface
         
         if(!_main.get_spleefGameHandler().isPlayerPlanInQueue(player))
         {
-        	if(!_main.get_spleefGameHandler().isPlayerInArena(player.getUniqueId()))
+        	if(!_main.get_spleefGameHandler().isPlayerInArena(player))
         	{
                 if(_main.get_spleefManager().hasPlayerDataCard(player))
                 {

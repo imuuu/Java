@@ -10,31 +10,18 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Handlers.GameCard;
 
 public class CombatGameCard extends GameCard
 {
 
-	private CombatDataCard _combatDataCard;
+	public CombatGameCard(String tagName, String cmdName) {
+		super(tagName, cmdName);
+	}
 
 	private HashMap<UUID, ArrayList<CombatConsumable>> _pConsumables = new HashMap<>(); 
 	
-	
-	public CombatArena get_arena() {
-		return (CombatArena)_arena;
-	}
-	public void set_arena(CombatArena _arena) {
-		this._arena = _arena;
-	}
-	
-	public CombatDataCard get_combatDataCard() {
-		return _combatDataCard;
-	}
-	public void set_combatDataCard(CombatDataCard _combatDataCard) {
-		this._combatDataCard = _combatDataCard;
-	}
-	
+
 	public void checkAndReduceCombatConsumable(UUID uuid,ItemStack stack, int reduced_amount)
 	{
 		ArrayList<CombatConsumable> cc = _pConsumables.get(uuid);
@@ -100,11 +87,11 @@ public class CombatGameCard extends GameCard
 	public void setupKits(Material[] blacklist_mats)
 	{
 		_pConsumables.clear();
-		
+		CombatDataCard _dataCard = (CombatDataCard) getDataCard();
 		for(UUID uuid : get_players_accept().keySet())
 		{
 			Player p = Bukkit.getPlayer(uuid);
-			if(_combatDataCard.isOwnGearKit())
+			if(_dataCard.isOwnGearKit())
 			{
 				ItemStack[] gear = new ItemStack[p.getInventory().getContents().length];
 				int count = 0;
@@ -149,11 +136,11 @@ public class CombatGameCard extends GameCard
 					
 					
 				}
-				_combatDataCard.setPlayerGear(uuid, gear);
+				_dataCard.setPlayerGear(uuid, gear);
 				
 			}else
 			{
-				_combatDataCard.setPlayerGear(uuid, _combatDataCard.get_kit().get_kitInv());
+				_dataCard.setPlayerGear(uuid, _dataCard.get_kit().get_kitInv());
 			}
 		}
 		

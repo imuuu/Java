@@ -203,7 +203,7 @@ public class CombatGamePlaner extends GamePlaner
 	CombatGameCard confirm()
 	{
 				
-		CombatGameCard gameCard = new CombatGameCard();
+		CombatGameCard gameCard = new CombatGameCard("COMBAT","mg combat");
 		gameCard.set_maker(_player);
 		wrongs.clear();
 		
@@ -238,7 +238,7 @@ public class CombatGamePlaner extends GamePlaner
 					}
 					else
 					{
-						arena = _card.get_arena();						
+						arena = (CombatArena)_card.get_arena();						
 					}
 					
 					if(arena != null)
@@ -385,7 +385,7 @@ public class CombatGamePlaner extends GamePlaner
 			
 			double total_bet = Math.round((gameCard.get_bet() * gameCard.get_players_accept().size() * (1.0-_main.get_combatGameHandler().getBet_fee_percent()))*100)/100;
 			gameCard.set_total_bet(total_bet);
-			gameCard.set_combatDataCard(_card);
+			gameCard.setDataCard(_card);
 			
 			return gameCard;
 		}

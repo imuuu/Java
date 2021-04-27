@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.Arena;
+import imu.iMiniGames.Other.PlanerDataCard;
 
 public abstract class GameCard 
 {
@@ -16,9 +17,30 @@ public abstract class GameCard
 	protected HashMap<UUID,Boolean> _players_accept = new HashMap<>();
 	protected double _bet;
 	protected double _total_bet;
-	
+	protected PlanerDataCard dataCard;
 	protected Arena _arena;
-
+	
+	protected String _tagName="No TagName";
+	protected String _cmdString = "No cmd String";
+	
+	public GameCard(String tagName, String cmdName)
+	{
+		_tagName = tagName;
+		_cmdString = cmdName;
+	}
+	
+	public PlanerDataCard getDataCard() {
+		return dataCard;
+	}
+	public void setDataCard(PlanerDataCard dataCard) {
+		this.dataCard = dataCard;
+	}
+	public Arena get_arena() {
+		return _arena;
+	}
+	public void set_arena(Arena _arena) {
+		this._arena = _arena;
+	}
 	public Player get_maker() {
 		return _maker;
 	}
@@ -165,4 +187,18 @@ public abstract class GameCard
 	{
 		return _players_accept.size();
 	}
+	public String get_tagName() {
+		return _tagName;
+	}
+	public void set_tagName(String _tagName) {
+		this._tagName = _tagName;
+	}
+	public String get_cmdString() {
+		return _cmdString;
+	}
+	public void set_cmdString(String _cmdString) {
+		this._cmdString = _cmdString;
+	}
+	
+	
 }

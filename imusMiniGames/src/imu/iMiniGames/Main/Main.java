@@ -289,7 +289,7 @@ public class Main extends JavaPlugin
 					if(cm.isExists())
 					{
 						_spleefGameHandler.setCd_invite_time(config.getInt("Cd_for_invite_acceptTime(Integer)"));
-						_spleefGameHandler.setSpleef_roundTime(config.getInt("Spleef_roundTime(Integer)"));
+						_spleefGameHandler.setRoundTime(config.getInt("Spleef_roundTime(Integer)"));
 						_spleefGameHandler.setBet_fee_percent(config.getDouble("Spleef_bet_fee(Double)"));
 						_enable_broadcast_spleef = config.getBoolean("Enable_spleef_broadCast(Boolean)");
 						_spleefGameHandler.set_anti_block_time(config.getInt("Spleef_antiBlock_time(Integer)"));
@@ -299,7 +299,7 @@ public class Main extends JavaPlugin
 				try 
 				{
 					_spleefGameHandler.setCd_invite_time(cm.addDefault("Cd_for_invite_acceptTime", _spleefGameHandler.getCd_invite_time(),"Cd_for_invite_acceptTime: how long invite stays before expires"));
-					_spleefGameHandler.setSpleef_roundTime(cm.addDefault("Spleef_roundTime", _spleefGameHandler.getSpleef_roundTime(),"Spleef_roundTime: Round time for spleef"));
+					_spleefGameHandler.setRoundTime(cm.addDefault("Spleef_roundTime", _spleefGameHandler.getRoundTime(),"Spleef_roundTime: Round time for spleef"));
 					_spleefGameHandler.setBet_fee_percent(cm.addDefault("Spleef_bet_fee", _spleefGameHandler.getBet_fee_percent(),"Spleef_bet_fee: How much fee is. Between 0.00 - 1.00 (0.05 = 5%)"));
 					_enable_broadcast_spleef = (cm.addDefault("Enable_spleef_broadCast", _enable_broadcast_spleef,"Enable_spleef_broadCast: If true everybody see in server who startet game and result"));
 					_spleefGameHandler.set_anti_block_time(cm.addDefault("Spleef_antiBlock_time", _spleefGameHandler.get_anti_block_time(),"Spleef_antiBlock_time: How many seconds before anti_block shows. If 0 => disabled"));

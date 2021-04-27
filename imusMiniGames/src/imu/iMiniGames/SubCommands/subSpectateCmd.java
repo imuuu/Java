@@ -38,7 +38,7 @@ public class subSpectateCmd implements CommandInterface
         	return false;
         }
         
-        if(_main.get_combatGameHandler().isPlayerInArena(player) || _main.get_spleefGameHandler().isPlayerInArena(player.getUniqueId()))
+        if(_main.get_combatGameHandler().isPlayerInArena(player) || _main.get_spleefGameHandler().isPlayerInArena(player))
         {
         	player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cYou are in arena, spectating isn't posible!"));
         	return false;

@@ -16,6 +16,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iMiniGames.Handlers.GameCard;
 import imu.iMiniGames.Main.Main;
 
 public class PlayerDataCard 
@@ -202,7 +203,7 @@ public class PlayerDataCard
 			System.out.println("Couldn't find player with uuid PlayerDataCard:setDataToPLAYER");
 		}
 	}
-	public void setDataToPLAYER(CombatGameCard card, Player player)
+	public void setDataToPLAYER(GameCard card, Player player)
 	{	
 		
 		new BukkitRunnable() 
@@ -227,14 +228,15 @@ public class PlayerDataCard
 						player.setFlying(_isFlying);
 					}
 					
-					
-					if(card != null && card.get_combatDataCard().isOwnGearKit)
+					if(card != null && card instanceof CombatGameCard && ((CombatDataCard) card.getDataCard()).isOwnGearKit)
 					{
-						player.getInventory().setContents(card.checkAndApplyCombatConsumambles(player,_invContent));
+						
+						player.getInventory().setContents(((CombatGameCard)card).checkAndApplyCombatConsumambles(player,_invContent));
 					}else
 					{
 						player.getInventory().setContents(_invContent);
 					}
+					
 					_player.teleport(_location);	
 				}
 				else

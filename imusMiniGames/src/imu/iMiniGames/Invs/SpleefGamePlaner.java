@@ -174,7 +174,7 @@ public class SpleefGamePlaner extends GamePlaner
 	SpleefGameCard confirm()
 	{
 				
-		SpleefGameCard gameCard = new SpleefGameCard();
+		SpleefGameCard gameCard = new SpleefGameCard("SPLEEF","mg spleef");
 		gameCard.set_maker(_player);
 		wrongs.clear();
 		
@@ -209,7 +209,7 @@ public class SpleefGamePlaner extends GamePlaner
 					}
 					else
 					{
-						arena = _card.get_arena();						
+						arena = (SpleefArena)_card.get_arena();						
 					}
 					
 					if(arena != null)
@@ -339,8 +339,7 @@ public class SpleefGamePlaner extends GamePlaner
 			
 			double total_bet = Math.round((gameCard.get_bet() * gameCard.get_players_accept().size() * (1.0-_main.get_spleefGameHandler().getBet_fee_percent()))*100)/100;
 			gameCard.set_total_bet(total_bet);
-			gameCard.set_spleefDataCard(_card);
-			
+			gameCard.setDataCard(_card);			
 			return gameCard;
 		}
 	}

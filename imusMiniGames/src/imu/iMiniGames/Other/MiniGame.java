@@ -7,10 +7,11 @@ import java.util.Map.Entry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import imu.iMiniGames.Interfaces.IMiniGame;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.ChatColor;
 
-public abstract class MiniGame 
+public abstract class MiniGame implements IMiniGame
 {
 	protected Main _main;
 	protected ItemMetods _itemM;
@@ -19,13 +20,13 @@ public abstract class MiniGame
 	int _roundTime = 0;
 	protected int _round = 0;
 	
-	HashMap<Player, MiniGamePlayerStats> _players_score = new HashMap<>();
-	HashMap<Player, MiniGamePlayerStats> _players_lobby = new HashMap<>();
+	HashMap<Player, MiniGamePlayerStats> _players_ingame = new HashMap<>();
+	HashMap<Player, MiniGamePlayerStats> _players_off_game = new HashMap<>();
 	
 	HashMap<Player, PlayerDataCard> _players_spectators = new HashMap<>();
 	
 	protected Location _spectator_loc = null;
-	
+
 	public MiniGame(Main main, String minigameName)
 	{
 		_main = main;
@@ -35,7 +36,7 @@ public abstract class MiniGame
 	
 	public void addPlayer(Player p)
 	{
-		_players_score.put(p, new MiniGamePlayerStats());
+		_players_ingame.put(p, new MiniGamePlayerStats());
 	}
 	
 	public int get_roundTime() {
@@ -49,22 +50,22 @@ public abstract class MiniGame
 	
 	public void movePlayerToLobbyHash(Player p)
 	{
-		_players_lobby.put(p, _players_score.get(p));
-		_players_score.remove(p);
+		_players_off_game.put(p, _players_ingame.get(p));
+		_players_ingame.remove(p);
 	}
 	
 	public void addPointsPlayer(Player p,int amount)
 	{
-		_players_score.get(p).addScore(amount);
+		_players_ingame.get(p).addScore(amount);
 	}
 	
 	public void addLobbyPlayersToScore()
 	{
-		for(Entry<Player,MiniGamePlayerStats> p : _players_lobby.entrySet())
+		for(Entry<Player,MiniGamePlayerStats> p : _players_off_game.entrySet())
 		{
-			_players_score.put(p.getKey(), p.getValue());
+			_players_ingame.put(p.getKey(), p.getValue());
 		}
-		_players_lobby.clear();
+		_players_off_game.clear();
 	}
 	
 	public void addSpectator(Main main, Player p)

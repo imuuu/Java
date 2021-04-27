@@ -32,6 +32,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import com.mojang.datafixers.util.Pair;
 
+import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Handlers.SpleefGameHandler;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -43,6 +44,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 {
 	SpleefGameHandler _spleefHandler;
 	SpleefGameCard _gameCard;
+	SpleefDataCard _dataCard;
 	Cooldowns _cd;
 	
 	double _layer_y = 0;
@@ -64,29 +66,30 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	Location mid_loc = null;
 	double _max_distance = 0;
 	BukkitTask run;
-	public MiniGameSpleef(Main main, SpleefGameHandler spleefHandler,SpleefGameCard gameCard,String minigameName) 
+	public MiniGameSpleef(Main main, SpleefGameHandler spleefHandler, SpleefGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
 		
 		_spleefHandler = spleefHandler;
 		_gameCard = gameCard;
-		
-		_layer_y = gameCard.get_arena().getPlatformCorner(0).getY();
+		_dataCard = (SpleefDataCard)gameCard.getDataCard();
+		SpleefArena arena = ((SpleefArena) gameCard.get_arena());
+		_layer_y =arena.getPlatformCorner(0).getY();
 		_main.getServer().getPluginManager().registerEvents(this, main);
-		_best_of = _gameCard.get_spleefDataCard().get_bestOfAmount();
+		_best_of = _dataCard.get_bestOfAmount();
 		broadCastStart();
 
-		mid_loc =_gameCard.get_arena().getPlatformCorner(1).toVector().getMidpoint(_gameCard.get_arena().getPlatformCorner(0).toVector()).toLocation(_gameCard.get_arena().getPlatformCorner(0).getWorld());
-		_max_distance = _gameCard.get_arena().getPlatformCorner(1).distance(_gameCard.get_arena().getPlatformCorner(0));
+		mid_loc =arena.getPlatformCorner(1).toVector().getMidpoint(arena.getPlatformCorner(0).toVector()).toLocation(arena.getPlatformCorner(0).getWorld());
+		_max_distance = arena.getPlatformCorner(1).distance(arena.getPlatformCorner(0));
 		_spectator_loc = gameCard.get_arena().get_spectator_lobby();
 		
 	}
 	
 	void putPotionEffects(Player p)
 	{
-		if(!_gameCard.get_spleefDataCard().get_invPotionEffects().isEmpty())
+		if(!_dataCard.get_invPotionEffects().isEmpty())
 		{
-			for(Entry<PotionEffectType, PotionEffect> potion :_gameCard.get_spleefDataCard().get_invPotionEffects().entrySet())
+			for(Entry<PotionEffectType, PotionEffect> potion : _dataCard.get_invPotionEffects().entrySet())
 			{
 				PotionEffect ef =new PotionEffect(potion.getKey(), _roundTime* 20, potion.getValue().getAmplifier());
 				p.addPotionEffect(ef);
@@ -174,74 +177,14 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "========================");
 	}
 	
-	public void Start()
-	{
-		has_started = false;
-		has_ended = false;
-		_cd = new Cooldowns();
-		_player_anti_stands.clear();
-		_remove_blocks.clear();
-		_total_players = _gameCard.get_players_accept().size();
-		int count = 0;
-		_round++;
-		
-		
-		for(Player p: _players_score.keySet())
-		{
-			setupPlayerForStart(p);
-			p.teleport(_gameCard.get_arena().getSpawnpointLoc(count));
-			_player_anti_stands.put(p, new Pair<Location, Integer>(new Location(p.getWorld(), 0, 0, 0),0));
-			count++;
-		}
-		
-		_cd.setCooldownInSeconds("round", _roundTime);
-		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);
-		
-		_cd.setCooldownInSeconds("start", _start_delay);
-		_gameCard.get_arena().fillWithSnowpPlatform();
-		if(run != null)
-		{
-			run.cancel();
-		}
-		
-		runnable();
-		
-		String str1 = ChatColor.YELLOW + "========================";
-		
-		
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(" ");
-		_gameCard.sendMessageToALL(str1);
-		_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "ROUND: "+ChatColor.WHITE+_round 
-		+ ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + " ROUND LASTS "+ChatColor.WHITE+_roundTime+" s");
-		_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Best of "+ChatColor.WHITE+_best_of);
-		_gameCard.sendMessageToALL(str1);
-		if(_gameCard.get_bet() > 0 && _round == 1)
-		{
-			_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Winner gets: "+ChatColor.DARK_GREEN+_gameCard.get_total_bet());
-			_gameCard.sendMessageToALL(str1);
-		}
-		
-		if(_round > 1)
-		{
-			for(Entry<Player,MiniGamePlayerStats> stats : _players_score.entrySet())
-			{
-				_gameCard.sendMessageToALL(ChatColor.AQUA + stats.getKey().getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+stats.getValue().get_score()); 
-			}
-		}
-		_gameCard.sendMessageToALL(" ");
-	}
-	
+
 	Player checkBestOf()
 	{
 		addLobbyPlayersToScore();
 		
 		//ArrayList<Player> winners = new ArrayList<>();
 		Player winner = null;
-		for(Entry<Player,MiniGamePlayerStats> stats : _players_score.entrySet())
+		for(Entry<Player,MiniGamePlayerStats> stats : _players_ingame.entrySet())
 		{
 			if(stats.getValue().get_score() >= _best_of)
 			{
@@ -273,6 +216,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		return winner;
 	}
 	
+	@Override
 	public void endGame()
 	{
 		has_ended = true;
@@ -283,7 +227,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			round_winner = null;
 		}else
 		{
-			 round_winner = (Player)_players_score.keySet().toArray()[0];
+			 round_winner = (Player)_players_ingame.keySet().toArray()[0];
 			 addPointsPlayer(round_winner, 1);
 		}
 		
@@ -294,7 +238,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			Player real_winner = checkBestOf();
 			if(real_winner == null)
 			{
-				Start();
+				startGame();
 				return;
 			}
 		}
@@ -310,11 +254,8 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			{
 				continue;
 			}
-			p.sendMessage(" ");
-			p.sendMessage(" ");
-			p.sendMessage(" ");
-			p.sendMessage(" ");
-			p.sendMessage(" ");
+
+
 			p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			p.sendMessage(msg);
 			
@@ -334,15 +275,15 @@ public class MiniGameSpleef extends MiniGame implements Listener
 				p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			}
 
-			_spleefHandler.gameEndForPlayer(p);
+			_spleefHandler.gameEndForPlayer(_gameCard,p);
 			
 		}
 		
-		_players_lobby.clear();
+		_players_off_game.clear();
 		_player_anti_stands.clear();
-		_players_score.clear();
+		_players_ingame.clear();
 		_remove_blocks.clear();
-		_spleefHandler.gameHasEnded(_gameCard, round_winner);
+		_spleefHandler.matchEND(_gameCard, round_winner);
 		HandlerList.unregisterAll(this);
 	}
 	
@@ -377,7 +318,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	{
 		//_combatHandler.removePotionEffects(p);
 		_total_players--;
-		_players_score.remove(p);
+		_players_ingame.remove(p);
 		_gameCard.get_players_accept().remove(p.getUniqueId());
 
 		checkIFendGame();
@@ -390,7 +331,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			return;
 		
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p))
+		if(_players_ingame.containsKey(p))
 		{
 			if(!has_started)
 			{
@@ -420,7 +361,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		if(event.getEntity() instanceof Player)
 		{
 			Player p =(Player) event.getEntity();
-			if(_players_score.containsKey(p))
+			if(_players_ingame.containsKey(p))
 			{
 				event.setCancelled(true);
 			}
@@ -432,13 +373,13 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	void onQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p) )
+		if(_players_ingame.containsKey(p) )
 		{
 			playerLeft(p);
 			
 		}
 		
-		if(_players_lobby.containsKey(p))
+		if(_players_off_game.containsKey(p))
 		{
 			playerLeft(p);
 		}
@@ -453,7 +394,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	void onDrop(PlayerDropItemEvent event)
 	{
 		Player p = event.getPlayer();
-		if(_players_score.containsKey(p))
+		if(_players_ingame.containsKey(p))
 		{
 			event.setCancelled(true);		
 		}
@@ -462,7 +403,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	@EventHandler
 	void onCMDwrite(PlayerCommandPreprocessEvent event)
 	{
-		if(_players_score.containsKey(event.getPlayer()) || _players_lobby.containsKey(event.getPlayer()))
+		if(_players_ingame.containsKey(event.getPlayer()) || _players_off_game.containsKey(event.getPlayer()))
 		{
 			event.getPlayer().sendMessage(ChatColor.RED + "You are in Spleef game! Can't use commands!");
 			event.setCancelled(true);
@@ -476,7 +417,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		if(event.getEntity() instanceof Player)
 		{
 			Player p = (Player)event.getEntity();
-			if(_players_score.containsKey(p))
+			if(_players_ingame.containsKey(p))
 			{
 				event.setCancelled(true);
 //				if(p.getHealth() - event.getFinalDamage() <= 0.5)
@@ -494,13 +435,13 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		Player p = event.getPlayer();
 		if(!has_started)
 		{
-			if(_players_score.containsKey(p))
+			if(_players_ingame.containsKey(p))
 			{
 				event.setCancelled(true);
 			}
 		}else
 		{
-			if(_players_score.containsKey(p))
+			if(_players_ingame.containsKey(p))
 			{
 				event.setDropItems(false);
 			}
@@ -574,7 +515,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 					
 					if(_anti_stand > 0)
 					{
-						for(Player p : _players_score.keySet())
+						for(Player p : _players_ingame.keySet())
 						{
 							Pair<Location, Integer> data = _player_anti_stands.get(p);
 							Location p_loc = p.getLocation();
@@ -599,13 +540,71 @@ public class MiniGameSpleef extends MiniGame implements Listener
 					}
 					
 				}
-				
-				
-				
-				
-				
+	
 			}
 		}.runTaskTimer(_main, 20, 20);
+	}
+
+	@Override
+	public void startGame() 
+	{
+		has_started = false;
+		has_ended = false;
+		_cd = new Cooldowns();
+		_player_anti_stands.clear();
+		_remove_blocks.clear();
+		_total_players = _gameCard.get_players_accept().size();
+		int count = 0;
+		_round++;
+		
+		
+		for(Player p: _players_ingame.keySet())
+		{
+			setupPlayerForStart(p);
+			p.teleport(_gameCard.get_arena().getSpawnpointLoc(count));
+			_player_anti_stands.put(p, new Pair<Location, Integer>(new Location(p.getWorld(), 0, 0, 0),0));
+			count++;
+		}
+		
+		_cd.setCooldownInSeconds("round", _roundTime);
+		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);
+		
+		_cd.setCooldownInSeconds("start", _start_delay);
+		((SpleefArena)_gameCard.get_arena()).fillWithSnowpPlatform();
+		if(run != null)
+		{
+			run.cancel();
+		}
+		
+		runnable();
+		
+		String str1 = ChatColor.YELLOW + "========================";
+		
+		
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(" ");
+		_gameCard.sendMessageToALL(str1);
+		_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "ROUND: "+ChatColor.WHITE+_round 
+		+ ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + " ROUND LASTS "+ChatColor.WHITE+_roundTime+" s");
+		_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Best of "+ChatColor.WHITE+_best_of);
+		_gameCard.sendMessageToALL(str1);
+		if(_gameCard.get_bet() > 0 && _round == 1)
+		{
+			_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Winner gets: "+ChatColor.DARK_GREEN+_gameCard.get_total_bet());
+			_gameCard.sendMessageToALL(str1);
+		}
+		
+		if(_round > 1)
+		{
+			for(Entry<Player,MiniGamePlayerStats> stats : _players_ingame.entrySet())
+			{
+				_gameCard.sendMessageToALL(ChatColor.AQUA + stats.getKey().getName() + ChatColor.GOLD+" score:  "+ChatColor.WHITE+stats.getValue().get_score()); 
+			}
+		}
+		_gameCard.sendMessageToALL(" ");
 	}
 
 }
