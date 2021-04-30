@@ -391,8 +391,7 @@ public class CombatManager
 				
 			}
 		}.runTaskAsynchronously(_main);
-		
-		
+				
 	}
 	
 	public void loadPotionsConfig()

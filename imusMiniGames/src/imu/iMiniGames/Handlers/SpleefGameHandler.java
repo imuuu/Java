@@ -3,34 +3,25 @@ package imu.iMiniGames.Handlers;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.Cooldowns;
+import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameSpleef;
-import imu.iMiniGames.Other.PlayerDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
 
 public class SpleefGameHandler extends GameHandeler implements Listener
 {
-	SpleefManager _spleefManager;
-
 	int _anti_block_time = 7;
 
 	public SpleefGameHandler(Main main)
 	{
-		super(main, "Spleef");
-		_main = main;
-		_itemM = main.get_itemM();
-		_spleefManager = main.get_spleefManager();
-		_cd = new Cooldowns();
-		_econ = main.get_econ();
+		super(main, "Spleef");		
 		_main.getServer().getPluginManager().registerEvents(this, _main);
 	}
 	
@@ -43,37 +34,6 @@ public class SpleefGameHandler extends GameHandeler implements Listener
 		this._anti_block_time = _anti_block_time;
 	}
 	
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event)
-	{
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				try 
-				{
-					PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
-					if(pData.isFile())
-					{
-						System.out.println("imusMiniGames: Restoring player data");
-						pData.loadDataFileAndSetData();
-						pData.setDataToPLAYER(event.getPlayer());
-						pData.removeDataFile();
-						_player_datas.remove(event.getPlayer().getUniqueId());
-					}
-				} 
-				catch (Exception e) 
-				{
-					System.out.println("ERRoR: Counldnt find player data");
-				}
-				
-			}
-		}.runTaskAsynchronously(_main);
-		
-	}
-	
-
 	@Override
 	public void afterMatchEnd(GameCard gameCard, Player winner) 
 	{
@@ -101,6 +61,49 @@ public class SpleefGameHandler extends GameHandeler implements Listener
 	public void afterDefaultRequest(Player p, GameCard card) 
 	{
 		// TODO Auto-generated method stub
+		
+	}
+	
+	public void loadSettingConfig(boolean refresh)
+	{
+
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				ConfigMaker cm = new ConfigMaker(_main, "Spleef_settings.yml");
+				FileConfiguration config = cm.getConfig();
+				if(refresh)
+				{
+					if(cm.isExists())
+					{
+						setCd_invite_time(config.getInt("Cd_for_invite_acceptTime(Integer)"));
+						setRoundTime(config.getInt("Spleef_roundTime(Integer)"));
+						setBet_fee_percent(config.getDouble("Spleef_bet_fee(Double)"));
+						_enable_broadcast = config.getBoolean("Enable_spleef_broadCast(Boolean)");
+						set_anti_block_time(config.getInt("Spleef_antiBlock_time(Integer)"));
+					}
+					cm.clearConfig();
+				}
+				try 
+				{
+					setCd_invite_time(cm.addDefault("Cd_for_invite_acceptTime", getCd_invite_time(),"Cd_for_invite_acceptTime: how long invite stays before expires"));
+					setRoundTime(cm.addDefault("Spleef_roundTime", getRoundTime(),"Spleef_roundTime: Round time for spleef"));
+					setBet_fee_percent(cm.addDefault("Spleef_bet_fee", getBet_fee_percent(),"Spleef_bet_fee: How much fee is. Between 0.00 - 1.00 (0.05 = 5%)"));
+					_enable_broadcast = (cm.addDefault("Enable_spleef_broadCast", _enable_broadcast,"Enable_spleef_broadCast: If true everybody see in server who startet game and result"));
+					set_anti_block_time(cm.addDefault("Spleef_antiBlock_time", get_anti_block_time(),"Spleef_antiBlock_time: How many seconds before anti_block shows. If 0 => disabled"));
+					
+					cm.addComments();
+					
+				} catch (Exception e) 
+				{
+					_main.getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Something got wrong imusMiniGame fileNamed: "+cm.getFileName());
+					_main.getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Maybe you casted some value as Integer When it should be Double?");
+				}		
+			}
+		}.runTaskAsynchronously(_main);
 		
 	}
 	

@@ -264,5 +264,38 @@ public class SpleefManager
 		
 		
 	}
+	
+	public void loadPotionsConfig()
+	{
+		new BukkitRunnable() 
+		{		
+			@Override
+			public void run() 
+			{
+				ConfigMaker cm = new ConfigMaker(_main, "Spleef/Enabled_PotionEffects.yml");
+				FileConfiguration config = cm.getConfig();
+				
+				if(!cm.isExists())
+				{
+					for(Entry<PotionEffectType, Boolean> entry : getPotionEffects().entrySet())
+					{
+						config.set(entry.getKey().getName(), entry.getValue());
+					}
+				}
+				else
+				{
+					getPotionEffects().clear();
+					for(PotionEffectType t : PotionEffectType.values())
+					{
+						Boolean value = config.getBoolean(t.getName());
+						getPotionEffects().put(t, value);
+					}
+				}
+				
+				cm.saveConfig();
+			}
+			
+		}.runTaskAsynchronously(_main);
+	}
 }
 		

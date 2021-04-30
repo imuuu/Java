@@ -7,12 +7,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
@@ -23,11 +17,9 @@ import imu.iMiniGames.Other.CombatGameCard;
 import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameCombat;
-import imu.iMiniGames.Other.PlayerDataCard;
 
-public class CombatGameHandler extends GameHandeler implements Listener
-{
-	
+public class CombatGameHandler extends GameHandeler
+{	
 	CombatLeaderBoard _leaderBoard;
 	
 	Material[] blackList_mat_gear = 
@@ -59,85 +51,7 @@ public class CombatGameHandler extends GameHandeler implements Listener
 
 	}
 
-	@EventHandler
-	public void onInvOpen(InventoryClickEvent event)
-	{
-		if(_hasAccepted.isEmpty())
-			return;
 
-		if(event.getWhoClicked() instanceof Player)
-		{
-			Player p = (Player) event.getWhoClicked();
-			if(isAccepted(p))
-			{
-				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
-				p.closeInventory();
-				event.setCancelled(true);
-				return;
-			}
-		}
-	}
-
-	@EventHandler
-	void onCMDwrite(PlayerCommandPreprocessEvent event)
-	{
-		if(_hasAccepted.isEmpty())
-			return;
-
-		if(isAccepted(event.getPlayer()))
-		{
-			event.getPlayer().sendMessage(ChatColor.RED + "You are waiting for arena, you can't do that!");
-			event.setCancelled(true);
-		}
-
-	}
-
-	@EventHandler
-	public void onInvOpen(InventoryOpenEvent event)
-	{
-		if(_hasAccepted.isEmpty())
-			return;
-
-		if(event.getPlayer() instanceof Player)
-		{
-			Player p = (Player) event.getPlayer();
-			if(isAccepted(p))
-			{
-				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
-				event.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler
-	public void onJoin(PlayerJoinEvent event)
-	{
-		new BukkitRunnable() {
-
-			@Override
-			public void run() 
-			{
-				PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
-				if(pData.isFile())
-				{
-					//TODO here too
-					System.out.println("imusMiniGames: Restoring player data");
-					pData.loadDataFileAndSetData();
-					pData.setDataToPLAYER(event.getPlayer());
-					pData.removeDataFile();
-					_player_datas.remove(event.getPlayer().getUniqueId());
-				}
-
-				if(_hasAccepted.containsKey(event.getPlayer().getUniqueId()))
-				{
-					_hasAccepted.remove(event.getPlayer().getUniqueId());
-				}				
-			}
-		}.runTaskAsynchronously(_main);
-
-	}
-
-	
 	public void loadSettingConfig(boolean refresh)
 	{
 		new BukkitRunnable() 

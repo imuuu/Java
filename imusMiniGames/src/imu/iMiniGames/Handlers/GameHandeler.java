@@ -8,6 +8,12 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -19,9 +25,13 @@ import imu.iMiniGames.Other.Cooldowns;
 import imu.iMiniGames.Other.ItemMetods;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.PlayerDataCard;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import net.milkbowl.vault.economy.Economy;
 
-public abstract class GameHandeler implements IGameHandeler
+public abstract class GameHandeler implements IGameHandeler, Listener
 {
 	Main _main;
 	ItemMetods _itemM;
@@ -437,14 +447,60 @@ public abstract class GameHandeler implements IGameHandeler
 				}		
 				CheckQueue();
 				afterMatchEnd(gameCard, winner);
+				broadCastEnd(gameCard, winner);
 			}
 		}.runTask(_main);	
 	}
 	
+	void broadCastEnd(GameCard card, Player winner)
+	{
+		if(!is_enable_broadcast())
+			return;
+		
+		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== "+card.get_tagName()+" GAME ENDED! ===");
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+card.get_arena().get_arenaNameWithColor());
+		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+card.getPlayersString());
+		if(card.get_bet() > 0 && winner != null)
+		{
+			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner and got: "+ChatColor.GREEN+card.get_total_bet()+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
+		}else if(winner != null)
+		{
+			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner!"+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
+		}else
+		{
+			_main.getServer().broadcastMessage(ChatColor.RED + "The game was DRAW!");
+		}
+		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "========================");
+	}
+	
+	void broadCastStart(GameCard card)
+	{
+		if(!is_enable_broadcast())
+			return;
+		
+		for(Player p : _main.getServer().getOnlinePlayers())
+		{
+			if(_main.get_combatGameHandler().isPlayerInArena(p))
+			continue;
+			
+			p.sendMessage(ChatColor.AQUA + "=== "+card.get_tagName()+" GAME STARTED! ===");
+			p.sendMessage(ChatColor.YELLOW + "Arena: "+card.get_arena().get_arenaNameWithColor());
+			p.sendMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+card.getPlayersString());
+			if(card.get_bet() > 0)
+			{
+				p.sendMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+card.get_total_bet());
+			}
+
+			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&b=== &dSTART SPECTATING &l&a(Click) &b==="));
+			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate "+card._tagName.toLowerCase()+" "+card.get_arena().get_name()));
+			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
+			p.spigot().sendMessage(msg);
+		}
+		
+	}
 	@Override
 	public void matchSTART(GameCard gameCard) 
-	{
-		
+	{		
 		boolean no_money = false;
 		if(_econ != null && gameCard.get_bet() > 0)
 		{			
@@ -464,7 +520,6 @@ public abstract class GameHandeler implements IGameHandeler
 				{
 					no_money = true;
 				}
-
 			}
 
 			if(no_money)
@@ -487,9 +542,7 @@ public abstract class GameHandeler implements IGameHandeler
 			PlayerDataCard pDataBackup= new PlayerDataCard(_main, p,_playerDataFolderName+"Backups/"+p.getName()+"_"+p.getUniqueId());
 			pDataBackup.saveDataToFile(true);
 
-			
-
-			String title_str = ChatColor.BLUE + "COMBAT"; //TODO
+			String title_str = ChatColor.BLUE + gameCard._tagName;//TODO
 			String bet_str = ChatColor.GOLD +"Winner takes: "+ChatColor.DARK_GREEN +gameCard.get_total_bet();
 			if(_econ != null && gameCard.get_bet() > 0)
 			{
@@ -507,5 +560,92 @@ public abstract class GameHandeler implements IGameHandeler
 		MiniGame miniGame = afterMatchStart(gameCard);
 		miniGame.startGame();
 		_live_games.put(gameCard.get_arena().get_name(),miniGame);
+		broadCastStart(gameCard);
+	}
+	
+	@EventHandler
+	public void onInvOpen(InventoryClickEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+
+		if(event.getWhoClicked() instanceof Player)
+		{
+			Player p = (Player) event.getWhoClicked();
+			if(isAccepted(p))
+			{
+				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
+				p.closeInventory();
+				event.setCancelled(true);
+				return;
+			}
+		}
+	}
+	
+	@EventHandler
+	void onCMDwrite(PlayerCommandPreprocessEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+
+		if(isAccepted(event.getPlayer()))
+		{
+			event.getPlayer().sendMessage(ChatColor.RED + "You are waiting for arena, you can't do that!");
+			event.setCancelled(true);
+		}
+
+	}
+
+	@EventHandler
+	public void onInvOpen(InventoryOpenEvent event)
+	{
+		if(_hasAccepted.isEmpty())
+			return;
+
+		if(event.getPlayer() instanceof Player)
+		{
+			Player p = (Player) event.getPlayer();
+			if(isAccepted(p))
+			{
+				p.sendMessage(ChatColor.GRAY + "You are waiting for arena, you can't do inventory actions!");
+				event.setCancelled(true);
+			}
+		}
+	}
+
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event)
+	{
+		new BukkitRunnable() {
+
+			@Override
+			public void run() 
+			{
+				try 
+				{
+					PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
+					if(pData.isFile())
+					{
+						//TODO here too
+						System.out.println("imusMiniGames: Restoring player data");
+						pData.loadDataFileAndSetData();
+						pData.setDataToPLAYER(event.getPlayer());
+						pData.removeDataFile();
+						_player_datas.remove(event.getPlayer().getUniqueId());
+					}
+
+					if(_hasAccepted.containsKey(event.getPlayer().getUniqueId()))
+					{
+						_hasAccepted.remove(event.getPlayer().getUniqueId());
+					}	
+				} 
+				catch (Exception e) 
+				{
+					System.out.println("GameHandeler:onJoin:645:Error: Counldnt find player data");
+				}
+							
+			}
+		}.runTaskAsynchronously(_main);
+
 	}
 }

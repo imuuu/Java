@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Commands.ImgCreateCmd;
@@ -81,9 +80,11 @@ public class Main extends JavaPlugin
 		//getServer().getPluginManager().registerEvents(new EventClass(), this);
 		_spleefManager.onEnable();
 		
-		makeSpleef_SettingsConfig(false);
-		makeSpleef_BlockedPotionEffectsConfig();
+
+		
 		make_BlockMeConfig(false);
+		_spleefManager.loadPotionsConfig();
+		_spleefGameHandler.loadSettingConfig(false);
 		
 		_combatManager.loadPotionsConfig();
 		_combatGameHandler.loadSettingConfig(false);
@@ -272,83 +273,7 @@ public class Main extends JavaPlugin
 	{
 		return _itemM;
 	}
-	
-	public void makeSpleef_SettingsConfig(boolean refresh)
-	{
-		Main main = this;
-		new BukkitRunnable() 
-		{
-			
-			@Override
-			public void run() 
-			{
-				ConfigMaker cm = new ConfigMaker(main, "Spleef_settings.yml");
-				FileConfiguration config = cm.getConfig();
-				if(refresh)
-				{
-					if(cm.isExists())
-					{
-						_spleefGameHandler.setCd_invite_time(config.getInt("Cd_for_invite_acceptTime(Integer)"));
-						_spleefGameHandler.setRoundTime(config.getInt("Spleef_roundTime(Integer)"));
-						_spleefGameHandler.setBet_fee_percent(config.getDouble("Spleef_bet_fee(Double)"));
-						_enable_broadcast_spleef = config.getBoolean("Enable_spleef_broadCast(Boolean)");
-						_spleefGameHandler.set_anti_block_time(config.getInt("Spleef_antiBlock_time(Integer)"));
-					}
-					cm.clearConfig();
-				}
-				try 
-				{
-					_spleefGameHandler.setCd_invite_time(cm.addDefault("Cd_for_invite_acceptTime", _spleefGameHandler.getCd_invite_time(),"Cd_for_invite_acceptTime: how long invite stays before expires"));
-					_spleefGameHandler.setRoundTime(cm.addDefault("Spleef_roundTime", _spleefGameHandler.getRoundTime(),"Spleef_roundTime: Round time for spleef"));
-					_spleefGameHandler.setBet_fee_percent(cm.addDefault("Spleef_bet_fee", _spleefGameHandler.getBet_fee_percent(),"Spleef_bet_fee: How much fee is. Between 0.00 - 1.00 (0.05 = 5%)"));
-					_enable_broadcast_spleef = (cm.addDefault("Enable_spleef_broadCast", _enable_broadcast_spleef,"Enable_spleef_broadCast: If true everybody see in server who startet game and result"));
-					_spleefGameHandler.set_anti_block_time(cm.addDefault("Spleef_antiBlock_time", _spleefGameHandler.get_anti_block_time(),"Spleef_antiBlock_time: How many seconds before anti_block shows. If 0 => disabled"));
-					
-					cm.addComments();
-					
-				} catch (Exception e) 
-				{
-					getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Something got wrong imusMiniGame fileNamed: "+cm.getFileName());
-					getServer().getConsoleSender().sendMessage(ChatColor.RED +"WARNING: Maybe you casted some value as Integer When it should be Double?");
-				}		
-			}
-		}.runTaskAsynchronously(this);
 		
-	}
-	public void makeSpleef_BlockedPotionEffectsConfig()
-	{
-		Main main = this;
-		new BukkitRunnable() 
-		{		
-			@Override
-			public void run() 
-			{
-				ConfigMaker cm = new ConfigMaker(main, "Spleef/Enabled_PotionEffects.yml");
-				FileConfiguration config = cm.getConfig();
-				
-				if(!cm.isExists())
-				{
-					for(Entry<PotionEffectType, Boolean> entry : _spleefManager.getPotionEffects().entrySet())
-					{
-						config.set(entry.getKey().getName(), entry.getValue());
-					}
-				}
-				else
-				{
-					_spleefManager.getPotionEffects().clear();
-					for(PotionEffectType t : PotionEffectType.values())
-					{
-						Boolean value = config.getBoolean(t.getName());
-						_spleefManager.getPotionEffects().put(t, value);
-					}
-				}
-				
-				cm.saveConfig();
-			}
-			
-		}.runTaskAsynchronously(this);
-	}
-	
 	public void make_BlockMeConfig(boolean saveData)
 	{		
 		if(saveData)

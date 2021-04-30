@@ -23,8 +23,8 @@ public class subReloadCmd implements CommandInterface
     {
         Player player = (Player) sender;
        
-       _main.makeSpleef_SettingsConfig(true);
-       _main.makeSpleef_BlockedPotionEffectsConfig();
+       _main.get_spleefGameHandler().loadSettingConfig(true);
+       _main.get_spleefManager().loadPotionsConfig();
        
        _main.get_combatManager().loadPotionsConfig();
        _main.get_combatGameHandler().loadSettingConfig(true);

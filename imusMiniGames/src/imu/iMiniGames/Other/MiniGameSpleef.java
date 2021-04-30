@@ -35,10 +35,6 @@ import com.mojang.datafixers.util.Pair;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Handlers.SpleefGameHandler;
 import imu.iMiniGames.Main.Main;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class MiniGameSpleef extends MiniGame implements Listener
 {
@@ -77,7 +73,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		_layer_y =arena.getPlatformCorner(0).getY();
 		_main.getServer().getPluginManager().registerEvents(this, main);
 		_best_of = _dataCard.get_bestOfAmount();
-		broadCastStart();
 
 		mid_loc =arena.getPlatformCorner(1).toVector().getMidpoint(arena.getPlatformCorner(0).toVector()).toLocation(arena.getPlatformCorner(0).getWorld());
 		_max_distance = arena.getPlatformCorner(1).distance(arena.getPlatformCorner(0));
@@ -130,54 +125,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		this._anti_stand = _anti_stand;
 	}
 	
-	void broadCastStart()
-	{
-		if(!_main.isEnable_broadcast_spleef())
-			return;
-		
-		for(Player p : _main.getServer().getOnlinePlayers())
-		{
-			if(_main.get_combatGameHandler().isPlayerInArena(p))
-				continue;
-			
-			p.sendMessage(ChatColor.AQUA + "=== SPLEEF GAME STARTED! ===");
-			p.sendMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
-			p.sendMessage(ChatColor.YELLOW + "Players: "+ChatColor.AQUA+_gameCard.getPlayersString());
-			if(_gameCard.get_bet() > 0)
-			{
-				p.sendMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+_gameCard.get_total_bet());
-			}
-			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&d=== &9START SPECTATING &l&a(Click) &b==="));
-			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate combat "+_gameCard.get_arena().get_name()));
-			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
-			p.spigot().sendMessage(msg);
-		}
-		
-		
-	}
-	
-	void broadCastEnd(Player winner)
-	{
-		if(!_main.isEnable_broadcast_spleef())
-			return;
-		
-		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "=== SPLEEF GAME ENDED! ===");
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Arena: "+_gameCard.get_arena().get_arenaNameWithColor());
-		_main.getServer().broadcastMessage(ChatColor.YELLOW + "Players: "+ChatColor.DARK_AQUA+_gameCard.getPlayersString());
-		if(_gameCard.get_bet() > 0 && winner != null)
-		{
-			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner and got: "+ChatColor.GREEN+_gameCard.get_total_bet()+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
-		}else if(winner != null)
-		{
-			_main.getServer().broadcastMessage(ChatColor.AQUA + winner.getName()+ChatColor.YELLOW+" was Winner!"+ChatColor.YELLOW+ChatColor.BOLD + " Congrats!");
-		}else
-		{
-			_main.getServer().broadcastMessage(ChatColor.RED + "The game was DRAW!");
-		}
-		_main.getServer().broadcastMessage(ChatColor.DARK_AQUA + "========================");
-	}
-	
-
 	Player checkBestOf()
 	{
 		addLobbyPlayersToScore();
@@ -193,25 +140,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 				break;
 			}
 		}
-//		Player winner = null;
-//		int score = -1;
-//		for(Player mayP : winners)
-//		{			
-//			if(_players_score.get(mayP) > score )
-//			{
-//				score = _players_score.get(mayP);
-//				winner = mayP;
-//			}
-//		}
-//		
-//		for(Player mayP : winners)
-//		{			
-//			if(_players_score.get(mayP) == score )
-//			{
-//				System.out.println("There was draw, this shouldnt happen? One more game");
-//				return null;
-//			}
-//		}
 		
 		return winner;
 	}
@@ -230,9 +158,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			 round_winner = (Player)_players_ingame.keySet().toArray()[0];
 			 addPointsPlayer(round_winner, 1);
 		}
-		
-		
-		
+			
 		if(_best_of != 1)
 		{
 			Player real_winner = checkBestOf();
@@ -243,8 +169,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			}
 		}
 		
-		broadCastEnd(round_winner);
-		
 		String msg = ChatColor.DARK_PURPLE +""+ChatColor.BOLD+ "Spleef Game Has Ended";	
 		for(UUID uuid : _gameCard.get_players_accept().keySet())
 		{
@@ -254,7 +178,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 			{
 				continue;
 			}
-
 
 			p.sendMessage(ChatColor.DARK_PURPLE + "=================================");
 			p.sendMessage(msg);
