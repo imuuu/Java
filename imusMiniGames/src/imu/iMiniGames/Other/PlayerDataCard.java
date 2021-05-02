@@ -236,7 +236,7 @@ public class PlayerDataCard
 					{
 						player.getInventory().setContents(_invContent);
 					}
-					
+					System.out.println("Minigame info: player: "+player.getName() + " has got all his levels/items/mode back!");
 					_player.teleport(_location);	
 				}
 				else

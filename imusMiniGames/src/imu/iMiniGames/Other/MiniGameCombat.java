@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -71,13 +72,14 @@ public class MiniGameCombat extends MiniGame implements Listener
 	int draw_count = 0;
 	int draw_max = 3;
 	
-	HashMap<UUID, ArrayList<ItemStack>> _player_gears_check = new HashMap<>();
+	//HashMap<UUID, ArrayList<ItemStack>> _player_gears_check = new HashMap<>();
 	
 	ArrayList<Entity> _entities = new ArrayList<>();
 	
 	boolean _show_dps = false;
 	boolean _no_arrow_spread = false;
 	
+	String pd_mgItem = "mgItem";
 	
 	public MiniGameCombat(Main main, CombatGameHandler combatHandler, CombatGameCard gameCard,String minigameName) 
 	{
@@ -100,9 +102,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		_show_dps = _dataCard.getAttribute(COMBAT_ATTRIBUTE.SHOW_DMG) == 0 ? false : true;
 		_no_arrow_spread = _dataCard.getAttribute(COMBAT_ATTRIBUTE.NO_ARROW_SPREAD) == 0 ? false : true;
-		_leaderBoard = main.get_combatManager().getLeaderBoard();
-		
-		setupGearData();
+		_leaderBoard = main.get_combatManager().getLeaderBoard();		
 		
 	}
 	
@@ -116,8 +116,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		_total_players = _gameCard.get_players_accept().size();
 		int count = 0;
 		_round++;
-		
-		
+				
 		for(Player p  : _players_ingame.keySet())
 		{
 			setupPlayerForStart(p);
@@ -127,8 +126,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		}
 		
 		_cd.setCooldownInSeconds("round", _roundTime);
-		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);
-		
+		_cd.setCooldownInSeconds("roundCloseToEnd", _roundTime-_roundEnd_warning);		
 		_cd.setCooldownInSeconds("start", _start_delay);
 		
 		stopRunnables();
@@ -136,6 +134,13 @@ public class MiniGameCombat extends MiniGame implements Listener
 		runnable();
 		runnableAsync();
 		
+		startMessages();
+		
+		
+	}
+	
+	void startMessages()
+	{
 		String str1 = ChatColor.YELLOW + "========================";
 		
 		_gameCard.sendMessageToALL(" ");
@@ -150,12 +155,18 @@ public class MiniGameCombat extends MiniGame implements Listener
 			_gameCard.sendMessageToALL(ChatColor.DARK_PURPLE + ""+ChatColor.BOLD + "Winner gets: "+ChatColor.DARK_GREEN+_gameCard.get_total_bet());
 			_gameCard.sendMessageToALL(str1);
 		}
-		
-		
-		
 		_gameCard.sendMessageToALL(" ");
+		
 	}
-	
+	void removeUsedEntities()
+	{
+		for(Entity e : _entities)
+		{
+			e.remove();
+		}
+		_entities.clear();
+		
+	}
 	@Override
 	public void endGame() 
 	{
@@ -164,13 +175,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		
 		has_ended = true;
 		stopRunnables();
-		
-		for(Entity e : _entities)
-		{
-			e.remove();
-		}
-		_entities.clear();
-				
+			
 		Player round_winner;
 		if(_total_players > 1 || _total_players == 0)
 		{
@@ -253,7 +258,6 @@ public class MiniGameCombat extends MiniGame implements Listener
 				
 			}
 
-			
 			_combatHandler.gameEndForPlayer(_gameCard, p);
 			
 		}
@@ -267,28 +271,27 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 
 	
-	void setupGearData()
-	{
-
-		for(UUID uuid : _gameCard.get_players_accept().keySet())
-		{
-			ArrayList<ItemStack> arr = new ArrayList<>();
-			for(ItemStack s : _ownGear.get(uuid))
-			{
-				if(s == null)
-					continue;
-				
-				ItemStack clone  = s.clone();
-				if(_itemM.isArmor(clone) || _itemM.isTool(clone))
-				{
-					_itemM.setDamage(clone, 0);
-				}
-				
-				arr.add(clone);
-			}
-			_player_gears_check.put(uuid, arr);
-		}
-	}
+//	void setupGearData()
+//	{
+//		for(UUID uuid : _gameCard.get_players_accept().keySet())
+//		{
+//			ArrayList<ItemStack> arr = new ArrayList<>();
+//			for(ItemStack s : _ownGear.get(uuid))
+//			{
+//				if(s == null)
+//					continue;
+//				
+//				ItemStack clone  = s.clone();
+//				if(_itemM.isArmor(clone) || _itemM.isTool(clone))
+//				{
+//					_itemM.setDamage(clone, 0);
+//				}
+//				
+//				arr.add(clone);
+//			}
+//			_player_gears_check.put(uuid, arr);
+//		}
+//	}
 	
 	void putPotionEffects(Player p)
 	{
@@ -314,10 +317,18 @@ public class MiniGameCombat extends MiniGame implements Listener
 		p.setFireTicks(-20);
 		_combatHandler.removePotionEffects(p);
 		
-		inv.setContents(_ownGear.get(p.getUniqueId()));
-		putPotionEffects(p);
+		ItemStack[] gear = _ownGear.get(p.getUniqueId());
+		for(int i = 0; i < gear.length; ++i)
+		{
+			ItemStack s = gear[i];
+			if(s == null)
+				continue;
+			
+			_itemM.setPersistenData(s, pd_mgItem, PersistentDataType.INTEGER, 1);
+			inv.setItem(i, s);
+		}
 		
-		//inv.addItem(new ItemStack(Material.DIAMOND_SWORD));		
+		putPotionEffects(p);	
 	}
 	
 	
@@ -707,38 +718,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 		}
 	}
 		
-	boolean isItemValid(UUID uuid, ItemStack s)
-	{
-		if(s.getType() == Material.CROSSBOW)
+	boolean isItemValid(ItemStack s)
+	{		
+		if(_itemM.getPersistenData(s, pd_mgItem, PersistentDataType.INTEGER) != null)
 			return true;
-		
-		ArrayList<ItemStack> gear = _player_gears_check.get(uuid);
-		ItemStack copy = s.clone();
-		
-		if(_itemM.isArmor(copy) || _itemM.isTool(copy))
-		{
-			_itemM.setDamage(copy, 0);
-//			if(copy.getType() == Material.CROSSBOW)
-//			{
-//				CrossbowMeta meta = (CrossbowMeta)copy.getItemMeta();
-//				meta.addChargedProjectile(new ItemStack(Material.ARROW));
-//				copy.setItemMeta(meta);
-//			}
-		}
-		
-		for(ItemStack ge : gear)
-		{
-			if(ge == null)
-				continue;
-			
-			
-			if(ge.isSimilar(copy))
-			{
-				return true;
-			}
-			
-		}
-		
 		return false;
 	}
 	void runnableAsync()
@@ -771,18 +754,15 @@ public class MiniGameCombat extends MiniGame implements Listener
 					for(Player p : _players_ingame.keySet())
 					{
 						
-						if(_player_gears_check.containsKey(p.getUniqueId()))
+						for(ItemStack s : p.getInventory().getContents())
 						{
-							for(ItemStack s : p.getInventory().getContents())
+							if(s == null)
+								continue;
+							
+							if(!isItemValid(s))
 							{
-								if(s == null)
-									continue;
-								
-								if(!isItemValid(p.getUniqueId(), s))
-								{
-									System.out.println("imusMiniGames:Combat: item isnt valid!: "+s);
-									s.setAmount(0);
-								}
+								System.out.println("imusMiniGames:Combat: item isnt valid!: "+s);
+								s.setAmount(0);
 							}
 						}
 					}

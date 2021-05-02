@@ -106,5 +106,11 @@ public class SpleefGameHandler extends GameHandeler implements Listener
 		}.runTaskAsynchronously(_main);
 		
 	}
+
+	@Override
+	public void beforeMatchStart(GameCard gameCard) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

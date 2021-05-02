@@ -478,7 +478,7 @@ public class ItemMetods
 	
 	public <T> ItemStack setPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)
 	{
-		if(stack.getType() == Material.AIR)
+		if(stack == null || stack.getType() == Material.AIR)
 			return stack;
 		
 		NamespacedKey key = new NamespacedKey(_main, keyName);

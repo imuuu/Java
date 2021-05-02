@@ -97,7 +97,7 @@ public class CombatGameHandler extends GameHandeler
 	public MiniGame afterMatchStart(GameCard gameCard) 
 	{
 		CombatGameCard combatGameCard = (CombatGameCard) gameCard;
-		combatGameCard.setupKits(blackList_mat_gear);
+		combatGameCard.setupKits(blackList_mat_gear); //TODO
 		
 		MiniGame miniGame = new MiniGameCombat(_main, this, combatGameCard, "COMBAT");
 		miniGame.set_roundTime(_roundTime);
@@ -122,6 +122,12 @@ public class CombatGameHandler extends GameHandeler
 	@Override
 	public void afterMatchEnd(GameCard gameCard, Player winner)
 	{
+		
+	}
+
+	@Override
+	public void beforeMatchStart(GameCard gameCard) {
+		// TODO Auto-generated method stub
 		
 	}
 

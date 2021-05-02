@@ -433,7 +433,7 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 					String str_sides = ChatColor.DARK_PURPLE + "=================================";
 
 					gameCard.sendMessageToALL(str_sides);			
-					gameCard.sendMessageToALL(ChatColor.RED+""+ChatColor.BOLD+ "You have LOST the "+gameCard._tagName+"+!", winner); 
+					gameCard.sendMessageToALL(ChatColor.RED+""+ChatColor.BOLD+ "You have LOST the "+gameCard._tagName+"!", winner); 
 					winner.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+ "You have WON the "+gameCard._tagName+"!");
 					gameCard.sendMessageToALL(str_sides);
 
