@@ -46,12 +46,12 @@ public class subSpleefArenaCmd implements CommandInterface
         
         String arenaName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
 
-    	SpleefArena arena = _sm.getArena(arenaName);
+    	SpleefArena arena = (SpleefArena)_sm.getArena(arenaName);
     	
     	if(args[1].equalsIgnoreCase(_subs[0]))
     	{
     		//create
-    		_sm.createSpleefArena(arenaName);
+    		_sm.addArena(new SpleefArena(arenaName));
           player.sendMessage(ChatColor.GOLD + "You have created Spleef arena named as "+ChatColor.AQUA +arenaName);
           player.sendMessage(ChatColor.GOLD + "Remember set spawnpoints, cornerpositions and lobby. Then save!");
           return true;

@@ -227,7 +227,7 @@ public class CombatGamePlaner extends GamePlaner
 						{
 							//Random rand = new Random();
 							int r = new Random().nextInt(arenas_size);
-							arena = _main.get_combatManager().getArena(r);
+							arena = (CombatArena)_main.get_combatManager().getArena(r);
 						}
 						else
 						{

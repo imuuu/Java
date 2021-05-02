@@ -1,10 +1,6 @@
 package imu.iMiniGames.Managers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,57 +9,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.ConfigMaker;
-import imu.iMiniGames.Other.SpleefDataCard;
 
-public class SpleefManager 
+public class SpleefManager extends GameManager
 {
-	Main _main;
-	
-	HashMap<Integer, SpleefArena> _spleefArenas = new HashMap<>();
-	HashMap<UUID, SpleefDataCard> _player_DataCards = new HashMap<>();
-	HashMap<PotionEffectType, Boolean> _potionEffects_positive_enabled = new HashMap<>();
-	
-	String text_arena_yml="Arenas_Spleef";
-	
-	int _maximum_best_of = 5;
-
 	public SpleefManager(Main main) 
 	{
+		super(main, "Spleef");
 		_main = main;
 		addPotionEffects();
-	}
-	
-	public void onEnable()
-	{
-		loadArenas();
-	}
-	
-	public void onDisable()
-	{
-		//saveAllArenas();
-	}
-	
-	public void clearPlayerDataCards()
-	{
-		_player_DataCards.clear();
-	}
-	
-	public void savePlayerDataCard(Player p, SpleefDataCard card)
-	{
-		_player_DataCards.put(p.getUniqueId(), card);
-	}
-	
-	public SpleefDataCard getPlayerDataCard(Player p)
-	{
-		return _player_DataCards.get(p.getUniqueId());
-	}
-	
-	public boolean hasPlayerDataCard(Player p)
-	{
-		return _player_DataCards.containsKey(p.getUniqueId());
 	}
 	
 	void addPotionEffects()
@@ -88,109 +45,43 @@ public class SpleefManager
 		_potionEffects_positive_enabled.put(PotionEffectType.WATER_BREATHING,false);
 	}
 	
-	public HashMap<PotionEffectType, Boolean> getPotionEffects()
-	{
-		return _potionEffects_positive_enabled;
-	}
-	
-	public int get_maximum_best_of() {
-		return _maximum_best_of;
-	}
-
-	public void set_maximum_best_of(int _maximum_best_of) {
-		this._maximum_best_of = _maximum_best_of;
-	}
-	
-	public void createSpleefArena(String name)
-	{
-		addArena(new SpleefArena(name));
-	}
-	
-	void addArena(SpleefArena arena)
-	{
-		_spleefArenas.put(_spleefArenas.size(), arena);
-	}
-	public SpleefArena getArena(String arena_name)
-	{
-		for(Entry<Integer, SpleefArena> entry : _spleefArenas.entrySet())
-		{
-			if(entry.getValue().get_name().equalsIgnoreCase(arena_name))
-			{
-				return entry.getValue();
-			}
-		}
-
-		return null;
-	}
-	
-	void removeArenaHash(String arena_name)
-	{
-		int key = -1;
-		for(Entry<Integer, SpleefArena> entry : _spleefArenas.entrySet())
-		{
-			if(entry.getValue().get_name().equalsIgnoreCase(arena_name))
-			{
-				key = entry.getKey();
-				break;
-			}
-		}
-		
-		if(key != -1)
-		{
-			_spleefArenas.remove(key);
-		}
-
-	}
-	
-	public ArrayList<SpleefArena> getArenas()
-	{
-		ArrayList<SpleefArena> ar = new ArrayList<SpleefArena>();
-		for(Entry<Integer, SpleefArena> entry : _spleefArenas.entrySet())
-		{
-			ar.add(entry.getValue());
-		}
-		return ar;
-	}
-	public SpleefArena getArena(int idx)
-	{
-		return _spleefArenas.get(idx);
-	}
-	
-	
 	public boolean setupPlatformCorners(Player p, Location loc)
 	{		
 		return false;
 	}
 	
-	void saveAllArenas()
-	{
-		if(_spleefArenas.isEmpty())
-			return;
-		
-		for(Entry<Integer, SpleefArena> entry : _spleefArenas.entrySet())
-		{
-			saveArena(entry.getValue());
-		}
+
+	@Override
+	public void onEnabled() {
+		loadArenas();
 	}
-	
-	public void saveArena(SpleefArena arena)
+
+	@Override
+	public void onDisabled() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void saveArena(Arena arena) 
 	{
+		SpleefArena sArena = (SpleefArena) arena;
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
-				ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/"+arena.get_name().toLowerCase()+".yml");
+				ConfigMaker cm = new ConfigMaker(_main, _text_arena_yml+"/"+sArena.get_name().toLowerCase()+".yml");
 				FileConfiguration config = cm.getConfig();
 				
-				config.set("Name", arena.get_name().toString());
-				config.set("Desc", arena.get_description());
-				config.set("MaxPlayers",arena.get_maxPlayers());
-				config.set("CornerLoc1", arena.getPlatformCorner(0));
-				config.set("CornerLoc2", arena.getPlatformCorner(1));
-				config.set("LobbyLoc", arena.get_spectator_lobby());
+				config.set("Name", sArena.get_name().toString());
+				config.set("Desc", sArena.get_description());
+				config.set("MaxPlayers",sArena.get_maxPlayers());
+				config.set("CornerLoc1", sArena.getPlatformCorner(0));
+				config.set("CornerLoc2", sArena.getPlatformCorner(1));
+				config.set("LobbyLoc", sArena.get_spectator_lobby());
 				
-				for(int i = 0; i < arena.getTotalSpawnPositions(); ++i)
+				for(int i = 0; i < sArena.getTotalSpawnPositions(); ++i)
 				{
 					config.set("spawn_pos"+i, arena.getSpawnpointLoc(i));
 				}
@@ -200,30 +91,18 @@ public class SpleefManager
 		}.runTaskAsynchronously(_main);
 		
 	}
-	
-	public void removeArena(SpleefArena arena)
-	{
-		removeArenaHash(arena.get_name());
-		ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/"+arena.get_name()+".yml");
-		if(cm.isExists())
-		{
-			cm.removeConfig();
-		}
-		
-	}
-	public void loadArenas()
+
+	@Override
+	public void loadArenas() 
 	{
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
-//				ConfigMaker cm = new ConfigMaker(_main, text_arena_yml+"/1temp1.yml");
-//				cm.saveConfig();
-//				cm.removeConfig();
 				try 
 				{
-					for(File file : new File(_main.getDataFolder().getAbsoluteFile()+File.separator + text_arena_yml).listFiles())
+					for(File file : new File(_main.getDataFolder().getAbsoluteFile()+File.separator + _text_arena_yml).listFiles())
 					{
 						if(!file.exists())
 							continue;
@@ -262,40 +141,6 @@ public class SpleefManager
 			}
 		}.runTaskAsynchronously(_main);
 		
-		
-	}
-	
-	public void loadPotionsConfig()
-	{
-		new BukkitRunnable() 
-		{		
-			@Override
-			public void run() 
-			{
-				ConfigMaker cm = new ConfigMaker(_main, "Spleef/Enabled_PotionEffects.yml");
-				FileConfiguration config = cm.getConfig();
-				
-				if(!cm.isExists())
-				{
-					for(Entry<PotionEffectType, Boolean> entry : getPotionEffects().entrySet())
-					{
-						config.set(entry.getKey().getName(), entry.getValue());
-					}
-				}
-				else
-				{
-					getPotionEffects().clear();
-					for(PotionEffectType t : PotionEffectType.values())
-					{
-						Boolean value = config.getBoolean(t.getName());
-						getPotionEffects().put(t, value);
-					}
-				}
-				
-				cm.saveConfig();
-			}
-			
-		}.runTaskAsynchronously(_main);
 	}
 }
 		

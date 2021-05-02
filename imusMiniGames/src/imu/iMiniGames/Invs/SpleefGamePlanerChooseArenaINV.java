@@ -24,7 +24,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 {
 	SpleefManager _spleefManager;
 	
-	ArrayList<SpleefArena> _arenas;
+	ArrayList<SpleefArena> _arenas = new ArrayList<>();
 	
 	String pd_buttonType = "img.GPCAIbt";
 	String pd_arena_name = "img.AIarenaName";
@@ -40,7 +40,10 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		
 		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
-		_arenas = _spleefManager.getArenas();
+		for(Arena arena : _spleefManager.getArenas())
+		{
+			_arenas.add((SpleefArena)arena);
+		}
 		
 		_tooltip_starts = _size-9;
 		_card = card;

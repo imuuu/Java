@@ -24,7 +24,7 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 {
 	CombatManager _combatManager;
 	
-	ArrayList<CombatArena> _arenas;
+	ArrayList<CombatArena> _arenas = new ArrayList<>();
 	
 	String pd_buttonType = "img.GPCAIbt";
 	String pd_arena_name = "img.AIarenaName";
@@ -40,7 +40,10 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		
 		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_combatManager = main.get_combatManager();
-		_arenas = _combatManager.getArenas();
+		for(Arena arena : _combatManager.getArenas())
+		{
+			_arenas.add( (CombatArena) arena);
+		}
 		
 		_tooltip_starts = _size-9;
 		_card = card;

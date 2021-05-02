@@ -31,7 +31,7 @@ public class ConvPromptSpleefGamePlaner extends StringPrompt
 	@Override
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
-		SpleefDataCard card = _main.get_spleefManager().getPlayerDataCard(_player);
+		SpleefDataCard card = (SpleefDataCard)_main.get_spleefManager().getPlayerDataCard(_player);
 		card.putDataValue(_ans_id, anwser);
 		new SpleefGamePlaner(_main, _player, card);
 		

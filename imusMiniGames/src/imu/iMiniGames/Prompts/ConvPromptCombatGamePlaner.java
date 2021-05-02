@@ -31,7 +31,7 @@ public class ConvPromptCombatGamePlaner extends StringPrompt
 	@Override
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
-		CombatDataCard card = _main.get_combatManager().getPlayerDataCard(_player);
+		CombatDataCard card = (CombatDataCard)_main.get_combatManager().getPlayerDataCard(_player);
 		card.putDataValue(_ans_id, anwser);
 		new CombatGamePlaner(_main, _player, card);
 		

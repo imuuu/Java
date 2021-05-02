@@ -40,7 +40,7 @@ public class subSpleefGamePlanerCmd implements CommandInterface
                 {
                 	try 
                 	{
-                		 new SpleefGamePlaner(_main, player,_main.get_spleefManager().getPlayerDataCard(player));
+                		 new SpleefGamePlaner(_main, player,(SpleefDataCard)_main.get_spleefManager().getPlayerDataCard(player));
 					} catch (Exception e) 
                 	{
 						_main.get_spleefManager().clearPlayerDataCards();

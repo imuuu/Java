@@ -44,12 +44,13 @@ public class subCombatArenaCmd implements CommandInterface
         
         String arenaName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
 
-    	CombatArena arena = _com.getArena(arenaName);
+    	CombatArena arena = (CombatArena)_com.getArena(arenaName);
     	
     	if(args[1].equalsIgnoreCase(_subs[0]))
     	{
     		//create
-    		_com.createArena(arenaName);
+    		_com.addArena(new CombatArena(arenaName));
+    		
           player.sendMessage(ChatColor.GOLD + "You have created Combat arena named as "+ChatColor.AQUA +arenaName);
           player.sendMessage(ChatColor.GOLD + "Remember set spawnpoints, middle point and lobby. Then save!");
           return true;

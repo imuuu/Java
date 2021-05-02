@@ -67,7 +67,7 @@ public class Main extends JavaPlugin
 		_leaderboardUUIDData = new LeaderboardUUIDData(this);
 		_spleefManager = new SpleefManager(this);
 		_combatManager = new CombatManager(this);
-		_combatManager.onEnable();
+		_combatManager.onEnabled();
 		_planerManager = new PlanerManager(this);
 		_spleefGameHandler = new SpleefGameHandler(this);
 		_combatGameHandler = new CombatGameHandler(this);
@@ -78,7 +78,7 @@ public class Main extends JavaPlugin
 		registerCommands();
 		
 		//getServer().getPluginManager().registerEvents(new EventClass(), this);
-		_spleefManager.onEnable();
+		_spleefManager.onEnabled();
 		
 
 		
@@ -94,9 +94,9 @@ public class Main extends JavaPlugin
 	@Override
 	 public void onDisable()
 	{
-		_spleefManager.onDisable();
+		_spleefManager.onDisabled();
 		_spleefGameHandler.onnDisable();
-		_combatManager.onDisable();
+		_combatManager.onDisabled();
 		_combatGameHandler.onnDisable();
 		_leaderboardUUIDData.onDisabled();
 		make_BlockMeConfig(true);

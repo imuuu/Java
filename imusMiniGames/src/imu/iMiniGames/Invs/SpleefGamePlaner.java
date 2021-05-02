@@ -198,7 +198,7 @@ public class SpleefGamePlaner extends GamePlaner
 						{
 							//Random rand = new Random();
 							int r = new Random().nextInt(arenas_size);
-							arena = _main.get_spleefManager().getArena(r);
+							arena = (SpleefArena)_main.get_spleefManager().getArena(r);
 						}
 						else
 						{
