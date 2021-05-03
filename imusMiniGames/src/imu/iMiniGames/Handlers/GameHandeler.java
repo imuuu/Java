@@ -501,6 +501,7 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 	@Override
 	public void matchSTART(GameCard gameCard) 
 	{		
+		beforeMatchStart(gameCard);
 		boolean no_money = false;
 		if(_econ != null && gameCard.get_bet() > 0)
 		{			

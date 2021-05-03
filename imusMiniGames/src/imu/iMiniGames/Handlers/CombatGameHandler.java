@@ -98,6 +98,7 @@ public class CombatGameHandler extends GameHandeler
 	{
 		CombatGameCard combatGameCard = (CombatGameCard) gameCard;
 		combatGameCard.setupKits(blackList_mat_gear); //TODO
+//		setupOwnGear(combatGameCard);
 		
 		MiniGame miniGame = new MiniGameCombat(_main, this, combatGameCard, "COMBAT");
 		miniGame.set_roundTime(_roundTime);
@@ -126,9 +127,23 @@ public class CombatGameHandler extends GameHandeler
 	}
 
 	@Override
-	public void beforeMatchStart(GameCard gameCard) {
+	public void beforeMatchStart(GameCard gameCard) 
+	{
 		// TODO Auto-generated method stub
 		
+	}
+	
+	void setupOwnGear(GameCard gameCard)
+	{
+		CombatDataCard dataCard = (CombatDataCard) gameCard.getDataCard();
+		if(!dataCard.isOwnGearKit())
+			return;
+		
+		for(UUID uuid : gameCard.get_players_accept().keySet())
+		{
+			Player p = Bukkit.getPlayer(uuid);
+			
+		}
 	}
 
 

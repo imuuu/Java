@@ -35,7 +35,6 @@ import imu.iMiniGames.SubCommands.subSpectateCmd;
 import imu.iMiniGames.SubCommands.subSpleefArenaCmd;
 import imu.iMiniGames.SubCommands.subSpleefGamePlanerCmd;
 import imu.iMiniGames.TabCompletes.cmd2_tab;
-import imu.iMiniGames.TabCompletes.cmd3_tab;
 import net.milkbowl.vault.economy.Economy;
 
 
@@ -204,7 +203,7 @@ public class Main extends JavaPlugin
 	     getCommand(cmd2).setExecutor(handler);
 	     
 	     getCommand(cmd2).setTabCompleter(new cmd2_tab(this,cmd2,cmd2AndArguments));
-	     getCommand(cmd3).setTabCompleter(new cmd3_tab(this, cmd3, cmd3AndArguments));
+	     getCommand(cmd3).setTabCompleter(new cmd2_tab(this, cmd3, cmd3AndArguments));
 	 }
 	 
 	
