@@ -31,8 +31,6 @@ public class CasinoMain extends JavaPlugin
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" imusCasino has been activated!");
 		registerCommands();
 		
-		
-
 	}
 	
 	@Override
