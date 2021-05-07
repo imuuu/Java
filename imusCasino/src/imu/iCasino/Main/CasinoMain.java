@@ -12,6 +12,7 @@ import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
 import imu.iCasino.Commands.IcCMD;
+import imu.iCasino.Commands.Sub.SubCreateTable;
 import net.milkbowl.vault.economy.Economy;
 
 
@@ -47,9 +48,13 @@ public class CasinoMain extends JavaPlugin
 		 String cmd1 ="ic";
 	     handler.registerCmd(cmd1, new IcCMD(this));
 	     handler.setPermissionOnLastCmd("ic");
+	     handler.registerSubCmd(cmd1, "create", new SubCreateTable(this));
 	     getCommand(cmd1).setExecutor(handler);
+	     
+	     
+	     //tab completer cmd1
 	     HashMap<String, String[]> tabCmd1 = new HashMap<>();
-	     tabCmd1.put(cmd1,new String[] {"None"});
+	     tabCmd1.put(cmd1,new String[] {"create"});
 	     getCommand(cmd1).setTabCompleter(new ImusTabCompleter(cmd1, tabCmd1));
 	     
 	 }

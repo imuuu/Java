@@ -19,8 +19,6 @@ public class IcCMD implements CommandInterface
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
  
-    	
-    	System.out.println("imus casino test");
     	if(args.length > 0)
     		return false;
         
@@ -28,5 +26,10 @@ public class IcCMD implements CommandInterface
     	
         return true;
     }
+	@Override
+	public void FailedMsg(CommandSender arg0, String arg1) 
+	{
+
+	}
  
 }
