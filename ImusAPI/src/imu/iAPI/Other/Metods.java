@@ -2,6 +2,7 @@ package imu.iAPI.Other;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -31,9 +32,9 @@ import imu.iAPI.Interfaces.DelaySendable;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R3.ItemArmor;
-import net.minecraft.server.v1_16_R3.ItemElytra;
-import net.minecraft.server.v1_16_R3.ItemShield;
+import net.minecraft.world.item.ItemArmor;
+import net.minecraft.world.item.ItemElytra;
+import net.minecraft.world.item.ItemShield;
 
 public class Metods 
 {
@@ -74,6 +75,39 @@ public class Metods
     		}
     		
     		meta.setLore(lores);
+    		stack.setItemMeta(meta);
+
+			
+    	}
+    	return stack;
+	}
+	
+	public ItemStack addLore(ItemStack stack, String[] lores, boolean addLast)
+	{
+
+    	if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+    		ArrayList<String> read_lores = new ArrayList<String>();
+    		if(meta.hasLore())
+    		{
+    			read_lores.addAll(meta.getLore());
+    		}
+    		
+    		if(addLast)
+    		{
+    			Collections.addAll(read_lores, lores);
+    		}else
+    		{
+    			int idx = 0;
+    			for(String l : lores)
+    			{
+    				read_lores.add(idx++, l);
+    			}
+    			
+    		}
+    		
+    		meta.setLore(read_lores);
     		stack.setItemMeta(meta);
 
 			

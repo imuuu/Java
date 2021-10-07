@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,29 +15,34 @@ import org.bukkit.plugin.Plugin;
 
 import imu.iAPI.Interfaces.CustomInv;
 import imu.iAPI.Interfaces.IButton;
-
+import imu.iAPI.Main.ImusAPI;
 
 public abstract class CustomInvLayout implements Listener, CustomInv
 {
-	protected Plugin _main = null;
-	protected Metods _metods = null;
+	protected Plugin _plugin = null;
+	protected Metods _metods = ImusAPI._metods;
 	String _name="";
 	protected int _size = 0;
 	
 	protected Inventory _inv = null;
 	protected Player _player = null;
 
-	public CustomInvLayout(Plugin main, Metods metods, Player player, String name, int size)
+	public CustomInvLayout(Plugin main, Player player, String name, int size)
 	{
-		_main = main;
-		_metods = metods;
+		_plugin = main;
+
 		_name = name;
 		_size = size;
 		_player = player;		
-		_inv =  _main.getServer().createInventory(null, _size, _name);		
-		_main.getServer().getPluginManager().registerEvents(this, _main);
+		_inv =  _plugin.getServer().createInventory(null, _size, _name);		
+		_plugin.getServer().getPluginManager().registerEvents(this, _plugin);
 	}
-		
+	
+	public Inventory GetInv()
+	{
+		return _inv;
+	}
+	
 	public boolean isThisInv(InventoryEvent e) 
 	{
 		if(e.getInventory().equals(_inv))
@@ -57,7 +63,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	}
 	
 	@EventHandler
-	public void invClose(InventoryClickEvent e)
+	public void invClose(InventoryCloseEvent e)
 	{
 		if(isThisInv(e))
 		{
@@ -75,11 +81,13 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		}
 	}
 	
-	public void setButton(ItemStack stack, IButton b)
+	@Override
+	public ItemStack SetButton(ItemStack stack, IButton b)
 	{
-		_metods.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		return _metods.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
+	@Override
 	public String getButtonName(ItemStack stack)
 	{
 		String button = _metods.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
@@ -89,14 +97,22 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		return null;
 	}
 	
-	public ItemStack setupButton(IButton b, Material material, String displayName, int itemSlot)
+	
+	
+	@Override
+	public ItemStack setupButton(IButton b, Material material, String displayName, Integer itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
 		_metods.setDisplayName(sbutton, displayName);
-		setButton(sbutton, b);
-		_inv.setItem(itemSlot, sbutton);
-		return _inv.getItem(itemSlot);
+		SetButton(sbutton, b);
+		if(itemSlot != null)
+		{
+			_inv.setItem(itemSlot, sbutton);
+			return _inv.getItem(itemSlot);
+		}
+		return sbutton;
 	}
+	
 	
 	
 	

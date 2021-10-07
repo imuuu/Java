@@ -93,6 +93,11 @@ public class ConfigMaker {
 		cm.saveConfig();
 	}
 	
+	public void saveSTACKSconfig(ItemStack[] stacks)
+	{
+		getConfig().set("items", stacks);
+	}
+	
 	ItemStack[] getSavedInvFromConfig(Player player)
 	{
 		ConfigMaker cm = new ConfigMaker(_plugin, _fileName);

@@ -6,8 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/spigot-1.16.5.jar"/>
 	<classpathentry kind="lib" path="C:/McServerThings/Server/plugins/Vault.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.16.5-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.17.1-R0.1-SNAPSHOT-shaded.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

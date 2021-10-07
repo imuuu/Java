@@ -18,7 +18,12 @@ public class ImusTabCompleter implements TabCompleter
 		_cmdAndArguments = cmdAndArguments;
 		_mainCmd = mainCmd;
 	}
-
+	
+	public void setArgumenrs(String argumentName, String[] argumnets)
+	{
+		_cmdAndArguments.put(argumentName, argumnets);
+	}
+	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) 
 	{

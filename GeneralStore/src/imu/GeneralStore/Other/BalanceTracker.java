@@ -14,8 +14,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.mojang.datafixers.util.Pair;
-
 import imu.GeneralStore.main.Main;
 import net.milkbowl.vault.economy.Economy;
 
@@ -25,7 +23,7 @@ public class BalanceTracker
 	Main _main;
 	Economy _econ ;
 	String yml_path = "balances";
-	HashMap<UUID, Pair<String, Double>> _balances = new HashMap<>();
+	HashMap<UUID, ImmutablePair<String, Double>> _balances = new HashMap<>();
 	Cooldowns _cd;
 	public BalanceTracker(Main main)
 	{

@@ -1,0 +1,9 @@
+name: imusGS
+author: imu
+version: 1.0
+main: imu.GS.Main.Main
+api-version: 1.17
+softdepend: [Vault, ImusAPI]
+commands:
+   gs:
+   
