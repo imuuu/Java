@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
@@ -542,6 +543,25 @@ public class Metods
 		return value;
 	}
 	
+	public int InventoryAddItemOrDrop(ItemStack stack, Player player)
+	{
+		if(stack == null || stack.getType() == Material.AIR)
+		{
+			return -1;
+		}
+		
+		PlayerInventory inv = player.getInventory();
+		int invSlot = inv.firstEmpty();
+		if(invSlot < 0)
+		{
+			dropItem(stack, player, true);
+			return -1;
+		}
+		inv.setItem(invSlot, stack);
+		return invSlot;
+
+	}
+	
 	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
 	{
 		if(stack == null || stack.getType() == Material.AIR)
@@ -566,13 +586,15 @@ public class Metods
 				invSlot = inv.firstEmpty();
 			}else
 			{
-				invSlot = getFirstEmpty(inv.getContents());
+				invSlot = getFirstEmpty(inv.getContents()); // no need I think
 			}
 
 			if( invSlot != -1)
 			{
 
-				inv.addItem(copy);
+				//inv.addItem(copy);
+				inv.setItem(invSlot, copy);
+				
 			}else
 			{
 				player.sendMessage(ChatColor.RED + "You don't have space!");
@@ -602,7 +624,8 @@ public class Metods
 		
 		if(putText)
 		{
-			player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
+			player.sendMessage(ChatColor.RED + "You have dropped your "+copy.getAmount()+": "+ ChatColor.AQUA +copy.getType().toString());
+
 		}
 		
 		Item dropped = player.getWorld().dropItemNaturally(player.getLocation(), copy);

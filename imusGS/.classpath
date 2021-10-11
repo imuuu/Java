@@ -6,8 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.17.1-R0.1-SNAPSHOT-shaded.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/Server1.17.1/plugins/Vault.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/Server1.17.1/plugins/ImusAPI.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.17.1-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/McServerThings/Server1.17.1/plugins/Vault.jar"/>
+	<classpathentry exported="true" kind="lib" path="C:/McServerThings/Server1.17.1/plugins/imusAPI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

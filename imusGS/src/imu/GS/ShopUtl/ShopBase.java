@@ -42,7 +42,7 @@ public abstract class ShopBase
 		_main = main;
 		_name = name;
 		_cds = new Cooldowns();
-		_items.add(new ShopItemSeller[27]);
+		_items.add(new ShopItemSeller[shopHolderSize]);
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
 	}
 	
@@ -86,9 +86,11 @@ public abstract class ShopBase
 	
 	public void RemoveItem(int page, int idx, int amount)
 	{
-		
+		ShopItemBase sib = _items.get(page)[idx];
+		sib.AddAmount(amount);
+		sib.UpdateItem();
 	}
-//	void UpdateClien(int page, int index) //TODO
+//	void UpdateClien(int page, int index) //
 //	{
 //		for(Customer customer : _hCustomers.values())
 //		{
@@ -102,6 +104,9 @@ public abstract class ShopBase
 		{
 			for(int l = 0; l < _items.get(i).length; ++l)
 			{
+				if(_items.get(i)[l] == null)
+					continue;
+				
 				_items.get(i)[l].UnRegisterSlot(inv);
 			}
 		}
@@ -125,7 +130,7 @@ public abstract class ShopBase
 		ITuple<Integer, Integer> firstFree = null;
 		for(; page < _items.size(); ++page)
 		{
-			for(int i = 0; i < shopHolderSize; ++i)
+			for(int i = 0; i < _items.get(page).length; ++i)
 			{
 				ShopItemBase sib = _items.get(page)[i];
 				if(sib == null)
@@ -149,7 +154,8 @@ public abstract class ShopBase
 		if(firstFree == null)
 		{
 			System.out.println("Shop: Not free space found, make new page!");
-			_items.add(new ShopItemSeller[] {sis});
+			_items.add(new ShopItemSeller[shopHolderSize]);
+			_items.get(_items.size()-1)[0] =  sis;
 			//UpdateClients(page+1, 0);
 			RegisterAndLoadNewItemsClients();
 			return;

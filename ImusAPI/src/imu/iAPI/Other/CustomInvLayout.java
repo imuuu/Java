@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -75,11 +76,20 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	@EventHandler
 	public void onClick(InventoryClickEvent e)
 	{
-		if(isThisInv(e) && (e.getRawSlot() == e.getSlot()))
+		if(isThisInv(e))
 		{
-			onClickInsideInv(e);
+			e.setCancelled(true);
+			
+			if((e.getRawSlot() == e.getSlot()))
+			{
+				onClickInsideInv(e);				
+			}
 		}
+		
+		
 	}
+	
+	
 	
 	@Override
 	public ItemStack SetButton(ItemStack stack, IButton b)
