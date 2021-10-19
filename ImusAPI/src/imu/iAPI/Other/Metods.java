@@ -1,16 +1,16 @@
 package imu.iAPI.Other;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
@@ -23,13 +23,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import imu.iAPI.Interfaces.DelaySendable;
+import io.netty.handler.codec.base64.Base64;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -45,14 +47,15 @@ public class Metods
 		_main = main;
 	}
 	
-	Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+	Pattern DIGIT_PATTERN = Pattern.compile("-?\\d+(\\.\\d+)?");
+	private final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + String.valueOf('&') + "[0-9A-FK-OR]");
 	
 	public boolean isDigit(String str)
 	{
 		if(str == null)
 			return false;
 		
-		return pattern.matcher(str).matches();
+		return DIGIT_PATTERN.matcher(str).matches();
 	}
 	
 	public ItemStack addLore(ItemStack stack, String lore, boolean addLast)
@@ -875,26 +878,96 @@ public class Metods
     	return false;
     }
 	
-	@SuppressWarnings("deprecation")
-	public ItemStack getPlayerHead(Player p) 
-	{
-		boolean isNewVersion = Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList()).contains("PLAYER_HEAD");
-		Material type = Material.matchMaterial(isNewVersion ? "PLAYER_HEAD" : "SKULL_ITEM");
-		ItemStack item = new ItemStack(type,1);
-		
-		if(!isNewVersion)
-			item.setDurability((short) 3);
-		
-		SkullMeta meta = (SkullMeta) item.getItemMeta();
-		meta.setOwner(p.getName());
-		item.setItemMeta(meta);
-		return item;
-	}
+//	@SuppressWarnings("deprecation")
+//	public ItemStack getPlayerHead(Player p) 
+//	{
+//		boolean isNewVersion = Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList()).contains("PLAYER_HEAD");
+//		Material type = Material.matchMaterial(isNewVersion ? "PLAYER_HEAD" : "SKULL_ITEM");
+//		ItemStack item = new ItemStack(type,1);
+//		
+//		if(!isNewVersion)
+//			item.setDurability((short) 3);
+//		
+//		SkullMeta meta = (SkullMeta) item.getItemMeta();
+//		meta.setOwner(p.getName());
+//		item.setItemMeta(meta);
+//		return item;
+//	}
 	
 	public String msgC(String s)
 	{
 		return ChatColor.translateAlternateColorCodes('&', s);
 	}
+	
+	public String StripColor(String str)
+	{
+		return str == null ? null : STRIP_COLOR_PATTERN.matcher(str).replaceAll("");
+	}
+	
+	
+	public String EncodeItemStack(ItemStack stack)
+	{
+		String encodedObj= null;
+		
+		try
+		{
+			ByteArrayOutputStream io = new ByteArrayOutputStream();
+			BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
+			os.writeObject(stack);
+			os.flush();
+			byte[] serializedObj = io.toByteArray();			
+			encodedObj = java.util.Base64.getEncoder().encodeToString(serializedObj);
+		}
+		catch(IOException ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		return encodedObj;
+	}
+	
+	public ItemStack DecodeItemStack(String endcodedSTR)
+	{
+		byte[] serializedObj = java.util.Base64.getDecoder().decode(endcodedSTR);
+		ItemStack stack = null;
+		ByteArrayInputStream in = new ByteArrayInputStream(serializedObj);
+		try 
+		{
+			BukkitObjectInputStream is = new BukkitObjectInputStream(in);
+			stack = (ItemStack) is.readObject();
+		} 
+		catch (IOException | ClassNotFoundException e) 
+		{
+			e.printStackTrace();
+		}
+		return stack;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 }

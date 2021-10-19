@@ -2,33 +2,41 @@ package imu.GS.ShopUtl;
 
 import java.util.HashMap;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
+import imu.GS.ShopUtl.Customer.ShopItemCustomer;
+import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceOrginal;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
-import imu.iAPI.Other.Tuple;
 
 public class ShopItemBase 
 {
-	ItemStack _real_stack;
+	protected ItemStack _real_stack;
 	ItemStack _display_stack;
 	
 	int _amount = 0;
 	
 	String lore_amount_str;
-	Metods _metods;
+	String lore_price_str;
+	
+	String[] _lores;
+	protected Metods _metods;
 
 	HashMap<Inventory, SlotInfo> _slotPositions = new HashMap<>();
+	ItemPrice _price;
 	
 	public ShopItemBase(ItemStack real, int amount) 
 	{
-
 		_metods = ImusAPI._metods;		
 		_real_stack = real.clone();
 		_display_stack = real.clone();
 		_display_stack.setAmount(1);		
 		_amount = amount;
+		_price = new PriceOrginal();
 		LoadLores();
 		toolTip();
 		
@@ -55,7 +63,7 @@ public class ShopItemBase
 		}
 	}
 	
-	public void RegisterSlot(Inventory inv,CustomerMenuBaseInv cmbi,int page, int slot, boolean shopItem)
+	public void RegisterSlot(Inventory inv, CustomerMenuBaseInv cmbi,int page, int slot, boolean shopItem)
 	{
 		_slotPositions.put(inv, new SlotInfo(inv, cmbi, page, slot, shopItem));
 	}
@@ -67,24 +75,33 @@ public class ShopItemBase
 	
 	void LoadLores()
 	{
-		lore_amount_str = _metods.msgC("&6Amount: &a");
+		_lores = new String[5];
+		_lores[0] =  _metods.msgC("&6Amount: &a");
+		_lores[1] =  _metods.msgC("&9Price 1   : &5");
+		_lores[2] =  _metods.msgC("&9Price 8   : &5");
+		_lores[3] =  _metods.msgC("&9Price 64 : &5");
+		_lores[4] =  _metods.msgC("&9Price All: &5");
+
 	}
 	
 	void toolTip()
 	{
-		String[] lores = 
-			{
-				lore_amount_str + _amount //0
-					
-			};
-		_metods.addLore(_display_stack, lores, false);
+
+		_lores[0] += _amount;
+		_lores[1] += _price.GetPrice1Str();
+		_lores[2] += _price.GetPrice8Str();
+		_lores[3] += _price.GetPrice64Str();
+		_lores[4] += _price.GetPriceOfAmountStr(_amount);
+		
+		_metods.addLore(_display_stack, _lores, false);
 	}
 	
 	void SetLoreAtSpot(LoreSpot spot, String lore)
 	{
 		switch (spot) {
 		case AMOUNT:
-			_metods.reSetLore(_display_stack, lore_amount_str+_amount, 0);
+			_metods.reSetLore(_display_stack, _lores[0]+_amount, 0);
+			_metods.reSetLore(_display_stack, _lores[4]+_price.GetPriceOfAmountStr(_amount), 4);
 			break;
 
 		default:
@@ -127,11 +144,17 @@ public class ShopItemBase
 	
 	public void AddAmount(int amount)
 	{
-		_amount+= amount;
-		
+		_amount+= amount;		
 		if(_amount <= 0)
 		{
 			_amount = 0;
+			GetDisplayItem().setType(Material.BLACK_STAINED_GLASS_PANE);
+		}else
+		{
+			if(GetDisplayItem().getType() != GetRealItem().getType())
+			{
+				GetDisplayItem().setType(GetRealItem().getType());
+			}
 		}
 		
 		SetLoreAtSpot(LoreSpot.AMOUNT, lore_amount_str+_amount);

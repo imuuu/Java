@@ -2,7 +2,7 @@ package imu.GS.ShopUtl;
 
 import org.bukkit.inventory.ItemStack;
 
-class ShopItemSeller extends ShopItemBase
+public class ShopItemSeller extends ShopItemBase
 {
 	public ShopItemSeller(ItemStack real, int amount) {
 		super(real, amount);

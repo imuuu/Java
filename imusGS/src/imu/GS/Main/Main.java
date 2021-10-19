@@ -1,5 +1,6 @@
 package imu.GS.Main;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -8,16 +9,16 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.GS.CMDs.Cmd;
-
 import imu.GS.Managers.ShopManager;
 import imu.GS.Other.CmdHelper;
-
 import imu.GS.SubCmds.subShopCreateCMD;
+import imu.GS.SubCmds.subShopDeleteCMD;
 import imu.GS.SubCmds.subShopOpenCMD;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.MySQL;
 import net.milkbowl.vault.economy.Economy;
 
 
@@ -29,12 +30,14 @@ public class Main extends JavaPlugin
 	CmdHelper _cmdHelper;
 	Economy _econ = null;
 	ImusAPI _imusAPI;
-	
+	MySQL _SQL;
 	ImusTabCompleter _tab_cmd1;
 	
 	@Override
 	public void onEnable() 
 	{
+		ConnectDataBase();
+		
 		setupImusApi();
 		setupEconomy();
 		_cmdHelper = new CmdHelper(this);
@@ -55,6 +58,26 @@ public class Main extends JavaPlugin
 	{
 		if(_shopManager != null)
 			_shopManager.onDisabled();
+		
+		
+		_shopManager.SaveShop("test");
+		if(_SQL != null)
+			_SQL.Disconnect();
+		
+		
+	}
+	
+	void ConnectDataBase()
+	{
+		_SQL = new MySQL(this, "imusGS");
+		try {
+			_SQL.Connect();
+			Bukkit.getLogger().info(ChatColor.GREEN +"[imusGS] Database Connected!");
+		} 
+		catch (ClassNotFoundException | SQLException e) {
+
+			Bukkit.getLogger().info(ChatColor.RED +"[imusGS] Database not connected");
+		}
 	}
 	
 	public void registerCommands() 
@@ -73,20 +96,32 @@ public class Main extends JavaPlugin
 	    String full_sub2 = cmd1+" "+cmd1_sub2;
 	    _cmdHelper.setCmd(full_sub2, "Open the Shop", full_sub2 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub2, new subShopOpenCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    
+	    String cmd1_sub3 ="delete shop";
+	    String full_sub3 =cmd1+" "+cmd1_sub3;
+	    _cmdHelper.setCmd(full_sub3, "Delete the Shop", full_sub3 + " [ShopName]");
+	    handler.registerSubCmd(cmd1, cmd1_sub3, new subShopDeleteCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    
 	     
 	    
-	    cmd1AndArguments.put(cmd1, new String[] {"create","open"});
+	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete"});
 	    cmd1AndArguments.put("open", new String[] {"shop"});
+	    cmd1AndArguments.put("delete", new String[] {"shop"});
 	    cmd1AndArguments.put("create", new String[] {"shop"});
 	    
 	    getCommand(cmd1).setExecutor(handler);
 	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments);
 	    getCommand(cmd1).setTabCompleter(_tab_cmd1);
 	    _shopManager.UpdateTabCompliters();
-
+	    _shopManager.CreateShop("test");
 	    
 
 	}	
+	
+	public MySQL GetSQL()
+	{
+		return _SQL;
+	}
 	
 	public ImusTabCompleter get_tab_cmd1() {
 		return _tab_cmd1;

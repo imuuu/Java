@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import imu.GS.Main.Main;
+import imu.GS.ShopUtl.Customer.Customer;
 import imu.iAPI.Interfaces.ITuple;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
@@ -18,7 +19,7 @@ public abstract class ShopBase
 {
 	Main _main;
 	public String _name;
-	
+	public String _displayName;
 	public int shopHolderSize = 27;
 	
 	//ArrayList<ShopItem> _items = new ArrayList<>();
@@ -27,10 +28,12 @@ public abstract class ShopBase
 	
 	
 	double _sellM = 1.0;
+	
+
 	double _buyM  = 1.0;
 	
 	double _expire_percent = 0.1f;
-	double _expire_cooldown_m = 30;
+	int _expire_cooldown_m = 30;
 	String _cd_expire = "expire";
 	
 	Cooldowns _cds;
@@ -40,15 +43,18 @@ public abstract class ShopBase
 	public ShopBase(Main main, String name)
 	{
 		_main = main;
-		_name = name;
+		_displayName = name;
+		
+		_name =  _main.GetMetods().StripColor(name);
+		
 		_cds = new Cooldowns();
-		_items.add(new ShopItemSeller[shopHolderSize]);
+		get_items().add(new ShopItemSeller[shopHolderSize]);
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
 	}
 	
 	public String GetNameWithColor()
 	{
-		return ChatColor.translateAlternateColorCodes('&', _name);
+		return ChatColor.translateAlternateColorCodes('&', _displayName);
 	}
 	
 	
@@ -77,49 +83,42 @@ public abstract class ShopBase
 	
 	public ShopItemBase GetItem(int page,int index)
 	{
-		if(page <_items.size())
+		if(page <get_items().size())
 		{
-			return _items.get(page)[index];
+			return get_items().get(page)[index];
 		}
 		return null;
 	}
 	
 	public void RemoveItem(int page, int idx, int amount)
 	{
-		ShopItemBase sib = _items.get(page)[idx];
+		ShopItemBase sib = get_items().get(page)[idx];
 		sib.AddAmount(amount);
 		sib.UpdateItem();
 	}
-//	void UpdateClien(int page, int index) //
-//	{
-//		for(Customer customer : _hCustomers.values())
-//		{
-//			customer._shopInv.UpdateShopSlot(page, index);
-//		}
-//	}
 	
 	public void UnRegisterItems(Inventory inv)
 	{
-		for(int i = 0; i < _items.size(); ++i)
+		for(int i = 0; i < get_items().size(); ++i)
 		{
-			for(int l = 0; l < _items.get(i).length; ++l)
+			for(int l = 0; l < get_items().get(i).length; ++l)
 			{
-				if(_items.get(i)[l] == null)
+				if(get_items().get(i)[l] == null)
 					continue;
 				
-				_items.get(i)[l].UnRegisterSlot(inv);
+				get_items().get(i)[l].UnRegisterSlot(inv);
 			}
 		}
 	}
 	
 	void RegisterAndLoadNewItemsClients()
 	{
-		System.out.println("LOAD all clients shop inv!");
+		//System.out.println("LOAD all clients shop inv!");
 		for(Customer customer : _hCustomers.values())
 		{
 			//_items.get(page)[index].RegisterSlot(customer._shopInv.GetInv(), customer._shopInv, page, index, true);
 			customer._shopInv.LoadShopInv();
-			System.out.println("====>" + customer._player.getName());
+			//System.out.println("====>" + customer._player.getName());
 		}
 		
 	}
@@ -128,11 +127,11 @@ public abstract class ShopBase
 	{
 		int page = 0;
 		ITuple<Integer, Integer> firstFree = null;
-		for(; page < _items.size(); ++page)
+		for(; page < get_items().size(); ++page)
 		{
-			for(int i = 0; i < _items.get(page).length; ++i)
+			for(int i = 0; i < get_items().get(page).length; ++i)
 			{
-				ShopItemBase sib = _items.get(page)[i];
+				ShopItemBase sib = get_items().get(page)[i];
 				if(sib == null)
 				{
 					if(firstFree == null)
@@ -154,17 +153,61 @@ public abstract class ShopBase
 		if(firstFree == null)
 		{
 			System.out.println("Shop: Not free space found, make new page!");
-			_items.add(new ShopItemSeller[shopHolderSize]);
-			_items.get(_items.size()-1)[0] =  sis;
+			get_items().add(new ShopItemSeller[shopHolderSize]);
+			get_items().get(get_items().size()-1)[0] =  sis;
 			//UpdateClients(page+1, 0);
 			RegisterAndLoadNewItemsClients();
 			return;
 		}
 		System.out.println("Shop: Adding to free slot");
-		_items.get(firstFree.GetKey())[firstFree.GetValue()] = 	sis;
+		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = 	sis;
 		//UpdateClients(firstFree.GetKey(), firstFree.GetValue());
 		RegisterAndLoadNewItemsClients();
 		return;
+	}
+
+	public ArrayList<ShopItemSeller[]> get_items() {
+		return _items;
+	}
+	
+	public double get_sellM() {
+		return _sellM;
+	}
+
+	public void set_sellM(double _sellM) {
+		this._sellM = _sellM;
+	}
+
+	public double get_buyM() {
+		return _buyM;
+	}
+
+	public void set_buyM(double _buyM) {
+		this._buyM = _buyM;
+	}
+
+	public double get_expire_percent() {
+		return _expire_percent;
+	}
+
+	public void set_expire_percent(double _expire_percent) {
+		this._expire_percent = _expire_percent;
+	}
+
+	public int get_expire_cooldown_m() {
+		return _expire_cooldown_m;
+	}
+
+	public void set_expire_cooldown_m(int _expire_cooldown_m) {
+		this._expire_cooldown_m = _expire_cooldown_m;
+	}
+
+	public String get_cd_expire() {
+		return _cd_expire;
+	}
+
+	public void set_cd_expire(String _cd_expire) {
+		this._cd_expire = _cd_expire;
 	}
 	
 	
