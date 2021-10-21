@@ -5,15 +5,13 @@ import java.util.HashMap;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import imu.GS.Invs.ShopUI.PLAYER_INV_STATE;
+import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemSeller;
@@ -32,7 +30,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	int _player_slots_start = 36;
 	int _shop_slot_start = 0;
 	
-	PLAYER_INV_STATE p_state = PLAYER_INV_STATE.NORMAL;
+	//PLAYER_INV_STATE p_state = PLAYER_INV_STATE.NORMAL;
 	
 	ItemStack empty_display;
 
@@ -40,11 +38,12 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	int _playerInvPage = 0;
 	int _shopInvPage = 0;
 	ShopBase _shopBase;
-	
+	Main _main;
 	HashMap<Material, ArrayList<ShopItemCustomer>> players_materialCompares= new HashMap<>();
 	int materialCompares_counter = 0;
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
+		_main = (Main)main;
 		_shopBase = shopBase;
 		setupButtons();
 		_shopItemCustomer.add(new ShopItemCustomer[18]);
@@ -85,6 +84,8 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	public void invClosed(InventoryCloseEvent arg0) 
 	{
 		UnRegisterItems();
+		System.out.println("INV CLOSED!");
+		_shopBase.RemoveCustomer(_player, false);
 	}
 
 	public void onClickInsideInv(InventoryClickEvent e) 
@@ -177,14 +178,14 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 
 		case PLAYER_ITEM:
 			System.out.println("player item: "+cInfo._click_amount);
-			ShopItemSeller sis = new ShopItemSeller(cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
+			ShopItemSeller sis = new ShopItemSeller(_main, _shopBase,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
 			_shopBase.AddNewItem(sis);	
 			RefreshSlot(cInfo._slot);
 			break;
 		case SHOP_ITEM:
 			_shopBase.RemoveItem(_shopInvPage, cInfo._slot, cInfo._click_amount * -1);
-			ShopItemCustomer sic = new ShopItemCustomer(_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
+			ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			FindCustomerItem(sic,true);
 			
 			
@@ -261,7 +262,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 					{					
 						//new item found
 
-						_shopItemCustomer.get(i)[l] = new ShopItemCustomer(_player,itemStack, itemStack.getAmount());
+						_shopItemCustomer.get(i)[l] = new ShopItemCustomer(_main,_shopBase,_player,itemStack, itemStack.getAmount());
 						_shopItemCustomer.get(i)[l].RegisterSlot(_inv, this,i, l, false);
 
 						found = true;
@@ -286,7 +287,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 				_shopItemCustomer.add(new ShopItemCustomer[18]);
 				int page = _shopItemCustomer.size()-1;
 				int slot = 0;
-				_shopItemCustomer.get(page)[slot] = new ShopItemCustomer(_player, itemStack, itemStack.getAmount());
+				_shopItemCustomer.get(page)[slot] = new ShopItemCustomer(_main,_shopBase, _player, itemStack, itemStack.getAmount());
 				_shopItemCustomer.get(page)[slot].RegisterSlot(_inv, this, page, slot, false);
 			}
 			
@@ -337,7 +338,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			freeSlots = new int[] {_shopItemCustomer.size()-1,0};
 		}
 			
-		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]] = new ShopItemCustomer(_player, sic.GetRealItem(), 0);
+		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]] = new ShopItemCustomer(_main, _shopBase,_player,sic.GetRealItem(), 0);
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].RegisterSlot(_inv, this,freeSlots[0], freeSlots[1], false);
 
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].AddAmountToPlayer(sic.Get_amount());
@@ -427,10 +428,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		
 		if(slot >= _player_slots_start && slot <_size)
 		{
-			if(p_state == PLAYER_INV_STATE.NORMAL)
-			{
-				return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];
-			}
+			return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];
 			
 //			if(p_state == PLAYER_INV_STATE.OTHER_STUFF)
 //			{

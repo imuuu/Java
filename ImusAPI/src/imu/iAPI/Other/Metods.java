@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import imu.iAPI.Interfaces.DelaySendable;
+import imu.iAPI.Main.ImusAPI;
 import io.netty.handler.codec.base64.Base64;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -115,6 +117,42 @@ public class Metods
     		stack.setItemMeta(meta);
 
 			
+    	}
+    	return stack;
+	}
+	
+	public ItemStack SetLores(ItemStack stack, String[] lores)
+	{
+
+    	if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+			if(!meta.hasLore())
+			{
+				meta.setLore(new ArrayList<>(Arrays.asList(lores)));
+				
+			}
+			else
+			{
+				ArrayList<String> metaLores = (ArrayList<String>)meta.getLore();
+				int size = meta.getLore().size();
+	    		if(size < lores.length)
+	    		{
+	    			
+	    			for(int i = 0; i < lores.length-size; ++i)
+	    			{
+	    				metaLores.add("");
+	    			}
+	    		}
+	    		for(int i = 0; i < lores.length; ++i)
+	    		{
+	    			metaLores.set(i, lores[i]);
+	    		}
+	    		meta.setLore(metaLores);
+			}
+    		
+    		stack.setItemMeta(meta);
+
     	}
     	return stack;
 	}
@@ -208,12 +246,35 @@ public class Metods
 	
 	public ItemStack reSetLore(ItemStack stack, String lore, int index)
 	{
+		//ItemMeta meta = stack.getItemMeta();
+		//ArrayList<String> lores = new ArrayList<String>();	
+		//lores.addAll(meta.getLore());
+		//lores.set(index, lore);
+		//meta.getLore().set(index, lore);
+		//meta.setLore(lores);
+		//stack.setItemMeta(meta);
+		
 		ItemMeta meta = stack.getItemMeta();
-		ArrayList<String> lores = new ArrayList<String>();	
-		lores.addAll(meta.getLore());
-		lores.set(index, lore);
-		meta.setLore(lores);
+		if(!meta.hasLore())
+		{
+			meta.setLore(new ArrayList<>());			
+		}
+		
+		ArrayList<String> metaLores = (ArrayList<String>)meta.getLore();
+		int size = meta.getLore().size();
+		if(size < index)
+		{
+			
+			for(int i = 0; i < index-size; ++i)
+			{
+				metaLores.add("");
+			}
+		}
+		metaLores.set(index, lore);
+		meta.setLore(metaLores);
+		
 		stack.setItemMeta(meta);
+
 		return stack;
 	}
 	

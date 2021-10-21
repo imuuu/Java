@@ -5,20 +5,35 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.GS.Main.Main;
+import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 
 public class ShopItemCustomer extends ShopItemBase
 {
 	ArrayList<ItemStack> _player_itemstack_refs = new ArrayList<>();
 	Player _player;
 	//public int itemSlot = slot;
-	public ShopItemCustomer(Player player, ItemStack real, int amount) 
+	public ShopItemCustomer(Main main, ShopBase shopBase,Player player,ItemStack real, int amount) 
 	{
-		super(real, amount);
+		super(main,shopBase,real, amount);
 		_player = player;
+		
 		AddPlayerItemStackRef("constuctiopn",real);
 		//System.out.println("ShopItemCustomer created");
-
+		
+	}
+	
+	@Override
+	protected void SetShowPrice(ItemPrice price) 
+	{
+		if(price instanceof PriceMoney)
+		{
+			double p = ((PriceMoney)price).GetPrice();
+			((PriceMoney)price).SetShowPrice(p * _shopBase.get_buyM());			
+		}
 	}
 	
 	public void AddPlayerItemStackRef(String id, ItemStack stack)
@@ -42,10 +57,7 @@ public class ShopItemCustomer extends ShopItemBase
 			PlusAmount(amount);
 			return;
 		}
-		MinusAmount(amount);
-		
-		
-		
+		MinusAmount(amount);	
 	}
 	
 	void MinusAmount(int amount)
@@ -148,5 +160,7 @@ public class ShopItemCustomer extends ShopItemBase
 		//AddAmount(total_amount_setted);
 
 	}
+
+	
 
 }

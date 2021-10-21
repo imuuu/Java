@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
+import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.iAPI.Interfaces.ITuple;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
@@ -28,8 +29,6 @@ public abstract class ShopBase
 	
 	
 	double _sellM = 1.0;
-	
-
 	double _buyM  = 1.0;
 	
 	double _expire_percent = 0.1f;
@@ -40,7 +39,7 @@ public abstract class ShopBase
 	
 	HashMap<UUID, Customer> _hCustomers = new HashMap<>();
 	
-	public ShopBase(Main main, String name)
+	public ShopBase(Main main, String name, int pages)
 	{
 		_main = main;
 		_displayName = name;
@@ -48,7 +47,12 @@ public abstract class ShopBase
 		_name =  _main.GetMetods().StripColor(name);
 		
 		_cds = new Cooldowns();
-		get_items().add(new ShopItemSeller[shopHolderSize]);
+		
+		for(int i = 0; i < pages; ++i)
+		{
+			get_items().add(new ShopItemSeller[shopHolderSize]);
+		}
+		
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
 	}
 	
@@ -63,14 +67,23 @@ public abstract class ShopBase
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
 	
-	public void RemoveCustomer(Player player)
+	public void RemoveCustomer(Player player, boolean closeInv)
 	{
 		if(!_hCustomers.containsKey(player.getUniqueId()))
 			return;
 		
 		Customer customer = _hCustomers.get(player.getUniqueId());
-		customer.Close();
+		
+		if(closeInv)
+			customer.Close();
+		
 		_hCustomers.remove(player.getUniqueId());
+		
+		if(_hCustomers.size() == 0)
+		{
+			System.out.println("No customers Save shop data!");
+			_main.get_shopManager().SaveShop(_name, false);
+		}
 	}
 	public void RemoveCustomerALL()
 	{
@@ -81,7 +94,13 @@ public abstract class ShopBase
 		_hCustomers.clear();
 	}
 	
-	public ShopItemBase GetItem(int page,int index)
+	public void SetItem(ShopItemSeller sis, int page, int slot)
+	{
+		//SetPrice(sis);
+		get_items().get(page)[slot] = sis;
+	}
+	
+	public ShopItemBase GetItem(int page, int index)
 	{
 		if(page <get_items().size())
 		{
@@ -123,9 +142,28 @@ public abstract class ShopBase
 		
 	}
 	
+//	void SetPrice(ShopItemSeller sis)
+//	{
+//		if(sis.GetItemPrice() instanceof PriceMoney)
+//		{
+//			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
+//			((PriceMoney)sis.GetItemPrice()).SetShowPrice(price * _sellM);
+//			sis.toolTip();
+//		}
+//	}
+	
 	public void AddNewItem(ShopItemSeller sis)
 	{
 		int page = 0;
+		
+		//SetPrice(sis);
+		
+		if(sis.GetItemPrice() instanceof PriceMoney)
+		{
+			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
+			((PriceMoney)sis.GetItemPrice()).SetShowPrice(price * _sellM);
+		}
+		
 		ITuple<Integer, Integer> firstFree = null;
 		for(; page < get_items().size(); ++page)
 		{

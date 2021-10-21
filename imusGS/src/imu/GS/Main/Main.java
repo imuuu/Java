@@ -44,6 +44,7 @@ public class Main extends JavaPlugin
 		
 		// MANAGERS
 		_shopManager = new ShopManager(this);
+		_shopManager.Init();
 		//_shopManager.loadShopsAsync();
 		 
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" [imusGS] has been activated!");
@@ -60,7 +61,7 @@ public class Main extends JavaPlugin
 			_shopManager.onDisabled();
 		
 		
-		_shopManager.SaveShop("test");
+		
 		if(_SQL != null)
 			_SQL.Disconnect();
 		
@@ -121,6 +122,11 @@ public class Main extends JavaPlugin
 	public MySQL GetSQL()
 	{
 		return _SQL;
+	}
+	
+	public ImusAPI GetIAPI()
+	{
+		return _imusAPI;
 	}
 	
 	public ImusTabCompleter get_tab_cmd1() {
