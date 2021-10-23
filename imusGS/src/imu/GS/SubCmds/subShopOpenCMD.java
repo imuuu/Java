@@ -14,12 +14,12 @@ import imu.GS.ShopUtl.ShopBase;
 import imu.iAPI.Interfaces.CommandInterface;
 import net.md_5.bungee.api.ChatColor;
 
-public class subShopOpenCMD implements CommandInterface
+public class SubShopOpenCMD implements CommandInterface
 {
 	Main _main = null;
 
 	CmdData _data;
-	public subShopOpenCMD(Main main, CmdData data) 
+	public SubShopOpenCMD(Main main, CmdData data) 
 	{
 		_main = main;
 		_data = data;

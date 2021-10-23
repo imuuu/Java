@@ -12,12 +12,12 @@ import imu.GS.Other.CmdData;
 import imu.iAPI.Interfaces.CommandInterface;
 import net.md_5.bungee.api.ChatColor;
 
-public class subShopCreateCMD implements CommandInterface
+public class SubShopCreateCMD implements CommandInterface
 {
 	Main _main = null;
 
 	CmdData _data;
-	public subShopCreateCMD(Main main, CmdData data) 
+	public SubShopCreateCMD(Main main, CmdData data) 
 	{
 		_main = main;
 		_data = data;
@@ -41,9 +41,7 @@ public class subShopCreateCMD implements CommandInterface
     	player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
     			"&6New Shop has meen made! Named as "+shopName));
         
-       
-        
-		
+
         return false;
     }
 

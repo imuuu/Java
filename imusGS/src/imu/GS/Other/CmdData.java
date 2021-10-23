@@ -6,7 +6,7 @@ public class CmdData
 	String _description = "";
 	String _syntax = "";
 	
-	public CmdData(String cmdName, String desc,String syntaxText)
+	public CmdData(String cmdName, String desc, String syntaxText)
 	{
 		_cmd_name = cmdName;
 		_description = desc;

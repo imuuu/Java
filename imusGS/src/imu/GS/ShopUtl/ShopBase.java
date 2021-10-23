@@ -7,10 +7,12 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
+import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.ITuple;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
@@ -32,12 +34,13 @@ public abstract class ShopBase
 	double _buyM  = 1.0;
 	
 	double _expire_percent = 0.1f;
-	int _expire_cooldown_m = 30;
+	int _expire_cooldown_m = 1;
 	String _cd_expire = "expire";
 	
 	Cooldowns _cds;
 	
 	HashMap<UUID, Customer> _hCustomers = new HashMap<>();
+	boolean _locked = false;
 	
 	public ShopBase(Main main, String name, int pages)
 	{
@@ -47,6 +50,7 @@ public abstract class ShopBase
 		_name =  _main.GetMetods().StripColor(name);
 		
 		_cds = new Cooldowns();
+		SetNewExpire();
 		
 		for(int i = 0; i < pages; ++i)
 		{
@@ -56,11 +60,36 @@ public abstract class ShopBase
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
 	}
 	
+	
 	public String GetNameWithColor()
 	{
 		return ChatColor.translateAlternateColorCodes('&', _displayName);
 	}
 	
+	public boolean HasExpired()
+	{
+		return _cds.isCooldownReady(_cd_expire);
+	}
+	
+	public void SetNewExpire()
+	{
+		_cds.setCooldownInSeconds(_cd_expire, _expire_cooldown_m * 60);
+	}
+	
+	public boolean HasCustomers()
+	{
+		return _hCustomers.size() > 0;
+	}
+	
+	public boolean HasLocked()
+	{
+		return _locked;
+	}
+	
+	public void SetLocked(boolean locked)
+	{
+		_locked = locked;
+	}
 	
 	public void AddNewCustomer(Player player)
 	{
@@ -152,7 +181,7 @@ public abstract class ShopBase
 //		}
 //	}
 	
-	public void AddNewItem(ShopItemSeller sis)
+	public void AddNewItem(ShopItemSeller sis, boolean setAmount)
 	{
 		int page = 0;
 		
@@ -179,7 +208,14 @@ public abstract class ShopBase
 				
 				if(sib.IsSameKind(sis))
 				{
-					sib.AddAmount(sis.Get_amount());
+					if(setAmount)
+					{
+						sib.Set_amount(sis.Get_amount());
+					}else
+					{
+						sib.AddAmount(sis.Get_amount());
+					}
+					
 					//UpdateClients(page, i);
 					sib.UpdateItem();
 					//System.out.println("Same kind of item update it");

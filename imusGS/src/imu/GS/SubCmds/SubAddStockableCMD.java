@@ -11,15 +11,17 @@ import org.bukkit.entity.Player;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
 import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
+import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.CommandInterface;
 import net.md_5.bungee.api.ChatColor;
 
-public class SubShopDeleteCMD implements CommandInterface
+public class SubAddStockableCMD implements CommandInterface
 {
 	Main _main = null;
 
 	CmdData _data;
-	public SubShopDeleteCMD(Main main, CmdData data) 
+	public SubAddStockableCMD(Main main, CmdData data) 
 	{
 		_main = main;
 		_data = data;
@@ -36,16 +38,17 @@ public class SubShopDeleteCMD implements CommandInterface
     	}
     	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
     	
-    	ShopBase shop = _main.get_shopManager().GetShop(shopName);
-    	if(shop != null)
-    	{
-    		_main.get_shopManager().RemoveShop(shopName);
-    		player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cShop named &9"+shopName+ " &2has been deleted"));
-    	}else
-    	{
-    		player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cShop name not found by &9"+shopName));
-    	}
-    			
+    	System.out.println("name: "+shopName);
+		ShopBase shop = _main.get_shopManager().GetShop(shopName);
+		if(shop != null)
+		{
+
+			shop.AddNewItem(new ShopItemStockable(_main, shop, player.getInventory().getItemInMainHand(), player.getInventory().getItemInMainHand().getAmount()),true);
+		}
+		else
+		{
+			player.sendMessage(ChatColor.RED + "Shop no found!");
+		}
         return false;
     }
 

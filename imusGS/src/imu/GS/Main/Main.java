@@ -11,9 +11,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import imu.GS.CMDs.Cmd;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Other.CmdHelper;
-import imu.GS.SubCmds.subShopCreateCMD;
-import imu.GS.SubCmds.subShopDeleteCMD;
-import imu.GS.SubCmds.subShopOpenCMD;
+import imu.GS.SubCmds.SubAddStockableCMD;
+import imu.GS.SubCmds.SubShopCreateCMD;
+import imu.GS.SubCmds.SubShopDeleteCMD;
+import imu.GS.SubCmds.SubShopOpenCMD;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ImusTabCompleter;
@@ -91,24 +92,31 @@ public class Main extends JavaPlugin
 	    String cmd1_sub1 = "create";
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
 	    _cmdHelper.setCmd(full_sub1, "Create Shop", full_sub1 + " [ShopName]");
-	    handler.registerSubCmd(cmd1, cmd1_sub1, new subShopCreateCMD(this, _cmdHelper.getCmdData(full_sub1)));
+	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubShopCreateCMD(this, _cmdHelper.getCmdData(full_sub1)));
 	    
 	    String cmd1_sub2 = "open shop";
 	    String full_sub2 = cmd1+" "+cmd1_sub2;
 	    _cmdHelper.setCmd(full_sub2, "Open the Shop", full_sub2 + " [ShopName]");
-	    handler.registerSubCmd(cmd1, cmd1_sub2, new subShopOpenCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    handler.registerSubCmd(cmd1, cmd1_sub2, new SubShopOpenCMD(this, _cmdHelper.getCmdData(full_sub2)));
 	    
 	    String cmd1_sub3 ="delete shop";
 	    String full_sub3 =cmd1+" "+cmd1_sub3;
 	    _cmdHelper.setCmd(full_sub3, "Delete the Shop", full_sub3 + " [ShopName]");
-	    handler.registerSubCmd(cmd1, cmd1_sub3, new subShopDeleteCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    handler.registerSubCmd(cmd1, cmd1_sub3, new SubShopDeleteCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    
+	    String cmd1_sub4="add shop";
+	    String full_sub4=cmd1+" "+cmd1_sub4;
+	    _cmdHelper.setCmd(full_sub4, "Add Stockable to shop", cmd1_sub4 + " [ShopName]");
+	    handler.registerSubCmd(cmd1, cmd1_sub4, new SubAddStockableCMD(this, _cmdHelper.getCmdData(full_sub4)));
 	    
 	     
 	    
-	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete"});
+	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete","add"});
 	    cmd1AndArguments.put("open", new String[] {"shop"});
 	    cmd1AndArguments.put("delete", new String[] {"shop"});
 	    cmd1AndArguments.put("create", new String[] {"shop"});
+	    cmd1AndArguments.put("add", new String[] {"shop"});
+	    //cmd1AndArguments.put("unique", new String[] {"shop"});
 	    
 	    getCommand(cmd1).setExecutor(handler);
 	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments);

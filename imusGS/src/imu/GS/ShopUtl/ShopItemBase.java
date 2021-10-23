@@ -1,11 +1,15 @@
 package imu.GS.ShopUtl;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.gson.JsonObject;
+
+import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
@@ -17,7 +21,9 @@ import imu.iAPI.Other.Metods;
 
 public abstract class ShopItemBase 
 {
+	UUID _uuid;
 	protected ItemStack _real_stack;
+	protected ShopItemType _type = ShopItemType.NORMAL;
 	ItemStack _display_stack;
 	
 	int _amount = 0;
@@ -34,6 +40,7 @@ public abstract class ShopItemBase
 	protected ShopBase _shopBase;
 	public ShopItemBase(Main main, ShopBase shopBase,ItemStack real, int amount) 
 	{
+		_uuid = UUID.randomUUID();
 		_metods = ImusAPI._metods;
 		_main = main;
 		_shopBase = shopBase;
@@ -70,9 +77,27 @@ public abstract class ShopItemBase
 		}
 	}
 	
+	public ShopItemType GetItemType()
+	{
+		return _type;
+	}
+	
+	public abstract JsonObject GetJsonData();
+	public abstract void ParseJsonData(JsonObject data);
+	
+	public void SetUUID(UUID uuid)
+	{
+		_uuid = uuid;
+	}
+	
+	public UUID GetUUID()
+	{
+		return _uuid;
+	}
+	
 	public void SetItemPrice(ItemPrice price)
 	{
-		if(price instanceof PriceMoney && !(price instanceof PriceOwn))
+		if(price.getClass().equals(PriceMoney.class)) //price instanceof PriceMoney && !(price instanceof PriceOwn) 
 		{
 			((PriceMoney)price).SetPrice(_main.get_shopManager().GetMaterialPrice(GetRealItem().getType()));
 		}
@@ -172,11 +197,19 @@ public abstract class ShopItemBase
 	public void AddAmount(int amount)
 	{
 		_amount+= amount;		
+		CheckDisplayItem();
+		
+		
+	}
+	
+	void CheckDisplayItem()
+	{
 		if(_amount <= 0)
 		{
 			_amount = 0;
 			GetDisplayItem().setType(Material.BLACK_STAINED_GLASS_PANE);
-		}else
+		}
+		else
 		{
 			if(GetDisplayItem().getType() != GetRealItem().getType())
 			{
@@ -187,13 +220,14 @@ public abstract class ShopItemBase
 		SetLoreAtSpot(LoreSpot.AMOUNT);
 	}
 	
-
 	public int Get_amount() {
 		return _amount;
 	}
 
 
-	public void Set_amount(int _amount) {
+	public void Set_amount(int _amount) 
+	{
 		this._amount = _amount;
+		CheckDisplayItem();
 	}
 }

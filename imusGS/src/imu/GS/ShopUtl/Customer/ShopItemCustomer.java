@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.gson.JsonObject;
+
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
@@ -161,6 +163,19 @@ public class ShopItemCustomer extends ShopItemBase
 
 	}
 
+	@Override
+	public JsonObject GetJsonData() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void ParseJsonData(JsonObject data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 	
 
 }

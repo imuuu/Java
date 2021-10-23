@@ -14,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
-import imu.GS.ShopUtl.ShopItemSeller;
+import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Other.CustomInvLayout;
 
@@ -177,13 +177,19 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			break;
 
 		case PLAYER_ITEM:
-			System.out.println("player item: "+cInfo._click_amount);
+			//System.out.println("player item: "+cInfo._click_amount);
+			if(cInfo._shopItemBase.Get_amount() <= 0)
+				return;
+			
 			ShopItemSeller sis = new ShopItemSeller(_main, _shopBase,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
-			_shopBase.AddNewItem(sis);	
+			_shopBase.AddNewItem(sis,false);	
 			RefreshSlot(cInfo._slot);
 			break;
 		case SHOP_ITEM:
+			if(cInfo._shopItemBase.Get_amount() <= 0)
+				return;
+			
 			_shopBase.RemoveItem(_shopInvPage, cInfo._slot, cInfo._click_amount * -1);
 			ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			FindCustomerItem(sic,true);

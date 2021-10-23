@@ -13,6 +13,7 @@ public class PriceMoney extends ItemPrice
 	public ItemPrice SetPrice(double price)
 	{
 		_price = price;
+		//System.out.println("info:"+info+ "price has been set: "+price);
 		return this;
 	}
 	
