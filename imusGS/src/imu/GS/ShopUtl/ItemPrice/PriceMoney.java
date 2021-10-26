@@ -22,6 +22,7 @@ public class PriceMoney extends ItemPrice
 		_showPrice = showPrice;
 	}
 	
+	@Override
 	public double GetPrice()
 	{
 		return _price;

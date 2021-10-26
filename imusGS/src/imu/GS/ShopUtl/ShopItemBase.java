@@ -15,13 +15,12 @@ import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
-import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
 public abstract class ShopItemBase 
 {
-	UUID _uuid;
+	protected UUID _uuid;
 	protected ItemStack _real_stack;
 	protected ShopItemType _type = ShopItemType.NORMAL;
 	ItemStack _display_stack;
@@ -36,13 +35,13 @@ public abstract class ShopItemBase
 
 	HashMap<Inventory, SlotInfo> _slotPositions = new HashMap<>();
 	ItemPrice _price;
-	Main _main;
+	protected Main _main;
 	protected ShopBase _shopBase;
 	public ShopItemBase(Main main, ShopBase shopBase,ItemStack real, int amount) 
 	{
-		_uuid = UUID.randomUUID();
 		_metods = ImusAPI._metods;
 		_main = main;
+		SetUUID(UUID.randomUUID());	
 		_shopBase = shopBase;
 		_real_stack = real.clone();
 		_display_stack = real.clone();
@@ -75,6 +74,11 @@ public abstract class ShopItemBase
 			this._shopItem = _shopItem;
 			this._cmbi = cmbi;
 		}
+	}
+	
+	public ShopBase GetShop()
+	{
+		return _shopBase;
 	}
 	
 	public ShopItemType GetItemType()

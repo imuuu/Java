@@ -23,6 +23,7 @@ public class Customer
 	
 	public Customer Open()
 	{
+		//System.out.println("opening");
 		_shopInv.openThis();
 		return this;
 	}

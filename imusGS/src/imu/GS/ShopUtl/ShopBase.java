@@ -93,6 +93,7 @@ public abstract class ShopBase
 	
 	public void AddNewCustomer(Player player)
 	{
+		//System.out.println("add customer");
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
 	
@@ -131,7 +132,7 @@ public abstract class ShopBase
 	
 	public ShopItemBase GetItem(int page, int index)
 	{
-		if(page <get_items().size())
+		if(page < get_items().size())
 		{
 			return get_items().get(page)[index];
 		}

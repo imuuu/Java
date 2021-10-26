@@ -90,6 +90,9 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
+		if(_shopBase.HasLocked())
+			return;
+		
 		ItemStack stack = e.getCurrentItem();
 		if(stack == null)
 			return;

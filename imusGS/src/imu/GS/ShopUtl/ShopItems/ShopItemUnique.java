@@ -1,6 +1,8 @@
 package imu.GS.ShopUtl.ShopItems;
 
 
+import java.util.UUID;
+
 import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
@@ -22,10 +24,19 @@ public class ShopItemUnique extends ShopItemStockable
 		SetItemPrice(new PriceUnique().SetPrice(_uniquePrice));
 	}
 	
-
+	
+	@Override
+	public void SetUUID(UUID uuid) 
+	{
+		_uuid = uuid;
+		_main.get_shopManager().GetUniqueManager().PutPDuuid(GetRealItem(), uuid);
+	}
+	
+	
 	@Override
 	public void AddAmount(int amount)
 	{
+		super.AddAmount(amount);
 		System.out.println("Unique stack, amount doesnt decrease");
 	}
 	

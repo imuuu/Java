@@ -12,6 +12,9 @@ import imu.GS.CMDs.Cmd;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Other.CmdHelper;
 import imu.GS.SubCmds.SubAddStockableCMD;
+import imu.GS.SubCmds.SubCreateUniqueCMD;
+import imu.GS.SubCmds.SubModifyShopCMD;
+import imu.GS.SubCmds.SubModifyUniqueCMD;
 import imu.GS.SubCmds.SubShopCreateCMD;
 import imu.GS.SubCmds.SubShopDeleteCMD;
 import imu.GS.SubCmds.SubShopOpenCMD;
@@ -109,14 +112,30 @@ public class Main extends JavaPlugin
 	    _cmdHelper.setCmd(full_sub4, "Add Stockable to shop", cmd1_sub4 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub4, new SubAddStockableCMD(this, _cmdHelper.getCmdData(full_sub4)));
 	    
+	    String cmd1_sub5="create unique";
+	    String full_sub5=cmd1+" "+cmd1_sub5;
+	    _cmdHelper.setCmd(full_sub5, "Create Unique Item", cmd1_sub5 + " {price}");
+	    handler.registerSubCmd(cmd1, cmd1_sub5, new SubCreateUniqueCMD(this, _cmdHelper.getCmdData(full_sub5)));
+	    
+	    String cmd1_sub6="modify uniques";
+	    String full_sub6=cmd1+" "+cmd1_sub6;
+	    _cmdHelper.setCmd(full_sub6, "Modify Uniques", cmd1_sub6);
+	    handler.registerSubCmd(cmd1, cmd1_sub6, new SubModifyUniqueCMD(this, _cmdHelper.getCmdData(full_sub6)));
+	    
+	    String cmd1_sub7="modify shop";
+	    String full_sub7=cmd1+" "+cmd1_sub7;
+	    _cmdHelper.setCmd(full_sub7, "Modify Shop", cmd1_sub7);
+	    handler.registerSubCmd(cmd1, cmd1_sub7, new SubModifyShopCMD(this, _cmdHelper.getCmdData(full_sub7)));
+	    
 	     
 	    
-	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete","add"});
+	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete","add", "modify"});
 	    cmd1AndArguments.put("open", new String[] {"shop"});
 	    cmd1AndArguments.put("delete", new String[] {"shop"});
-	    cmd1AndArguments.put("create", new String[] {"shop"});
+	    cmd1AndArguments.put("create", new String[] {"shop","unique"});
 	    cmd1AndArguments.put("add", new String[] {"shop"});
-	    //cmd1AndArguments.put("unique", new String[] {"shop"});
+	    cmd1AndArguments.put("modify", new String[] {"shop", "uniques"});
+	
 	    
 	    getCommand(cmd1).setExecutor(handler);
 	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments);

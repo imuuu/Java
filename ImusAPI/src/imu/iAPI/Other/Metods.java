@@ -31,15 +31,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import com.google.common.base.Strings;
+
 import imu.iAPI.Interfaces.DelaySendable;
-import imu.iAPI.Main.ImusAPI;
-import io.netty.handler.codec.base64.Base64;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemElytra;
 import net.minecraft.world.item.ItemShield;
+import net.minecraft.world.item.ItemTool;
 
 public class Metods 
 {
@@ -512,6 +513,12 @@ public class Metods
 	{
 		if(stack != null && stack.getType()!= Material.AIR)
 		{
+			if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemTool)
+			{
+				//System.out.println("Checking if works: stack");
+				return true;
+			}
+			
 			switch(stack.getType()) 
 			{
 				case WOODEN_PICKAXE: return true;
@@ -543,6 +550,11 @@ public class Metods
 				case DIAMOND_AXE: return true;
 				case DIAMOND_HOE: return true;
 				case DIAMOND_SWORD: return true;
+				
+				case NETHERITE_PICKAXE: return true;
+				case NETHERITE_SHOVEL: return true;
+				case NETHERITE_AXE: return true;
+				case NETHERITE_SWORD: return true;
 				
 				case SHIELD: return true;
 				
@@ -1002,6 +1014,31 @@ public class Metods
 			e.printStackTrace();
 		}
 		return stack;
+	}
+	
+	public String GetItemDisplayName(ItemStack stack)
+	{
+		String displayName = stack.getType().name();
+		if(stack.hasItemMeta())
+		{
+			if(!Strings.isNullOrEmpty(stack.getItemMeta().getDisplayName()))
+				displayName = stack.getItemMeta().getDisplayName();
+		}
+			
+		return displayName;
+
+	}
+	
+	public <T> String CombineArrayToOneString(T[] array, String seperator)
+	{
+		String str = "";
+		for(int i = 0; i < array.length; i++)
+		{
+			str += array[i];
+			if(i < array.length-1)
+				str += seperator;
+		}
+		return str;
 	}
 	
 	
