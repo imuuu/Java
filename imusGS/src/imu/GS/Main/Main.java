@@ -141,7 +141,7 @@ public class Main extends JavaPlugin
 	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments);
 	    getCommand(cmd1).setTabCompleter(_tab_cmd1);
 	    _shopManager.UpdateTabCompliters();
-	    _shopManager.CreateShop("test");
+	    //_shopManager.CreateShop("test");
 	    
 
 	}	

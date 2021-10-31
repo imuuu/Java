@@ -19,6 +19,7 @@ import imu.GS.Prompts.ConvPromptModModifyINV;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
+import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
@@ -37,24 +38,15 @@ public class ShopModModifyINV extends CustomInvLayout
 	Main _main;
 	ShopItemModData _modData;
 	boolean _isClosed;
-	public ShopModModifyINV(Main main, Player player, String name, ShopItemSeller sis, ShopItemModData modData) 
+	public ShopModModifyINV(Main main, Player player,ShopItemSeller sis, ShopItemModData modData) 
 	{
-		super(main, player, name, 9*3);
+		super(main, player, "Modify item", 9*3);
 		_main = main;
-		_modData = modData;
 		_sis = sis;
 		copy_item = _sis.GetRealItem().clone();
 		_shop = sis.GetShop();
-		_isClosed = _shop.HasLocked();
-
-
-//		if(answers == null)
-//			_newInv = true;
-//
-//		initAnswers(answers);
 		
-		
-		//openThis();
+		SetModData((ShopItemModData)modData.clone());
 	}
 		
 	enum BUTTON implements IButton
@@ -75,7 +67,12 @@ public class ShopModModifyINV extends CustomInvLayout
 						
 	}
 	
-
+	public ShopModModifyINV SetModData(ShopItemModData modData)
+	{
+		_modData = modData;
+		makeInv();
+		return this;
+	}
 	
 	void makeInv()
 	{
@@ -85,46 +82,51 @@ public class ShopModModifyINV extends CustomInvLayout
 		}
 		
 		String m1m2 = ImusAPI._metods.msgC("&bM1: &aSet &bM2: &cRemove");
-		
+		String setTo = ImusAPI._metods.msgC("&aSet To &1");
+		String lore;
 		int id = 0;
 		setupButton(BUTTON.BACK, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "<< BACK", 0);
 		setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "<< CONFIRM", 9*2);
 		_inv.setItem(9, new ItemStack(copy_item));
 		setupButton(BUTTON.REMOVE_INF, Material.LAVA_BUCKET, ChatColor.RED + ""+ChatColor.BOLD + "Remove this items from shop", 8);
 		
-		
 		id = 2;
-		ItemStack custom_amount = setupButton(BUTTON.CUSTOM_AMOUNT, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Custom amount", id);
-		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT, m1m2), false);
-		
-		
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, m1m2);
+		ItemStack custom_amount = setupButton(BUTTON.CUSTOM_AMOUNT, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Custom amount", id);
+		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, m1m2), false);
+				
 		id = 4;
-		ItemStack setPerms = setupButton(BUTTON.SET_PERMISSION, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Set permission", id);
-		ImusAPI._metods.addLore(setPerms, _modData.GetValueStr(ITEM_MOD_DATA.PERMISSIONS, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.PERMISSIONS,setTo ,null,  m1m2);
+		ItemStack setPerms = setupButton(BUTTON.SET_PERMISSION, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set permission", id);
+		ImusAPI._metods.addLore(setPerms, lore, false);
 		
 		id = 6;
-		ItemStack setFillDelay = setupButton(BUTTON.SET_FILL_DELAY, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock Delay(min) and FillAmount", id);
-		ImusAPI._metods.addLore(setFillDelay, _modData.GetValueStr(ITEM_MOD_DATA.FILL_DELAY, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_DELAY,setTo ,null,  m1m2);
+		ItemStack setFillDelay = setupButton(BUTTON.SET_FILL_DELAY, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillDelay(min)", id);
+		ImusAPI._metods.addLore(setFillDelay, lore, false);
 		ImusAPI._metods.addLore(setFillDelay, ChatColor.YELLOW + "How often stock will be filled and", true);
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 12;
-		ItemStack setFillAmount = setupButton(BUTTON.SET_FILL_AMOUNT, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillAmount", id);
-		ImusAPI._metods.addLore(setFillAmount, _modData.GetValueStr(ITEM_MOD_DATA.FILL_AMOUNT, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_AMOUNT,setTo ,null,  m1m2);
+		ItemStack setFillAmount = setupButton(BUTTON.SET_FILL_AMOUNT, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillAmount", id);
+		ImusAPI._metods.addLore(setFillAmount, lore , false);
 		ImusAPI._metods.addLore(setFillAmount, ChatColor.YELLOW + "How many it fills. Cant go over", true);
 		ImusAPI._metods.addLore(setFillAmount, ChatColor.YELLOW + "shop amount(or custom amount)", true);
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 14;
-		ItemStack setCusPrice = setupButton(BUTTON.SET_CUSTOM_PRICE, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
-		ImusAPI._metods.addLore(setCusPrice, _modData.GetValueStr(ITEM_MOD_DATA.OWN_PRICE, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.OWN_PRICE,setTo ,null,  m1m2);
+		ItemStack setCusPrice = setupButton(BUTTON.SET_CUSTOM_PRICE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
+		ImusAPI._metods.addLore(setCusPrice, lore, false);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Set own price for item in this shop!", true);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Be carefull with money explote! Cant be too cheap!", true);
 		
 		
 		id = 20;
-		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, Material.GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
-		ImusAPI._metods.addLore(setWorlds, _modData.GetValueStr(ITEM_MOD_DATA.WORLD_NAMES, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.WORLD_NAMES,setTo , null,  m1m2);
+		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
+		ImusAPI._metods.addLore(setWorlds, lore, false);
 		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Set worlds where you can get this item and", true);
 		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Item will be removed(from inv) if entered wrong world", true);
 				
@@ -134,19 +136,31 @@ public class ShopModModifyINV extends CustomInvLayout
 //		ImusAPI._metods.addLore(setCanBeSold, ChatColor.YELLOW + "If true, you can sold it back. If false you cant!", true);
 				
 		id = 22;
-		ItemStack setDistance_item = setupButton(BUTTON.SET_DISTANCE, Material.GLASS_PANE,  ChatColor.DARK_PURPLE + "Set Distance radius. You position as anchor!", id);
-		ImusAPI._metods.addLore(setDistance_item, _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE, m1m2), false);
-		ImusAPI._metods.addLore(setDistance_item, ChatColor.YELLOW + "Set your location and item will be shown in given radius", true);
+		//String locationStr = _modData.GetValueStr(ITEM_MOD_DATA.LOCATION, " " ,null, "");
+		//System.out.println("location text: "+locationStr);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null ,null, m1m2);
+		ItemStack setDistance_item = setupButton(BUTTON.SET_DISTANCE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set Distance radius.", id);		
+		ImusAPI._metods.addLore(setDistance_item, lore.split("; "), false);
+		ImusAPI._metods.addLore(setDistance_item, setTo, false);
+		ImusAPI._metods.addLore(setDistance_item, ChatColor.YELLOW + "Item will be shown inside given radius", true);
 		
 		id = 24;
-		ItemStack setTimeSell = setupButton(BUTTON.SET_TIME_SELL, Material.GLASS_PANE,  ChatColor.DARK_PURPLE + "Set sell time", id);
-		ImusAPI._metods.addLore(setTimeSell, _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START, m1m2), false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START,setTo ,null,  m1m2);
+		ItemStack setTimeSell = setupButton(BUTTON.SET_TIME_SELL, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set sell time", id);
+		ImusAPI._metods.addLore(setTimeSell, lore , false);
 		ImusAPI._metods.addLore(setTimeSell, ChatColor.YELLOW + "Set time when item will be apearing in shop", true);
-		
-		
+			
 	}
 	
-
+	@Override
+	public void openThis() 
+	{
+		super.openThis();
+		if(!HasRegistered())
+			RegisterToEvents();
+		
+		_main.get_shopManager().RegisterOpenedInv(_player, this);
+	}
 	
 	
 	@EventHandler
@@ -154,19 +168,13 @@ public class ShopModModifyINV extends CustomInvLayout
 	{
 		if(isThisInv(e))
 		{
+			_isClosed = _shop.HasLocked();
 			_shop.SetLocked(true);
-			makeInv();
+			//makeInv();
 		}
 	}
 	
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
-		{
-			_shop.SetLocked(_isClosed);
-		}
-	}
+
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -184,89 +192,67 @@ public class ShopModModifyINV extends CustomInvLayout
 		//int remove_state = 0;
 		if(e.getClick() == ClickType.LEFT)
 		{
+			cf = new ConversationFactory(_main);
 			switch (button) 
 			{
 			case NONE:
 				
 				break;
 			case BACK:
-				//_smm.openModShopInv(_player, _shop);
-				break;
+				_player.closeInventory();
+				new ShopModINV(_main, _player, _shop).openThis();
+				return;
 			case CONFIRM:
 //				if(confirm())						
 //					_smm.openModShopInv(_player, _shop);
 //				
-				break;
-			case CUSTOM_AMOUNT:
-
-				cf = new ConversationFactory(_main);
-				question = ChatColor.DARK_PURPLE + "Give Custom amount?";
-				//conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_main, _player, orginal_item, _shop,_answers, slot,question)).withLocalEcho(true).buildConversation(_player);
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.MAX_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				
+				((ShopItemStockable)_sis).SetModData(_modData);
 				_player.closeInventory();
+				new ShopModINV(_main, _player, _shop).openThis();
+				return;
+			case CUSTOM_AMOUNT:				
+				question = ChatColor.DARK_PURPLE + "Give Custom amount?";
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.MAX_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_PERMISSION:
-				cf = new ConversationFactory(_main);
 				question = ChatColor.DARK_PURPLE + "Give Permission name?";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.PERMISSIONS, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				
-				_player.closeInventory();
-				
 				break;
 			case SET_FILL_DELAY:
-				cf = new ConversationFactory(_main);
 				question = ChatColor.DARK_PURPLE + "Give Fill Delay";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.FILL_DELAY, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				_player.closeInventory();
 				break;
 			case SET_FILL_AMOUNT:
-				cf = new ConversationFactory(_main);
 				question = ChatColor.DARK_PURPLE + "Give Fill Amount";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.FILL_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();	
-				_player.closeInventory();
 				break;
 			case SET_CUSTOM_PRICE:				
-				cf = new ConversationFactory(_main);
-				question = ChatColor.DARK_PURPLE + "Give price";
+				question = ChatColor.DARK_PURPLE + "Give Own Price?";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.OWN_PRICE, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				
-				_player.closeInventory();
 				break;
 			case SET_WORLDS:
-				cf = new ConversationFactory(_main);
-				question = ChatColor.DARK_PURPLE + "Give Worlds. Seperate by space(ex: world world_nether this(takes world where you are) )";
+				question = ChatColor.DARK_PURPLE + "Give World name?(ex: world world_nether this(takes world where you are) )";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.WORLD_NAMES, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				
-				_player.closeInventory();
-			
+				break;
 			case SET_DISTANCE:
-				cf = new ConversationFactory(_main);
-				question = ChatColor.DARK_PURPLE + "Give Distance?";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.DISTANCE, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				
-				_player.closeInventory();
+				question = ChatColor.DARK_PURPLE + "Give Distance and location?{distance worldName x y z}(ex: 50 world 1 55 23 OR 50 this(this= ur loc))";
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.DISTANCE_LOC, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case REMOVE_INF:
 				System.out.println("REMOVE INF");
-				break;
+				_shop.RemoveItem(_sis.GetPage(), _sis.GetSlot());
+				_player.closeInventory();
+				new ShopModINV(_main, _player, _shop).openThis();
+				return;
 			case SET_TIME_SELL:
-				cf = new ConversationFactory(_main);
 				question = ChatColor.DARK_PURPLE + "Give startTime and endTime  Seperate by space(ex: 0 13000(whole daytime)(min:0 max:24000)";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.SELL_TIME_START, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				conv.begin();
-				_player.closeInventory();
 				break;	
 			default:
 				break;
 			}
+			if(conv != null) conv.begin();			
+			_player.closeInventory();
 		}
 		else if(e.getClick() == ClickType.RIGHT)
 		{
@@ -276,7 +262,7 @@ public class ShopModModifyINV extends CustomInvLayout
 				_modData._maxAmount = -1;
 				break;
 			case SET_PERMISSION:
-				_modData._permissions = null;
+				_modData.ClearPermissions();
 				break;
 			case SET_FILL_DELAY:
 				_modData._fillDelayMinutes = -1;
@@ -288,10 +274,10 @@ public class ShopModModifyINV extends CustomInvLayout
 				_modData._ownPrice = -1;
 				break;
 			case SET_WORLDS:
-				_modData._worldNames = null;
+				_modData.ClearWorldNames();
 				break;
 			case SET_DISTANCE:
-				_modData._distance = -1;
+				_modData.ClearLocations();
 				break;
 			case REMOVE_INF:
 //				if(_answers[slot].equalsIgnoreCase("sure"))
@@ -304,6 +290,7 @@ public class ShopModModifyINV extends CustomInvLayout
 				_modData._sellTimeStart = -1;
 				_modData._sellTimeEnd = -1;
 				break;
+			
 			}
 		}
 		makeInv();
@@ -313,9 +300,10 @@ public class ShopModModifyINV extends CustomInvLayout
 	
 
 	@Override
-	public void invClosed(InventoryCloseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+	public void invClosed(InventoryCloseEvent e) 
+	{
+		_shop.SetLocked(_isClosed);
+		_main.get_shopManager().UnRegisterOpenedInv(_player);
 	}
 
 	

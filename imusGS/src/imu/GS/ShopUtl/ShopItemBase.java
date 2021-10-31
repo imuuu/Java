@@ -2,6 +2,7 @@ package imu.GS.ShopUtl;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -15,6 +16,8 @@ import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
+import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
@@ -24,6 +27,7 @@ public abstract class ShopItemBase
 	protected ItemStack _real_stack;
 	protected ShopItemType _type = ShopItemType.NORMAL;
 	ItemStack _display_stack;
+	ItemStack _display_stack_not_available;
 	
 	int _amount = 0;
 	
@@ -45,7 +49,11 @@ public abstract class ShopItemBase
 		_shopBase = shopBase;
 		_real_stack = real.clone();
 		_display_stack = real.clone();
-		_display_stack.setAmount(1);		
+		_display_stack.setAmount(1);
+		_display_stack_not_available =ImusAPI._metods.addLore(_display_stack.clone(), ImusAPI._metods.msgC("&cNOT AVAILABLE"), false);
+		
+		
+		
 		_amount = amount;
 		LoadLores();
 		SetItemPrice(new PriceMoney());
@@ -104,6 +112,11 @@ public abstract class ShopItemBase
 		if(price.getClass().equals(PriceMoney.class)) //price instanceof PriceMoney && !(price instanceof PriceOwn) 
 		{
 			((PriceMoney)price).SetPrice(_main.get_shopManager().GetMaterialPrice(GetRealItem().getType()));
+		}
+		
+		if(price instanceof PriceUnique && !(GetItemPrice() instanceof PriceOwn))
+		{
+			_price = price;
 		}
 		
 		SetShowPrice(price);		
@@ -168,6 +181,12 @@ public abstract class ShopItemBase
 	{
 		return _display_stack;
 	}
+	
+	public ItemStack GetDisplayItemNotAvailable()
+	{
+		return _display_stack_not_available;
+	}
+	
 	public ItemStack GetRealItem()
 	{
 		return _real_stack;
@@ -193,7 +212,8 @@ public abstract class ShopItemBase
 				return;
 			}else
 			{
-				sInfo._cmbi.UpdateShopSlot(sInfo._page, sInfo._slot);
+				//sInfo._cmbi.UpdateShopSlot(sInfo._page, sInfo._slot);
+				sInfo._cmbi.SetShopSlot(this, sInfo._page, sInfo._slot);
 			}
 		}
 	}

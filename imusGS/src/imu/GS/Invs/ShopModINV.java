@@ -15,8 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import imu.GS.ENUMs.ITEM_MOD_DATA;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
-import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
+
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
@@ -44,7 +45,7 @@ public class ShopModINV extends CustomInvLayout
 		_main = main;
 		unique_slots = _size-9;
 		_shop = shop;
-		_isClosed = _shop.HasLocked();
+		
 
 	}
 
@@ -125,6 +126,7 @@ public class ShopModINV extends CustomInvLayout
 	{
 		if(isThisInv(e))
 		{
+			_isClosed = _shop.HasLocked();
 			_shop.SetLocked(true);
 			_main.get_shopManager().RegisterOpenedInv(_player, this);
 			makeInv();
@@ -163,8 +165,8 @@ public class ShopModINV extends CustomInvLayout
 			
 			break;
 		case SHOP_ITEM:
-			//_smm.openModShopModifyInv(_player, _shop.getShopStacks().get(item_id), _shop, null);
-			System.out.println("shop item");
+			ShopItemStockable item = (ShopItemStockable)_shop.GetItem(current_page, e.getSlot());
+			new ShopModModifyINV(_main, _player, item,item.GetModData()).openThis();
 			break;
 		case GO_LEFT:				
 			chanceCurrentPage(-1);
@@ -208,8 +210,9 @@ public class ShopModINV extends CustomInvLayout
 		c_fill_delay = 		   _modData._fillDelayMinutes != -1 ? 	true_color+ _modData._fillDelayMinutes : none_str;
 		c_fill_amount = 	   _modData._fillAmount != -1 ? 		true_color+ _modData._fillAmount :none_str;
 		//c_soldBack =           _shop.getPDCustomCanSoldBack(stack) != null ? none_color+"false" : ChatColor.AQUA + "true";
-		c_soldDistance =       _modData._distance != -1 ?			true_color+ _modData._distance : none_str;
-		c_selltime =           _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START, none_str);
+		String[] disStr = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null,null,none_str).split("; ");
+		c_soldDistance = disStr.length > 1 ? true_color + "More than one" : disStr[0];		
+		c_selltime =           _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START, null,null,none_str);
 		String color = ChatColor.BLUE+"";
 		String color2 = ChatColor.YELLOW+"";
 		
@@ -221,6 +224,8 @@ public class ShopModINV extends CustomInvLayout
 		ImusAPI._metods.addLore(stack, color +"World(s): "+color2+c_worlds, true);
 		//ImusAPI._metods.addLore(stack, color +"Can be Sold: "+color2+c_soldBack, true);
 		ImusAPI._metods.addLore(stack, color +"Sold Distance&Loc: "+color2+c_soldDistance, true);
+		//ImusAPI._metods.addLore(stack, c_soldDistance, _isClosed)
+		
 		ImusAPI._metods.addLore(stack, color +"Sell time: "+color2+c_selltime, true);
 		
 		
@@ -240,19 +245,29 @@ public class ShopModINV extends CustomInvLayout
 		
 		for(int slot = 0; slot < _shop.get_items().get(current_page).length; slot++)
 		{
-			ShopItemSeller sis = (ShopItemSeller) _shop.GetItem(current_page, slot);
 			
-			if(sis == null || !(sis instanceof ShopItemSeller))
+			ShopItemBase sib = _shop.GetItem(current_page, slot);
+			if( sib == null)
 			{
 				_inv.setItem(slot, SetButton(empty, BUTTON.NONE));
 				continue;
 			}
-
+			
+			if(!(sib instanceof ShopItemStockable))
+			{
+				ItemStack regularItem = new ItemStack(sib.GetRealItem().getType());
+				ImusAPI._metods.addLore(regularItem, "&cCan't be modified!", false);
+				_inv.setItem(slot, SetButton(regularItem, BUTTON.NONE));
+				continue;
+			}
+			
+			ShopItemStockable sis = (ShopItemStockable) sib;
+			
 			copy = sis.GetRealItem().clone();
 			ShopItemModData modData;
 			if(!_newModDatas.containsKey(sis.GetUUID()))
 			{
-				_newModDatas.put(sis.GetUUID(),(ShopItemModData)((ShopItemStockable)sis).GetModData().clone());
+				_newModDatas.put(sis.GetUUID(),(ShopItemModData)sis.GetModData().clone());
 			}
 			modData = _newModDatas.get(sis.GetUUID());
 				

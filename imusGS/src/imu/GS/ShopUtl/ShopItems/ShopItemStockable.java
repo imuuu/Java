@@ -1,5 +1,7 @@
 package imu.GS.ShopUtl.ShopItems;
 
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.gson.JsonObject;
@@ -8,7 +10,9 @@ import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Tuple;
 
 public class ShopItemStockable extends ShopItemSeller
 {
@@ -29,6 +33,75 @@ public class ShopItemStockable extends ShopItemSeller
 		return _modData;
 	}
 	
+	public void SetModData(ShopItemModData modData)
+	{
+		_modData = modData;
+		SetMaxAmount(_modData._maxAmount);
+		SetFillAmount(_modData._fillAmount);
+		SetFillDelayMinutes(_modData._fillDelayMinutes);
+		if(_modData._ownPrice != -1)
+		{
+			SetItemPrice(new PriceOwn().SetPrice(_modData._ownPrice));
+		}
+	}
+	
+	@Override
+	public boolean CanShowToPlayer(Player player) 
+	{
+		if(_modData == null) return true; 
+		
+		if(_modData._sellTimeStart != -1 && _modData._sellTimeEnd != -1)
+		{
+			System.out.println("checking can show sell time");
+			int w_t = (int) player.getWorld().getTime();
+			if(_modData._sellTimeStart < _modData._sellTimeEnd)
+			{
+				if(!(w_t > _modData._sellTimeStart && w_t < _modData._sellTimeEnd))
+				{
+					return true;
+				}
+			}
+			else
+			{
+				if((w_t < _modData._sellTimeStart) && (w_t > _modData._sellTimeEnd))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		if(_modData._locations != null)
+		{
+			for(Tuple<Integer,Location> disLoc : _modData._locations)
+			{
+				if(player.getLocation().getWorld() != disLoc.GetValue().getWorld()) continue;
+				if(player.getLocation().distance(disLoc.GetValue()) < disLoc.GetKey())
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		if(_modData._permissions != null)
+		{
+			System.out.println("checking can show permission");
+			for(String permission : _modData._permissions)
+			{
+				if(player.hasPermission(permission))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		
+		return true;
+		
+	}
+	
 	@Override
 	public void AddAmount(int amount)
 	{
@@ -40,22 +113,23 @@ public class ShopItemStockable extends ShopItemSeller
 			return;
 		}
 			
-		System.out.println("Stocable stack, amount doesnt decrease");
+		//System.out.println("Stocable stack, amount doesnt decrease");
 	}
 	
 	@Override
 	public void Set_amount(int _amount) {
 		super.Set_amount(_amount);
 		_modData._maxAmount = _amount;
+		
 	}
 	
 	@Override
 	public JsonObject GetJsonData() 
 	{
 		JsonObject obj = super.GetJsonData();
-		obj.addProperty("maxAmount", _modData._maxAmount);
-		obj.addProperty("fillAmount", _modData._fillAmount);
-		obj.addProperty("fillDelayMinutes", _modData._fillDelayMinutes);
+		//obj.addProperty("maxAmount", _modData._maxAmount);
+		//obj.addProperty("fillAmount", _modData._fillAmount);
+		//obj.addProperty("fillDelayMinutes", _modData._fillDelayMinutes);
 		return obj;
 	}
 
@@ -63,9 +137,9 @@ public class ShopItemStockable extends ShopItemSeller
 	public void ParseJsonData(JsonObject data) 
 	{
 		super.ParseJsonData(data);
-		SetMaxAmount(data.get("maxAmount").getAsInt());
-		SetFillAmount(data.get("fillAmount").getAsInt());
-		SetFillDelayMinutes(data.get("fillDelayMinutes").getAsInt());
+//		SetMaxAmount(data.get("maxAmount").getAsInt());
+//		SetFillAmount(data.get("fillAmount").getAsInt());
+//		SetFillDelayMinutes(data.get("fillDelayMinutes").getAsInt());
 		
 	}
 	
@@ -79,7 +153,7 @@ public class ShopItemStockable extends ShopItemSeller
 		if(_cd == null)
 			_cd = new Cooldowns();
 		
-		_cd.setCooldownInSeconds("fill", _modData._fillDelayMinutes * 60);
+		_cd.setCooldownInSeconds("fill", _modData._fillDelayMinutes * 10);
 	}
 	
 	protected void SetMaxAmount(int amount)

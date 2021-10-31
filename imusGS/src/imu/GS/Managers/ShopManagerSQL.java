@@ -3,9 +3,10 @@ package imu.GS.Managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -16,12 +17,14 @@ import com.google.gson.JsonParser;
 import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Tuple;
 
 public class ShopManagerSQL 
 {
@@ -56,15 +59,28 @@ public class ShopManagerSQL
 			
 			System.out.println("==> shops");
 			
-			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS shopItems ("
-					+ "uuid VARCHAR(50), "
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS shopitems ("
+					+ "uuid CHAR(36), "	
 					+ "shop_name VARCHAR(100) NOT NULL, "
 					+ "type VARCHAR(200) NOT NULL, "
 					+ "item_display_name VARCHAR(100),"
 					+ "amount INT(100),"
-					+ "own_price FLOAT(20),"
 					+ "page INT(100), "
 					+ "slot INT(27),"
+					
+					+ "own_price 		float(20),"
+					+ "max_amount 		INT(20),"
+					+ "fill_amount 		INT(20),"
+					+ "fill_delay 		INT(20),"
+					
+					+ "selltime_start 	INT(20),"
+					+ "selltime_end		INT(20),"
+					
+//					+ "distance_uuid	VARCHAR(50),"
+//										
+//					+ "permissions_uuid	VARCHAR(50),"
+//					+ "worldnames_uuid	VARCHAR(50),"
+
 					+ "type_data TEXT(16000),"
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(uuid))");
@@ -73,6 +89,37 @@ public class ShopManagerSQL
 			ps.executeUpdate();
 			
 			System.out.println("===> shopItems");
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS shopitem_permissions ("
+					+ "id INT NOT NULL AUTO_INCREMENT, "
+					+ "uuid CHAR(36), "					
+					+ "name VARCHAR(50), "					
+					+ "PRIMARY KEY(id))");
+
+			ps.executeUpdate();
+			System.out.println("===> shopItems => permissions");
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS shopitem_worlds ("
+					+ "id INT NOT NULL AUTO_INCREMENT, "
+					+ "uuid CHAR(36), "					
+					+ "name VARCHAR(50), "					
+					+ "PRIMARY KEY(id))");
+
+			ps.executeUpdate();
+			System.out.println("===> shopItems => worldNames");
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS shopitem_locations ("
+					+ "id INT NOT NULL AUTO_INCREMENT, "
+					+ "uuid CHAR(36), "				
+					+ "distance		INT(20),"
+					+ "dis_world	VARCHAR(40),"	
+					+ "dis_locX		INT(20),"
+					+ "dis_locY		INT(20),"
+					+ "dis_locZ		INT(20),"
+								
+					+ "PRIMARY KEY(id))");
+
+			ps.executeUpdate();
+			System.out.println("===> shopItems => locations");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS material_prices ("
 					+ "material VARCHAR(50), "
@@ -90,17 +137,16 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id))");
 			ps.executeUpdate();
 			System.out.println("=====> tags");
-			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS custom_prices ("
-					+ "uuid VARCHAR(50) NOT NULL, "
-					+ "amount INT(100),"
-
-					+ "item_display_name VARCHAR(100),"
-					+ "itemstack TEXT(16000),"
-					+ "PRIMARY KEY(uuid))");
-			ps.executeUpdate();
-			System.out.println("=====> custom_prices");
+//			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS custom_prices ("
+//					+ "uuid CHAR(36), "	
+//					+ "amount INT(100),"
+//					+ "item_display_name VARCHAR(100),"
+//					+ "itemstack TEXT(16000),"
+//					+ "PRIMARY KEY(uuid))");
+//			ps.executeUpdate();
+//			System.out.println("=====> custom_prices");
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS uniques ("
-					+ "uuid VARCHAR(50) NOT NULL, "
+					+ "uuid CHAR(36), "	
 					+ "item_display_name VARCHAR(100),"
 					+ "price FLOAT(20), "
 					+ "itemstack TEXT(16000),"
@@ -146,14 +192,13 @@ public class ShopManagerSQL
 				shop.set_buyM(buyM);
 				shop.set_expire_percent(expirePrercent);
 				shop.set_expire_cooldown_m(expireCooldown);
-			
-				
+							
 				System.out.println("Shop loaded from sql: "+ name);
 				LoadShopItems(shop);
 				_shopManager._shops.add(shop);
-				
-				
+								
 			}
+			_shopManager.UpdateTabCompliters();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -214,14 +259,22 @@ public class ShopManagerSQL
 			while(rs2.next())
 			{
 				int i = 1;
-				String uuid = rs2.getString(i++);
+				UUID uuid = UUID.fromString(rs2.getString(i++));
 				String shopName = rs2.getString(i++);
 				ShopItemType siType = ShopItemType.valueOf(rs2.getString(i++));
 				String displayName = rs2.getString(i++);
 				int amount = rs2.getInt(i++);
-				float own_price = rs2.getFloat(i++);
 				int page = rs2.getInt(i++);
 				int slot = rs2.getInt(i++);
+				
+				float own_price = rs2.getFloat(i++);
+				int max_amount = rs2.getInt(i++);
+				int fill_amount = rs2.getInt(i++);
+				int fill_delay = rs2.getInt(i++);
+				
+				int selltimeStart = rs2.getInt(i++);
+				int selltimeEnd = rs2.getInt(i++);
+
 				String typeData = rs2.getString(i++);
 				//String custom_recipe_price = rs2.getString(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs2.getString(i++));					
@@ -242,7 +295,64 @@ public class ShopManagerSQL
 					break;
 					}
 
-				sis.SetUUID(UUID.fromString(uuid));
+				sis.SetUUID(uuid);
+				
+				if(sis instanceof ShopItemStockable)
+				{
+					ShopItemModData modData = new ShopItemModData();
+					modData._ownPrice = own_price;
+					modData._maxAmount = max_amount;
+					modData._fillAmount = fill_amount;
+					modData._fillDelayMinutes =fill_delay;
+					modData._sellTimeStart = selltimeStart;
+					modData._sellTimeEnd = selltimeEnd;
+					
+					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitem_locations WHERE uuid='"+uuid.toString()+"';");
+					ResultSet rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							int l = 1;
+							l++; l++; //id uuid
+							int distance = rs.getInt(l++);
+							Location loc = new Location(Bukkit.getWorld(rs.getString(l++)), rs.getInt(l++), rs.getInt(l++), rs.getInt(l++));
+							modData.AddLocation(distance, loc);
+							//modData.
+							
+						}
+						System.out.println("distance added");
+					}
+					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitem_permissions WHERE uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddPermission(rs.getString(3));						
+						}
+						System.out.println("permission added");
+					}
+					
+					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitem_worlds WHERE uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddWorldName(rs.getString(3));						
+						}
+						System.out.println("world added");
+					}
+					
+					
+					
+					((ShopItemStockable)sis).SetModData(modData);
+				}
+				
+				
 				if(own_price != -1)
 				{
 					System.out.println("Has own price");
@@ -331,28 +441,108 @@ public class ShopManagerSQL
 			return;
 		
 		int i = 1;
-		PreparedStatement ps;
+		PreparedStatement ps,ps2;
 		try 
 		{
 			ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO shopitems "
-					+ "(uuid, shop_name, type ,item_display_name, amount, own_price, page, slot, type_data,itemstack) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?)");
+					+ "(uuid, shop_name, type , item_display_name, amount, page, slot, own_price, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data,itemstack) "
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			ps.setString(i++, sis.GetUUID().toString());
 			ps.setString(i++, sis.GetShop()._name);
 			ps.setString(i++, sis.GetItemType().toString());
 			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sis.GetRealItem()));
 			ps.setInt(i++, sis.Get_amount());
-			ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
 			ps.setInt(i++, page);
 			ps.setInt(i++, slot);
-			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
-			ps.setString(i++, _main.GetMetods().EncodeItemStack(sis.GetRealItem()));
 			
+			double ownPrice = -1;
+			int max_amount = -1;
+			int fill_amount = -1;
+			int fill_delay = -1;
+			int sellTimeStart = -1;
+			int sellTimeEnd = -1;
+			if(sis instanceof ShopItemStockable)
+			{
+				ShopItemModData modData = ((ShopItemStockable)sis).GetModData();
+				ownPrice = modData._ownPrice;
+				max_amount = modData._maxAmount;
+				fill_amount = modData._fillAmount;
+				fill_delay = modData._fillDelayMinutes;
+				sellTimeStart = modData._sellTimeStart;
+				sellTimeEnd = modData._sellTimeEnd;
+				
+				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM shopitem_permissions WHERE uuid='%s';",sis.GetUUID().toString()));
+				ps2.executeUpdate();
+				
+				if(modData._permissions != null)
+				{
+					for(String permission : modData._permissions)
+					{
+						ps2 = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO shopitem_permissions "
+								+ "(uuid, name) VALUES (?,?)");
+						ps2.setString(1, sis.GetUUID().toString());
+						ps2.setString(2, permission);
+						ps2.executeUpdate();
+					}
+				}
+				
+				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM shopitem_worlds WHERE uuid='%s';",sis.GetUUID().toString()));
+				ps2.executeUpdate();
+				if(modData._worldNames != null)
+				{
+					for(String worldName : modData._worldNames)
+					{
+						ps2 = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO shopitem_worlds "
+								+ "(uuid, name) VALUES (?,?)");
+						ps2.setString(1, sis.GetUUID().toString());
+						ps2.setString(2, worldName);
+						ps2.executeUpdate();
+					}
+				}
+				
+				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM shopitem_locations WHERE uuid='%s';",sis.GetUUID().toString()));
+				ps2.executeUpdate();			
+				if(modData._locations != null)
+				{
+					for(Tuple<Integer, Location> disLoc : modData._locations)
+					{
+						int l = 1;
+						ps2 = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO shopitem_locations "
+								+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES (?,?,?,?,?,?)");
+						Location loc = disLoc.GetValue();
+						ps2.setString(l++, sis.GetUUID().toString());					
+						ps2.setInt(l++, disLoc.GetKey());
+						ps2.setString(l++, loc.getWorld().getName());
+						ps2.setInt(l++, loc.getBlockX());
+						ps2.setInt(l++, loc.getBlockY());
+						ps2.setInt(l++, loc.getBlockZ());
+						ps2.executeUpdate();
+					}
+				}
+				
+				
+				
+			}
+			//ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
+			ps.setFloat(i++, (float)ownPrice);
+			ps.setInt(i++, max_amount);
+			ps.setInt(i++, fill_amount);
+			ps.setInt(i++, fill_delay);
+			ps.setInt(i++, sellTimeStart);
+			ps.setInt(i++, sellTimeEnd);
+			
+			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
+			ps.setString(i++, _main.GetMetods().EncodeItemStack(sis.GetRealItem()));			
 			ps.executeUpdate();
+			
+		
+			
+			
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("Couldnt add item");
+			e.printStackTrace();
+			System.out.println("Saving shopitem: Couldnt add item");
 		}
 		
 	}

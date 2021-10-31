@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import imu.GS.Main.Main;
+import imu.GS.Managers.ShopManager;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -22,8 +23,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 {
 
 
-	ArrayList<ShopItemCustomer[]> _shopItemCustomer = new ArrayList<>();
-	
+	ArrayList<ShopItemCustomer[]> _shopItemCustomer;
 	//ShopItemCustomer[] _playerItemsOthers;
 	ItemStack[] p_state_display = new ItemStack[2];
 	
@@ -39,14 +39,16 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	int _shopInvPage = 0;
 	ShopBase _shopBase;
 	Main _main;
-	HashMap<Material, ArrayList<ShopItemCustomer>> players_materialCompares= new HashMap<>();
+	ShopManager _sm;
+	HashMap<Material, ArrayList<ShopItemCustomer>> players_materialCompares;
 	int materialCompares_counter = 0;
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
 		_main = (Main)main;
+		_sm = _main.get_shopManager();
 		_shopBase = shopBase;
 		setupButtons();
-		_shopItemCustomer.add(new ShopItemCustomer[18]);
+		ResetPlayerShopItemList();
 		
 		LoadShopInv();
 		LoadPlayerInv();
@@ -80,19 +82,34 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		GO_RIGHT_PLAYER,
 		STATE_PLAYER_INV;
 	}
+	
+	void ResetPlayerShopItemList()
+	{
+		players_materialCompares = new HashMap<>();
+		_shopItemCustomer = new ArrayList<>();
+		_shopItemCustomer.add(new ShopItemCustomer[18]);
+	}
+	
 	@Override
-	public void invClosed(InventoryCloseEvent arg0) 
+	public void invClosed(InventoryCloseEvent e) 
 	{
 		UnRegisterItems();
-		System.out.println("INV CLOSED!");
-		_shopBase.RemoveCustomer(_player, false);
+		_shopBase.RemoveCustomer(_player.getUniqueId(), false);
+		if(!_shopBase.HasCustomers()) 
+		{
+			_shopBase.ArrangeShopItems();
+		}
+			
 	}
 
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
-		if(_shopBase.HasLocked())
-			return;
-		
+		if(_shopBase.HasInteractLock())
+		{
+			System.out.println("interact lock!");
+			return;		
+		}
+			
 		ItemStack stack = e.getCurrentItem();
 		if(stack == null)
 			return;
@@ -105,7 +122,11 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		
 		ClickType c_type = e.getClick();
 		int amount = 0;
-		ShopItemBase si = GetItem(e.getSlot());
+		ShopItemBase si =  GetCustoemrItemViaSlot(e.getSlot());
+		
+		if(si == null) si = GetShopItemViaSlot(e.getSlot());
+		
+		if(si == null) return;
 		
 		switch(c_type)
 		{
@@ -130,14 +151,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		
 		ClickSorter(new ClickInfo(button,e.getSlot(),amount ,c_type, si));
 	}
-//	
-//	@EventHandler
-//	public void OnPickUp(EntityPickupItemEvent event)
-//	{
-//		System.out.println("entity pickup");
-//		LoadPlayerInv();
-//	}
-//	
+
 	@Override
 	public void setupButtons() 
 	{
@@ -157,6 +171,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	
 	public void ClickSorter(ClickInfo cInfo)
 	{
+		ShopItemSeller sis;
 		switch (cInfo._button) 
 		{
 		case GO_LEFT_PLAYER:
@@ -184,16 +199,22 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			if(cInfo._shopItemBase.Get_amount() <= 0)
 				return;
 			
-			ShopItemSeller sis = new ShopItemSeller(_main, _shopBase,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
+			sis = new ShopItemSeller(_main, _shopBase, cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
 			_shopBase.AddNewItem(sis,false);	
-			RefreshSlot(cInfo._slot);
+			//RefreshSlot(cInfo._slot);
+			cInfo._shopItemBase.UpdateItem();
 			break;
 		case SHOP_ITEM:
 			if(cInfo._shopItemBase.Get_amount() <= 0)
 				return;
 			
-			_shopBase.RemoveItem(_shopInvPage, cInfo._slot, cInfo._click_amount * -1);
+			//_shopBase.RemoveItem(_shopInvPage, cInfo._slot, );
+			//sis = GetShopItemViaSlot(cInfo._slot);
+			//sis.AddAmount(cInfo._click_amount * -1);
+			//sis.UpdateItem();
+			cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
+			cInfo._shopItemBase.UpdateItem();
 			ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
 			FindCustomerItem(sic,true);
 			
@@ -217,7 +238,6 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		if(_playerInvPage > _shopItemCustomer.size()-1)
 			_playerInvPage = 0;
 		
-		System.out.println("Player page: "+ _playerInvPage);
 	}
 	
 	public void ChangeShopPage(int amount)
@@ -229,7 +249,6 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		if(_shopInvPage > _shopBase.get_items().size()-1)
 			_shopInvPage = 0;
 		
-		System.out.println("Shop page: "+ _playerInvPage);
 	}
 	
 	public void UpdateCustomerSlot(ShopItemCustomer sic,int page, int slot)
@@ -250,9 +269,22 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		
 	}
 	
-	void LoadPlayerInv()
+	public void SetShopSlot(ShopItemBase sib, int page, int slot)
 	{
-		players_materialCompares = new HashMap<>();
+		if(page != _shopInvPage)
+			return;
+		if(!((ShopItemSeller)sib).CanShowToPlayer(_player))
+		{
+			System.out.println("cant show item: "+slot);
+			_inv.setItem(slot, SetButton(sib.GetDisplayItemNotAvailable(), BUTTON.NONE));
+			return;
+		}
+		_inv.setItem(slot, SetButton(sib.GetDisplayItem(), BUTTON.SHOP_ITEM));
+	}
+	
+	public void LoadPlayerInv()
+	{
+		ResetPlayerShopItemList();
 		
 		for (ItemStack itemStack : _player.getInventory().getContents()) 
 		{
@@ -260,8 +292,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 				continue;
 
 			boolean found = false;
-//			ShopItemCustomer sic = new ShopItemCustomer(_player,itemStack, itemStack.getAmount());
-//			FindCustomerItem(sic,false);
+
 			for(int i = 0; i < _shopItemCustomer.size(); ++i) //page
 			{
 				for(int l = 0; l < _shopItemCustomer.get(i).length; ++l) //slot
@@ -272,6 +303,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 						//new item found
 
 						_shopItemCustomer.get(i)[l] = new ShopItemCustomer(_main,_shopBase,_player,itemStack, itemStack.getAmount());
+						_shopItemCustomer.get(i)[l].AddPlayerItemStackRef("loadINV1", itemStack);
 						_shopItemCustomer.get(i)[l].RegisterSlot(_inv, this,i, l, false);
 
 						found = true;
@@ -281,7 +313,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 					if(sic.IsSameKind(itemStack))
 					{
 						sic.AddAmount(itemStack.getAmount());
-						sic.AddPlayerItemStackRef("loadInv",itemStack);
+						sic.AddPlayerItemStackRef("loadInv2",itemStack);
 						found = true;
 						break;
 					}
@@ -292,11 +324,12 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			
 			if(!found)
 			{
-				System.out.println("MAKE2 new page for customer!");
+				//System.out.println("MAKE2 new page for customer!");
 				_shopItemCustomer.add(new ShopItemCustomer[18]);
 				int page = _shopItemCustomer.size()-1;
 				int slot = 0;
 				_shopItemCustomer.get(page)[slot] = new ShopItemCustomer(_main,_shopBase, _player, itemStack, itemStack.getAmount());
+				_shopItemCustomer.get(page)[slot].AddPlayerItemStackRef("loadINV3", itemStack);
 				_shopItemCustomer.get(page)[slot].RegisterSlot(_inv, this, page, slot, false);
 			}
 			
@@ -350,21 +383,49 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]] = new ShopItemCustomer(_main, _shopBase,_player,sic.GetRealItem(), 0);
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].RegisterSlot(_inv, this,freeSlots[0], freeSlots[1], false);
 
+		System.out.println("adding to player as NEW: "+sic.Get_amount());
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].AddAmountToPlayer(sic.Get_amount());
 		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].UpdateItem();
 	}
 	
 	
+	ShopItemSeller GetShopItemViaSlot(int slot)
+	{
+		Integer ref_page = _sm.GetSISPage(_inv.getItem(slot));
+		Integer ref_slot = _sm.GetSISSlot(_inv.getItem(slot));	
+		if(ref_page == null || ref_slot == null) return null;
+		System.out.format("page %d", ref_page);
+		System.out.format("slot %d", ref_slot);
+		return (ShopItemSeller)_shopBase.GetItem(ref_page, ref_slot);
+	}
+	
+	ShopItemCustomer GetCustoemrItemViaSlot(int slot)
+	{
+		if(slot >= _player_slots_start && slot <_size)
+		{
+			return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];						
+		}
+		return null;
+	}
+	
 	void RefreshSlot(int slot)
 	{
 		if(slot >= 0 &&  slot <= 27)
-		{
-			if(_shopBase.get_items().get(_shopInvPage)[slot] == null)
+		{			
+			ShopItemSeller sis = GetShopItemViaSlot(slot);
+			if(sis == null )//|| !sis.CanShowToPlayer(_player))
 			{
 				_inv.setItem(slot, null);
 				return;
 			}
-			_inv.setItem(slot, SetButton(_shopBase.get_items().get(_shopInvPage)[slot].GetDisplayItem(), BUTTON.SHOP_ITEM));
+			
+			if(!sis.CanShowToPlayer(_player))
+			{
+				_inv.setItem(slot, sis.GetDisplayItemNotAvailable());
+				return;
+			}
+			//_inv.setItem(slot, SetButton(_shopBase.get_items().get(_shopInvPage)[slot].GetDisplayItem(), BUTTON.SHOP_ITEM));
+			SetShopSlot(sis, _shopInvPage, slot);
 		}
 		if(slot >= _player_slots_start && slot < _size)
 		{
@@ -385,25 +446,34 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	}
 	
 	public void LoadShopInv()
-	{
-		
+	{		
+		int idx = 0;
 		for(int i = 0; i < _shopBase.get_items().get(_shopInvPage).length; ++i)
 		{
 			ShopItemSeller sis = _shopBase.get_items().get(_shopInvPage)[i];
-			if(sis == null)
+			if(sis == null)// || !sis.CanShowToPlayer(_player))
 			{
-				UpdateShopSlot(_shopInvPage, i);
+				//UpdateShopSlot(_shopInvPage, i);		
+				if(!_shopBase.IsAbsoluteItemPositions()) idx--;
 				continue;
 			}
-			sis.RegisterSlot(_inv, this, _shopInvPage, i, true);
-			UpdateShopSlot(_shopInvPage, i);
+			
+			if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
+			{
+				idx--;
+				continue;
+			}
+		
+			sis.RegisterSlot(_inv, this, _shopInvPage, i+idx, true);
+			sis.UpdateItem();
+			//UpdateShopSlot(_shopInvPage, i);
 		}
 		
 	}
 	
 	void UnRegisterItems()
 	{		
-		System.out.println("Unregister items!");
+		//System.out.println("Unregister items!");
 		for(int i = 0; i < _shopItemCustomer.size(); ++i)
 		{
 			for(int l = 0; l < _shopItemCustomer.get(i).length; ++l)
@@ -428,138 +498,25 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	
 	
 	
-	protected ShopItemBase GetItem(int slot)
-	{
-		if(slot >= 0 && slot < 27) //shopside
-		{
-			return _shopBase.GetItem(_shopInvPage, slot);
-		}
-		
-		if(slot >= _player_slots_start && slot <_size)
-		{
-			return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];
-			
-//			if(p_state == PLAYER_INV_STATE.OTHER_STUFF)
-//			{
-//				return _shopItemCustomer[_playerInvPage][slot-_player_slots_start];
-//			}
-			
-		}
-		return null;
-	}
-	
-//	void AddItemStackMaterialCompares(ItemStack itemStack)
-//	{
-//		if(players_materialCompares.containsKey(itemStack.getType()))
-//		{			
-//			for(ShopItemCustomer sic : players_materialCompares.get(itemStack.getType()))
-//			{
-//				if(sic.IsSameKind(itemStack))
-//				{
-//					sic.AddAmount(itemStack.getAmount());
-//					sic.AddPlayerItemStackRef(itemStack);
-//					return;
-//				}
-//			}			
-//		}
-//		
-//		ShopItemCustomer sic = new ShopItemCustomer(materialCompares_counter++,itemStack,itemStack.getAmount());
-//		sic.AddPlayerItemStackRef(itemStack);
-//		if(players_materialCompares.containsKey(itemStack.getType()))
-//		{
-//			players_materialCompares.get(itemStack.getType()).add(sic);
-//			
-//		}else
-//		{
-//			ArrayList<ShopItemCustomer> ar = new ArrayList<ShopItemCustomer>();
-//			ar.add(sic);
-//			players_materialCompares.put(itemStack.getType(), ar);
-//		}	
-//	}
-	
-
-	
-	
-//	final void loadPlayerInv() 
-//	{
-//		HashMap<Material, ShopItem> mats_i = new HashMap<>();
-//		//HashMap<Integer, Material> i_mats = new HashMap<>();
-//		_player_inv_refs = new HashMap<>();
-//		
-//		ItemStack[] content = _player.getInventory().getContents();
-//		for(int i = 0; i < content.length ;++i)
-//		{
-//			ItemStack s = content[i];
-//			
-//			if(s == null)
-//				continue;
-//			
-//			if(mats_i.containsKey(s.getType()) )
-//			{
-//				//System.out.println("found same type: "+s.getType());
-//				if(mats_i.get(s.getType()).getRealItem().isSimilar(s))
-//				{
-//					//System.out.println("found same type2: "+s.getType());
-//					mats_i.get(s.getType()).addAmount(s.getAmount());
-//					_player_inv_refs.get(s.getType()).put(i,s);
-//					continue;
-//				}
-//				
-//				
-//			}
-//			ShopItem shopitem = new ShopItem(_mainn,i ,s,s.getAmount());
-//			mats_i.put(s.getType(), shopitem);
-//			HashMap<Integer,ItemStack> ar = new HashMap<>();
-//			ar.put(i,s);
-//			_player_inv_refs.put(s.getType(), ar);
-//			//i_mats.put(i,s.getType());
-//			
-//		}
-//		
-////		List<Material> test = new ArrayList<>(i_mats.values());
-////		Collections.sort(test);
-//		int count = 0;
-//		int count2 = 0;
-//		for(ShopItem si : mats_i.values())
-//		{
-//			ItemStack displayItem = si.getDisplayItem();
-//			setButton(displayItem, BUTTON.PLAYER_ITEM);
-//			if(_metods.isArmor(si.getRealItem()) || _metods.isTool(si.getRealItem()))
-//			{
-//				 _playerItemsOthers[count2++] = si;
-//				continue;
-//			}
-//						
-//			_playerItemsNormal[count] = si;		
-//			if(count < 18)
-//			{
-//				_inv.setItem(count+_player_slots_start, displayItem);
-//			}
-//			count++;
-////			if(++count > _playerItemsNormal.length)
-////				break;
-//		}		
-//	}
-//	ShopItemBase GetItem(int slot)
+//	protected ShopItemBase GetItem(int slot)
 //	{
 //		if(slot >= 0 && slot < 27) //shopside
 //		{
-//			//return _shopItems.get(getShopSlot(slot));
+//			return _shopBase.GetItem(_shopInvPage, slot);
 //		}
 //		
 //		if(slot >= _player_slots_start && slot <_size)
 //		{
-//			if(p_state == PLAYER_INV_STATE.NORMAL)
-//			{
-//				return _playerItemsNormal[slot-_player_slots_start];
-//			}
+//			return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];
 //			
-//			if(p_state == PLAYER_INV_STATE.OTHER_STUFF)
-//			{
-//				return _playerItemsOthers[slot-_player_slots_start];
-//			}
+////			if(p_state == PLAYER_INV_STATE.OTHER_STUFF)
+////			{
+////				return _shopItemCustomer[_playerInvPage][slot-_player_slots_start];
+////			}
 //			
 //		}
 //		return null;
 //	}
+	
+
 }

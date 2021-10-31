@@ -63,9 +63,10 @@ public class Metods
 	
 	public ItemStack addLore(ItemStack stack, String lore, boolean addLast)
 	{
-
+		
     	if(stack != null && stack.getType() != Material.AIR)
     	{
+    		lore = msgC(lore);
 			ItemMeta meta = stack.getItemMeta();
     		ArrayList<String> lores = new ArrayList<String>();
     		if(meta.hasLore())
@@ -109,7 +110,7 @@ public class Metods
     			int idx = 0;
     			for(String l : lores)
     			{
-    				read_lores.add(idx++, l);
+    				read_lores.add(idx++, msgC(l));
     			}
     			
     		}
@@ -147,7 +148,7 @@ public class Metods
 	    		}
 	    		for(int i = 0; i < lores.length; ++i)
 	    		{
-	    			metaLores.set(i, lores[i]);
+	    			metaLores.set(i, msgC(lores[i]));
 	    		}
 	    		meta.setLore(metaLores);
 			}

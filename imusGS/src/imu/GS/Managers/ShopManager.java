@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -15,7 +17,6 @@ import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
-import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
@@ -33,7 +34,11 @@ public class ShopManager
 	
 	HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
 	
-
+	int _shopCheckTime = 10;
+	
+	public final String pd_page="gs.page";
+	public final String pd_slot="gs.slot";
+	
 	public ShopManager(Main main)
 	{
 		_main = main;
@@ -60,6 +65,18 @@ public class ShopManager
 		
 		
 		RunnableAsync();
+	}
+	
+	public Integer GetSISSlot(ItemStack stack)
+	{
+		if(stack == null) return null;
+		return ImusAPI._metods.getPersistenData(stack, pd_slot, PersistentDataType.INTEGER);
+	}
+	
+	public Integer GetSISPage(ItemStack stack)
+	{
+		if(stack == null) return null;
+		return ImusAPI._metods.getPersistenData(stack, pd_page, PersistentDataType.INTEGER);
 	}
 	
 	public UniqueManager GetUniqueManager()
@@ -93,22 +110,30 @@ public class ShopManager
 					{
 						if(!shop.HasCustomers())
 						{
-							boolean locked = shop.HasLocked();
-							shop.SetLocked(true);
+//							boolean locked = shop.HasLocked();
+//							shop.SetLocked(true);
 							
-							ReduceShopItemAmount(shop);
-							
-							shop.SetNewExpire();
-							shop.SetLocked(locked);
-						}						
+//							shop.SetLocked(locked);
+						}
+						System.out.println("Check shop");
+						shop.SetLockToInteract(true);
+						CheckShopItems(shop);
+					
+						shop.SetNewExpire();
+						shop.ArrangeShopItems();
+						
+						if(shop.HasCustomers())
+							shop.LoadCustomerInvs();
+						
+						shop.SetLockToInteract(false);
 					}
 				}			
 			}
-		}.runTaskTimerAsynchronously(_main, 20 * 60, 20 * 60);
+		}.runTaskTimerAsynchronously(_main, 20 * _shopCheckTime, 20 * _shopCheckTime);
 		
 		
 	}
-	void ReduceShopItemAmount(ShopBase sBase)
+	void CheckShopItems(ShopBase sBase)
 	{
 
 		for(ShopItemSeller[] siss : sBase.get_items())

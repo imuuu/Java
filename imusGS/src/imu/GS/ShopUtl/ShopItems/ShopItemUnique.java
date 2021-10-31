@@ -25,6 +25,7 @@ public class ShopItemUnique extends ShopItemStockable
 	}
 	
 	
+	
 	@Override
 	public void SetUUID(UUID uuid) 
 	{
@@ -37,7 +38,7 @@ public class ShopItemUnique extends ShopItemStockable
 	public void AddAmount(int amount)
 	{
 		super.AddAmount(amount);
-		System.out.println("Unique stack, amount doesnt decrease");
+		//System.out.println("Unique stack, amount doesnt decrease");
 	}
 	
 	
@@ -45,7 +46,7 @@ public class ShopItemUnique extends ShopItemStockable
 	public JsonObject GetJsonData() 
 	{
 		JsonObject obj = super.GetJsonData();
-		obj.addProperty("uniquePrice", _uniquePrice);
+		//obj.addProperty("uniquePrice", _uniquePrice);
 		
 		
 		return obj;
@@ -55,7 +56,7 @@ public class ShopItemUnique extends ShopItemStockable
 	public void ParseJsonData(JsonObject data) 
 	{
 		super.ParseJsonData(data);
-		((PriceUnique)GetItemPrice()).SetPrice(data.get("uniquePrice").getAsDouble());
+		//((PriceUnique)GetItemPrice()).SetPrice(data.get("uniquePrice").getAsDouble());
 		
 	}
 }

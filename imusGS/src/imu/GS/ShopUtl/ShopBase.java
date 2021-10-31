@@ -3,6 +3,8 @@ package imu.GS.ShopUtl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
@@ -13,6 +15,7 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
+import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.ITuple;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
@@ -25,8 +28,6 @@ public abstract class ShopBase
 	public String _displayName;
 	public int shopHolderSize = 27;
 	
-	//ArrayList<ShopItem> _items = new ArrayList<>();
-	//HashMap<Integer, ShopItemBase[]> _items = new HashMap<>();
 	ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
 	
 	
@@ -35,12 +36,14 @@ public abstract class ShopBase
 	
 	double _expire_percent = 0.1f;
 	int _expire_cooldown_m = 1;
+	boolean _absoluteItemPosition = true;
 	String _cd_expire = "expire";
 	
 	Cooldowns _cds;
 	
 	HashMap<UUID, Customer> _hCustomers = new HashMap<>();
 	boolean _locked = false;
+	boolean _intererActlocked = false;
 	
 	public ShopBase(Main main, String name, int pages)
 	{
@@ -60,6 +63,10 @@ public abstract class ShopBase
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
 	}
 	
+	public boolean IsAbsoluteItemPositions()
+	{
+		return _absoluteItemPosition;
+	}
 	
 	public String GetNameWithColor()
 	{
@@ -86,9 +93,31 @@ public abstract class ShopBase
 		return _locked;
 	}
 	
+	public void RemoveCustomers()
+	{
+		
+	}
+	
 	public void SetLocked(boolean locked)
 	{
 		_locked = locked;
+		if(_locked && HasCustomers())
+		{
+			for(Customer customer : _hCustomers.values())
+			{
+				RemoveCustomer(customer._player.getUniqueId(), true);
+			}
+		}
+	}
+	
+	public void SetLockToInteract(boolean lock)
+	{
+		_intererActlocked = lock;
+	}
+	
+	public boolean HasInteractLock() 
+	{
+		return _intererActlocked;
 	}
 	
 	public void AddNewCustomer(Player player)
@@ -97,23 +126,42 @@ public abstract class ShopBase
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
 	
-	public void RemoveCustomer(Player player, boolean closeInv)
+	public void RemoveCustomer(UUID uuid, boolean closeInv)
 	{
-		if(!_hCustomers.containsKey(player.getUniqueId()))
+		if(!_hCustomers.containsKey(uuid))
 			return;
 		
-		Customer customer = _hCustomers.get(player.getUniqueId());
+		Customer customer = _hCustomers.get(uuid);
 		
 		if(closeInv)
 			customer.Close();
 		
-		_hCustomers.remove(player.getUniqueId());
-		
-		if(_hCustomers.size() == 0)
+		_hCustomers.remove(uuid);
+	}
+	
+	public void LoadCustomerInvs()
+	{
+		for(Customer customer : _hCustomers.values())
 		{
-			System.out.println("No customers Save shop data!");
-			_main.get_shopManager().SaveShop(_name, false);
+			customer._shopInv.LoadShopInv();
+			customer._shopInv.LoadPlayerInv();		
 		}
+	}
+	
+	public void SaveData()
+	{
+		new BukkitRunnable() 
+		{			
+			@Override
+			public void run() 
+			{
+				boolean lock = HasLocked();
+				SetLocked(true);
+				ArrangeShopItems();
+				_main.get_shopManager().SaveShop(_name, false);
+				SetLocked(lock);
+			}
+		}.runTaskAsynchronously(_main);
 	}
 	public void RemoveCustomerALL()
 	{
@@ -124,10 +172,59 @@ public abstract class ShopBase
 		_hCustomers.clear();
 	}
 	
+	public void ArrangeShopItems()
+	{
+		//System.out.println("arrange shop");
+		for(int page = _items.size()-1; page >= 0 ; page--)
+		{
+			boolean isEmpty = true;
+
+			ShopItemSeller[] items = new ShopItemSeller[shopHolderSize];
+			int idx = 0;
+			//int[] stockSlots = new int[shopHolderSize];
+			Set<Integer> stockSlots = new HashSet<>();
+			for(int slot = 0;  slot < _items.get(page).length; ++slot)
+			{
+				ShopItemBase sib = _items.get(page)[slot];
+				if( sib != null && sib.Get_amount() > 0 || (sib instanceof ShopItemStockable))
+				{
+					//System.out.println("==> shopItem found");
+					if(sib instanceof ShopItemStockable)
+					{
+						//System.out.println("stocable");
+						stockSlots.add(slot);
+						items[slot]=_items.get(page)[slot];
+						
+					}else
+					{
+						if(stockSlots.contains(idx)) while(stockSlots.contains(++idx));
+						
+						
+						items[idx] =_items.get(page)[slot].SetPageAndSlot(page, idx);
+						idx++;
+					}
+					
+					isEmpty = false;
+				}
+			}
+			
+			if(isEmpty && page != 0)
+			{
+				_items.remove(_items.size()-1);
+			}
+			else
+			{
+				_items.set(page, items);
+			}
+		}
+	}
+	
 	public void SetItem(ShopItemSeller sis, int page, int slot)
 	{
-		//SetPrice(sis);
-		get_items().get(page)[slot] = sis;
+//		System.out.println("Shopitem added: "+sis.GetRealItem());
+//		System.out.println("==>page: "+page);
+//		System.out.println("==>slot:"+slot);
+		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);
 	}
 	
 	public ShopItemBase GetItem(int page, int index)
@@ -139,11 +236,10 @@ public abstract class ShopBase
 		return null;
 	}
 	
-	public void RemoveItem(int page, int idx, int amount)
+	public void RemoveItem(int page, int idx)
 	{
-		ShopItemBase sib = get_items().get(page)[idx];
-		sib.AddAmount(amount);
-		sib.UpdateItem();
+		//ShopItemBase sib = get_items().get(page)[idx];
+		_items.get(page)[idx] = null;
 	}
 	
 	public void UnRegisterItems(Inventory inv)
@@ -217,9 +313,9 @@ public abstract class ShopBase
 						sib.AddAmount(sis.Get_amount());
 					}
 					
-					//UpdateClients(page, i);
+
 					sib.UpdateItem();
-					//System.out.println("Same kind of item update it");
+
 					return;
 				}
 			}
@@ -227,15 +323,14 @@ public abstract class ShopBase
 		
 		if(firstFree == null)
 		{
-			System.out.println("Shop: Not free space found, make new page!");
+			//System.out.println("Shop: Not free space found, make new page!");
 			get_items().add(new ShopItemSeller[shopHolderSize]);
-			get_items().get(get_items().size()-1)[0] =  sis;
-			//UpdateClients(page+1, 0);
+			get_items().get(get_items().size()-1)[0] =  sis.SetPageAndSlot(get_items().size()-1, 0);
 			RegisterAndLoadNewItemsClients();
 			return;
 		}
-		System.out.println("Shop: Adding to free slot");
-		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = 	sis;
+		//System.out.println("Shop: Adding to free slot");
+		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = sis.SetPageAndSlot(firstFree.GetKey(), firstFree.GetValue());
 		//UpdateClients(firstFree.GetKey(), firstFree.GetValue());
 		RegisterAndLoadNewItemsClients();
 		return;

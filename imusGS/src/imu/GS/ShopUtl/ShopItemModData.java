@@ -3,10 +3,11 @@ package imu.GS.ShopUtl;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.Location;
 
 import imu.GS.ENUMs.ITEM_MOD_DATA;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Tuple;
 
 
 
@@ -16,45 +17,63 @@ public class ShopItemModData implements Cloneable
 	public int _maxAmount  = -1;
 	public int _fillAmount = -1;
 	public int _fillDelayMinutes = -1;
-	public int _distance = -1;
+	
 	public int _sellTimeStart = -1;
 	public int _sellTimeEnd = -1;
+	
+	public ArrayList<Tuple<Integer,Location>> _locations;
+	
 	public ArrayList<String> _permissions;
 	public ArrayList<String> _worldNames;
 	
 	public int _roll = 0;
-	public String GetValueStr(ITEM_MOD_DATA value, String falureStr)
+	public String GetValueStr(ITEM_MOD_DATA value, String trueFrontText, String trueBackText,String falseStr)
 	{
 		String str ="";
-		
+		if(trueFrontText == null) trueFrontText = "";
+		if(trueBackText == null) trueBackText = "";
 		switch (value) 
 		{
 		case OWN_PRICE:
-			str += _ownPrice != -1 ? _ownPrice : falureStr;
+			str += _ownPrice != -1 ? trueFrontText+_ownPrice +trueBackText: falseStr;
 			break;
 		case MAX_AMOUNT:
-			str += _maxAmount != -1 ? _maxAmount : falureStr;
+			str += _maxAmount != -1 ? trueFrontText+_maxAmount+trueBackText : falseStr;
 			break;
 		case FILL_AMOUNT:
-			str += _fillAmount != -1 ? _fillAmount : falureStr;
+			str += _fillAmount != -1 ? trueFrontText+_fillAmount+trueBackText : falseStr;
 			break;
 		case FILL_DELAY:
-			str += _fillDelayMinutes != -1 ? _fillDelayMinutes : falureStr;
-			break;
-		case DISTANCE:
-			str += _distance != -1 ? _distance : falureStr;
+			str += _fillDelayMinutes != -1 ? trueFrontText+_fillDelayMinutes +trueBackText: falseStr;
 			break;
 		case SELL_TIME_START:
-			str += _sellTimeStart != -1 ? _sellTimeStart : falureStr;
-			//break;
+			str += _sellTimeStart != -1 ? trueFrontText+_sellTimeStart +trueBackText: falseStr;
+			break;
 		case SELL_TIME_END:
-			str += _sellTimeEnd != -1 ? " "+_sellTimeEnd : "";
+			str += _sellTimeEnd != -1 ? trueFrontText+_sellTimeEnd+trueBackText : falseStr;
 			break;
 		case PERMISSIONS:
-			str += _permissions != null ? ImusAPI._metods.CombineArrayToOneString(_permissions.toArray(), "; ") : falureStr;
+			str += _permissions != null ? trueFrontText+ImusAPI._metods.CombineArrayToOneString(_permissions.toArray(), "; ")+trueBackText : falseStr;
 			break;
 		case WORLD_NAMES:
-			str += _worldNames != null ? ImusAPI._metods.CombineArrayToOneString(_worldNames.toArray(), "; ") : falureStr;
+			str += _worldNames != null ? trueFrontText+ImusAPI._metods.CombineArrayToOneString(_worldNames.toArray(), "; ")+trueBackText : falseStr;
+			break;
+		case DISTANCE_LOC:
+			//str += _locations != null ? trueFrontText + _locWorld +" "+_locX+ " "+_locY+" "+_locZ+trueBackText : falseStr;
+			String[] strs = null;
+			if(_locations != null)
+			{
+				strs = new String[_locations.size()];
+				for(int i = 0; i < strs.length; ++i)
+				{
+					Location loc =  _locations.get(i).GetValue();
+					String locStr = loc.getWorld().getName()+" "+loc.getBlockX()+" "+loc.getBlockY()+" "+loc.getBlockZ();
+					strs[i] = _locations.get(i).GetKey() + " "+locStr;
+				}
+			}		
+			str += _locations != null ? trueFrontText + ImusAPI._metods.CombineArrayToOneString(strs, "; ")+trueBackText : falseStr;
+			break;
+		default:
 			break;
 		}
 
@@ -63,7 +82,7 @@ public class ShopItemModData implements Cloneable
 	
 	public boolean SetAndCheck(ITEM_MOD_DATA value, String str)
 	{
-		
+
 		switch (value) 
 		{
 		case OWN_PRICE:
@@ -82,9 +101,9 @@ public class ShopItemModData implements Cloneable
 			if(!ImusAPI._metods.isDigit(str)) return false;
 			_fillDelayMinutes = Integer.parseInt(str);
 			break;
-		case DISTANCE:
-			if(!ImusAPI._metods.isDigit(str)) return false;
-			_distance = Integer.parseInt(str);
+		case DISTANCE_LOC:
+			if(!IsLocationValid(str)) return false;
+			AddLocation(str);
 			break;
 		case SELL_TIME_START:
 			if(!ImusAPI._metods.isDigit(str)) return false;
@@ -100,8 +119,36 @@ public class ShopItemModData implements Cloneable
 		case WORLD_NAMES:
 			AddWorldName(str);				
 			break;
+		default:
+			break;
 		}
 		return true;
+	}
+	
+	public void AddLocation(int distance, Location loc)
+	{
+		if(_locations == null) _locations = new ArrayList<>();
+		_locations.add(new Tuple<Integer, Location>(distance, loc));
+	}
+	
+	public void AddLocation(String loc_str)
+	{
+		String[] parts = loc_str.split(" ");
+		Location loc = new Location(Bukkit.getWorld(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4]));
+		AddLocation(Integer.parseInt(parts[0]), loc);
+	}
+	boolean IsLocationValid(String loc_str)
+	{
+		String[] parts = loc_str.split(" ");
+		if(parts.length != 5) return false;
+		if(!(Bukkit.getWorlds().stream().anyMatch(world -> world.getName().equals(parts[1])))) return false;
+		if(!(ImusAPI._metods.isDigit(parts[2])) ||!(ImusAPI._metods.isDigit(parts[3])) || !(ImusAPI._metods.isDigit(parts[3]))) return false;
+		
+		return true;
+	}
+	public void ClearLocations()
+	{
+		_locations = null;
 	}
 	
 	public void AddPermission(String permission)

@@ -3,17 +3,18 @@ package imu.GS.SubCmds;
 import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
+import org.bukkit.inventory.ItemStack;
 
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
-import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.CommandInterface;
+import imu.iAPI.Main.ImusAPI;
 import net.md_5.bungee.api.ChatColor;
 
 public class SubAddStockableCMD implements CommandInterface
@@ -37,18 +38,21 @@ public class SubAddStockableCMD implements CommandInterface
     		return false;
     	}
     	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
-    	
-    	System.out.println("name: "+shopName);
-		ShopBase shop = _main.get_shopManager().GetShop(shopName);
+    	ItemStack stack = player.getInventory().getItemInMainHand();
+    	if(stack == null || stack.getType() == Material.AIR) return false;
+		
+    	ShopBase shop = _main.get_shopManager().GetShop(shopName);
+		
 		if(shop != null)
 		{
-
-			shop.AddNewItem(new ShopItemStockable(_main, shop, player.getInventory().getItemInMainHand(), player.getInventory().getItemInMainHand().getAmount()),true);
+			shop.AddNewItem(new ShopItemStockable(_main, shop, stack , player.getInventory().getItemInMainHand().getAmount()),true);
 		}
 		else
 		{
-			player.sendMessage(ChatColor.RED + "Shop no found!");
+			player.sendMessage(ChatColor.RED + "Shop not found!");
 		}
+		player.sendMessage(ImusAPI._metods.msgC("&9"+ImusAPI._metods.GetItemDisplayName(stack)+" &ahas been added to &3"+shopName));
+		
         return false;
     }
 
