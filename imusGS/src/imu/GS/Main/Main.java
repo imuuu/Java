@@ -2,6 +2,7 @@ package imu.GS.Main;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -20,6 +21,7 @@ import imu.GS.SubCmds.SubShopDeleteCMD;
 import imu.GS.SubCmds.SubShopOpenCMD;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.MySQL;
@@ -36,6 +38,8 @@ public class Main extends JavaPlugin
 	ImusAPI _imusAPI;
 	MySQL _SQL;
 	ImusTabCompleter _tab_cmd1;
+	
+	HashMap<UUID, CustomInvLayout> _opendInvs = new HashMap<>();
 	
 	@Override
 	public void onEnable() 
@@ -61,6 +65,9 @@ public class Main extends JavaPlugin
 	@Override
 	 public void onDisable()
 	{
+		for(CustomInvLayout inv : _opendInvs.values()) { inv.GetPlayer().closeInventory();}
+		_opendInvs.clear();
+		
 		if(_shopManager != null)
 			_shopManager.onDisabled();
 		
@@ -145,7 +152,7 @@ public class Main extends JavaPlugin
 	    
 
 	}	
-	
+		
 	public MySQL GetSQL()
 	{
 		return _SQL;
@@ -203,4 +210,14 @@ public class Main extends JavaPlugin
         _econ = rsp.getProvider();
         return _econ != null;
     }
+	
+	public void RegisterInv(CustomInvLayout inv)
+	{
+		_opendInvs.put(inv.GetPlayer().getUniqueId(), inv);
+	}
+	
+	public void UnregisterInv(CustomInvLayout inv)
+	{
+		_opendInvs.remove(inv.GetPlayer().getUniqueId());
+	}
 }

@@ -11,15 +11,19 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import imu.GS.Invs.BuyCustomPriceINV;
+import imu.GS.Invs.CustomerInv;
 import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 
-public class CustomerMenuBaseInv extends CustomInvLayout
+public class CustomerMenuBaseInv extends CustomerInv
 {
 
 
@@ -155,16 +159,16 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 	@Override
 	public void setupButtons() 
 	{
-		setupButton(BUTTON.GO_LEFT_SHOP, Material.DARK_OAK_SIGN, _metods.msgC("&9<< Shop"), 27);
-		setupButton(BUTTON.GO_RIGHT_SHOP, Material.DARK_OAK_SIGN, _metods.msgC("&9Shop >>"), 35);
-		setupButton(BUTTON.GO_LEFT_PLAYER, Material.BIRCH_SIGN, _metods.msgC("&9<< Inv"), 30);
-		setupButton(BUTTON.GO_RIGHT_PLAYER, Material.BIRCH_SIGN, _metods.msgC("&9Inv >>"), 32);
+		setupButton(BUTTON.GO_LEFT_SHOP, Material.DARK_OAK_SIGN, Metods.msgC("&9<< Shop"), 27);
+		setupButton(BUTTON.GO_RIGHT_SHOP, Material.DARK_OAK_SIGN, Metods.msgC("&9Shop >>"), 35);
+		setupButton(BUTTON.GO_LEFT_PLAYER, Material.BIRCH_SIGN, Metods.msgC("&9<< Inv"), 30);
+		setupButton(BUTTON.GO_RIGHT_PLAYER, Material.BIRCH_SIGN, Metods.msgC("&9Inv >>"), 32);
 		
-		p_state_display[1] = setupButton(BUTTON.STATE_PLAYER_INV, Material.STONE, _metods.msgC("&9Blocks, Ores..."), 31);
-		p_state_display[0] = _metods.hideAttributes(setupButton(BUTTON.STATE_PLAYER_INV, Material.NETHERITE_CHESTPLATE, _metods.msgC("&9Tools, Armor..."), 31));
+		p_state_display[1] = setupButton(BUTTON.STATE_PLAYER_INV, Material.STONE, Metods.msgC("&9Blocks, Ores..."), 31);
+		p_state_display[0] = _metods.hideAttributes(setupButton(BUTTON.STATE_PLAYER_INV, Material.NETHERITE_CHESTPLATE, Metods.msgC("&9Tools, Armor..."), 31));
 		
 		
-		ItemStack redLine = _metods.setDisplayName(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ");
+		ItemStack redLine = Metods.setDisplayName(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ");
 		_inv.setItem(28, redLine);_inv.setItem(29, redLine);_inv.setItem(35-1, redLine);_inv.setItem(35-2, redLine);
 	}
 	
@@ -183,12 +187,12 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			RefreshPlayerDisplayPageSlots();
 			break;
 		case GO_LEFT_SHOP:
-			System.out.println("s go left");
+			//System.out.println("s go left");
 			ChangeShopPage(-1);
 			LoadShopInv();
 			break;
 		case GO_RIGHT_SHOP:
-			System.out.println("s go right");
+			//sSystem.out.println("s go right");
 			ChangeShopPage(1);
 			LoadShopInv();
 			
@@ -209,10 +213,11 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			if(cInfo._shopItemBase.Get_amount() <= 0)
 				return;
 			
-			//_shopBase.RemoveItem(_shopInvPage, cInfo._slot, );
-			//sis = GetShopItemViaSlot(cInfo._slot);
-			//sis.AddAmount(cInfo._click_amount * -1);
-			//sis.UpdateItem();
+			if(cInfo._shopItemBase.GetItemPrice() instanceof PriceCustom)
+			{
+				new BuyCustomPriceINV(_main, _player, _shopBase, (ShopItemSeller)cInfo._shopItemBase).openThis();
+				return;
+			}
 			cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
 			cInfo._shopItemBase.UpdateItem();
 			ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
@@ -269,17 +274,17 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 		
 	}
 	
-	public void SetShopSlot(ShopItemBase sib, int page, int slot)
-	{
+	@Override
+	public void SetShopSlot(ShopItemSeller sis, int page, int slot) {
 		if(page != _shopInvPage)
 			return;
-		if(!((ShopItemSeller)sib).CanShowToPlayer(_player))
+		if(!sis.CanShowToPlayer(_player))
 		{
 			System.out.println("cant show item: "+slot);
-			_inv.setItem(slot, SetButton(sib.GetDisplayItemNotAvailable(), BUTTON.NONE));
+			_inv.setItem(slot, SetButton(sis.GetDisplayItemNotAvailable(), BUTTON.NONE));
 			return;
 		}
-		_inv.setItem(slot, SetButton(sib.GetDisplayItem(), BUTTON.SHOP_ITEM));
+		_inv.setItem(slot, SetButton(sis.GetDisplayItem(), BUTTON.SHOP_ITEM));
 	}
 	
 	public void LoadPlayerInv()
@@ -495,6 +500,7 @@ public class CustomerMenuBaseInv extends CustomInvLayout
 			RefreshSlot(i+_player_slots_start);
 		}
 	}
+
 	
 	
 	

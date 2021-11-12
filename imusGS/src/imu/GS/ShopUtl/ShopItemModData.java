@@ -6,6 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceCustom;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Tuple;
 
@@ -13,7 +16,7 @@ import imu.iAPI.Other.Tuple;
 
 public class ShopItemModData implements Cloneable
 {
-	public double _ownPrice = -1;
+	//public double _ownPrice = -1;
 	public int _maxAmount  = -1;
 	public int _fillAmount = -1;
 	public int _fillDelayMinutes = -1;
@@ -26,6 +29,8 @@ public class ShopItemModData implements Cloneable
 	public ArrayList<String> _permissions;
 	public ArrayList<String> _worldNames;
 	
+	public ItemPrice _itemPrice;
+	
 	public int _roll = 0;
 	public String GetValueStr(ITEM_MOD_DATA value, String trueFrontText, String trueBackText,String falseStr)
 	{
@@ -34,8 +39,18 @@ public class ShopItemModData implements Cloneable
 		if(trueBackText == null) trueBackText = "";
 		switch (value) 
 		{
-		case OWN_PRICE:
-			str += _ownPrice != -1 ? trueFrontText+_ownPrice +trueBackText: falseStr;
+		case CUSTOM_PRICE:
+			if(_itemPrice instanceof PriceOwn)
+			{
+				str += trueFrontText+_itemPrice.GetPrice() +trueBackText;
+				return str;
+			}
+			if(_itemPrice instanceof PriceCustom)
+			{
+				str += trueFrontText+"Multiple Price" +trueBackText;
+				return str;
+			}
+			str += falseStr;
 			break;
 		case MAX_AMOUNT:
 			str += _maxAmount != -1 ? trueFrontText+_maxAmount+trueBackText : falseStr;
@@ -85,9 +100,10 @@ public class ShopItemModData implements Cloneable
 
 		switch (value) 
 		{
-		case OWN_PRICE:
+
+		case CUSTOM_PRICE:
 			if(!ImusAPI._metods.isDigit(str)) return false;
-			_ownPrice = Double.parseDouble(str);
+			_itemPrice = new PriceOwn().SetPrice(Double.parseDouble(str));
 			break;
 		case MAX_AMOUNT:
 			if(!ImusAPI._metods.isDigit(str)) return false;

@@ -2,7 +2,6 @@ package imu.GS.ENUMs;
 
 public enum ITEM_MOD_DATA 
 {
-	OWN_PRICE,
 	MAX_AMOUNT,
 	FILL_AMOUNT,
 	FILL_DELAY,
@@ -10,7 +9,8 @@ public enum ITEM_MOD_DATA
 	SELL_TIME_START,
 	SELL_TIME_END,
 	PERMISSIONS,
-	WORLD_NAMES
+	WORLD_NAMES,
+	CUSTOM_PRICE,
 	
 //	public final int _id;
 //	

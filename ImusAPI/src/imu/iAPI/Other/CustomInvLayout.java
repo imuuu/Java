@@ -1,5 +1,6 @@
 package imu.iAPI.Other;
 
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -30,6 +30,12 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	boolean _hasRegisteredEvents = false;
 	
 	protected DENY_ITEM_MOVE _denyItemMove = DENY_ITEM_MOVE.BOTH;
+	
+	protected ItemStack _droppedStack = null;
+	protected ItemStack _takenStack = null;
+	protected int _droppedSlot = -1;
+	protected int _takenSlot = -1;
+	
 	public CustomInvLayout(Plugin main, Player player, String name, int size)
 	{
 		_plugin = main;
@@ -46,6 +52,11 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		LOWER_INV,
 		BOTH,
 		NONE,
+	}
+	
+	public Player GetPlayer()
+	{
+		return _player;
 	}
 	public void RegisterToEvents()
 	{
@@ -78,8 +89,11 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	}
 	
 	public void openThis() 
-	{
-		_player.openInventory(_inv);		
+	{	
+		_player.openInventory(_inv);
+		
+		if(!HasRegistered())
+			RegisterToEvents();
 	}
 	
 	@EventHandler
@@ -93,14 +107,41 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		}
 	}
 	
+	void SetDroppedTakenStacks(InventoryClickEvent e)
+	{
+		_takenStack = null;
+		_takenSlot = -1;
+		_droppedStack = null;
+		_droppedSlot = -1;
+		if(e.getCurrentItem() == null && e.getCursor() != null)
+		{			
+			_droppedStack = e.getCursor();
+			_droppedSlot = e.getSlot();
+			return;
+		}
+		
+		if(e.getCurrentItem() != null && e.getCursor().getType() == Material.AIR)
+		{		
+			_takenStack = e.getCurrentItem();
+			_takenSlot = e.getSlot();
+			return;
+		}
+	}
+	
 	@EventHandler
 	public void onClick(InventoryClickEvent e)
 	{
+//		System.out.println("inv click: "+e.getSlotType());
+//
+//		System.out.println("ACTION: "+e.getAction());
+//		
+//		System.out.println("Click type: "+e.getClick());
 		if(isThisInv(e))
 		{
 //			System.out.println("raw slot: "+e.getRawSlot());
 //			System.out.println("slot slot: "+e.getSlot());
 //			System.out.println();
+			SetDroppedTakenStacks(e);
 			switch (_denyItemMove) 
 			{
 			case BOTH:
@@ -148,11 +189,12 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	
 	
 	
+	
 	@Override
 	public ItemStack setupButton(IButton b, Material material, String displayName, Integer itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_metods.setDisplayName(sbutton, displayName);
+		_metods.setDisplayName(sbutton, Metods.msgC(displayName));
 		SetButton(sbutton, b);
 		if(itemSlot != null)
 		{

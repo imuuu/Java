@@ -123,40 +123,82 @@ public class Metods
     	return stack;
 	}
 	
-	public ItemStack SetLores(ItemStack stack, String[] lores)
+	public ItemStack SetLores(ItemStack stack, String[] lores, boolean removeEmpty)
 	{
 
     	if(stack != null && stack.getType() != Material.AIR)
     	{
 			ItemMeta meta = stack.getItemMeta();
+			ArrayList<String> metaLores;
 			if(!meta.hasLore())
 			{
-				meta.setLore(new ArrayList<>(Arrays.asList(lores)));
-				
-			}
-			else
+				metaLores = new ArrayList<>();	
+			}else
 			{
-				ArrayList<String> metaLores = (ArrayList<String>)meta.getLore();
-				int size = meta.getLore().size();
-	    		if(size < lores.length)
-	    		{
-	    			
-	    			for(int i = 0; i < lores.length-size; ++i)
-	    			{
-	    				metaLores.add("");
-	    			}
-	    		}
-	    		for(int i = 0; i < lores.length; ++i)
-	    		{
-	    			metaLores.set(i, msgC(lores[i]));
-	    		}
-	    		meta.setLore(metaLores);
+				metaLores = (ArrayList<String>)meta.getLore();
 			}
+			
+			int size = metaLores.size();
+    		if(size < lores.length)
+    		{
+    			
+    			for(int i = 0; i < lores.length-size; ++i)
+    			{
+    				metaLores.add(msgC(lores[size+i]));
+    			}
+    		}
+    		for(int i = 0; i < lores.length; ++i)
+    		{
+    			metaLores.set(i, msgC(lores[i]));
+    		}
+    		if(removeEmpty)
+    		{
+    			//System.out.println("Removing empty");
+    			for(int i = metaLores.size()-1; i >= 0 ; i--)
+    			{
+    				//System.out.println("==> empty? "+metaLores.get(i)+ "is it? "+Strings.isNullOrEmpty(metaLores.get(i)));
+    				if(Strings.isNullOrEmpty(metaLores.get(i)))
+    				{
+    					metaLores.remove(i);
+    				}
+    			}
+    		}
+    		
+    		meta.setLore(metaLores);
     		
     		stack.setItemMeta(meta);
 
     	}
     	return stack;
+	}
+	
+	public ItemStack reSetLore(ItemStack stack, String lore, int index)
+	{
+
+		ItemMeta meta = stack.getItemMeta();
+		if(!meta.hasLore())
+		{
+			meta.setLore(new ArrayList<>());			
+		}
+		
+		ArrayList<String> metaLores = (ArrayList<String>)meta.getLore();
+		int size = metaLores.size();
+		if(size <= index)
+		{
+			System.out.println("add more lines: "+(index-size));
+
+			while(metaLores.size() < index+1)
+			{
+				metaLores.add("");
+				System.out.println("line => added");
+			}
+		}
+		metaLores.set(index, lore);
+		meta.setLore(metaLores);
+		
+		stack.setItemMeta(meta);
+
+		return stack;
 	}
 	
 	public ItemStack hideAttributes(ItemStack stack)
@@ -246,39 +288,7 @@ public class Metods
 		return stack;
 	}
 	
-	public ItemStack reSetLore(ItemStack stack, String lore, int index)
-	{
-		//ItemMeta meta = stack.getItemMeta();
-		//ArrayList<String> lores = new ArrayList<String>();	
-		//lores.addAll(meta.getLore());
-		//lores.set(index, lore);
-		//meta.getLore().set(index, lore);
-		//meta.setLore(lores);
-		//stack.setItemMeta(meta);
-		
-		ItemMeta meta = stack.getItemMeta();
-		if(!meta.hasLore())
-		{
-			meta.setLore(new ArrayList<>());			
-		}
-		
-		ArrayList<String> metaLores = (ArrayList<String>)meta.getLore();
-		int size = meta.getLore().size();
-		if(size < index)
-		{
-			
-			for(int i = 0; i < index-size; ++i)
-			{
-				metaLores.add("");
-			}
-		}
-		metaLores.set(index, lore);
-		meta.setLore(metaLores);
-		
-		stack.setItemMeta(meta);
-
-		return stack;
-	}
+	
 	
 	public int findLoreIndex(ItemStack stack, String lore)
 	{
@@ -406,12 +416,12 @@ public class Metods
 		return stack;
 	}
 	
-	public ItemStack setDisplayName(ItemStack stack, String name)
+	public static ItemStack setDisplayName(ItemStack stack, String name)
 	{
 		if(stack != null && stack.getType() != Material.AIR)
 		{
 			ItemMeta meta = stack.getItemMeta();
-			meta.setDisplayName(name);
+			meta.setDisplayName(msgC(name));
 			stack.setItemMeta(meta);
 			return stack;
 		}
@@ -968,7 +978,7 @@ public class Metods
 //		return item;
 //	}
 	
-	public String msgC(String s)
+	public static String msgC(String s)
 	{
 		return ChatColor.translateAlternateColorCodes('&', s);
 	}

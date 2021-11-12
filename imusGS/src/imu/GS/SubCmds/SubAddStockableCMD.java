@@ -15,6 +15,7 @@ import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class SubAddStockableCMD implements CommandInterface
@@ -50,8 +51,9 @@ public class SubAddStockableCMD implements CommandInterface
 		else
 		{
 			player.sendMessage(ChatColor.RED + "Shop not found!");
+			return false;
 		}
-		player.sendMessage(ImusAPI._metods.msgC("&9"+ImusAPI._metods.GetItemDisplayName(stack)+" &ahas been added to &3"+shopName));
+		player.sendMessage(Metods.msgC("&9"+ImusAPI._metods.GetItemDisplayName(stack)+" &ahas been added to &3"+shopName));
 		
         return false;
     }

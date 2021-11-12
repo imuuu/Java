@@ -10,6 +10,8 @@ import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
+import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
@@ -39,9 +41,9 @@ public class ShopItemStockable extends ShopItemSeller
 		SetMaxAmount(_modData._maxAmount);
 		SetFillAmount(_modData._fillAmount);
 		SetFillDelayMinutes(_modData._fillDelayMinutes);
-		if(_modData._ownPrice != -1)
+		if(_modData._itemPrice  instanceof ItemPrice)//if(_modData._ownPrice != -1)
 		{
-			SetItemPrice(new PriceOwn().SetPrice(_modData._ownPrice));
+			SetItemPrice(_modData._itemPrice);
 		}
 	}
 	
@@ -100,6 +102,25 @@ public class ShopItemStockable extends ShopItemSeller
 		
 		return true;
 		
+	}
+	
+	@Override
+	protected void toolTip() 
+	{
+		if(GetItemPrice() instanceof PriceCustom)
+		{
+			String[] lores = {
+					_lores[0]+Get_amount(),
+					"Click to see price!",
+					"",
+					"",
+					"",
+					
+			};
+			_metods.SetLores(GetDisplayItem(), lores, true);
+			return;
+		}
+		super.toolTip();
 	}
 	
 	@Override

@@ -20,6 +20,7 @@ import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
+import imu.iAPI.Other.Metods;
 
 public class ShopManager 
 {
@@ -175,7 +176,7 @@ public class ShopManager
 		{			
 			if(shop.HasLocked())
 			{
-				p.sendMessage(ImusAPI._metods.msgC("&2Shop has closed. Please come laiter"));
+				p.sendMessage(Metods.msgC("&2Shop has closed. Please come laiter"));
 				return false;
 			}
 			shop.AddNewCustomer(p);

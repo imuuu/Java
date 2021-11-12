@@ -33,13 +33,13 @@ public class SubShopCreateCMD implements CommandInterface
     		player.sendMessage(_data.get_syntaxText());
     		return false;
     	}
-    	String shopName = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
+    	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
     	
     	_main.get_shopManager().CreateShop(shopName);
     	//_main.get_shopManager().SaveShop(shopName, true);
     	
     	player.sendMessage(ChatColor.translateAlternateColorCodes('&', 
-    			"&6New Shop has meen made! Named as "+shopName));
+    			"&6New Shop has meen made! Named as &9"+shopName));
         
 
         return false;

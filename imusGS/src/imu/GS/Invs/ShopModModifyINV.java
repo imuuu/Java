@@ -23,6 +23,7 @@ import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class ShopModModifyINV extends CustomInvLayout
@@ -38,7 +39,7 @@ public class ShopModModifyINV extends CustomInvLayout
 	Main _main;
 	ShopItemModData _modData;
 	boolean _isClosed;
-	public ShopModModifyINV(Main main, Player player,ShopItemSeller sis, ShopItemModData modData) 
+	public ShopModModifyINV(Main main, Player player, ShopItemSeller sis, ShopItemModData modData) 
 	{
 		super(main, player, "Modify item", 9*3);
 		_main = main;
@@ -47,6 +48,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		_shop = sis.GetShop();
 		
 		SetModData((ShopItemModData)modData.clone());
+		//System.out.println("open inv");
 	}
 		
 	enum BUTTON implements IButton
@@ -58,7 +60,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		SET_PERMISSION,
 		SET_FILL_DELAY,
 		SET_FILL_AMOUNT,
-		SET_CUSTOM_PRICE,
+		SET_PRICE,
 		SET_WORLDS,
 		SET_CAN_BE_SOLD,
 		SET_DISTANCE,
@@ -81,8 +83,8 @@ public class ShopModModifyINV extends CustomInvLayout
 			_inv.setItem(i, ImusAPI._metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 		}
 		
-		String m1m2 = ImusAPI._metods.msgC("&bM1: &aSet &bM2: &cRemove");
-		String setTo = ImusAPI._metods.msgC("&aSet To &1");
+		String m1m2 = Metods.msgC("&bM1: &aSet &bM2: &cRemove");
+		String setTo = Metods.msgC("&aSet To &1");
 		String lore;
 		int id = 0;
 		setupButton(BUTTON.BACK, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "<< BACK", 0);
@@ -116,8 +118,8 @@ public class ShopModModifyINV extends CustomInvLayout
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 14;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.OWN_PRICE,setTo ,null,  m1m2);
-		ItemStack setCusPrice = setupButton(BUTTON.SET_CUSTOM_PRICE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE,setTo ,null,  m1m2);
+		ItemStack setCusPrice = setupButton(BUTTON.SET_PRICE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
 		ImusAPI._metods.addLore(setCusPrice, lore, false);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Set own price for item in this shop!", true);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Be carefull with money explote! Cant be too cheap!", true);
@@ -156,9 +158,9 @@ public class ShopModModifyINV extends CustomInvLayout
 	public void openThis() 
 	{
 		super.openThis();
-		if(!HasRegistered())
-			RegisterToEvents();
-		
+//		if(!HasRegistered())
+//			RegisterToEvents();
+//		
 		_main.get_shopManager().RegisterOpenedInv(_player, this);
 	}
 	
@@ -226,10 +228,11 @@ public class ShopModModifyINV extends CustomInvLayout
 				question = ChatColor.DARK_PURPLE + "Give Fill Amount";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.FILL_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
-			case SET_CUSTOM_PRICE:				
-				question = ChatColor.DARK_PURPLE + "Give Own Price?";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.OWN_PRICE, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				break;
+			case SET_PRICE:				
+				//question = ChatColor.DARK_PURPLE + "Give Own Price?";
+				//conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.OWN_PRICE, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				new ChangePriceINV(_main, _player, this,_sis, _modData).openThis();
+				return;
 			case SET_WORLDS:
 				question = ChatColor.DARK_PURPLE + "Give World name?(ex: world world_nether this(takes world where you are) )";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.WORLD_NAMES, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
@@ -239,7 +242,6 @@ public class ShopModModifyINV extends CustomInvLayout
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.DISTANCE_LOC, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case REMOVE_INF:
-				System.out.println("REMOVE INF");
 				_shop.RemoveItem(_sis.GetPage(), _sis.GetSlot());
 				_player.closeInventory();
 				new ShopModINV(_main, _player, _shop).openThis();
@@ -270,8 +272,8 @@ public class ShopModModifyINV extends CustomInvLayout
 			case SET_FILL_AMOUNT:
 				_modData._fillAmount = -1;
 				break;
-			case SET_CUSTOM_PRICE:
-				_modData._ownPrice = -1;
+			case SET_PRICE:
+				_modData._itemPrice = null;
 				break;
 			case SET_WORLDS:
 				_modData.ClearWorldNames();

@@ -166,7 +166,7 @@ public class ShopModINV extends CustomInvLayout
 			break;
 		case SHOP_ITEM:
 			ShopItemStockable item = (ShopItemStockable)_shop.GetItem(current_page, e.getSlot());
-			new ShopModModifyINV(_main, _player, item,item.GetModData()).openThis();
+			new ShopModModifyINV(_main, _player, item, item.GetModData()).openThis();
 			break;
 		case GO_LEFT:				
 			chanceCurrentPage(-1);
@@ -205,7 +205,7 @@ public class ShopModINV extends CustomInvLayout
 		
 		custom_amount =        _modData._maxAmount != -1 ?     		true_color+ _modData._maxAmount : none_str;
 		c_permission =         _modData._permissions != null ? 		true_color+ ImusAPI._metods.CombineArrayToOneString(_modData._permissions.toArray(), "; ") : none_str;
-		c_price =              _modData._ownPrice != -1 ?      		true_color+ _modData._ownPrice : none_str;
+		c_price =              _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE, null,null,none_str);
 		c_worlds =  	       _modData._worldNames != null ?     	true_color+ ImusAPI._metods.CombineArrayToOneString(_modData._worldNames.toArray(), "; ") : none_str;
 		c_fill_delay = 		   _modData._fillDelayMinutes != -1 ? 	true_color+ _modData._fillDelayMinutes : none_str;
 		c_fill_amount = 	   _modData._fillAmount != -1 ? 		true_color+ _modData._fillAmount :none_str;
