@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.Interfaces.IModData;
+import imu.GS.Interfaces.IModDataValues;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
@@ -14,7 +16,7 @@ import imu.iAPI.Other.Tuple;
 
 
 
-public class ShopItemModData implements Cloneable
+public class ShopItemModData implements Cloneable, IModData
 {
 	//public double _ownPrice = -1;
 	public int _maxAmount  = -1;
@@ -32,8 +34,9 @@ public class ShopItemModData implements Cloneable
 	public ItemPrice _itemPrice;
 	
 	public int _roll = 0;
-	public String GetValueStr(ITEM_MOD_DATA value, String trueFrontText, String trueBackText,String falseStr)
+	public String GetValueStr(IModDataValues v, String trueFrontText, String trueBackText,String falseStr)
 	{
+		ITEM_MOD_DATA value = (ITEM_MOD_DATA)v;
 		String str ="";
 		if(trueFrontText == null) trueFrontText = "";
 		if(trueBackText == null) trueBackText = "";
@@ -95,9 +98,9 @@ public class ShopItemModData implements Cloneable
 		return str;
 	}
 	
-	public boolean SetAndCheck(ITEM_MOD_DATA value, String str)
+	public boolean SetAndCheck(IModDataValues v, String str)
 	{
-
+		ITEM_MOD_DATA value = (ITEM_MOD_DATA) v;
 		switch (value) 
 		{
 

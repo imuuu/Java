@@ -17,27 +17,24 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
-
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class ShopModINV extends CustomInvLayout
 {
-	ArrayList<ItemStack> _shop_stacks;
 	
-	int unique_slots = 0;
-	int current_page = 0;
+	private int unique_slots = 0;
+	private int current_page = 0;
 	
-	String pd_buttonType = "gs.sModI.buttonType";
+	private ShopBase _shop;
+	private Main _main;
+	private boolean _isClosed = false;
 	
-	ShopBase _shop;
-	Main _main;
-	boolean _isClosed = false;
-	
-	HashMap<UUID, ShopItemModData> _newModDatas = new HashMap<>();
+	private HashMap<UUID, ShopItemModData> _newModDatas = new HashMap<>();
 	
 	public ShopModINV(Main main, Player player, ShopBase shop) 
 	{
@@ -45,8 +42,6 @@ public class ShopModINV extends CustomInvLayout
 		_main = main;
 		unique_slots = _size-9;
 		_shop = shop;
-		
-
 	}
 
 	
@@ -58,7 +53,10 @@ public class ShopModINV extends CustomInvLayout
 		GO_RIGHT,
 		SHOP_ITEM,
 		SAVE_SHOP_DATA,
-		OVERRIDE_ALL;
+		OVERRIDE_ALL,
+		MOD_SHOPBASE,
+		
+
 	}
 		
 	int TotalPages()
@@ -82,7 +80,7 @@ public class ShopModINV extends CustomInvLayout
 	void makeInv()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		ImusAPI._metods.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		
 		for(int i = _shop.get_items().get(current_page).length; i < _size; ++i)
@@ -94,32 +92,40 @@ public class ShopModINV extends CustomInvLayout
 		ItemStack right_button = left_button.clone();
 		
 		ItemStack saveAll_button = new ItemStack(Material.GOLD_INGOT);
-		ImusAPI._metods.setDisplayName(saveAll_button, ChatColor.AQUA + "Save shop items to config!");
-		ImusAPI._metods.addLore(saveAll_button, ChatColor.BLUE + "Press this after you have edited some items", true);
-		ImusAPI._metods.addLore(saveAll_button, ChatColor.BLUE + "Normally this will be done onDisabled", true);
-		ImusAPI._metods.addLore(saveAll_button, ChatColor.BLUE + "If server crashes the onDisable never initialize(data lost) ", true);
+		Metods.setDisplayName(saveAll_button, ChatColor.AQUA + "Save shop items to config!");
+		_metods.addLore(saveAll_button, ChatColor.BLUE + "Press this after you have edited some items", true);
+		_metods.addLore(saveAll_button, ChatColor.BLUE + "Normally this will be done onDisabled", true);
+		_metods.addLore(saveAll_button, ChatColor.BLUE + "If server crashes the onDisable never initialize(=data lost) ", true);
 		
-		ItemStack override_button = new ItemStack(Material.PAPER);
-		ImusAPI._metods.setDisplayName(override_button, ChatColor.AQUA +"Override all");
-		ImusAPI._metods.addLore(override_button, ChatColor.BLUE + "Set same data to all", true);
-		ImusAPI._metods.addLore(override_button, ChatColor.BLUE + "if modify is none, it will be removed from all items too", true);
+//		ItemStack override_button = new ItemStack(Material.PAPER);
+//		Metods.setDisplayName(override_button, ChatColor.AQUA +"Override all");
+//		_metods.addLore(override_button, ChatColor.BLUE + "Set same data to all", true);
+//		_metods.addLore(override_button, ChatColor.BLUE + "if modify is none, it will be removed from all items too", true);
 		
 		
-		ImusAPI._metods.setDisplayName(left_button, ChatColor.AQUA + "<<");
-		ImusAPI._metods.setDisplayName(right_button, ChatColor.AQUA + ">>");
+		ItemStack shopModBase = new ItemStack(Material.BEACON);
+		Metods.setDisplayName(shopModBase, ChatColor.AQUA + "Change shop data");
+		_metods.addLore(shopModBase, ChatColor.BLUE + "Able to chance ex: name,sellMul..", true);
+		SetButton(shopModBase, BUTTON.MOD_SHOPBASE);
+		
+		Metods.setDisplayName(left_button, ChatColor.AQUA + "<<");
+		Metods.setDisplayName(right_button, ChatColor.AQUA + ">>");
 		
 		SetButton(left_button, BUTTON.GO_LEFT);
 		SetButton(right_button, BUTTON.GO_RIGHT);
 		SetButton(saveAll_button, BUTTON.SAVE_SHOP_DATA);
-		SetButton(override_button, BUTTON.OVERRIDE_ALL);
+		//SetButton(override_button, BUTTON.OVERRIDE_ALL);
 		
 		_inv.setItem(unique_slots, left_button);
 		_inv.setItem(unique_slots+2, saveAll_button);
 		_inv.setItem(_size-1, right_button);
-		_inv.setItem(unique_slots+4, override_button);
+		//_inv.setItem(unique_slots+4, override_button);
+		_inv.setItem(unique_slots+4, shopModBase);
 		
 		//refreshItems();
 	}
+
+	
 	
 	@EventHandler
 	public void onInvOpen(InventoryOpenEvent e)
@@ -178,13 +184,17 @@ public class ShopModINV extends CustomInvLayout
 			refreshItems();
 			return;
 		case SAVE_SHOP_DATA:
-			_main.get_shopManager().SaveShop(_shop._name, false);
+			_main.get_shopManager().SaveShop(_shop.GetName(), false);
 			_player.closeInventory();
 			_player.sendMessage(ChatColor.GOLD + "(Shop) "+_shop.GetNameWithColor()+ " items has been saved!");
 			break;
 		case OVERRIDE_ALL:
 			//_smm.openModShopModifyOVERRIDE_ALL_Inv(_player, stack, _shop, null);
 			System.out.println("open override all");
+			break;
+		case MOD_SHOPBASE:
+			_player.closeInventory();
+			new ShopBaseModify(_main, _player, _shop).openThis();
 			break;
 		default:
 			break;
@@ -197,7 +207,7 @@ public class ShopModINV extends CustomInvLayout
 		String modifyStr = ChatColor.YELLOW +"== Click to modify ==";
 		ImusAPI._metods.addLore(stack, modifyStr, false);
 		
-		String custom_amount, c_permission, c_price ,c_worlds, c_fill_delay, c_fill_amount, c_soldBack, c_soldDistance, c_selltime;
+		String custom_amount, c_permission, c_price ,c_worlds, c_fill_delay, c_fill_amount, c_soldDistance, c_selltime;
 		String none_color = ChatColor.RED + "";
 		String true_color = ChatColor.AQUA + "";
 		
@@ -240,7 +250,7 @@ public class ShopModINV extends CustomInvLayout
 	void refreshItems()
 	{
 
-		ItemStack empty = ImusAPI._metods.setDisplayName(new ItemStack( Material.BLACK_STAINED_GLASS_PANE), " ");
+		ItemStack empty = Metods.setDisplayName(new ItemStack( Material.BLACK_STAINED_GLASS_PANE), " ");
 		ItemStack copy;
 		
 		for(int slot = 0; slot < _shop.get_items().get(current_page).length; slot++)

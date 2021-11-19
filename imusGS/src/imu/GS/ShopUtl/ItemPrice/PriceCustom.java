@@ -5,14 +5,13 @@ import imu.GS.Other.CustomPriceData;
 
 public class PriceCustom extends ItemPrice
 {
-	
-
-	CustomPriceData[] _items;
-	double _customMoney = -1;
+	private CustomPriceData[] _items;
+	private double _customMoney = 0;
+	private int _minimumStackAmount = 1;
 	@Override
 	public double GetPrice() 
 	{
-		return 0;
+		return _customMoney;
 	}
 
 	@Override
@@ -28,10 +27,11 @@ public class PriceCustom extends ItemPrice
 		return "Custom price";
 	}
 	
-	public ItemPrice SetItemsAndPrice(CustomPriceData[] items, double price)
+	public ItemPrice SetItemsAndPrice(CustomPriceData[] items, double price, int minimumStackAmount)
 	{
 		_items = items;
 		_customMoney = price;
+		_minimumStackAmount = minimumStackAmount;
 		return this;
 	}
 	
@@ -39,5 +39,12 @@ public class PriceCustom extends ItemPrice
 	{
 		return _items;
 	}
+	
+	public int GetMinimumStackAmount()
+	{
+		return _minimumStackAmount;
+	}
+	
+	
 
 }

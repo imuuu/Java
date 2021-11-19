@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.GS.ENUMs.ITEM_MOD_DATA;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
@@ -23,35 +24,33 @@ import net.md_5.bungee.api.ChatColor;
 
 public abstract class ShopBase 
 {
-	Main _main;
-	public String _name;
-	public String _displayName;
-	public int shopHolderSize = 27;
+	protected Main _main;
+	private String _name;
+	private String _displayName;
+	private  int shopHolderSize = 27;
 	
-	ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
+	private ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
 	
 	
-	double _sellM = 1.0;
-	double _buyM  = 1.0;
+	private double _sellM = 1.0;
+	private double _buyM  = 1.0;
 	
-	double _expire_percent = 0.1f;
-	int _expire_cooldown_m = 1;
-	boolean _absoluteItemPosition = true;
-	String _cd_expire = "expire";
+	private double _expire_percent = 0.1f;
+	private int _expire_cooldown_m = 1;
+	private boolean _absoluteItemPosition = true;
+	private String _cd_expire = "expire";
 	
-	Cooldowns _cds;
+	private Cooldowns _cds;
 	
-	HashMap<UUID, Customer> _hCustomers = new HashMap<>();
-	boolean _locked = false;
-	boolean _intererActlocked = false;
+	private HashMap<UUID, Customer> _hCustomers = new HashMap<>();
+	private boolean _locked = false;
+	private boolean _intererActlocked = false;
 	
 	public ShopBase(Main main, String name, int pages)
 	{
 		_main = main;
-		_displayName = name;
 		
-		_name =  _main.GetMetods().StripColor(name);
-		
+		SetName(name);
 		_cds = new Cooldowns();
 		SetNewExpire();
 		
@@ -91,11 +90,6 @@ public abstract class ShopBase
 	public boolean HasLocked()
 	{
 		return _locked;
-	}
-	
-	public void RemoveCustomers()
-	{
-		
 	}
 	
 	public void SetLocked(boolean locked)
@@ -163,6 +157,7 @@ public abstract class ShopBase
 			}
 		}.runTaskAsynchronously(_main);
 	}
+	
 	public void RemoveCustomerALL()
 	{
 		for(Customer cus : _hCustomers.values())
@@ -221,9 +216,6 @@ public abstract class ShopBase
 	
 	public void SetItem(ShopItemSeller sis, int page, int slot)
 	{
-//		System.out.println("Shopitem added: "+sis.GetRealItem());
-//		System.out.println("==>page: "+page);
-//		System.out.println("==>slot:"+slot);
 		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);
 	}
 	
@@ -268,16 +260,7 @@ public abstract class ShopBase
 		
 	}
 	
-//	void SetPrice(ShopItemSeller sis)
-//	{
-//		if(sis.GetItemPrice() instanceof PriceMoney)
-//		{
-//			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
-//			((PriceMoney)sis.GetItemPrice()).SetShowPrice(price * _sellM);
-//			sis.toolTip();
-//		}
-//	}
-	
+
 	public void AddNewItem(ShopItemSeller sis, boolean setAmount)
 	{
 		int page = 0;
@@ -380,6 +363,21 @@ public abstract class ShopBase
 		this._cd_expire = _cd_expire;
 	}
 	
+	public void SetName(String name)
+	{
+		_displayName = name;		
+		_name =  _main.GetMetods().StripColor(name);
+	}
 	
+	public String GetName() {return _name;}
+	
+	public String GetDisplayName() {return _displayName;}
+	
+	public void SetAbsolutePosBool(boolean b)
+	{
+		_absoluteItemPosition = b;
+	}
+	
+	public boolean GetAbsolutePosBool() {return _absoluteItemPosition;}
 	
 }

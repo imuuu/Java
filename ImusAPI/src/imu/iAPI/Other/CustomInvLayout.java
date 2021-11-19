@@ -40,7 +40,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	{
 		_plugin = main;
 
-		_name = name;
+		_name = Metods.msgC(name);
 		_size = size;
 		_player = player;		
 		_inv =  _plugin.getServer().createInventory(null, _size, _name);		

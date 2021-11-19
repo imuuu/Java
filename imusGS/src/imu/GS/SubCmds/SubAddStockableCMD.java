@@ -46,7 +46,10 @@ public class SubAddStockableCMD implements CommandInterface
 		
 		if(shop != null)
 		{
-			shop.AddNewItem(new ShopItemStockable(_main, shop, stack , player.getInventory().getItemInMainHand().getAmount()),true);
+			int amount = stack.getAmount();
+			ItemStack clone = stack.clone();
+			clone.setAmount(1);
+			shop.AddNewItem(new ShopItemStockable(_main, shop, clone , amount),true);
 		}
 		else
 		{
@@ -60,7 +63,6 @@ public class SubAddStockableCMD implements CommandInterface
 
 	@Override
 	public void FailedMsg(CommandSender arg0, String arg1) {
-		// TODO Auto-generated method stub
 		
 	}
     

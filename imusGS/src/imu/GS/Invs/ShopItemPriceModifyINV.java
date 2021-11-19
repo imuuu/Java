@@ -2,7 +2,6 @@ package imu.GS.Invs;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -20,6 +19,7 @@ import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class ShopItemPriceModifyINV extends CustomInvLayout 
@@ -136,7 +136,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 	}
 	void makeInv()
 	{				
-		ImusAPI._metods.setDisplayName(_empty, " ");
+		Metods.setDisplayName(_empty, " ");
 		for(int i = 0; i < _size ; ++i)
 		{
 			_inv.setItem(i, _empty);
@@ -163,18 +163,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 	
 	void GoBack()
 	{
-//		if(_newItem && !_edited && ImusAPI._metods.isEveryThingThis(_prices, 0.0))
-//		{
-//			Double[] price = {0.0, 0.0, 0.0};
-//			_shopManager.addUniqueItem(_orginalStack, price, true);
-//			_shopManager.removeUniqueTag(_orginalStack_copy);
-//			ImusAPI._metods.moveItemFirstFreeSpaceInv(_orginalStack_copy, _player, true);
-//		}
-		
-		
-		//_shopManager.openUniqueINV(_player);
-		//_uinv.openThis
-		
+
 		_uinv.openThis();
 	}
 	
@@ -327,15 +316,15 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		{
 			case 0:
 				value_state_button = new ItemStack(Material.IRON_BLOCK);
-				ImusAPI._metods.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName(_value_state_now));
+				Metods.setDisplayName(value_state_button, ChatColor.AQUA + getValueStateName(_value_state_now));
 				break;
 			case 1:
 				value_state_button = new ItemStack(Material.GOLD_BLOCK);
-				ImusAPI._metods.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
+				Metods.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 			case 2:
 				value_state_button = new ItemStack(Material.DIAMOND_BLOCK);
-				ImusAPI._metods.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
+				Metods.setDisplayName(value_state_button, ChatColor.AQUA +  getValueStateName(_value_state_now));
 				break;
 		}
 		String lore =ChatColor.DARK_PURPLE + "Changed between ";
@@ -355,7 +344,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		setValueButtonValue(pButton, buttonValue);
 		SetButton(pButton, BUTTON.VALUE_PRICE_BUTTON);
 		setValueDataIndex(pButton, valueIndex);
-		ImusAPI._metods.setDisplayName(pButton,displayName);
+		Metods.setDisplayName(pButton,displayName);
 		
 		ImusAPI._metods.addLore(pButton, ChatColor.GREEN+"M3"+ ChatColor.AQUA +"  / "+ ChatColor.RED + "     :  "+ChatColor.YELLOW+price_button_multiv[2]+"x", false);
 		ImusAPI._metods.addLore(pButton, ChatColor.GREEN+"SM1"+ ChatColor.AQUA +" / "+ ChatColor.RED + "SM2:  "+ChatColor.YELLOW+price_button_multiv[1]+"x", false);

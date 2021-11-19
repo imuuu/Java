@@ -20,6 +20,7 @@ import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class UniquesINV extends CustomInvLayout
@@ -243,7 +244,7 @@ public class UniquesINV extends CustomInvLayout
 	{
 		
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		ImusAPI._metods.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > unique_slots-1; --i)
 		{
@@ -252,15 +253,15 @@ public class UniquesINV extends CustomInvLayout
 			_inv.setItem(i, optionLine);
 		}
 		ItemStack marker = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE);
-		ImusAPI._metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"Add new unique here >>");
+		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"Add new unique here >>");
 		_inv.setItem(makeSlot-1, marker);
-		ImusAPI._metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"<< Add new unique here");
+		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"<< Add new unique here");
 		_inv.setItem(makeSlot+1, marker);
 		
 		ItemStack left_button = new ItemStack(Material.BIRCH_SIGN);
 		ItemStack right_button = left_button.clone();
-		ImusAPI._metods.setDisplayName(left_button, ChatColor.AQUA + "<<");
-		ImusAPI._metods.setDisplayName(right_button, ChatColor.AQUA + ">>");
+		Metods.setDisplayName(left_button, ChatColor.AQUA + "<<");
+		Metods.setDisplayName(right_button, ChatColor.AQUA + ">>");
 		
 		//setButtonSwitch(left_button, LABELS.Go_Left.getType());
 		SetButton(left_button, BUTTON.Go_Left);
@@ -278,7 +279,7 @@ public class UniquesINV extends CustomInvLayout
 		int start = 0 + current_page * (unique_slots);
 		ItemStack empty = new ItemStack( Material.BLACK_STAINED_GLASS_PANE);
 		ItemStack stack, copy;
-		ImusAPI._metods.setDisplayName(empty, " ");
+		Metods.setDisplayName(empty, " ");
 		
 		for(int i = 0; i < unique_slots ; ++i)
 		{

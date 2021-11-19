@@ -4,11 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Strings;
@@ -46,7 +44,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		_sis = sis;
 		copy_item = _sis.GetRealItem().clone();
 		_shop = sis.GetShop();
-		
+	
 		SetModData((ShopItemModData)modData.clone());
 		//System.out.println("open inv");
 	}
@@ -80,11 +78,12 @@ public class ShopModModifyINV extends CustomInvLayout
 	{
 		for(int i = 0; i < _inv.getContents().length; ++i)
 		{
-			_inv.setItem(i, ImusAPI._metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+			_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 		}
 		
 		String m1m2 = Metods.msgC("&bM1: &aSet &bM2: &cRemove");
 		String setTo = Metods.msgC("&aSet To &1");
+		String false_setTo = Metods.msgC("&aSet To &cNONE");
 		String lore;
 		int id = 0;
 		setupButton(BUTTON.BACK, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "<< BACK", 0);
@@ -93,64 +92,70 @@ public class ShopModModifyINV extends CustomInvLayout
 		setupButton(BUTTON.REMOVE_INF, Material.LAVA_BUCKET, ChatColor.RED + ""+ChatColor.BOLD + "Remove this items from shop", 8);
 		
 		id = 2;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, m1m2);
-		ItemStack custom_amount = setupButton(BUTTON.CUSTOM_AMOUNT, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Custom amount", id);
-		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, m1m2), false);
-				
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, false_setTo);
+		ItemStack custom_amount = setupButton(BUTTON.CUSTOM_AMOUNT, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Custom amount", id);		
+		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, false_setTo), false);
+		ImusAPI._metods.addLore(custom_amount, m1m2, false);
+		
 		id = 4;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.PERMISSIONS,setTo ,null,  m1m2);
-		ItemStack setPerms = setupButton(BUTTON.SET_PERMISSION, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set permission", id);
-		ImusAPI._metods.addLore(setPerms, lore, false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.PERMISSIONS,setTo ,null,  false_setTo);
+		ItemStack setPerms = setupButton(BUTTON.SET_PERMISSION, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set permission", id);
+		ImusAPI._metods.addLore(setPerms, lore, false);ImusAPI._metods.addLore(setPerms, m1m2, false);
 		
 		id = 6;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_DELAY,setTo ,null,  m1m2);
-		ItemStack setFillDelay = setupButton(BUTTON.SET_FILL_DELAY, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillDelay(min)", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_DELAY,setTo ,null,  false_setTo);
+		ItemStack setFillDelay = setupButton(BUTTON.SET_FILL_DELAY, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillDelay(min)", id);
+		
 		ImusAPI._metods.addLore(setFillDelay, lore, false);
 		ImusAPI._metods.addLore(setFillDelay, ChatColor.YELLOW + "How often stock will be filled and", true);
+		ImusAPI._metods.addLore(setFillDelay, m1m2, false);
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 12;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_AMOUNT,setTo ,null,  m1m2);
-		ItemStack setFillAmount = setupButton(BUTTON.SET_FILL_AMOUNT, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillAmount", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_AMOUNT,setTo ,null,  false_setTo);
+		ItemStack setFillAmount = setupButton(BUTTON.SET_FILL_AMOUNT, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillAmount", id);
+		
 		ImusAPI._metods.addLore(setFillAmount, lore , false);
 		ImusAPI._metods.addLore(setFillAmount, ChatColor.YELLOW + "How many it fills. Cant go over", true);
 		ImusAPI._metods.addLore(setFillAmount, ChatColor.YELLOW + "shop amount(or custom amount)", true);
+		ImusAPI._metods.addLore(setFillAmount, m1m2, false);
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 14;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE,setTo ,null,  m1m2);
-		ItemStack setCusPrice = setupButton(BUTTON.SET_PRICE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE,setTo ,null,  false_setTo);
+		ItemStack setCusPrice = setupButton(BUTTON.SET_PRICE, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
+		
 		ImusAPI._metods.addLore(setCusPrice, lore, false);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Set own price for item in this shop!", true);
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Be carefull with money explote! Cant be too cheap!", true);
+		ImusAPI._metods.addLore(setCusPrice, m1m2, false);
 		
 		
 		id = 20;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.WORLD_NAMES,setTo , null,  m1m2);
-		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.WORLD_NAMES,setTo , null,  false_setTo);
+		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
+		
 		ImusAPI._metods.addLore(setWorlds, lore, false);
 		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Set worlds where you can get this item and", true);
 		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Item will be removed(from inv) if entered wrong world", true);
-				
-//		id = 20;
-//		ItemStack setCanBeSold = setupButton(BUTTON.SET_CAN_BE_SOLD, Material.GLASS_PANE,  ChatColor.DARK_PURPLE + "Can Item sold back to GS", id);
-//		ImusAPI._metods.addLore(setCanBeSold, m1m2, false);
-//		ImusAPI._metods.addLore(setCanBeSold, ChatColor.YELLOW + "If true, you can sold it back. If false you cant!", true);
-				
+		ImusAPI._metods.addLore(setWorlds, m1m2, false);
+								
 		id = 22;
-		//String locationStr = _modData.GetValueStr(ITEM_MOD_DATA.LOCATION, " " ,null, "");
-		//System.out.println("location text: "+locationStr);
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null ,null, m1m2);
-		ItemStack setDistance_item = setupButton(BUTTON.SET_DISTANCE, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set Distance radius.", id);		
-		ImusAPI._metods.addLore(setDistance_item, lore.split("; "), false);
-		ImusAPI._metods.addLore(setDistance_item, setTo, false);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null ,null, false_setTo);
+		ItemStack setDistance_item = setupButton(BUTTON.SET_DISTANCE, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set Distance radius.", id);		
+		
+		ImusAPI._metods.addLore(setDistance_item, lore.split("; "));
+		//ImusAPI._metods.addLore(setDistance_item, setTo, false);
 		ImusAPI._metods.addLore(setDistance_item, ChatColor.YELLOW + "Item will be shown inside given radius", true);
+		ImusAPI._metods.addLore(setDistance_item, m1m2, false);
 		
 		id = 24;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START,setTo ,null,  m1m2);
-		ItemStack setTimeSell = setupButton(BUTTON.SET_TIME_SELL, lore.equalsIgnoreCase(m1m2) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set sell time", id);
+		lore = _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START,setTo ,null,  false_setTo);
+		ItemStack setTimeSell = setupButton(BUTTON.SET_TIME_SELL, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set sell time", id);
+		
 		ImusAPI._metods.addLore(setTimeSell, lore , false);
 		ImusAPI._metods.addLore(setTimeSell, ChatColor.YELLOW + "Set time when item will be apearing in shop", true);
+		ImusAPI._metods.addLore(setTimeSell, m1m2 , false);
 			
 	}
 	
@@ -161,19 +166,10 @@ public class ShopModModifyINV extends CustomInvLayout
 //		if(!HasRegistered())
 //			RegisterToEvents();
 //		
+		_main.RegisterInv(this);
 		_main.get_shopManager().RegisterOpenedInv(_player, this);
-	}
-	
-	
-	@EventHandler
-	public void onInvOpen(InventoryOpenEvent e)
-	{
-		if(isThisInv(e))
-		{
-			_isClosed = _shop.HasLocked();
-			_shop.SetLocked(true);
-			//makeInv();
-		}
+		_isClosed = _shop.HasLocked();
+		_shop.SetLocked(true);
 	}
 	
 
@@ -292,6 +288,16 @@ public class ShopModModifyINV extends CustomInvLayout
 				_modData._sellTimeStart = -1;
 				_modData._sellTimeEnd = -1;
 				break;
+			case BACK:
+				break;
+			case CONFIRM:
+				break;
+			case NONE:
+				break;
+			case SET_CAN_BE_SOLD:
+				break;
+			default:
+				break;
 			
 			}
 		}
@@ -306,6 +312,7 @@ public class ShopModModifyINV extends CustomInvLayout
 	{
 		_shop.SetLocked(_isClosed);
 		_main.get_shopManager().UnRegisterOpenedInv(_player);
+		_main.UnregisterInv(this);
 	}
 
 	

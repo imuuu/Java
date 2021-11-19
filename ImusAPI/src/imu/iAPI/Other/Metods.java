@@ -3,8 +3,8 @@ package imu.iAPI.Other;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +37,15 @@ import imu.iAPI.Interfaces.DelaySendable;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.nbt.NBTTagByteArray;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemElytra;
 import net.minecraft.world.item.ItemShield;
 import net.minecraft.world.item.ItemTool;
+
 
 public class Metods 
 {
@@ -90,7 +95,7 @@ public class Metods
     	return stack;
 	}
 	
-	public ItemStack addLore(ItemStack stack, String[] lores, boolean addLast)
+	public ItemStack addLore(ItemStack stack, String[] lores)
 	{
 
     	if(stack != null && stack.getType() != Material.AIR)
@@ -102,18 +107,11 @@ public class Metods
     			read_lores.addAll(meta.getLore());
     		}
     		
-    		if(addLast)
-    		{
-    			Collections.addAll(read_lores, lores);
-    		}else
-    		{
-    			int idx = 0;
-    			for(String l : lores)
-    			{
-    				read_lores.add(idx++, msgC(l));
-    			}
-    			
-    		}
+    		int idx = 0;
+			for(String l : lores)
+			{
+				read_lores.add(idx++, msgC(l));
+			}
     		
     		meta.setLore(read_lores);
     		stack.setItemMeta(meta);
@@ -185,12 +183,12 @@ public class Metods
 		int size = metaLores.size();
 		if(size <= index)
 		{
-			System.out.println("add more lines: "+(index-size));
+			//System.out.println("add more lines: "+(index-size));
 
 			while(metaLores.size() < index+1)
 			{
 				metaLores.add("");
-				System.out.println("line => added");
+				//System.out.println("line => added");
 			}
 		}
 		metaLores.set(index, lore);
@@ -444,7 +442,7 @@ public class Metods
 			{
 				dName = dName + name;
 			}
-			meta.setDisplayName(dName);
+			meta.setDisplayName(msgC(dName));
 			stack.setItemMeta(meta);
 			
 		}
@@ -630,22 +628,114 @@ public class Metods
 		return value;
 	}
 	
-	public int InventoryAddItemOrDrop(ItemStack stack, Player player)
+	public Integer[] InventoryAddItemOrDrop(ItemStack stack, Player player)
 	{
+		ArrayList<Integer> slots = new ArrayList<>();
 		if(stack == null || stack.getType() == Material.AIR)
 		{
-			return -1;
+			return slots.toArray(new Integer[slots.size()]);
 		}
 		
 		PlayerInventory inv = player.getInventory();
-		int invSlot = inv.firstEmpty();
-		if(invSlot < 0)
+//
+//		int invSlot = inv.firstEmpty();
+//		if(invSlot < 0)
+//		{
+//			dropItem(stack, player, true);
+//			return slots.toArray(new Integer[slots.size()]);
+//		}
+//		inv.setItem(invSlot, stack);
+//		
+		
+		int amount = stack.getAmount();
+		
+		for(int i = 0; i < inv.getContents().length-6; ++i)
 		{
-			dropItem(stack, player, true);
-			return -1;
+			ItemStack invItem = inv.getItem(i);
+			if(invItem == null) continue;
+			
+			if(invItem.isSimilar(stack) && invItem.getAmount() < invItem.getMaxStackSize())
+			{
+				int adding = invItem.getMaxStackSize() - invItem.getAmount();
+				if(adding > amount)
+					adding = amount;
+				
+				invItem.setAmount(invItem.getAmount() + adding);
+				amount -= adding;
+				
+				slots.add(i);
+			}
+			
+			if(amount <= 0)
+				break;
 		}
-		inv.setItem(invSlot, stack);
-		return invSlot;
+		
+		if(amount > 0)
+		{
+			ItemStack clone = stack.clone();
+			clone.setAmount(amount);
+			int invSlot = inv.firstEmpty();
+			if(invSlot < 0)
+			{
+				dropItem(clone, player, true);
+			}
+			else
+			{
+				inv.setItem(invSlot, clone);
+				slots.add(invSlot);
+			}
+		}
+
+		return slots.toArray(new Integer[slots.size()]);
+
+	}
+	public Integer[] InventoryAddItemOrDrop(ItemStack stack, Player player, int amount)
+	{
+		ArrayList<Integer> slots = new ArrayList<>();
+		int left = amount;
+		
+		int leftOver;
+		if(left > 64)
+		{
+			leftOver = left % 64;
+		}
+		else
+		{
+			leftOver = left;
+		}
+
+		int full_stacks_amount = (left -leftOver) == 0 ? 0 : (left -leftOver) / 64;
+		ItemStack newStack;
+
+		for(int i = 0; i < full_stacks_amount; ++i)
+		{
+			newStack = stack.clone();
+			newStack.setAmount(64);
+			
+			Integer[] slot = InventoryAddItemOrDrop(newStack, player);
+			if(slot.length == 0)
+			{
+				continue;
+			}
+			for(int l = 0; l < slot.length; l++) {slots.add(slot[l]);}
+		
+
+		}
+
+		if(leftOver == 0)
+			return slots.toArray(new Integer[slots.size()]);
+		
+
+		newStack = stack.clone();
+		newStack.setAmount(leftOver);
+		Integer[] slot = InventoryAddItemOrDrop(newStack, player);
+		if(slot.length == 0)
+		{
+			return slots.toArray(new Integer[slots.size()]);
+		}
+		for(int l = 0; l < slot.length; l++) {slots.add(slot[l]);}
+		
+		return slots.toArray(new Integer[slots.size()]);
 
 	}
 	
@@ -787,34 +877,34 @@ public class Metods
 		return name;
 	}
 	
-	public String addColor(String str) {
-        String coloredString = str;
-        coloredString = coloredString.replace("{{BLACK}}", ChatColor.BLACK.toString());
-        coloredString = coloredString.replace("{{DARK_BLUE}}", ChatColor.DARK_BLUE.toString());
-        coloredString = coloredString.replace("{{DARK_GREEN}}", ChatColor.DARK_GREEN.toString());
-        coloredString = coloredString.replace("{{GREEN}}", ChatColor.GREEN.toString());
-        coloredString = coloredString.replace("{{DARK_CYAN}}", ChatColor.DARK_AQUA.toString());
-        coloredString = coloredString.replace("{{DARK_RED}}", ChatColor.DARK_RED.toString());
-        coloredString = coloredString.replace("{{PURPLE}}", ChatColor.DARK_PURPLE.toString());
-        coloredString = coloredString.replace("{{GOLD}}", ChatColor.GOLD.toString());
-        coloredString = coloredString.replace("{{GRAY}}", ChatColor.GRAY.toString());
-        coloredString = coloredString.replace("{{DARK_GRAY}}", ChatColor.DARK_GRAY.toString());
-        coloredString = coloredString.replace("{{BLUE}}", ChatColor.BLUE.toString());
-        coloredString = coloredString.replace("{{BRIGHT_GREEN}}", ChatColor.GREEN.toString());
-        coloredString = coloredString.replace("{{CYAN}}", ChatColor.AQUA.toString());
-        coloredString = coloredString.replace("{{RED}}", ChatColor.RED.toString());
-        coloredString = coloredString.replace("{{PINK}}", ChatColor.LIGHT_PURPLE.toString());
-        coloredString = coloredString.replace("{{YELLOW}}", ChatColor.YELLOW.toString());
-        coloredString = coloredString.replace("{{WHITE}}", ChatColor.WHITE.toString());
-        coloredString = coloredString.replace("{{OBFUSCATED}}", ChatColor.MAGIC.toString());
-        coloredString = coloredString.replace("{{BOLD}}", ChatColor.BOLD.toString());
-        coloredString = coloredString.replace("{{STRIKETHROUGH}}", ChatColor.STRIKETHROUGH.toString());
-        coloredString = coloredString.replace("{{UNDERLINE}}", ChatColor.UNDERLINE.toString());
-        coloredString = coloredString.replace("{{ITALIC}}", ChatColor.ITALIC.toString());
-        coloredString = coloredString.replace("{{RESET}}", ChatColor.RESET.toString());
-        coloredString = ChatColor.translateAlternateColorCodes('&', coloredString);
-        return coloredString;
-    }
+//	public String addColor(String str) {
+//        String coloredString = str;
+//        coloredString = coloredString.replace("{{BLACK}}", ChatColor.BLACK.toString());
+//        coloredString = coloredString.replace("{{DARK_BLUE}}", ChatColor.DARK_BLUE.toString());
+//        coloredString = coloredString.replace("{{DARK_GREEN}}", ChatColor.DARK_GREEN.toString());
+//        coloredString = coloredString.replace("{{GREEN}}", ChatColor.GREEN.toString());
+//        coloredString = coloredString.replace("{{DARK_CYAN}}", ChatColor.DARK_AQUA.toString());
+//        coloredString = coloredString.replace("{{DARK_RED}}", ChatColor.DARK_RED.toString());
+//        coloredString = coloredString.replace("{{PURPLE}}", ChatColor.DARK_PURPLE.toString());
+//        coloredString = coloredString.replace("{{GOLD}}", ChatColor.GOLD.toString());
+//        coloredString = coloredString.replace("{{GRAY}}", ChatColor.GRAY.toString());
+//        coloredString = coloredString.replace("{{DARK_GRAY}}", ChatColor.DARK_GRAY.toString());
+//        coloredString = coloredString.replace("{{BLUE}}", ChatColor.BLUE.toString());
+//        coloredString = coloredString.replace("{{BRIGHT_GREEN}}", ChatColor.GREEN.toString());
+//        coloredString = coloredString.replace("{{CYAN}}", ChatColor.AQUA.toString());
+//        coloredString = coloredString.replace("{{RED}}", ChatColor.RED.toString());
+//        coloredString = coloredString.replace("{{PINK}}", ChatColor.LIGHT_PURPLE.toString());
+//        coloredString = coloredString.replace("{{YELLOW}}", ChatColor.YELLOW.toString());
+//        coloredString = coloredString.replace("{{WHITE}}", ChatColor.WHITE.toString());
+//        coloredString = coloredString.replace("{{OBFUSCATED}}", ChatColor.MAGIC.toString());
+//        coloredString = coloredString.replace("{{BOLD}}", ChatColor.BOLD.toString());
+//        coloredString = coloredString.replace("{{STRIKETHROUGH}}", ChatColor.STRIKETHROUGH.toString());
+//        coloredString = coloredString.replace("{{UNDERLINE}}", ChatColor.UNDERLINE.toString());
+//        coloredString = coloredString.replace("{{ITALIC}}", ChatColor.ITALIC.toString());
+//        coloredString = coloredString.replace("{{RESET}}", ChatColor.RESET.toString());
+//        coloredString = ChatColor.translateAlternateColorCodes('&', coloredString);
+//        return coloredString;
+//    }
 	
 	public boolean giveDamage(ItemStack stack,int dmg, boolean destroyItem)
 	{
@@ -1051,6 +1141,55 @@ public class Metods
 		}
 		return str;
 	}
+	
+//	ItemStack AddGlow(ItemStack stack)
+//	{
+//		//NOT WORKING
+//		//org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack nmsStack = (CraftItemStack) getField(stack, "handle");
+//		net.minecraft.world.item.ItemStack s = CraftItemStack.asNMSCopy(stack);
+//		NBTTagCompound compound = s.getTag();
+//        
+//        // Initialize the compound if we need to
+//        if (compound == null) {
+//            compound = new NBTTagCompound();            
+//        }
+//     
+//        // Empty enchanting compound
+//
+//        compound.set("Enchantments", new NBTTagCompound());
+//        s.setTag(compound);
+//        
+//        //stack.setItemMeta(.getItemMeta());
+//        return CraftItemStack.asBukkitCopy(s);
+//	}
+	
+	public ItemStack AddGlow(ItemStack stack)
+	{
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(stack.getType() == Material.BOW)
+		{
+			meta.addEnchant(Enchantment.WATER_WORKER, 1, true);
+		}else
+		{
+			meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+		}		
+		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		stack.setItemMeta(meta);
+		return stack;
+	}
+	
+//	private Object getField(Object obj, String name) {
+//        try {
+//            Field field = obj.getClass().getDeclaredField(name);
+//            field.setAccessible(true);
+//
+//            return field.get(obj);
+//        } catch (Exception e) {
+//            // We don't care
+//            throw new RuntimeException("Unable to retrieve field content.", e);
+//        }
+//    }
 	
 	
 	

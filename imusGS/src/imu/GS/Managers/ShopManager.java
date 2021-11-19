@@ -204,8 +204,13 @@ public class ShopManager
 	public void CreateShop(String name)
 	{
 		ShopBase shop = new ShopNormal(_main, name, 1);
-		_shops.add(shop);
-		SaveShop(name, true);
+		AddShop(shop);
+	}
+	
+	public void AddShop(ShopBase shopBase)
+	{
+		_shops.add(shopBase);
+		SaveShop(shopBase.GetName(), true);
 		UpdateTabCompliters();
 	}
 	
@@ -226,7 +231,7 @@ public class ShopManager
 		String searchName = _main.GetMetods().StripColor(name);
 		for(ShopBase s : _shops)
 		{
-			if(s._name.toLowerCase().contains(searchName.toLowerCase()))
+			if(s.GetName().toLowerCase().contains(searchName.toLowerCase()))
 				return s;
 		}
 		return null;
@@ -257,7 +262,7 @@ public class ShopManager
 		String[] shopNames = new String[_shops.size()];
 		for(int i = 0; i < _shops.size(); ++i)
 		{
-			shopNames[i] = _shops.get(i)._name;
+			shopNames[i] = _shops.get(i).GetName();
 		}
 		ImusTabCompleter tab = _main.get_tab_cmd1();
 		tab.setArgumenrs("shop", shopNames);

@@ -24,7 +24,6 @@ import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
-import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
@@ -60,7 +59,9 @@ public class ShopManagerSQL
 					+ "sellM FLOAT(20), "
 					+ "buyM FLOAT(20), "
 					+ "expire_percent FLOAT(20),"
-					+ "expire_cooldown INT(100), PRIMARY KEY(name))");
+					+ "expire_cooldown INT(100),"
+					+ "locked INT(1),"		
+					+ "absolutePositions INT(1), PRIMARY KEY(name))");
 			ps.executeUpdate();
 			
 			System.out.println("==> shops");
@@ -141,6 +142,14 @@ public class ShopManagerSQL
 			ps.executeUpdate();
 			System.out.println("===> price type => priceValues");
 			
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.custom_price.toString()+" ("
+					+ "uuid CHAR(36), "				
+					+ "minimum_stack_amount FLOAT(20), "							
+					+ "PRIMARY KEY(uuid))");
+
+			ps.executeUpdate();
+			System.out.println("===> CustomPrice");
+			
 			
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.material_prices.toString()+" ("
@@ -197,16 +206,21 @@ public class ShopManagerSQL
 				String name = rs.getString(i++);
 				String _displayName = rs.getString(i++);
 				int pages = rs.getInt(i++);
-				int type  = rs.getInt(i++);
+				//int type  = rs.getInt(i++);
+				i++;
 				float sellM = rs.getFloat(i++);
 				float buyM = rs.getFloat(i++);
 				float expirePrercent = rs.getFloat(i++);
 				int expireCooldown = rs.getInt(i++);
+				boolean locked = (rs.getInt(i++) != 0);
+				boolean absolutePos = (rs.getInt(i++) != 0);
 				ShopBase shop = new ShopNormal(_main, _displayName, pages);
 				shop.set_sellM(sellM);
 				shop.set_buyM(buyM);
 				shop.set_expire_percent(expirePrercent);
 				shop.set_expire_cooldown_m(expireCooldown);
+				shop.SetLocked(locked);
+				shop.SetAbsolutePosBool(absolutePos);
 							
 				System.out.println("Shop loaded from sql: "+ name);
 				LoadShopItems(shop);
@@ -266,7 +280,7 @@ public class ShopManagerSQL
 	
 	public void LoadShopItems(ShopBase shop) throws SQLException
 	{
-		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitems WHERE shop_name='"+shop._name+"';");
+		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitems WHERE shop_name='"+shop.GetName()+"';");
 		ResultSet rs2 = ps.executeQuery();
 		
 		if(rs2.isBeforeFirst())
@@ -275,9 +289,11 @@ public class ShopManagerSQL
 			{
 				int i = 1;
 				UUID uuid = UUID.fromString(rs2.getString(i++));
-				String shopName = rs2.getString(i++);
+				//String shopName = rs2.getString(i++);
+				i++;
 				ShopItemType siType = ShopItemType.valueOf(rs2.getString(i++));
-				String displayName = rs2.getString(i++);
+				//String displayName = rs2.getString(i++);
+				i++;
 				int amount = rs2.getInt(i++);
 				int page = rs2.getInt(i++);
 				int slot = rs2.getInt(i++);
@@ -379,6 +395,7 @@ public class ShopManagerSQL
 					}
 					
 					((ShopItemStockable)sis).SetModData(modData);
+					sis.Set_amount(amount);
 					
 					
 				}
@@ -398,17 +415,25 @@ public class ShopManagerSQL
 		double priceValue = 0;
 		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='"+shopItemSellerUUID.toString()+"';");
 		ResultSet rs = ps.executeQuery();
-		if(rs.isBeforeFirst()) priceValue = (double)rs.getFloat(3);
+		if(rs.isBeforeFirst()) 
+		{
+			rs.next();
+			priceValue = (double)rs.getFloat(3);
+		}
 		
 		return priceValue;
 	}
 	
-	void SavePriceValue(UUID shopItemSellerUUID, double value) throws SQLException
+	void RemovePriceValue(UUID shopItemSellerUUID) throws SQLException
 	{
 		PreparedStatement ps =  _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='%s';",shopItemSellerUUID.toString()));
 		ps.executeUpdate();
-		
-		ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.price_values.toString()+" "
+	}
+	
+	void SavePriceValue(UUID shopItemSellerUUID, double value) throws SQLException
+	{		
+		//RemovePriceValue(shopItemSellerUUID);
+		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.price_values.toString()+" "
 				+ "(uuid, amount) VALUES (?,?)");
 		ps.setString(1, shopItemSellerUUID.toString());
 		ps.setFloat(2, (float)value);
@@ -426,22 +451,38 @@ public class ShopManagerSQL
 			
 			while(rs.next())
 			{
-				datas.add(new CustomPriceData(ImusAPI._metods.DecodeItemStack(rs.getString(4)), rs.getInt(3)));							
+				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs.getString(4));
+				stack.setAmount(1);
+				datas.add(new CustomPriceData(stack, rs.getInt(3)));							
 			}
 			
 		}
+		ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.custom_price.toString()+" WHERE uuid='"+uuid.toString()+"';");
+		rs = ps.executeQuery();
+		int minimumStackAmount = 1;
+		if(rs.isBeforeFirst())
+		{
+			rs.next();
+			minimumStackAmount = rs.getInt(2);
+		}
+		
 		CustomPriceData[] array = new CustomPriceData[datas.size()];
 		for(int i = 0; i < array.length; i++) {array[i] = datas.get(i);}
 			
-		pc.SetItemsAndPrice(array, GetPriceValue(uuid));
+		pc.SetItemsAndPrice(array, GetPriceValue(uuid), minimumStackAmount);
 		return pc;
+	}
+	
+	void RemovePriceCustom(UUID shopItemUUID) throws SQLException
+	{
+		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",shopItemUUID.toString()));
+		ps.executeUpdate();
 	}
 	
 	void SavePriceCustom(UUID shopItemUUID, PriceCustom pc) throws SQLException
 	{
-		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",shopItemUUID.toString()));
-		ps.executeUpdate();
-		
+		//RemovePriceCustom(shopItemUUID);
+		PreparedStatement ps;
 		for(CustomPriceData item : pc.GetItems())
 		{
 			System.out.println("saving custom item: "+item._stack.getType());
@@ -452,6 +493,17 @@ public class ShopManagerSQL
 			ps.setString(3, ImusAPI._metods.EncodeItemStack(item._stack));
 			ps.executeUpdate();
 		}
+		if(pc.GetPrice() > 0)
+		{
+			SavePriceValue(shopItemUUID, pc.GetPrice());
+		}
+		
+		ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.custom_price.toString()+" "
+				+ "(uuid, minimum_stack_amount) VALUES (?,?)");
+		ps.setString(1, shopItemUUID.toString());
+		ps.setInt(2, pc.GetMinimumStackAmount());
+		ps.executeUpdate();
+		
 	}
 	
 	public void DeleteShop(ShopBase shop)
@@ -463,7 +515,7 @@ public class ShopManagerSQL
 		try 
 		{		
 			ps = _main.GetSQL().GetConnection().prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shops.toString()+" WHERE name='"+shop._name+"'");
+					+ "DELETE FROM "+SQL_TABLES.shops.toString()+" WHERE name='"+shop.GetName()+"'");
 			
 			ps.executeUpdate();
 		} catch (Exception e) 
@@ -480,16 +532,18 @@ public class ShopManagerSQL
 		try 
 		{
 			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shops.toString()+" "
-					+ "(name, display_name, pages,shop_type, sellM, buyM, expire_percent, expire_cooldown)"
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-			ps.setString(1, shop._name);
-			ps.setString(2, shop._displayName);
+					+ "(name, display_name, pages,shop_type, sellM, buyM, expire_percent, expire_cooldown, locked, absolutePositions)"
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?)");
+			ps.setString(1, shop.GetName());
+			ps.setString(2, shop.GetDisplayName());
 			ps.setInt	(3, shop.get_items().size());
 			ps.setString(4, "1");
 			ps.setFloat	(5, (float)shop.get_sellM());
 			ps.setFloat	(6, (float)shop.get_buyM());
 			ps.setFloat	(7, (float)shop.get_expire_percent());
 			ps.setInt	(8, shop.get_expire_cooldown_m());		
+			ps.setInt	(9, (lock ? 1 : 0));		
+			ps.setInt	(10, (shop.GetAbsolutePosBool() ? 1 : 0));		
 			ps.executeUpdate();
 			
 			int page = 0;
@@ -498,7 +552,7 @@ public class ShopManagerSQL
 				for(int slot = 0; slot < siss.length; ++slot)
 				{
 					ShopItemSeller sis = siss[slot];
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM shopitems WHERE page="+page+" AND slot="+slot+" AND shop_name='"+shop._name+"';");
+					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM shopitems WHERE page="+page+" AND slot="+slot+" AND shop_name='"+shop.GetName()+"';");
 					ps.executeUpdate();	
 					if(sis == null)
 					{												
@@ -529,11 +583,14 @@ public class ShopManagerSQL
 		PreparedStatement ps,ps2;
 		try 
 		{
-			ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.shopitems.toString()+" "
-					+ "(uuid, shop_name, type , item_display_name, amount, page, slot, price_type, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data,itemstack) "
+//			ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.shopitems.toString()+" WHERE uuid='"+sis.GetUUID().toString()+"';");
+//			ps.executeUpdate();	
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shopitems.toString()+" "
+					+ "(uuid, shop_name, type , item_display_name, amount, page, slot, price_type, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data, itemstack) "
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			ps.setString(i++, sis.GetUUID().toString());
-			ps.setString(i++, sis.GetShop()._name);
+			ps.setString(i++, sis.GetShop().GetName());
 			ps.setString(i++, sis.GetItemType().toString());
 			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sis.GetRealItem()));
 			ps.setInt(i++, sis.Get_amount());
@@ -563,7 +620,7 @@ public class ShopManagerSQL
 				{
 					for(String permission : modData._permissions)
 					{
-						ps2 = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_permissions.toString()+" "
+						ps2 = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shopitem_permissions.toString()+" "
 								+ "(uuid, name) VALUES (?,?)");
 						ps2.setString(1, sis.GetUUID().toString());
 						ps2.setString(2, permission);
@@ -605,7 +662,8 @@ public class ShopManagerSQL
 					}
 				}
 				
-				
+				RemovePriceCustom(sis.GetUUID());
+				RemovePriceValue(sis.GetUUID());
 				
 				if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
 				{

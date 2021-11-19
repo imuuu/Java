@@ -1,6 +1,8 @@
 package imu.GS.ENUMs;
 
-public enum ITEM_MOD_DATA 
+import imu.GS.Interfaces.IModDataValues;
+
+public enum ITEM_MOD_DATA implements IModDataValues
 {
 	MAX_AMOUNT,
 	FILL_AMOUNT,
@@ -12,16 +14,4 @@ public enum ITEM_MOD_DATA
 	WORLD_NAMES,
 	CUSTOM_PRICE,
 	
-//	public final int _id;
-//	
-//	private ITEM_MOD_DATA(int id) 
-//	{
-//		_id = id;
-//		
-//	}
-//	
-//	public  int GetID(int id)
-//	{
-//		return _id;
-//	}
 }

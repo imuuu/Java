@@ -128,8 +128,8 @@ public class ShopItemCustomer extends ShopItemBase
 			newStack= _real_stack.clone();
 			newStack.setAmount(64);
 			
-			int slot = _metods.InventoryAddItemOrDrop(newStack, _player);
-			if(slot < 0)
+			Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
+			if(slots.length == 0)
 			{
 				//System.out.println("not space found minus: "+64);
 				AddAmount(64 * -1);
@@ -138,7 +138,11 @@ public class ShopItemCustomer extends ShopItemBase
 				
 			
 			//total_amount_setted += newStack.getAmount();
-			AddPlayerItemStackRef("plus amount1",_player.getInventory().getItem(slot));
+			for(int slot = 0; slot < slots.length; slot++)
+			{
+				AddPlayerItemStackRef("plus amount1",_player.getInventory().getItem(slot));
+			}
+			
 		}
 		//AddAmount(total_amount_setted);
 		if(leftOver == 0)
@@ -147,17 +151,19 @@ public class ShopItemCustomer extends ShopItemBase
 		//System.out.println("N4: "+n4);
 		newStack = _real_stack.clone();
 		newStack.setAmount(leftOver);
-		int slot = _metods.InventoryAddItemOrDrop(newStack, _player);
-		if(slot < 0)
+		Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
+		if(slots.length == 0)
 		{
 			System.out.println("not space found minus2: "+leftOver);
 			AddAmount(leftOver * -1);
 			return;
 		}
-			
-		//total_amount_setted += newStack.getAmount();
-		AddPlayerItemStackRef("plus amount2",_player.getInventory().getItem(slot));
-		//AddAmount(total_amount_setted);
+		
+		for(int slot = 0; slot < slots.length; slot++)
+		{
+			AddPlayerItemStackRef("plus amount2",_player.getInventory().getItem(slot));
+		}
+	
 
 	}
 

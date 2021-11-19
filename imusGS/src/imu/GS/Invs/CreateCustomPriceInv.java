@@ -36,9 +36,15 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	Boolean[] _slotLock;
 	CPriceItem[] _priceItems;
 	Main _main;
+	
+	int _moneyPos = _size - 3;
+	int _itemPos = _size - 5;
+	
+	int _uniqueSlots[] = {_moneyPos, _itemPos};
+	
 	public CreateCustomPriceInv(Plugin main, Player player, ShopModModifyINV smmi, ShopItemStockable sis, ShopItemModData modData) 
 	{
-		super(main, player, "Create custom price", 9*6);
+		super(main, player, "&9=== &6Create Custom Price &9===", 9*6);
 		_main = (Main)main;
 		_sis = sis;
 		_smmi = smmi;
@@ -66,7 +72,8 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		public int _slot;
 		private double _value = 1;
 		boolean roundIt = true;
-		public CPriceItem(ItemStack real, int slot)
+		BUTTON _button;
+		public CPriceItem(ItemStack real, int slot, BUTTON button)
 		{
 			//System.out.println("construct of cprice: "+ real.getType());
 			_value = real.getAmount();
@@ -75,9 +82,10 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			real.setAmount(0);
 			_displayStack.setAmount(1);
 			_slot = slot;
+			_button = button;
 			
 			
-			Tooltip();
+			//Tooltip();
 			//_inv.setItem(slot, _displayStack);
 		}
 		
@@ -88,16 +96,17 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		
 		public ItemStack GetDisplayItem()
 		{
-			if(_displayStack == null || _displayStack.getType() == Material.AIR)
-			{
-				if(_realStack != null) 
-				{
-					System.out.println("NEED TO COPY");
-					_displayStack = _realStack.clone();
-					
-				}
-				
-			}
+//			if(_displayStack == null || _displayStack.getType() == Material.AIR)
+//			{
+//				if(_realStack != null) 
+//				{
+//					//System.out.println("NEED TO COPY");
+//					_displayStack = _realStack.clone();
+//					
+//				}
+//				
+//			}
+			_displayStack = _realStack.clone();
 			Tooltip();
 			return _displayStack;
 		}
@@ -107,18 +116,17 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			_value = amount;
 			if(roundIt) _value = Math.round(amount);
 			
-			Tooltip();
 		}
 		
 		void Tooltip()
 		{
-			SetButton(_displayStack, BUTTON.PRICE_ITEM);
+			SetButton(_displayStack, _button);
 			String[] lores =
 			{
 				"&bM1: &2Set new Amount  &bM2: &cRemove",
 				"&9Amount: &1"+_value,
 			};
-			ImusAPI._metods.SetLores(_displayStack, lores, false);
+			ImusAPI._metods.addLore(_displayStack, lores);
 			//System.out.println("setting value of  cprice: "+amount);
 		}
 	}
@@ -128,8 +136,14 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		BACK,
 		CONFIRM,
 		PRICE_ITEM,
+		CLONE_ITEMS,
+		ITEM,
 	}
-	
+	boolean IsUniqueSlot(int slot)
+	{
+		for(int i = 0; i < _uniqueSlots.length; i++) {if(_uniqueSlots[i] == slot) return true;}
+		return false;
+	}
 	void LoadModData()
 	{
 		if(!(_modData._itemPrice instanceof PriceCustom))
@@ -138,17 +152,28 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		int i = 0;
 		for(CustomPriceData data : ((PriceCustom)_modData._itemPrice).GetItems())
 		{
-			_priceItems[i] = new CPriceItem(data._stack,i);
+			_priceItems[i] = new CPriceItem(data._stack.clone(),i, BUTTON.PRICE_ITEM);
 			_priceItems[i++].SetAmount(data._amount);
 		}
+		if(((PriceCustom)_modData._itemPrice).GetPrice() > 0)
+		{
+			_priceItems[_moneyPos].roundIt = false;
+			_priceItems[_moneyPos].SetAmount(((PriceCustom)_modData._itemPrice).GetPrice());
+			
+		}
+		_priceItems[_itemPos].SetAmount((double)((PriceCustom)_modData._itemPrice).GetMinimumStackAmount());
 		LoadPriceItems();
 	}
 	
 	public void SetData(CCPdata data)
 	{
+		if(data._slot == _moneyPos)
+		{
+			_priceItems[data._slot].roundIt = false;
+		}
 		_priceItems[data._slot].SetAmount(data.value);
-		//_inv.setItem(data._slot, _priceItems[data._slot]._displayStack);
-		System.out.println("setting data: "+data.value+ "slot: "+data._slot);
+
+		System.out.println("setting data: "+data.value+ " slot: "+data._slot);
 		LoadPriceItems();
 	}
 	
@@ -156,11 +181,20 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	public void setupButtons() {
 		
 		setupButton(BUTTON.BACK, Material.RED_STAINED_GLASS_PANE,"&cBACK", _size-9); _slotLock[_size-9] = true;
+		
 		setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE,"&1CONFIRM", _size-1); _slotLock[_size-1] = true;	
 		for(int i = _size-2; i > _size-9; i--) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE," ", i); _slotLock[i] = true;}
-		//setupButton(BUTTON.PRICE_ITEM, Material.PAPER,"&9ADD Money", _size-5);// _slotLock[_size-5] = true;
-		LockItem(setupButton(BUTTON.PRICE_ITEM, Material.PAPER,"&9Add Money", _size-5), _size-5);
-		_priceItems[_size-5].SetAmount(0);
+		//setupButton(BUTTON.PRICE_ITEM, Material.PAPER,"&9ADD Money", _moneyPos);// _slotLock[_moneyPos] = true;
+		
+		LockItem(setupButton(BUTTON.PRICE_ITEM, Material.PAPER,"&9Add Money", _moneyPos), _moneyPos, BUTTON.PRICE_ITEM);
+		
+		ItemStack stack = _sis.GetRealItem().clone();
+		_metods.addLore(stack, "&6Minium sell amount", false);
+		LockItem(stack, _itemPos, BUTTON.ITEM);
+		
+		
+		setupButton(BUTTON.CLONE_ITEMS, Material.SLIME_BALL,"&bClone Items to your inv", _size-9+2); _slotLock[_size-9+2] = true;
+		_priceItems[_moneyPos].SetAmount(0);
 	}
 	
 	
@@ -172,28 +206,24 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	
 	void LoadPriceItems()
 	{
-		//System.out.println("loading price items");
 		for(int i = 0; i < _inv.getSize()-10; i++) {_inv.setItem(i, null); _slotLock[i] = false;}
 		for(CPriceItem cpi : _priceItems)
 		{
-			//System.out.println("cpi: "+cpi);	
 			if(cpi == null) continue;
-			//System.out.println("==> cpi slot: "+cpi._slot +" display: "+cpi.GetDisplayItem().getType() + "real: "+cpi._realStack.getType() + " value: "+cpi._value);
+			
 			_inv.setItem(cpi._slot, cpi.GetDisplayItem());
 			_slotLock[cpi._slot] = true;
-
 		}
 	}
 	
 	void CheckInv()
 	{
 		new BukkitRunnable() 
-		{
-			
+		{		
 			@Override
 			public void run() 
 			{
-				System.out.println("loadInv");
+				//System.out.println("loadInv");
 				for(int i= 0; i < _size-9; i++)
 				{
 					ItemStack stack  = _inv.getItem(i);
@@ -209,7 +239,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 						if(cpi != null && cpi._realStack.isSimilar(stack) && cpi._slot != i)
 						{
 							cpi.SetAmount(1);
-							System.out.println("removing :"+stack.getType()+ " slot: "+i);
+							//System.out.println("removing :"+stack.getType()+ " slot: "+i);
 							stack.setAmount(0);
 							_slotLock[i] = false;
 							found = true;
@@ -219,7 +249,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 					if(found) continue;
 					
 					//if(_slotLock[i]) continue;
-					LockItem(stack, i);
+					LockItem(stack, i, BUTTON.PRICE_ITEM);
 				}
 			}
 		}.runTaskLater(_plugin,1);
@@ -227,13 +257,13 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		LoadPriceItems();
 	}
 	
-	void LockItem(ItemStack stack, int slot)
+	void LockItem(ItemStack stack, int slot, BUTTON button)
 	{
 		if(stack == null || stack.getType() == Material.AIR) return ;
 		if(slot < 0 || slot > _size-1) return;
 		if(_priceItems[slot] != null) return;
 		//System.out.println("new lock: "+stack.getType() + " slot: "+ slot);
-		_priceItems[slot] = new CPriceItem(stack, slot);		
+		_priceItems[slot] = new CPriceItem(stack, slot, button);		
 		
 		_slotLock[slot] = true;
 		new BukkitRunnable() {
@@ -280,43 +310,51 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		//System.out.println("click");
 		if(CheckSlotLock(e.getSlot())) e.setCancelled(true);
 		
-		
-		
+		ConversationFactory cf;
+		String question;
+		Conversation conv;
 		switch (GetBUTTON(e.getCurrentItem())) 
 		{
 		case NONE:
 			break;
 		case BACK:
-			for(CPriceItem item : _priceItems) {if(item != null && item._slot != _size-5)ImusAPI._metods.InventoryAddItemOrDrop(item._realStack, _player);}
 			_player.closeInventory();
 			_smmi.openThis();
 			return;
+		case CLONE_ITEMS:
+			for(CPriceItem item : _priceItems) {if(item != null && !IsUniqueSlot(item._slot))ImusAPI._metods.InventoryAddItemOrDrop(item._realStack.clone(), _player);}
+			break;
 		case CONFIRM:
-			System.out.println("Confirm!");
 			ArrayList<CustomPriceData> stacks = new ArrayList<CustomPriceData>();
 			double money = 0;
 			for(CPriceItem cpi : _priceItems)
 			{
 				if(cpi == null) continue;
-				if(cpi._slot == _size-5) 
+				if(cpi._slot == _moneyPos) 
 				{
 					money = cpi._value;
 					continue;
 				}
-				stacks.add(new CustomPriceData(cpi._realStack.clone(), (int)cpi._value));
+				
+				if(cpi._slot == _itemPos) continue;
+				
+				ItemStack cpiStack = cpi._realStack.clone();
+				cpiStack.setAmount(1);
+				stacks.add(new CustomPriceData(cpiStack, (int)cpi._value));
 			}
 			CustomPriceData[] array = new CustomPriceData[stacks.size()];
 			for(int i = 0; i < array.length; ++i) {array[i] = stacks.get(i);}
-			_modData._itemPrice = new PriceCustom().SetItemsAndPrice(array, money);
+			_modData._itemPrice = new PriceCustom().SetItemsAndPrice(array, money, (int)_priceItems[_itemPos].GetAmount());
 			_player.closeInventory();
 			_smmi.SetModData(_modData);
 			_smmi.openThis();
 			return;
 		case PRICE_ITEM:
+			System.out.println("price item");
 			if(e.getClick() == ClickType.RIGHT) 
 			{
 				//System.out.println("remove");
-				if(e.getSlot() == _size-5) {
+				if(e.getSlot() == _moneyPos) {
 					_priceItems[e.getSlot()].SetAmount(0);
 					_inv.setItem(_priceItems[e.getSlot()]._slot, _priceItems[e.getSlot()].GetDisplayItem());
 					return;
@@ -332,13 +370,27 @@ public class CreateCustomPriceInv extends CustomInvLayout
 				
 				return;
 			}
-			ConversationFactory cf = new ConversationFactory(_main);
-			String question = "&3Give new amount";
-			Conversation conv = cf.withFirstPrompt(new ConvCCPINV(_main, this, new CCPdata(e.getSlot()), question)).withLocalEcho(true).buildConversation(_player);
+			cf = new ConversationFactory(_main);
+			question = "&3Give new amount";
+			conv = cf.withFirstPrompt(new ConvCCPINV(_main, this, new CCPdata(e.getSlot()), question)).withLocalEcho(true).buildConversation(_player);
 			conv.begin();
 			_player.closeInventory();
 			return;
-
+		case ITEM:
+			System.out.println("Item");
+			if(e.getClick() == ClickType.RIGHT) 
+			{
+				_priceItems[e.getSlot()]._value = _sis.Get_amount();
+				_inv.setItem(e.getSlot(), _priceItems[e.getSlot()].GetDisplayItem());
+				return;
+			}
+			
+			cf = new ConversationFactory(_main);
+			question = "&3Give minimum amount to sell";
+			conv = cf.withFirstPrompt(new ConvCCPINV(_main, this, new CCPdata(e.getSlot()), question)).withLocalEcho(true).buildConversation(_player);
+			conv.begin();
+			_player.closeInventory();
+			return;
 		default:
 			break;
 		
@@ -346,7 +398,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		
 		if(e.getClick() != ClickType.RIGHT) 
 		{
-			LockItem(_droppedStack, _droppedSlot);
+			LockItem(_droppedStack, _droppedSlot, BUTTON.PRICE_ITEM);
 			e.getCursor().setAmount(0);
 			//System.out.println("cursor: "+);
 		}
@@ -365,8 +417,14 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
-		// TODO Auto-generated method stub
-		
+		_main.UnregisterInv(this);
+	}
+	
+	@Override
+	public void openThis() 
+	{
+		super.openThis();
+		_main.RegisterInv(this);
 	}
 	
 	

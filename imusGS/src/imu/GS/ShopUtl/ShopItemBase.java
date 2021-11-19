@@ -2,7 +2,6 @@ package imu.GS.ShopUtl;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -52,7 +51,7 @@ public abstract class ShopItemBase
 		_real_stack = real.clone();
 		_display_stack = real.clone();
 		_display_stack.setAmount(1);
-		_display_stack_not_available =ImusAPI._metods.addLore(_display_stack.clone(), ImusAPI._metods.msgC("&cNOT AVAILABLE"), false);
+		_display_stack_not_available =ImusAPI._metods.addLore(_display_stack.clone(), Metods.msgC("&cNOT AVAILABLE"), false);
 		
 		
 		

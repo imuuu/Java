@@ -14,6 +14,7 @@ import imu.GS.Other.CmdData;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 
 public class SubCreateUniqueCMD implements CommandInterface
 {
@@ -62,7 +63,7 @@ public class SubCreateUniqueCMD implements CommandInterface
 		}.runTaskAsynchronously(_main);
 		
 		
-		player.sendMessage(ImusAPI._metods.msgC("&3You have created &5Unique&3 item with price tag of &2"+price));
+		player.sendMessage(Metods.msgC("&3You have created &5Unique&3 item with price tag of &2"+price));
 		
         return false;
     }

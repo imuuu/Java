@@ -3,8 +3,6 @@ package imu.GS.Prompts;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GS.Invs.CreateCustomPriceInv;
 import imu.GS.Invs.CreateCustomPriceInv.CCPdata;
@@ -31,9 +29,9 @@ public class ConvCCPINV extends StringPrompt
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
 		if(!ImusAPI._metods.isDigit(anwser)) return this;
-		if(Integer.parseInt(anwser) < 0) return this;
+		if(Double.parseDouble(anwser) < 0) return this;
 		
-		_ccpData.value = Integer.parseInt(anwser);
+		_ccpData.value = Double.parseDouble(anwser);
 		_ccpInv.SetData(_ccpData);
 		_ccpInv.openThis();
 		return null;

@@ -20,7 +20,6 @@ import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
-import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 
 public class CustomerMenuBaseInv extends CustomerInv
@@ -342,7 +341,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		
 		RefreshPlayerDisplayPageSlots();
 		
-		System.out.println("PlayerInvLoaded");
+		//System.out.println("PlayerInvLoaded");
 		
 	}
 	void FindCustomerItem(ShopItemCustomer sic, boolean AddToPlayerToo)

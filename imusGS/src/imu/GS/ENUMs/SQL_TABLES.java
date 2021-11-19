@@ -11,5 +11,6 @@ public enum SQL_TABLES
 	shopitem_worlds,
 	shops,
 	tags,
-	uniques
+	uniques,
+	custom_price
 }
