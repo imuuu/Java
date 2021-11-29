@@ -3,9 +3,7 @@ package imu.iAPI.Other;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,6 +12,9 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.conversations.StringPrompt;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
@@ -37,10 +38,6 @@ import imu.iAPI.Interfaces.DelaySendable;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemElytra;
 import net.minecraft.world.item.ItemShield;
@@ -1163,6 +1160,19 @@ public class Metods
 //        return CraftItemStack.asBukkitCopy(s);
 //	}
 	
+//	private Object getField(Object obj, String name) {
+//  try {
+//      Field field = obj.getClass().getDeclaredField(name);
+//      field.setAccessible(true);
+//
+//      return field.get(obj);
+//  } catch (Exception e) {
+//      // We don't care
+//      throw new RuntimeException("Unable to retrieve field content.", e);
+//  }
+//}
+
+	
 	public ItemStack AddGlow(ItemStack stack)
 	{
 		ItemMeta meta = stack.getItemMeta();
@@ -1179,18 +1189,14 @@ public class Metods
 		return stack;
 	}
 	
-//	private Object getField(Object obj, String name) {
-//        try {
-//            Field field = obj.getClass().getDeclaredField(name);
-//            field.setAccessible(true);
-//
-//            return field.get(obj);
-//        } catch (Exception e) {
-//            // We don't care
-//            throw new RuntimeException("Unable to retrieve field content.", e);
-//        }
-//    }
+	public void ConversationWithPlayer(Player player, StringPrompt conv)
+	{
+		ConversationFactory cf = new ConversationFactory(_main);
+		Conversation conversation = cf.withFirstPrompt(conv).withLocalEcho(true).buildConversation(player);
+		conversation.begin();
+	}
 	
+
 	
 	
 	

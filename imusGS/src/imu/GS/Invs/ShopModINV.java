@@ -1,18 +1,17 @@
 package imu.GS.Invs;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import com.google.common.base.Strings;
+
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
@@ -42,6 +41,7 @@ public class ShopModINV extends CustomInvLayout
 		_main = main;
 		unique_slots = _size-9;
 		_shop = shop;
+		
 	}
 
 	
@@ -55,6 +55,7 @@ public class ShopModINV extends CustomInvLayout
 		SAVE_SHOP_DATA,
 		OVERRIDE_ALL,
 		MOD_SHOPBASE,
+		RANDOM_ITEM_GEN,
 		
 
 	}
@@ -122,53 +123,51 @@ public class ShopModINV extends CustomInvLayout
 		//_inv.setItem(unique_slots+4, override_button);
 		_inv.setItem(unique_slots+4, shopModBase);
 		
-		//refreshItems();
+		
+		ItemStack stack = new ItemStack(Material.GOLD_ORE);
+		Metods.setDisplayName(stack, "Generate Items");
+		_metods.addLore(stack, "&6Open item generator inv", false);
+		_inv.setItem(_size-20, SetButton(stack, BUTTON.RANDOM_ITEM_GEN));
 	}
 
-	
-	
-	@EventHandler
-	public void onInvOpen(InventoryOpenEvent e)
+	@Override
+	public void openThis() 
 	{
-		if(isThisInv(e))
-		{
-			_isClosed = _shop.HasLocked();
-			_shop.SetLocked(true);
-			_main.get_shopManager().RegisterOpenedInv(_player, this);
-			makeInv();
-			refreshItems();
-		}
+		super.openThis();
+		_main.RegisterInv(this);
+		_isClosed = _shop.HasLocked();
+		_shop.SetLocked(true);
+		_main.get_shopManager().RegisterOpenedInv(_player, this);
+		makeInv();
+		refreshItems();
 	}
 	
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) 
 	{
-		if(isThisInv(e))
-		{
-			_shop.SetLocked(_isClosed);
-			_main.get_shopManager().UnRegisterOpenedInv(_player);
-		}
+		_shop.SetLocked(_isClosed);
+		_main.get_shopManager().UnRegisterOpenedInv(_player);
+		_main.UnregisterInv(this);
+	}
+	
+	BUTTON GetBUTTON(ItemStack stack)
+	{
+		if(stack == null) return BUTTON.NONE;
+		String bName = getButtonName(stack);		
+		if(Strings.isNullOrEmpty(bName)) return BUTTON.NONE;
+		return BUTTON.valueOf(bName);
 	}
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
 		ItemStack stack = e.getCurrentItem();
-		if(stack == null) return;
-		
-		String bStr = getButtonName(stack);
-		
-		if(bStr == null) return;
-		
-		BUTTON button = BUTTON.valueOf(bStr);
-		//int slot = e.getSlot();
-		
-		
-		//int item_id = (current_page * unique_slots)+slot;
-		
+
+		BUTTON button = GetBUTTON(stack);
+
 		switch (button) 
 		{
-		case NONE:
-			
+		case NONE:			
 			break;
 		case SHOP_ITEM:
 			ShopItemStockable item = (ShopItemStockable)_shop.GetItem(current_page, e.getSlot());
@@ -196,6 +195,9 @@ public class ShopModINV extends CustomInvLayout
 			_player.closeInventory();
 			new ShopBaseModify(_main, _player, _shop).openThis();
 			break;
+		case RANDOM_ITEM_GEN:
+			new ShopItemGeneratorInv(_main, _player, _shop).openThis();
+			break;
 		default:
 			break;
 		}
@@ -215,14 +217,14 @@ public class ShopModINV extends CustomInvLayout
 		
 		custom_amount =        _modData._maxAmount != -1 ?     		true_color+ _modData._maxAmount : none_str;
 		c_permission =         _modData._permissions != null ? 		true_color+ ImusAPI._metods.CombineArrayToOneString(_modData._permissions.toArray(), "; ") : none_str;
-		c_price =              _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE, null,null,none_str);
+		c_price =              _modData.GetValueStr(ModDataShopStockable.CUSTOM_PRICE, null,null,none_str);
 		c_worlds =  	       _modData._worldNames != null ?     	true_color+ ImusAPI._metods.CombineArrayToOneString(_modData._worldNames.toArray(), "; ") : none_str;
 		c_fill_delay = 		   _modData._fillDelayMinutes != -1 ? 	true_color+ _modData._fillDelayMinutes : none_str;
 		c_fill_amount = 	   _modData._fillAmount != -1 ? 		true_color+ _modData._fillAmount :none_str;
 		//c_soldBack =           _shop.getPDCustomCanSoldBack(stack) != null ? none_color+"false" : ChatColor.AQUA + "true";
-		String[] disStr = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null,null,none_str).split("; ");
+		String[] disStr = _modData.GetValueStr(ModDataShopStockable.DISTANCE_LOC, null,null,none_str).split("; ");
 		c_soldDistance = disStr.length > 1 ? true_color + "More than one" : disStr[0];		
-		c_selltime =           _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START, null,null,none_str);
+		c_selltime =           _modData.GetValueStr(ModDataShopStockable.SELL_TIME_START, null,null,none_str);
 		String color = ChatColor.BLUE+"";
 		String color2 = ChatColor.YELLOW+"";
 		
@@ -288,16 +290,11 @@ public class ShopModINV extends CustomInvLayout
 				
 	}
 
-	@Override
-	public void invClosed(InventoryCloseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 	@Override
 	public void setupButtons() {
-		// TODO Auto-generated method stub
+		
 		
 	}
 }

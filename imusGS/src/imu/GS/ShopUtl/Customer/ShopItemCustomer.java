@@ -169,13 +169,13 @@ public class ShopItemCustomer extends ShopItemBase
 
 	@Override
 	public JsonObject GetJsonData() {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	@Override
 	public void ParseJsonData(JsonObject data) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 

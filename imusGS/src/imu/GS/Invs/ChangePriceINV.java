@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Strings;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvPromptModModifyINV;
 import imu.GS.ShopUtl.ShopItemBase;
@@ -93,7 +93,7 @@ public class ChangePriceINV extends CustomInvLayout
 			String question = null;
 			Conversation conv = null;
 			question = ChatColor.DARK_PURPLE + "Give Own Price?";
-			conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.CUSTOM_PRICE, _smmi, _modData, question)).withLocalEcho(true).buildConversation(_player);
+			conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.CUSTOM_PRICE, _smmi, _modData, question)).withLocalEcho(true).buildConversation(_player);
 			conv.begin();
 			_player.closeInventory();
 			return;

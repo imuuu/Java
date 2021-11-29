@@ -6,7 +6,7 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Invs.ShopModModifyINV;
 import imu.GS.ShopUtl.ShopItemModData;
 
@@ -20,9 +20,9 @@ public class ConvPromptModModifyINV extends StringPrompt
 	String _question;
 	ShopModModifyINV _smmi;
 	ShopItemModData _modData;
-	ITEM_MOD_DATA _dataName;
+	ModDataShopStockable _dataName;
 		
-	public ConvPromptModModifyINV(Player p, ITEM_MOD_DATA dataName, ShopModModifyINV smmi ,ShopItemModData modData, String question)
+	public ConvPromptModModifyINV(Player p, ModDataShopStockable dataName, ShopModModifyINV smmi ,ShopItemModData modData, String question)
 	{
 		_player = p;
 		_modData = modData;
@@ -35,9 +35,9 @@ public class ConvPromptModModifyINV extends StringPrompt
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
 		//con.getForWhom().sendRawMessage("Thank you for ur awnser!: "+anwser );
-		if(_dataName != ITEM_MOD_DATA.SELL_TIME_START)
+		if(_dataName != ModDataShopStockable.SELL_TIME_START)
 		{
-			if(_dataName == ITEM_MOD_DATA.DISTANCE_LOC)
+			if(_dataName == ModDataShopStockable.DISTANCE_LOC)
 			{
 				Location loc =  _player.getLocation();
 				String locStr = loc.getWorld().getName()+" "+loc.getBlockX()+" "+loc.getBlockY()+" "+loc.getBlockZ();
@@ -50,12 +50,12 @@ public class ConvPromptModModifyINV extends StringPrompt
 			String[] times = anwser.split(" ");
 			if(times.length != 2) return this;
 			
-			if(!_modData.SetAndCheck(ITEM_MOD_DATA.SELL_TIME_START, times[0])) return this;
-			if(!_modData.SetAndCheck(ITEM_MOD_DATA.SELL_TIME_END, times[1])) return this;
+			if(!_modData.SetAndCheck(ModDataShopStockable.SELL_TIME_START, times[0])) return this;
+			if(!_modData.SetAndCheck(ModDataShopStockable.SELL_TIME_END, times[1])) return this;
 		
 		}
 				
-		if(_dataName == ITEM_MOD_DATA.WORLD_NAMES && anwser.equalsIgnoreCase("this")) anwser = _player.getWorld().getName();
+		if(_dataName == ModDataShopStockable.WORLD_NAMES && anwser.equalsIgnoreCase("this")) anwser = _player.getWorld().getName();
 		
 		
 		_smmi.SetModData(_modData);

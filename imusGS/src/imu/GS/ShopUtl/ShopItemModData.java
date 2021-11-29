@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Interfaces.IModData;
 import imu.GS.Interfaces.IModDataValues;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
@@ -36,7 +36,7 @@ public class ShopItemModData implements Cloneable, IModData
 	public int _roll = 0;
 	public String GetValueStr(IModDataValues v, String trueFrontText, String trueBackText,String falseStr)
 	{
-		ITEM_MOD_DATA value = (ITEM_MOD_DATA)v;
+		ModDataShopStockable value = (ModDataShopStockable)v;
 		String str ="";
 		if(trueFrontText == null) trueFrontText = "";
 		if(trueBackText == null) trueBackText = "";
@@ -100,7 +100,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public boolean SetAndCheck(IModDataValues v, String str)
 	{
-		ITEM_MOD_DATA value = (ITEM_MOD_DATA) v;
+		ModDataShopStockable value = (ModDataShopStockable) v;
 		switch (value) 
 		{
 

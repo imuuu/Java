@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import imu.GS.ENUMs.ShopModDataValues;
+import imu.GS.ENUMs.ModDataShop;
 import imu.GS.Interfaces.IModData;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvShopMod;
@@ -80,37 +80,37 @@ public class ShopBaseModify extends CustomInvLayout
 		
 		ItemStack stack = new ItemStack(Material.PAPER);
 		Metods.setDisplayName(stack, "&6Rename shop name");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.NAME, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.NAME, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(0, SetButton(stack, BUTTON.SHOP_NAME));
 		
 		stack = new ItemStack(Material.GOLD_INGOT);
 		Metods.setDisplayName(stack, "&6Sell Multiplier");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.SELL_MUL, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.SELL_MUL, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(2, SetButton(stack, BUTTON.SHOP_SELL_MUL));
 		
 		stack = new ItemStack(Material.IRON_INGOT);
 		Metods.setDisplayName(stack, "&6Buy Multiplier");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.BUY_MUL, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.BUY_MUL, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(4, SetButton(stack, BUTTON.SHOP_BUY_MUL));
 		
 		stack = new ItemStack(Material.STICKY_PISTON);
 		Metods.setDisplayName(stack, "&6Absolute position");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.ABSOLUTE_POS, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.ABSOLUTE_POS, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(6, SetButton(stack, BUTTON.SHOP_ABSOLUTE_POS));
 		
 		stack = new ItemStack(Material.BARRIER);
 		Metods.setDisplayName(stack, "&6Lock");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.LOCKED, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);		
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.LOCKED, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);		
 		_inv.setItem(8, SetButton(stack, BUTTON.SHOP_LOCKED));
 		
 		stack = new ItemStack(Material.COMPASS);
 		Metods.setDisplayName(stack, "&6Expire percent");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.EXPIRE_PERCENT, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.EXPIRE_PERCENT, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(10, SetButton(stack, BUTTON.SHOP_EXPIRE_PERCENT));
 		
 		stack = new ItemStack(Material.CLOCK);
 		Metods.setDisplayName(stack, "&6Expire Cooldown");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ShopModDataValues.EXPIRE_COOLDOWN, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.EXPIRE_COOLDOWN, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(12, SetButton(stack, BUTTON.SHOP_EXPIRE_COOLDOWN));
 	}
 
@@ -170,7 +170,7 @@ public class ShopBaseModify extends CustomInvLayout
 		ConversationFactory cf = null;
 		String question = null;
 		Conversation conv = null;
-		ShopModDataValues value = null;
+		ModDataShop value = null;
 		
 		if(button != BUTTON.NONE) cf = new ConversationFactory(_main);
 		
@@ -186,30 +186,30 @@ public class ShopBaseModify extends CustomInvLayout
 			break;
 		case SHOP_NAME:
 			question = Metods.msgC("&6Give shop's new name. You are able to use colors with color code( & )");
-			value = ShopModDataValues.NAME;
+			value = ModDataShop.NAME;
 			break;
 		case SHOP_BUY_MUL:
 			question = Metods.msgC("&6Give shop &9buy &6multiplier");
-			value = ShopModDataValues.BUY_MUL;
+			value = ModDataShop.BUY_MUL;
 			break;
 		case SHOP_SELL_MUL:
 			question = Metods.msgC("&6Give shop &aSell &6multiplier");
-			value = ShopModDataValues.SELL_MUL;
+			value = ModDataShop.SELL_MUL;
 			break;
 		case SHOP_EXPIRE_COOLDOWN:
 			question = Metods.msgC("&6Give Expire Cooldown in &aminutes");
-			value = ShopModDataValues.EXPIRE_COOLDOWN;
+			value = ModDataShop.EXPIRE_COOLDOWN;
 			break;
 		case SHOP_EXPIRE_PERCENT:
 			question = Metods.msgC("&6Give Expire percent");
-			value = ShopModDataValues.EXPIRE_PERCENT;
+			value = ModDataShop.EXPIRE_PERCENT;
 			break;
 		case SHOP_LOCKED:
-			_shopModData.SetAndCheck(ShopModDataValues.LOCKED, "");
+			_shopModData.SetAndCheck(ModDataShop.LOCKED, "");
 			setupButtons();
 			break;		
 		case SHOP_ABSOLUTE_POS:
-			_shopModData.SetAndCheck(ShopModDataValues.ABSOLUTE_POS, "");
+			_shopModData.SetAndCheck(ModDataShop.ABSOLUTE_POS, "");
 			setupButtons();
 			break;
 		

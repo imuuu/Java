@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.common.base.Strings;
 
+import imu.GS.Invs.ShopItemGeneratorInv.BUTTON;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.Prompts.ConvCCPINV;
@@ -304,6 +305,14 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		
 	}
 	
+	BUTTON GetBUTTON(ItemStack stack)
+	{
+		if(stack == null) return BUTTON.NONE;
+		String bName = getButtonName(stack);		
+		if(Strings.isNullOrEmpty(bName)) return BUTTON.NONE;
+		return BUTTON.valueOf(bName);
+	}
+	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -404,14 +413,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		}
 	}
 	
-	BUTTON GetBUTTON(ItemStack stack)
-	{
-		if(stack == null) return BUTTON.NONE;
-		String bName = getButtonName(stack);		
-		if(Strings.isNullOrEmpty(bName)) return BUTTON.NONE;
-		return BUTTON.valueOf(bName);
-	}
-
+	
 	
 	
 	@Override

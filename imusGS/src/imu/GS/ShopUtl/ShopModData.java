@@ -1,6 +1,6 @@
 package imu.GS.ShopUtl;
 
-import imu.GS.ENUMs.ShopModDataValues;
+import imu.GS.ENUMs.ModDataShop;
 import imu.GS.Interfaces.IModData;
 import imu.GS.Interfaces.IModDataValues;
 import imu.iAPI.Main.ImusAPI;
@@ -37,7 +37,7 @@ public class ShopModData implements IModData
 	@Override
 	public String GetValueStr(IModDataValues v, String trueFrontText, String trueBackText, String falseStr)
 	{ 
-		ShopModDataValues value = (ShopModDataValues)v;
+		ModDataShop value = (ModDataShop)v;
 		String str ="";
 		
 		switch (value) {
@@ -77,7 +77,7 @@ public class ShopModData implements IModData
 	@Override
 	public boolean SetAndCheck(IModDataValues v, String str) 
 	{
-		ShopModDataValues value = (ShopModDataValues)v;
+		ModDataShop value = (ModDataShop)v;
 		
 		switch(value)
 		{

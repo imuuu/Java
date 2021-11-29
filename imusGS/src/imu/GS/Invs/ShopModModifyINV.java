@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.google.common.base.Strings;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvPromptModModifyINV;
 import imu.GS.ShopUtl.ShopBase;
@@ -92,18 +92,18 @@ public class ShopModModifyINV extends CustomInvLayout
 		setupButton(BUTTON.REMOVE_INF, Material.LAVA_BUCKET, ChatColor.RED + ""+ChatColor.BOLD + "Remove this items from shop", 8);
 		
 		id = 2;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.MAX_AMOUNT,setTo ,null, false_setTo);
 		ItemStack custom_amount = setupButton(BUTTON.CUSTOM_AMOUNT, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Custom amount", id);		
-		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ITEM_MOD_DATA.MAX_AMOUNT,setTo ,null, false_setTo), false);
+		ImusAPI._metods.addLore(custom_amount, _modData.GetValueStr(ModDataShopStockable.MAX_AMOUNT,setTo ,null, false_setTo), false);
 		ImusAPI._metods.addLore(custom_amount, m1m2, false);
 		
 		id = 4;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.PERMISSIONS,setTo ,null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.PERMISSIONS,setTo ,null,  false_setTo);
 		ItemStack setPerms = setupButton(BUTTON.SET_PERMISSION, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set permission", id);
 		ImusAPI._metods.addLore(setPerms, lore, false);ImusAPI._metods.addLore(setPerms, m1m2, false);
 		
 		id = 6;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_DELAY,setTo ,null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.FILL_DELAY,setTo ,null,  false_setTo);
 		ItemStack setFillDelay = setupButton(BUTTON.SET_FILL_DELAY, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillDelay(min)", id);
 		
 		ImusAPI._metods.addLore(setFillDelay, lore, false);
@@ -112,7 +112,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 12;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.FILL_AMOUNT,setTo ,null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.FILL_AMOUNT,setTo ,null,  false_setTo);
 		ItemStack setFillAmount = setupButton(BUTTON.SET_FILL_AMOUNT, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Stock FillAmount", id);
 		
 		ImusAPI._metods.addLore(setFillAmount, lore , false);
@@ -122,7 +122,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		//ImusAPI._metods.addLore(setDelay_Amount, ChatColor.BLUE + "Minimum time: "+ _shop.getStockCheckTime()/60, true);
 		
 		id = 14;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.CUSTOM_PRICE,setTo ,null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.CUSTOM_PRICE,setTo ,null,  false_setTo);
 		ItemStack setCusPrice = setupButton(BUTTON.SET_PRICE, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Custom Price", id);
 		
 		ImusAPI._metods.addLore(setCusPrice, lore, false);
@@ -132,7 +132,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		
 		
 		id = 20;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.WORLD_NAMES,setTo , null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.WORLD_NAMES,setTo , null,  false_setTo);
 		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
 		
 		ImusAPI._metods.addLore(setWorlds, lore, false);
@@ -141,7 +141,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		ImusAPI._metods.addLore(setWorlds, m1m2, false);
 								
 		id = 22;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.DISTANCE_LOC, null ,null, false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.DISTANCE_LOC, null ,null, false_setTo);
 		ItemStack setDistance_item = setupButton(BUTTON.SET_DISTANCE, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set Distance radius.", id);		
 		
 		ImusAPI._metods.addLore(setDistance_item, lore.split("; "));
@@ -150,7 +150,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		ImusAPI._metods.addLore(setDistance_item, m1m2, false);
 		
 		id = 24;
-		lore = _modData.GetValueStr(ITEM_MOD_DATA.SELL_TIME_START,setTo ,null,  false_setTo);
+		lore = _modData.GetValueStr(ModDataShopStockable.SELL_TIME_START,setTo ,null,  false_setTo);
 		ItemStack setTimeSell = setupButton(BUTTON.SET_TIME_SELL, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Set sell time", id);
 		
 		ImusAPI._metods.addLore(setTimeSell, lore , false);
@@ -210,19 +210,19 @@ public class ShopModModifyINV extends CustomInvLayout
 				return;
 			case CUSTOM_AMOUNT:				
 				question = ChatColor.DARK_PURPLE + "Give Custom amount?";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.MAX_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.MAX_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_PERMISSION:
 				question = ChatColor.DARK_PURPLE + "Give Permission name?";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.PERMISSIONS, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.PERMISSIONS, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_FILL_DELAY:
 				question = ChatColor.DARK_PURPLE + "Give Fill Delay";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.FILL_DELAY, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.FILL_DELAY, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_FILL_AMOUNT:
 				question = ChatColor.DARK_PURPLE + "Give Fill Amount";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.FILL_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.FILL_AMOUNT, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_PRICE:				
 				//question = ChatColor.DARK_PURPLE + "Give Own Price?";
@@ -231,11 +231,11 @@ public class ShopModModifyINV extends CustomInvLayout
 				return;
 			case SET_WORLDS:
 				question = ChatColor.DARK_PURPLE + "Give World name?(ex: world world_nether this(takes world where you are) )";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.WORLD_NAMES, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.WORLD_NAMES, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case SET_DISTANCE:
 				question = ChatColor.DARK_PURPLE + "Give Distance and location?{distance worldName x y z}(ex: 50 world 1 55 23 OR 50 this(this= ur loc))";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.DISTANCE_LOC, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.DISTANCE_LOC, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;
 			case REMOVE_INF:
 				_shop.RemoveItem(_sis.GetPage(), _sis.GetSlot());
@@ -244,7 +244,7 @@ public class ShopModModifyINV extends CustomInvLayout
 				return;
 			case SET_TIME_SELL:
 				question = ChatColor.DARK_PURPLE + "Give startTime and endTime  Seperate by space(ex: 0 13000(whole daytime)(min:0 max:24000)";
-				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ITEM_MOD_DATA.SELL_TIME_START, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
+				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.SELL_TIME_START, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
 				break;	
 			default:
 				break;

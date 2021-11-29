@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import imu.GS.ENUMs.ITEM_MOD_DATA;
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
