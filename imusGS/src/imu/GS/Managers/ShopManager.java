@@ -12,9 +12,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopNormal;
+import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Main.ImusAPI;
@@ -34,6 +36,7 @@ public class ShopManager
 	UniqueManager _uniqueManager;
 	
 	HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
+	HashMap<UUID, ArrayList<PriceCustom>> _savedPriceCustoms= new HashMap<>();
 	
 	int _shopCheckTime = 10;
 	
@@ -95,7 +98,16 @@ public class ShopManager
 		_opened_invs.remove(player.getUniqueId());
 	}
 	
+	public void SavePriceCustom(UUID playerUUID, PriceCustom pc)
+	{
+		if(!_savedPriceCustoms.containsKey(playerUUID)) _savedPriceCustoms.put(playerUUID, new ArrayList<>());
+		_savedPriceCustoms.get(playerUUID).add(pc);
+	}
 	
+	public ArrayList<PriceCustom> GetSavedPlayerPriceCustoms(UUID playerUUID)
+	{
+		return (_savedPriceCustoms.containsKey(playerUUID) ? _savedPriceCustoms.get(playerUUID) : new ArrayList<PriceCustom>());
+	}
 	
 	void RunnableAsync()
 	{

@@ -18,10 +18,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.common.base.Strings;
 
-import imu.GS.Invs.ShopItemGeneratorInv.BUTTON;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.Prompts.ConvCCPINV;
+import imu.GS.Prompts.ConvCCPINVsavePC;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
@@ -85,9 +85,6 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			_slot = slot;
 			_button = button;
 			
-			
-			//Tooltip();
-			//_inv.setItem(slot, _displayStack);
 		}
 		
 		public double GetAmount()
@@ -97,16 +94,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		
 		public ItemStack GetDisplayItem()
 		{
-//			if(_displayStack == null || _displayStack.getType() == Material.AIR)
-//			{
-//				if(_realStack != null) 
-//				{
-//					//System.out.println("NEED TO COPY");
-//					_displayStack = _realStack.clone();
-//					
-//				}
-//				
-//			}
+
 			_displayStack = _realStack.clone();
 			Tooltip();
 			return _displayStack;
@@ -139,6 +127,8 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		PRICE_ITEM,
 		CLONE_ITEMS,
 		ITEM,
+		LOAD_TEMP_SAVED_CUSTOM_PRICE,
+		SAVE_TEMP_CUSTOM_PRICE,
 	}
 	boolean IsUniqueSlot(int slot)
 	{
@@ -166,6 +156,17 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		LoadPriceItems();
 	}
 	
+	public void LoadPriceCustom(PriceCustom pc)
+	{
+		_priceItems[_moneyPos].SetAmount(pc.GetPrice());
+		_priceItems[_moneyPos].roundIt = false;
+		for(int i = 0; i < pc.GetItems().length; i++)
+		{
+			SetCPriceItem(i, pc.GetItems()[i]._stack.clone(), pc.GetItems()[i]._amount, BUTTON.PRICE_ITEM);
+		}
+		LoadPriceItems();
+	}
+	
 	public void SetData(CCPdata data)
 	{
 		if(data._slot == _moneyPos)
@@ -174,7 +175,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		}
 		_priceItems[data._slot].SetAmount(data.value);
 
-		System.out.println("setting data: "+data.value+ " slot: "+data._slot);
+		
 		LoadPriceItems();
 	}
 	
@@ -194,7 +195,9 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		LockItem(stack, _itemPos, BUTTON.ITEM);
 		
 		
-		setupButton(BUTTON.CLONE_ITEMS, Material.SLIME_BALL,"&bClone Items to your inv", _size-9+2); _slotLock[_size-9+2] = true;
+		setupButton(BUTTON.CLONE_ITEMS, Material.SLIME_BALL,"&bClone Items to your inv", _size-12); _slotLock[_size-12] = true;
+		setupButton(BUTTON.LOAD_TEMP_SAVED_CUSTOM_PRICE, Material.NETHERITE_BLOCK,"&bOpen and Load temp cPrices", _size-11); _slotLock[_size-11] = true;
+		setupButton(BUTTON.SAVE_TEMP_CUSTOM_PRICE, Material.NETHERITE_SCRAP,"&bSave this cPrice as temp", _size-10); _slotLock[_size-10] = true;
 		_priceItems[_moneyPos].SetAmount(0);
 	}
 	
@@ -258,23 +261,41 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		LoadPriceItems();
 	}
 	
+	void SetCPriceItem(int idx, ItemStack stack, int amount, BUTTON button)
+	{
+		_priceItems[idx] = new CPriceItem(stack, idx, button);		
+		_priceItems[idx]._value = amount;
+		
+		_slotLock[idx] = true;
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_inv.setItem(idx, _priceItems[idx].GetDisplayItem());
+			}
+		}.runTaskLater(_main, 1);
+	}
+	
 	void LockItem(ItemStack stack, int slot, BUTTON button)
 	{
 		if(stack == null || stack.getType() == Material.AIR) return ;
 		if(slot < 0 || slot > _size-1) return;
 		if(_priceItems[slot] != null) return;
 		//System.out.println("new lock: "+stack.getType() + " slot: "+ slot);
-		_priceItems[slot] = new CPriceItem(stack, slot, button);		
+		SetCPriceItem(slot, stack, stack.getAmount(), button);
 		
-		_slotLock[slot] = true;
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				_inv.setItem(slot, _priceItems[slot].GetDisplayItem());
-			}
-		}.runTaskLater(_main, 1);
+//		_priceItems[slot] = new CPriceItem(stack, slot, button);		
+//		
+//		_slotLock[slot] = true;
+//		new BukkitRunnable() {
+//			
+//			@Override
+//			public void run() 
+//			{
+//				_inv.setItem(slot, _priceItems[slot].GetDisplayItem());
+//			}
+//		}.runTaskLater(_main, 1);
 		
 		
 	}
@@ -313,6 +334,30 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		return BUTTON.valueOf(bName);
 	}
 	
+	PriceCustom CreatePriceCustom()
+	{
+		ArrayList<CustomPriceData> stacks = new ArrayList<CustomPriceData>();
+		double money = 0;
+		for(CPriceItem cpi : _priceItems)
+		{
+			if(cpi == null) continue;
+			if(cpi._slot == _moneyPos) 
+			{
+				money = cpi._value;
+				continue;
+			}
+			
+			if(cpi._slot == _itemPos) continue;
+			
+			ItemStack cpiStack = cpi._realStack.clone();
+			cpiStack.setAmount(1);
+			stacks.add(new CustomPriceData(cpiStack, (int)cpi._value));
+		}
+		CustomPriceData[] array = new CustomPriceData[stacks.size()];
+		for(int i = 0; i < array.length; ++i) {array[i] = stacks.get(i);}
+		return (PriceCustom)new PriceCustom().SetItemsAndPrice(array, money, (int)_priceItems[_itemPos].GetAmount());
+	}
+	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -334,32 +379,31 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			for(CPriceItem item : _priceItems) {if(item != null && !IsUniqueSlot(item._slot))ImusAPI._metods.InventoryAddItemOrDrop(item._realStack.clone(), _player);}
 			break;
 		case CONFIRM:
-			ArrayList<CustomPriceData> stacks = new ArrayList<CustomPriceData>();
-			double money = 0;
-			for(CPriceItem cpi : _priceItems)
-			{
-				if(cpi == null) continue;
-				if(cpi._slot == _moneyPos) 
-				{
-					money = cpi._value;
-					continue;
-				}
-				
-				if(cpi._slot == _itemPos) continue;
-				
-				ItemStack cpiStack = cpi._realStack.clone();
-				cpiStack.setAmount(1);
-				stacks.add(new CustomPriceData(cpiStack, (int)cpi._value));
-			}
-			CustomPriceData[] array = new CustomPriceData[stacks.size()];
-			for(int i = 0; i < array.length; ++i) {array[i] = stacks.get(i);}
-			_modData._itemPrice = new PriceCustom().SetItemsAndPrice(array, money, (int)_priceItems[_itemPos].GetAmount());
+//			ArrayList<CustomPriceData> stacks = new ArrayList<CustomPriceData>();
+//			double money = 0;
+//			for(CPriceItem cpi : _priceItems)
+//			{
+//				if(cpi == null) continue;
+//				if(cpi._slot == _moneyPos) 
+//				{
+//					money = cpi._value;
+//					continue;
+//				}
+//				
+//				if(cpi._slot == _itemPos) continue;
+//				
+//				ItemStack cpiStack = cpi._realStack.clone();
+//				cpiStack.setAmount(1);
+//				stacks.add(new CustomPriceData(cpiStack, (int)cpi._value));
+//			}
+//			CustomPriceData[] array = new CustomPriceData[stacks.size()];
+//			for(int i = 0; i < array.length; ++i) {array[i] = stacks.get(i);}
+			_modData._itemPrice = CreatePriceCustom();
 			_player.closeInventory();
 			_smmi.SetModData(_modData);
 			_smmi.openThis();
 			return;
 		case PRICE_ITEM:
-			System.out.println("price item");
 			if(e.getClick() == ClickType.RIGHT) 
 			{
 				//System.out.println("remove");
@@ -386,7 +430,6 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			_player.closeInventory();
 			return;
 		case ITEM:
-			System.out.println("Item");
 			if(e.getClick() == ClickType.RIGHT) 
 			{
 				_priceItems[e.getSlot()]._value = _sis.Get_amount();
@@ -400,8 +443,13 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			conv.begin();
 			_player.closeInventory();
 			return;
-		default:
-			break;
+		case LOAD_TEMP_SAVED_CUSTOM_PRICE:
+			return;
+		case SAVE_TEMP_CUSTOM_PRICE:
+			question = "&3Give save name for temp custom price";
+			ImusAPI._metods.ConversationWithPlayer(_player, new ConvCCPINVsavePC(_main, this, CreatePriceCustom(), question));
+			_player.closeInventory();
+			return;
 		
 		}
 		

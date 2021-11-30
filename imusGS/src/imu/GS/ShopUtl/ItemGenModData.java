@@ -90,7 +90,7 @@ public class ItemGenModData implements IModData
 			str += StrMinMax(_fillAmount_min, _fillAmount_max);
 			break;
 		case FILL_TIME_RANGE:
-			if(_fillAmount_max == -1 || _fillAmount_min == -1) return falseStr;
+			if(_fillTime_max == -1 || _fillTime_min == -1) return falseStr;
 			str += StrMinMax(_fillTime_min, _fillTime_max);
 			break;
 		case GENERATION_AMOUNT:
@@ -202,8 +202,8 @@ public class ItemGenModData implements IModData
 			min = Integer.parseInt(minMax[0]);
 			max = Integer.parseInt(minMax[1]);
 			if(!IsValidMinMax(min, max)) return false;
-			_fillAmount_min = min;
-			_fillAmount_max = max;
+			_stack_amount_min = min;
+			_stack_amount_max = max;
 			break;
 		case TAGS:
 			AddTag(str);

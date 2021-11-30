@@ -125,9 +125,9 @@ public class ShopModINV extends CustomInvLayout
 		
 		
 		ItemStack stack = new ItemStack(Material.GOLD_ORE);
-		Metods.setDisplayName(stack, "Generate Items");
-		_metods.addLore(stack, "&6Open item generator inv", false);
-		_inv.setItem(_size-20, SetButton(stack, BUTTON.RANDOM_ITEM_GEN));
+		Metods.setDisplayName(stack, "&6Generate Items");
+		_metods.addLore(stack, "&5Open item generator inventory", false);
+		_inv.setItem(_size-3, SetButton(stack, BUTTON.RANDOM_ITEM_GEN));
 	}
 
 	@Override

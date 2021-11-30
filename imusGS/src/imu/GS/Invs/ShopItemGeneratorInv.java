@@ -1,7 +1,6 @@
 package imu.GS.Invs;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Material;
@@ -27,6 +26,8 @@ import imu.GS.Prompts.ConvModData;
 import imu.GS.ShopUtl.ItemGenModData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
+import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
@@ -68,12 +69,18 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 		{
 			_clone = _real.clone();
 			String[] lores = new String[]
-					{
-							"&9Stack Amount: &2"+ _modDataShopItem.GetValueStr(ModDataShopStockable.MAX_AMOUNT, "", "", "NONE"),
+					{						
+							"&e================",
+							"&bM3 &3=> &eCopy to Inv",
+							"&5LOCKED : &2"+ (_selected ? "&aTRUE" : "&cFALSE"),
 							"&9Price : &2"+ _modDataShopItem.GetValueStr(ModDataShopStockable.CUSTOM_PRICE, "", "", "Material price"),
+							"&9Stack Amount: &2"+ _modDataShopItem.GetValueStr(ModDataShopStockable.MAX_AMOUNT, "", "", "NONE"),
 							"&9Fill Amount: &2"+ _modDataShopItem.GetValueStr(ModDataShopStockable.FILL_AMOUNT, "", "", "NONE"),
+							"&9Fill Time: &2"+ _modDataShopItem.GetValueStr(ModDataShopStockable.FILL_DELAY, "", "", "NONE"),
+							"&e================",
 					};
 			ImusAPI._metods.addLore(_clone, lores);
+			SetButton(_clone, BUTTON.GEN_ITEM);
 			return _clone;
 		}
 		
@@ -84,6 +91,7 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 		NONE,
 		BACK,
 		CONFIRM,
+		GENERATE_ITEMS,
 		GEN_ITEM,
 		GEN_BUTTON,
 		SELECT_ALL_NONE,
@@ -129,7 +137,9 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 		for(int i = _size-1; i > _size-28; i--) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, " ", i);}
 		setupButton(BUTTON.BACK,Material.RED_STAINED_GLASS_PANE, "&c<== BACK", _size-9);
 		setupButton(BUTTON.CONFIRM,Material.GREEN_STAINED_GLASS_PANE, "&9CONFIRM and add to shop", _size-1);
-		setupButton(BUTTON.GEN_ITEM, Material.BEACON, "&9Click and Generate Items", _size-5);
+		
+		
+		
 		setupButton(BUTTON.SELECT_ALL_NONE, Material.PAPER, "&9Select &bM1: &aALL  &bM2: &cNONE", _size-3);
 		
 		
@@ -147,82 +157,95 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 	
 	void SetValueButtons()
 	{
-		_modButtons.clear();
-		final String setTo = "&9Set to: &a";
-		final String falseStr = "&cNONE";
-		final String m1m2 = Metods.msgC("&bM1: &aSet &bM2: &cReset");
-		final String m1m2Increase = Metods.msgC("&9Increase by &bM1: &a+1  &b2SM1: &a+5 &bM2: &c-1 &bSM2: &c-5");
-		//final String m1false = Metods.msgC("&9Chance value with &bM1 between &aTrue &9and &cFalse");
-		ModDataItemGenValues value;
-		
-		ItemStack stack = new ItemStack(Material.GOLD_INGOT);
-		Metods.setDisplayName(stack, "&6Set Price Range"); value = ModDataItemGenValues.PRICE_RANGE;
-		_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr+ "&b => Use material price")},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.NETHERITE_SCRAP);
-		Metods.setDisplayName(stack, "&6Set Stack Amount Range"); value = ModDataItemGenValues.STACK_AMOUNT_RANGE;
-		_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.ENCHANTING_TABLE);
-		Metods.setDisplayName(stack, "&6Enchants");value = ModDataItemGenValues.ENCHANTS;
-		String[] lores = new String[] 
-				{
-						m1m2Increase,
-						"&5==== &bM3 &9Change Selector Line &5====",
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				_modButtons.clear();
+				final String setTo = "&9Set to: &a";
+				final String falseStr = "&cNONE";
+				final String m1m2 = Metods.msgC("&bM1: &aSet &bM2: &cReset");
+				final String m1m2Increase = Metods.msgC("&9Increase by &bM1: &a+1  &bSM1: &a+5 &bM2: &c-1 &bSM2: &c-5");
+				//final String m1false = Metods.msgC("&9Chance value with &bM1 between &aTrue &9and &cFalse");
+				ModDataItemGenValues value;
+				
+				ItemStack stack = new ItemStack(Material.GOLD_INGOT);
+				Metods.setDisplayName(stack, "&6Set Price Range"); value = ModDataItemGenValues.PRICE_RANGE;
+				_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr+ "&b => Use material price")},false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				
+				stack = new ItemStack(Material.NETHERITE_SCRAP);
+				Metods.setDisplayName(stack, "&6Set Stack Amount Range"); value = ModDataItemGenValues.STACK_AMOUNT_RANGE;
+				_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				_modButtons.add(Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE),  " "));
+				
+				
+				stack = new ItemStack(Material.ENCHANTING_TABLE);
+				Metods.setDisplayName(stack, "&6Enchants");value = ModDataItemGenValues.ENCHANTS;
+				String[] lores = new String[] 
+						{
+								m1m2Increase,
+								"&5==== &bM3 &9Change Selector Line &5====",
+								" ",
+								(_modData._selector_ench == 0 ? "&6&l>" : "&6") +"Enchants amount: &2"+_modData.GetValueStr(value, "", "", falseStr),
+								(_modData._selector_ench == 1 ? "&2&l>" : "&2") +"Max level: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_LEVEL_MAX, "", "", "&9Normal &7(can't be lower than min)"),
+								(_modData._selector_ench == 2 ? "&c&l>" : "&c") +"Min level: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_LEVEL_MIN, "", "", "&9Normal &7(can't be higher than max)"),					
+								(_modData._selector_ench == 3 ? "&4&l>" : "&4") +"Restrictions: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_RESTRICT, "", "", ""),
+								
+						};
+				_metods.SetLores(stack, lores,false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				_modButtons.add(Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE),  " "));
+				
+				stack = new ItemStack(Material.REDSTONE);
+				Metods.setDisplayName(stack, "&6Give tag for search");value = ModDataItemGenValues.TAGS;
+				_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				_modButtons.add(Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE),  " "));
+				
+				stack = new ItemStack(Material.WATER_BUCKET);
+				Metods.setDisplayName(stack, "&6Set fill amount range");value = ModDataItemGenValues.FILL_AMOUNT_RANGE;
+				_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				
+				stack = new ItemStack(Material.CLOCK);
+				Metods.setDisplayName(stack, "&6Set fill time range");value = ModDataItemGenValues.FILL_TIME_RANGE;
+				_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
+				SetButtonModData(stack, value);
+				_modButtons.add(stack);
+				
+				
+				stack = new ItemStack(Material.BEACON);
+				Metods.setDisplayName(stack, "&bM3 &6=> &5Generate Items");
+				_metods.SetLores(stack, new String[] {
+						"&bM1: &a+1  &bSM1: &a+5",
+						"&bM2: &c-1 &bSM2: &c-5",
 						" ",
-						(_modData._selector_ench == 0 ? "&6&l>" : "&6") +"Enchants amount: &2"+_modData.GetValueStr(value, "", "", falseStr),
-						(_modData._selector_ench == 1 ? "&2&l>" : "&2") +"Max level: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_LEVEL_MAX, "", "", "&9Normal &7(can't be lower than min)"),
-						(_modData._selector_ench == 2 ? "&c&l>" : "&c") +"Min level: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_LEVEL_MIN, "", "", "&9Normal &7(can't be higher than max)"),					
-						(_modData._selector_ench == 3 ? "&4&l>" : "&4") +"Restrictions: &3"+_modData.GetValueStr(ModDataItemGenValues.ENCH_RESTRICT, "", "", ""),
+						"&6Generation Amount: &2"+_modData.GetValueStr(ModDataItemGenValues.GENERATION_AMOUNT, "", "", ""),
 						
-				};
-		_metods.SetLores(stack, lores,false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
+				}, false);
+				SetButton(stack, BUTTON.GENERATE_ITEMS);
+				_inv.setItem(_size-5, stack);
+				
+				
+				int offSet = _size - 19;
+				for(ItemStack s : _modButtons)
+				{			
+					int slot = offSet+=1;
+					//SetSlotID(stack, slot);
+					_inv.setItem(slot, SetButton(s, BUTTON.GEN_BUTTON));
+				}
+			}
+		}.runTaskAsynchronously(_main);
 		
-//		stack = new ItemStack(Material.BOOKSHELF);
-//		Metods.setDisplayName(stack, "&6Change enchants restrictions");value = ModDataItemGenValues.ENCH_RESTRICT;
-//		_metods.SetLores(stack, new String[] {"&bM1: &aRoll &bM2: &cReset",setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-//		SetButtonModData(stack, value);
-//		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.STRING);
-		Metods.setDisplayName(stack, "&6How Many Items will be generated?");value = ModDataItemGenValues.GENERATION_AMOUNT;
-		_metods.SetLores(stack, new String[] {m1m2Increase,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.REDSTONE);
-		Metods.setDisplayName(stack, "&6Give tag for search");value = ModDataItemGenValues.TAGS;
-		_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.WATER_BUCKET);
-		Metods.setDisplayName(stack, "&6Set fill amount range");value = ModDataItemGenValues.FILL_AMOUNT_RANGE;
-		_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		stack = new ItemStack(Material.CLOCK);
-		Metods.setDisplayName(stack, "&6Set fill time range");value = ModDataItemGenValues.FILL_TIME_RANGE;
-		_metods.SetLores(stack, new String[] {m1m2,setTo + _modData.GetValueStr(value, "", "", falseStr)},false);
-		SetButtonModData(stack, value);
-		_modButtons.add(stack);
-		
-		
-		
-		int offSet = _size - 19;
-		for(ItemStack s : _modButtons)
-		{			
-			int slot = offSet+=1;
-			//SetSlotID(stack, slot);
-			_inv.setItem(slot, SetButton(s, BUTTON.GEN_BUTTON));
-		}
 	}
 	
 	@Override
@@ -319,8 +342,23 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 			}
 		}
 	}
+	
+	GenItem NewGenItem(ItemStack stack)
+	{
+		GenItem gen = new GenItem(stack);
+		if(_modData._fillAmount_min != -1 && _modData._fillAmount_max != -1) gen._modDataShopItem._fillAmount = ThreadLocalRandom.current().nextInt(_modData._fillAmount_min,_modData._fillAmount_max+1);
+		if(_modData._fillTime_min != -1 && _modData._fillTime_max != -1) gen._modDataShopItem._fillDelayMinutes = ThreadLocalRandom.current().nextInt(_modData._fillTime_min,_modData._fillTime_max+1);
+		if(_modData._stack_amount_min != -1 && _modData._stack_amount_max != -1) gen._modDataShopItem._maxAmount = ThreadLocalRandom.current().nextInt(_modData._stack_amount_min,_modData._stack_amount_max+1);
+		if(_modData._priceMin != -1 && _modData._priceMax != -1) 
+		{
+			gen._modDataShopItem._itemPrice =  new PriceOwn().SetPrice(ThreadLocalRandom.current().nextDouble(_modData._priceMin,_modData._priceMax+1.0));
+		}
+		return gen;
+	}
 	void GenerateItem(int slot)
 	{
+		if(_genItems[slot] != null && _genItems[slot]._selected) {_inv.setItem(slot, _genItems[slot].GetToolTipItem());return;}
+		
 		int randInt = ThreadLocalRandom.current().nextInt(Material.values().length);
 		Material mat = Material.values()[randInt];
 		if(_blockedMaterials.contains(mat)){GenerateItem(slot); return;}
@@ -333,7 +371,7 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 		}
 		
 		
-		_genItems[slot] = new GenItem(stack);
+		_genItems[slot] = NewGenItem(stack);
 		
 		_inv.setItem(slot, _genItems[slot].GetToolTipItem());
 		
@@ -351,21 +389,38 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 	
 	void GenerateItems()
 	{	
-		
-		for(int i = 0; i < 27; i++)
+		new BukkitRunnable() 
 		{
-			if(_modData._generationAmount > i) 
+			
+			@Override
+			public void run() 
 			{
-				GenerateItem(i);
-				continue;
+				for(int i = 0; i < 27; i++)
+				{
+					if(_genItems[i] != null && !_genItems[i]._selected) _genItems[i] = null;
+					if(_modData._generationAmount > i) 
+					{
+						GenerateItem(i);
+						continue;
+					}					
+					_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), " "));					
+				}
 			}
-			
-			_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLUE_STAINED_GLASS_PANE), " "));
-			
-			
-		}
+		}.runTaskAsynchronously(_main);
+		
 		
 	}
+	
+	void SetAllSelected(boolean value)
+	{
+		for(int i = 0 ; i < _genItems.length; i++) 
+		{
+			if(_genItems[i] == null) continue;
+			_genItems[i]._selected = value;
+			_inv.setItem(i, _genItems[i].GetToolTipItem());
+		}
+	}
+	
 	int GetFastAmount(InventoryClickEvent e)
 	{
 		int mult = 0;
@@ -463,6 +518,24 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 		SetValueButtons();
 	}
 	
+	void Confirm()
+	{
+		for(int i = 0; i < _genItems.length; i++)
+		{
+			if(_genItems[i] == null || !_genItems[i]._selected) continue;
+			ItemStack stack = _genItems[i]._real.clone();
+			ShopItemStockable stockable = new ShopItemStockable(_main,_shopBase, stack, 1);
+			stockable.SetModData(_genItems[i]._modDataShopItem);
+			_shopBase.AddNewItem(stockable, false);
+		}
+		Back();
+	}
+	
+	void Back()
+	{
+		_player.closeInventory();
+		new ShopModINV(_main, _player, _shopBase).openThis();
+	}
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -477,15 +550,24 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 			if(value != null) ClickedModData(e,value);
 			break;
 		case BACK:
-			_player.closeInventory();
-			new ShopModINV(_main, _player, _shopBase).openThis();
+			Back();
 			break;
 		case CONFIRM:
+			Confirm();
 			break;
-		case GEN_ITEM:
-			GenerateItems();
+		case GENERATE_ITEMS:
+			ClickedModData(e,ModDataItemGenValues.GENERATION_AMOUNT);
+			if(e.getClick() == ClickType.MIDDLE) GenerateItems();			
 			break;
 		case SELECT_ALL_NONE:
+			if(e.getClick().isLeftClick()) SetAllSelected(true);
+			if(e.getClick().isRightClick()) SetAllSelected(false);
+			break;
+		case GEN_ITEM:
+			if(e.getClick() == ClickType.MIDDLE) { ImusAPI._metods.InventoryAddItemOrDrop(_genItems[e.getSlot()]._real, _player, 1);return;}
+			int slot = e.getSlot();
+			if(_genItems[slot] != null) _genItems[slot]._selected = _genItems[slot]._selected ? false : true;
+			_inv.setItem(slot, _genItems[slot].GetToolTipItem());
 			break;
 		default:
 			break;
