@@ -158,12 +158,13 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	
 	public void LoadPriceCustom(PriceCustom pc)
 	{
-		_priceItems[_moneyPos].SetAmount(pc.GetPrice());
-		_priceItems[_moneyPos].roundIt = false;
+		
 		for(int i = 0; i < pc.GetItems().length; i++)
 		{
 			SetCPriceItem(i, pc.GetItems()[i]._stack.clone(), pc.GetItems()[i]._amount, BUTTON.PRICE_ITEM);
 		}
+		_priceItems[_moneyPos].SetAmount(pc.GetPrice());
+		_priceItems[_moneyPos].roundIt = false;
 		LoadPriceItems();
 	}
 	
@@ -195,9 +196,9 @@ public class CreateCustomPriceInv extends CustomInvLayout
 		LockItem(stack, _itemPos, BUTTON.ITEM);
 		
 		
-		setupButton(BUTTON.CLONE_ITEMS, Material.SLIME_BALL,"&bClone Items to your inv", _size-12); _slotLock[_size-12] = true;
-		setupButton(BUTTON.LOAD_TEMP_SAVED_CUSTOM_PRICE, Material.NETHERITE_BLOCK,"&bOpen and Load temp cPrices", _size-11); _slotLock[_size-11] = true;
-		setupButton(BUTTON.SAVE_TEMP_CUSTOM_PRICE, Material.NETHERITE_SCRAP,"&bSave this cPrice as temp", _size-10); _slotLock[_size-10] = true;
+		setupButton(BUTTON.CLONE_ITEMS, Material.SLIME_BALL,"&bClone Items to your inv", _size-8); _slotLock[_size-8] = true;
+		setupButton(BUTTON.LOAD_TEMP_SAVED_CUSTOM_PRICE, Material.ANCIENT_DEBRIS,"&bLoad temp cPrices", _size-7); _slotLock[_size-7] = true;
+		setupButton(BUTTON.SAVE_TEMP_CUSTOM_PRICE, Material.NETHERITE_SCRAP,"&bSave this cPrice as temp", _size-6); _slotLock[_size-6] = true;
 		_priceItems[_moneyPos].SetAmount(0);
 	}
 	
@@ -444,6 +445,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			_player.closeInventory();
 			return;
 		case LOAD_TEMP_SAVED_CUSTOM_PRICE:
+			new LoaderPriceCustomInv(_main, _player, _smmi, _sis, _modData).openThis();
 			return;
 		case SAVE_TEMP_CUSTOM_PRICE:
 			question = "&3Give save name for temp custom price";

@@ -12,7 +12,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopNormal;
@@ -23,6 +22,7 @@ import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.Tuple;
 
 public class ShopManager 
 {
@@ -36,7 +36,7 @@ public class ShopManager
 	UniqueManager _uniqueManager;
 	
 	HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
-	HashMap<UUID, ArrayList<PriceCustom>> _savedPriceCustoms= new HashMap<>();
+	HashMap<UUID, ArrayList<Tuple<String, PriceCustom>>> _savedPriceCustoms = new HashMap<>();
 	
 	int _shopCheckTime = 10;
 	
@@ -47,7 +47,7 @@ public class ShopManager
 	{
 		_main = main;
 		_shops = new ArrayList<>();
-			
+		Tuple<String, PriceCustom> m;
 	}
 	
 	public void Init()
@@ -98,15 +98,15 @@ public class ShopManager
 		_opened_invs.remove(player.getUniqueId());
 	}
 	
-	public void SavePriceCustom(UUID playerUUID, PriceCustom pc)
+	public void SavePriceCustom(UUID playerUUID, String name,PriceCustom pc)
 	{
 		if(!_savedPriceCustoms.containsKey(playerUUID)) _savedPriceCustoms.put(playerUUID, new ArrayList<>());
-		_savedPriceCustoms.get(playerUUID).add(pc);
+		_savedPriceCustoms.get(playerUUID).add(new Tuple<String, PriceCustom>(name,pc));
 	}
 	
-	public ArrayList<PriceCustom> GetSavedPlayerPriceCustoms(UUID playerUUID)
+	public ArrayList<Tuple<String,PriceCustom>> GetSavedPlayerPriceCustoms(UUID playerUUID)
 	{
-		return (_savedPriceCustoms.containsKey(playerUUID) ? _savedPriceCustoms.get(playerUUID) : new ArrayList<PriceCustom>());
+		return (_savedPriceCustoms.containsKey(playerUUID) ? _savedPriceCustoms.get(playerUUID) : new ArrayList<Tuple<String,PriceCustom>>());
 	}
 	
 	void RunnableAsync()

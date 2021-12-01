@@ -33,7 +33,11 @@ public class ConvCCPINVsavePC extends StringPrompt
 	{
 		String anw = anwser;
 		if(Strings.isNullOrEmpty(anwser)) anw = " ";
-		_main.get_shopManager().SavePriceCustom(_ccpInv.GetPlayer().getUniqueId(), _pc);
+		for(int i = 0; i < 28; i++)
+		{
+			_main.get_shopManager().SavePriceCustom(_ccpInv.GetPlayer().getUniqueId(), anw+i,_pc);
+		}
+		
 		_ccpInv.GetPlayer().sendMessage(Metods.msgC("&6Custom Price saved with name: &9"+anw));
 		_ccpInv.openThis();
 		
