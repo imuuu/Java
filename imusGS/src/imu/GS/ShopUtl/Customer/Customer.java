@@ -11,14 +11,14 @@ public class Customer
 	public Player _player;
 	public double _totalBuy = 0;
 	public ShopBase _shopBase;
-	public CustomerMenuInv _shopInv;
+	public CustomerMenuBaseInv _shopInv;
 	
 	public Customer(Main main, Player player,ShopBase shopBase)
 	{
 		_main = main;
 		_player = player;
 		_shopBase = shopBase;
-		_shopInv = new CustomerMenuInv(main,player, _shopBase);
+		_shopInv = new CustomerMenuBaseInv(main,player, _shopBase);
 	}
 	
 	public Customer Open()

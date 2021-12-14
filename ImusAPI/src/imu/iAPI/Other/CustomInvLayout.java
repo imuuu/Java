@@ -54,6 +54,16 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		NONE,
 	}
 	
+	//works only for example arraylists
+	public int PageChance(int page,int rollAmount, int listSize, int slotAmount)
+	{
+		int maxPages =(int) Math.ceil(listSize/(double)slotAmount)-1;
+		page += rollAmount;
+		if(page < 0){page = maxPages; return page;}				
+		if(page > maxPages) {page = 0; return page;}	
+		return page;
+	}
+	
 	public Player GetPlayer()
 	{
 		return _player;

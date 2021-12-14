@@ -35,7 +35,7 @@ public class SubShopCreateCMD implements CommandInterface
     	}
     	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
     	
-    	_main.get_shopManager().CreateShop(shopName);
+    	_main.get_shopManager().CreateNewShop(shopName);
     	//_main.get_shopManager().SaveShop(shopName, true);
     	
     	player.sendMessage(ChatColor.translateAlternateColorCodes('&', 

@@ -2,7 +2,7 @@ package imu.GS.ENUMs;
 
 public enum SQL_TABLES 
 {
-	material_prices,
+	price_materials,
 	price_customs,
 	price_values,
 	shopitems,
@@ -12,5 +12,6 @@ public enum SQL_TABLES
 	shops,
 	tags,
 	uniques,
-	custom_price
+	custom_price,
+	log_transaction
 }

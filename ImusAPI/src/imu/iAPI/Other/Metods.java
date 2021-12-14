@@ -1049,6 +1049,7 @@ public class Metods
     	return false;
     }
 	
+
 //	@SuppressWarnings("deprecation")
 //	public ItemStack getPlayerHead(Player p) 
 //	{
@@ -1067,6 +1068,7 @@ public class Metods
 	
 	public static String msgC(String s)
 	{
+		if(s == null) return s;
 		return ChatColor.translateAlternateColorCodes('&', s);
 	}
 	

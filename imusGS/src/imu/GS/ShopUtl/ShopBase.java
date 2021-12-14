@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
@@ -27,6 +26,7 @@ public abstract class ShopBase
 	protected Main _main;
 	private String _name;
 	private String _displayName;
+	private UUID _uuid;
 	private  int shopHolderSize = 27;
 	
 	private ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
@@ -45,21 +45,36 @@ public abstract class ShopBase
 	private HashMap<UUID, Customer> _hCustomers = new HashMap<>();
 	private boolean _locked = false;
 	private boolean _intererActlocked = false;
+	private boolean _customers_can_only_buy = false;
 	
-	public ShopBase(Main main, String name, int pages)
+	
+	public ShopBase(Main main, UUID uuid,String name, int pages)
 	{
 		_main = main;
 		
 		SetName(name);
 		_cds = new Cooldowns();
 		SetNewExpire();
-		
+		_uuid = uuid;
 		for(int i = 0; i < pages; ++i)
 		{
 			get_items().add(new ShopItemSeller[shopHolderSize]);
 		}
 		
 		//_items.put(0, new ShopItemBase[shopHolderSize]);
+	}
+	public void SetCustomersCanOnlyBuy(boolean canBuy)
+	{
+		_customers_can_only_buy = canBuy;
+	}
+	
+	public boolean GetCustomersCanOnlyBuy()
+	{
+		return _customers_can_only_buy;
+	}
+	public UUID GetUUID()
+	{
+		return _uuid;
 	}
 	
 	public boolean IsAbsoluteItemPositions()

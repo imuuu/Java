@@ -40,7 +40,7 @@ public class ShopItemStockable extends ShopItemSeller
 		SetMaxAmount(_modData._maxAmount);
 		SetFillAmount(_modData._fillAmount);
 		SetFillDelayMinutes(_modData._fillDelayMinutes);
-		if(_modData._itemPrice  instanceof ItemPrice)//if(_modData._ownPrice != -1)
+		if(_modData._itemPrice instanceof ItemPrice)//if(_modData._ownPrice != -1)
 		{
 			SetItemPrice(_modData._itemPrice);
 		}
@@ -109,14 +109,15 @@ public class ShopItemStockable extends ShopItemSeller
 		if(GetItemPrice() instanceof PriceCustom)
 		{
 			String[] lores = {
-					_lores[0]+Get_amount(),
+					_lores[0]+Get_amount()+" &9____",
 					"&9Click to see price!",
 					"",
-					"",
-					"",
+
 					
 			};
-			_metods.SetLores(GetDisplayItem(), lores, true);
+			_display_stack = _real_stack.clone();
+			_display_stack.setAmount(1);
+			_metods.addLore(_display_stack, lores);
 			return;
 		}
 		super.toolTip();

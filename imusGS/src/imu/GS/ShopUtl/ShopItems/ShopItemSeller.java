@@ -10,6 +10,7 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.iAPI.Main.ImusAPI;
 
@@ -27,11 +28,20 @@ public class ShopItemSeller extends ShopItemBase
 	{
 		_shopPage = page;
 		_slot = slot;
-		ImusAPI._metods.setPersistenData(GetDisplayItem(), _main.get_shopManager().pd_page, PersistentDataType.INTEGER, page);
-		ImusAPI._metods.setPersistenData(GetDisplayItem(), _main.get_shopManager().pd_slot, PersistentDataType.INTEGER, slot);
+		ImusAPI._metods.setPersistenData(_display_stack, _main.get_shopManager().pd_page, PersistentDataType.INTEGER, page);
+		ImusAPI._metods.setPersistenData(_display_stack, _main.get_shopManager().pd_slot, PersistentDataType.INTEGER, slot);
 		return this;
 	}
-
+	
+	@Override
+	public ItemStack GetDisplayItem() 
+	{
+		super.GetDisplayItem();
+		ImusAPI._metods.setPersistenData(_display_stack, _main.get_shopManager().pd_page, PersistentDataType.INTEGER, _shopPage);
+		ImusAPI._metods.setPersistenData(_display_stack, _main.get_shopManager().pd_slot, PersistentDataType.INTEGER, _slot);
+		return _display_stack;
+	}
+	
 	public int GetPage()
 	{
 		return _shopPage;
@@ -54,9 +64,9 @@ public class ShopItemSeller extends ShopItemBase
 		if(_shopBase == null)
 			return;
 		
-		if(price instanceof PriceMoney)
+		if(price instanceof PriceMaterial)
 		{
-			double p = ((PriceMoney)price).GetPrice();
+			double p = price.GetPrice();
 			((PriceMoney)price).SetShowPrice(p * _shopBase.get_sellM());			
 		}
 		

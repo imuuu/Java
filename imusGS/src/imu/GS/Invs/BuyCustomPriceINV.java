@@ -12,6 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.ShopUtl.ShopBase;
@@ -144,22 +145,7 @@ public class BuyCustomPriceINV extends CustomerInv
 			ImusAPI._metods.setPersistenData(clone, "buyAmount", PersistentDataType.INTEGER, _buyAmounts[i]);
 			_inv.setItem(_size-26+i, SetButton(clone, BUTTON.CHANGE_AMOUNT));
 		}
-		
-//		if(((PriceCustom)_sis.GetItemPrice()).GetMinimumStackAmount() < _sis.Get_amount())
-//		{
-//			for(int buyAmount : _buyAmounts) 
-//			{
-//				if(buyAmount == _sis.Get_amount()) {return;}
-//			}
-//			
-//
-//			ItemStack stack = new ItemStack(Material.CRYING_OBSIDIAN);
-//			Metods.setDisplayName(stack, "&9BUY ALL&6 "+_sis.Get_amount());
-//			ImusAPI._metods.setPersistenData(stack, "buyAmount", PersistentDataType.INTEGER, _maxAmount);
-//			_inv.setItem(_size-20, SetButton(stack, BUTTON.CHANGE_AMOUNT)); 
-//		}
-		
-					
+
 		
 	}
 	
@@ -366,12 +352,18 @@ public class BuyCustomPriceINV extends CustomerInv
 			if(amount != _selected_amount)
 			{
 				_player.sendMessage(Metods.msgC("&cYou were able to buy only &2"+amount+" &cbecause there weren't enough items in stock!"));
+			}else
+			{
+				_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sib, amount, TransactionAction.BUY);
 			}
 			
-			if(e.getClick() == ClickType.LEFT) Back();
+			if(e.getClick() == ClickType.LEFT) {Back();return;};
+			
+			
+			CheckSelectedAmount();
+			RefreshBuyStacks();
 			break;
-		default:
-			break;
+
 		}
 		
 	}

@@ -99,13 +99,13 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 		}
 	}
 	
-	void ChancePlayerPage(int page)
-	{
-		int maxPages =(int) Math.ceil(_priceCustoms.size()/27.0)-1;
-		_page += page;
-		if(_page < 0){_page = maxPages; return;}				
-		if(_page > maxPages) {_page = 0; return;}		
-	}
+//	void ChancePlayerPage(int page)
+//	{
+//		int maxPages =(int) Math.ceil(_priceCustoms.size()/27.0)-1;
+//		_page += page;
+//		if(_page < 0){_page = maxPages; return;}				
+//		if(_page > maxPages) {_page = 0; return;}		
+//	}
 	
 	@Override
 	public void openThis() 
@@ -142,11 +142,11 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 			Back();
 			break;
 		case GO_LEFT:
-			ChancePlayerPage(-1);
+			_page = PageChance(_page, -1, _priceCustoms.size(), 27);
 			UpdatePage();
 			break;
 		case GO_RIGHT:
-			ChancePlayerPage(1);
+			_page = PageChance(_page, 1, _priceCustoms.size(), 27);
 			UpdatePage();
 			break;
 		case PRICE_CUSTOM_ITEM:

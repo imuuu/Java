@@ -11,6 +11,7 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 
 public class ShopItemCustomer extends ShopItemBase
@@ -31,9 +32,9 @@ public class ShopItemCustomer extends ShopItemBase
 	@Override
 	protected void SetShowPrice(ItemPrice price) 
 	{
-		if(price instanceof PriceMoney)
+		if(price instanceof PriceMaterial)
 		{
-			double p = ((PriceMoney)price).GetPrice();
+			double p = price.GetPrice();
 			((PriceMoney)price).SetShowPrice(p * _shopBase.get_buyM());			
 		}
 	}

@@ -16,29 +16,30 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
-import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 
 public class ShopManager 
 {
-	Main _main;
+	private Main _main;
 	
 	ArrayList<ShopBase> _shops;
 	
-	HashMap<Material, Double> _material_prices = new HashMap<>();
-	BukkitTask RunnableAsyncTask;
-	ShopManagerSQL _shopManagerSQL;
-	UniqueManager _uniqueManager;
+	private HashMap<Material, PriceMaterial> _material_prices = new HashMap<>();
 	
-	HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
-	HashMap<UUID, ArrayList<Tuple<String, PriceCustom>>> _savedPriceCustoms = new HashMap<>();
+	private BukkitTask RunnableAsyncTask;
+	private ShopManagerSQL _shopManagerSQL;
+	private UniqueManager _uniqueManager;
 	
-	int _shopCheckTime = 10;
+	private HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
+	private HashMap<UUID, ArrayList<Tuple<String, PriceCustom>>> _savedPriceCustoms = new HashMap<>();
+	
+	private int _shopCheckTime = 10;
 	
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
@@ -47,7 +48,6 @@ public class ShopManager
 	{
 		_main = main;
 		_shops = new ArrayList<>();
-		Tuple<String, PriceCustom> m;
 	}
 	
 	public void Init()
@@ -69,6 +69,21 @@ public class ShopManager
 		
 		
 		RunnableAsync();
+	}
+	
+	public void PutMaterialPrice(Material mat, double price)
+	{		
+		_material_prices.put(mat, (PriceMaterial)(new PriceMaterial().SetPrice(price)));
+	}
+	
+	public PriceMaterial GetPriceMaterial(Material mat)
+	{
+		return _material_prices.get(mat);
+	}
+	
+	public ShopManagerSQL GetShopManagerSQL()
+	{
+		return _shopManagerSQL;
 	}
 	
 	public Integer GetSISSlot(ItemStack stack)
@@ -176,9 +191,25 @@ public class ShopManager
 			}
 		}
 	}
-	public double GetMaterialPrice(Material material)
+//	public double GetMaterialPrice(Material material)
+//	{
+//		return _material_prices.get(material);
+//	}
+//	
+	public void SaveMaterialPrice(Material mat, double price)
 	{
-		return _material_prices.get(material);
+		if(price < 0) price = 0;		
+		PutMaterialPrice(mat, price);
+		
+		final double pricee = price;
+		new BukkitRunnable() 
+    	{
+			@Override
+			public void run() 
+			{				
+				_shopManagerSQL.SaveMaterialPrice(mat, pricee);
+			}
+		}.runTaskAsynchronously(_main);	
 	}
 	
 	public boolean OpenShop(Player p,String name)
@@ -213,9 +244,9 @@ public class ShopManager
 		
 	}
 	
-	public void CreateShop(String name)
+	public void CreateNewShop(String name)
 	{
-		ShopBase shop = new ShopNormal(_main, name, 1);
+		ShopBase shop = new ShopNormal(_main, UUID.randomUUID(), name, 1);
 		AddShop(shop);
 	}
 	
@@ -276,8 +307,8 @@ public class ShopManager
 		{
 			shopNames[i] = _shops.get(i).GetName();
 		}
-		ImusTabCompleter tab = _main.get_tab_cmd1();
-		tab.setArgumenrs("shop", shopNames);
+		
+		_main.UpdateShopNames(shopNames);
 	}
 	
 	

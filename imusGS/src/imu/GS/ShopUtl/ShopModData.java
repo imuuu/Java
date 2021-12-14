@@ -20,6 +20,10 @@ public class ShopModData implements IModData
 	
 	public boolean _lock = false;
 	
+	public boolean _removeShop = false;
+	
+	public boolean _customersCanOnlyBuy = false;
+	
 	public ShopModData ReadShop(ShopBase shop)
 	{
 		_name = shop.GetName();
@@ -31,6 +35,7 @@ public class ShopModData implements IModData
 		
 		_absoluteItemPosition = shop.IsAbsoluteItemPositions();
 		_lock = shop.HasLocked();
+		_customersCanOnlyBuy = shop.GetCustomersCanOnlyBuy();
 		return this;
 	}
 	
@@ -69,6 +74,13 @@ public class ShopModData implements IModData
 		case ABSOLUTE_POS:
 			str += _absoluteItemPosition;
 			break;
+		case CUSTOMERS_CAN_ONLY_BUY:
+			str += _customersCanOnlyBuy;
+			break;
+		case REMOVE_SHOP:
+			str += _removeShop;
+			break;
+		
 		}
 		
 		return trueFrontText+str+trueBackText;
@@ -100,23 +112,18 @@ public class ShopModData implements IModData
 			_expire_percent = Double.parseDouble(str);
 			break;
 		case LOCKED:
-			if(_lock) 
-			{
-				_lock = false; 
-			}else
-			{
-				_lock = true;
-			}
+			_lock = _lock ? false : true;
 			return true;
 		case ABSOLUTE_POS:
-			if(_absoluteItemPosition) 
-			{
-				_absoluteItemPosition = false; 
-			}else
-			{
-				_absoluteItemPosition = true;
-			}
+			_absoluteItemPosition = _absoluteItemPosition ? false : true;
 			return true;
+		case CUSTOMERS_CAN_ONLY_BUY:
+			_customersCanOnlyBuy = _customersCanOnlyBuy ? false : true;
+			break;
+		case REMOVE_SHOP:
+			_removeShop = _removeShop ? false : true;
+			break;
+
 
 		}
 		return true;

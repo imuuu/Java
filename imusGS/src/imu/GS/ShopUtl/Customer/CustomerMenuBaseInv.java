@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Invs.BuyCustomPriceINV;
 import imu.GS.Invs.CustomerInv;
 import imu.GS.Main.Main;
@@ -20,12 +21,11 @@ import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
+import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
 public class CustomerMenuBaseInv extends CustomerInv
 {
-
-
 	ArrayList<ShopItemCustomer[]> _shopItemCustomer;
 	//ShopItemCustomer[] _playerItemsOthers;
 	ItemStack[] p_state_display = new ItemStack[2];
@@ -35,9 +35,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	//PLAYER_INV_STATE p_state = PLAYER_INV_STATE.NORMAL;
 	
-	ItemStack empty_display;
-
-	
+	ItemStack empty_display;	
 	int _playerInvPage = 0;
 	int _shopInvPage = 0;
 	ShopBase _shopBase;
@@ -45,6 +43,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 	ShopManager _sm;
 	HashMap<Material, ArrayList<ShopItemCustomer>> players_materialCompares;
 	int materialCompares_counter = 0;
+	
+	private PlayerTab _tab = PlayerTab.BLOCKS;
+	private int index_tab = 0;
+	
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
 		_main = (Main)main;
@@ -55,6 +57,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 		
 		LoadShopInv();
 		LoadPlayerInv();
+	}
+	
+	enum PlayerTab
+	{
+		BLOCKS,
+		ARMOR_TOOLS
 	}
 	
 	class ClickInfo
@@ -84,6 +92,16 @@ public class CustomerMenuBaseInv extends CustomerInv
 		GO_LEFT_PLAYER,
 		GO_RIGHT_PLAYER,
 		STATE_PLAYER_INV;
+	}
+	
+	
+	
+	void SwitchTab()
+	{
+		index_tab = (index_tab+1) >= PlayerTab.values().length ? 0 : index_tab+1;
+		_tab = PlayerTab.values()[index_tab];
+		System.out.println("tab idx: "+index_tab);
+		_inv.setItem(31, p_state_display[index_tab]);
 	}
 	
 	void ResetPlayerShopItemList()
@@ -116,11 +134,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 		ItemStack stack = e.getCurrentItem();
 		if(stack == null)
 			return;
-		
 		String buttonName = getButtonName(e.getCurrentItem());
 		if(buttonName == null)
 			return;
-		
+
 		BUTTON button = BUTTON.valueOf(buttonName);
 		
 		ClickType c_type = e.getClick();
@@ -129,7 +146,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		
 		if(si == null) si = GetShopItemViaSlot(e.getSlot());
 		
-		if(si == null) return;
+		//if(si == null) return;
 		
 		switch(c_type)
 		{
@@ -163,18 +180,22 @@ public class CustomerMenuBaseInv extends CustomerInv
 		setupButton(BUTTON.GO_LEFT_PLAYER, Material.BIRCH_SIGN, Metods.msgC("&9<< Inv"), 30);
 		setupButton(BUTTON.GO_RIGHT_PLAYER, Material.BIRCH_SIGN, Metods.msgC("&9Inv >>"), 32);
 		
-		p_state_display[1] = setupButton(BUTTON.STATE_PLAYER_INV, Material.STONE, Metods.msgC("&9Blocks, Ores..."), 31);
-		p_state_display[0] = _metods.hideAttributes(setupButton(BUTTON.STATE_PLAYER_INV, Material.NETHERITE_CHESTPLATE, Metods.msgC("&9Tools, Armor..."), 31));
+		
+		p_state_display[1] = _metods.hideAttributes(setupButton(BUTTON.STATE_PLAYER_INV, Material.NETHERITE_CHESTPLATE, Metods.msgC("&9Tools, Armor..."), 31));
+		p_state_display[0] = setupButton(BUTTON.STATE_PLAYER_INV, Material.STONE, Metods.msgC("&9Blocks, Ores..."), 31);
 		
 		
 		ItemStack redLine = Metods.setDisplayName(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ");
 		_inv.setItem(28, redLine);_inv.setItem(29, redLine);_inv.setItem(35-1, redLine);_inv.setItem(35-2, redLine);
+		
+		redLine.setType(Material.BLUE_STAINED_GLASS_PANE);
+		if(_shopBase.GetCustomersCanOnlyBuy()){for(int i = _size-1; i > _size-19; i--) {_inv.setItem(i, redLine);}}		
+		
 	}
 	
 	
 	public void ClickSorter(ClickInfo cInfo)
 	{
-		ShopItemSeller sis;
 		switch (cInfo._button) 
 		{
 		case GO_LEFT_PLAYER:
@@ -199,40 +220,62 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 		case PLAYER_ITEM:
 			//System.out.println("player item: "+cInfo._click_amount);
-			if(cInfo._shopItemBase.Get_amount() <= 0)
-				return;
-			
-			sis = new ShopItemSeller(_main, _shopBase, cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
-			((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
-			_shopBase.AddNewItem(sis,false);	
-			//RefreshSlot(cInfo._slot);
-			cInfo._shopItemBase.UpdateItem();
+			Sell(cInfo);
 			break;
 		case SHOP_ITEM:
-			if(cInfo._shopItemBase.Get_amount() <= 0)
-				return;
-			
-			if(cInfo._shopItemBase.GetItemPrice() instanceof PriceCustom)
-			{
-				new BuyCustomPriceINV(_main, _player, _shopBase, (ShopItemSeller)cInfo._shopItemBase).openThis();
-				return;
-			}
-			cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
-			cInfo._shopItemBase.UpdateItem();
-			ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
-			FindCustomerItem(sic,true);
-			
-			
+			Buy(cInfo);
 			break;
 		case STATE_PLAYER_INV:
-			System.out.println("p state");
+			SwitchTab();
+			LoadPlayerInv();
 			break;
 		default:
 			break;				
 		}
 	
 	}
+	void Buy(ClickInfo cInfo)
+	{
+		//System.out.println("buy");
+		if(cInfo._shopItemBase == null) return;
+		
+		//System.out.println("==> buy 11");
+		if(cInfo._shopItemBase.Get_amount() <= 0)
+			return;
+		
+		//System.out.println("==> buy 22");
+		
+		if(cInfo._shopItemBase.GetItemPrice() instanceof PriceCustom)
+		{
+			new BuyCustomPriceINV(_main, _player, _shopBase, (ShopItemSeller)cInfo._shopItemBase).openThis();
+			return;
+		}
+		cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
+		cInfo._shopItemBase.UpdateItem();
+		ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
+		FindCustomerItem(sic,true);
+		_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sic, cInfo._click_amount, TransactionAction.BUY);
+		
+		
+	}
 	
+	void Sell(ClickInfo cInfo)
+	{
+		//System.out.println("sell");
+		if(cInfo._shopItemBase == null) return;
+		
+		if(cInfo._shopItemBase.Get_amount() <= 0)
+			return;
+		//System.out.println("==> sell 1");
+		ShopItemSeller sis;
+		sis = new ShopItemSeller(_main, _shopBase, cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
+		((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
+		_shopBase.AddNewItem(sis,false);	
+		cInfo._shopItemBase.UpdateItem();
+		_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sis, cInfo._click_amount, TransactionAction.SELL);
+		
+		
+	}
 	public void ChangeCustomerPage(int amount)
 	{
 		_playerInvPage += amount;
@@ -286,15 +329,30 @@ public class CustomerMenuBaseInv extends CustomerInv
 		_inv.setItem(slot, SetButton(sis.GetDisplayItem(), BUTTON.SHOP_ITEM));
 	}
 	
+	boolean CheckTabItem(ItemStack stack)
+	{
+		if(_tab == PlayerTab.BLOCKS && (ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack))) return false;
+		if(_tab == PlayerTab.ARMOR_TOOLS)
+		{
+			if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack))) return true;
+			return false;
+		}
+
+		return true;
+	}
+	
 	public void LoadPlayerInv()
 	{
+		if(_shopBase.GetCustomersCanOnlyBuy()) return;
+		
 		ResetPlayerShopItemList();
 		
 		for (ItemStack itemStack : _player.getInventory().getContents()) 
 		{
-			if(itemStack == null)
-				continue;
-
+			if(itemStack == null) continue;
+				
+			if(!CheckTabItem(itemStack)) continue;
+			
 			boolean found = false;
 
 			for(int i = 0; i < _shopItemCustomer.size(); ++i) //page
@@ -397,6 +455,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	{
 		Integer ref_page = _sm.GetSISPage(_inv.getItem(slot));
 		Integer ref_slot = _sm.GetSISSlot(_inv.getItem(slot));	
+
 		if(ref_page == null || ref_slot == null) return null;
 		System.out.format("page %d", ref_page);
 		System.out.format("slot %d", ref_slot);
@@ -502,26 +561,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 	
 	
-	
-//	protected ShopItemBase GetItem(int slot)
-//	{
-//		if(slot >= 0 && slot < 27) //shopside
-//		{
-//			return _shopBase.GetItem(_shopInvPage, slot);
-//		}
-//		
-//		if(slot >= _player_slots_start && slot <_size)
-//		{
-//			return _shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start];
-//			
-////			if(p_state == PLAYER_INV_STATE.OTHER_STUFF)
-////			{
-////				return _shopItemCustomer[_playerInvPage][slot-_player_slots_start];
-////			}
-//			
-//		}
-//		return null;
-//	}
-	
+
 
 }

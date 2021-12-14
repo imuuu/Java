@@ -1,6 +1,7 @@
 package imu.GS.ShopUtl.ItemPrice;
 
 import imu.GS.Other.CustomPriceData;
+import imu.iAPI.Main.ImusAPI;
 
 
 public class PriceCustom extends ItemPrice
@@ -43,6 +44,16 @@ public class PriceCustom extends ItemPrice
 	public int GetMinimumStackAmount()
 	{
 		return _minimumStackAmount;
+	}
+	
+	public String GetViewStringOfItems(int buyAmount)
+	{
+		String str="Money:"+_customMoney;
+		for(CustomPriceData data : _items)
+		{
+			str += "; "+ImusAPI._metods.GetItemDisplayName(data._stack)+ ":"+(data._amount*buyAmount);
+		}
+		return str;
 	}
 	
 	

@@ -15,6 +15,7 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ItemPrice.PriceUnique;
@@ -27,8 +28,9 @@ public abstract class ShopItemBase
 	protected UUID _uuid;
 	protected ItemStack _real_stack;
 	protected ShopItemType _type = ShopItemType.NORMAL;
-	ItemStack _display_stack;
+	protected ItemStack _display_stack;
 	ItemStack _display_stack_not_available;
+	final ItemStack _display_out_of_stock = Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), "&9-");
 	
 	int _amount = 0;
 	
@@ -42,7 +44,7 @@ public abstract class ShopItemBase
 	ItemPrice _price;
 	protected Main _main;
 	protected ShopBase _shopBase;
-	public ShopItemBase(Main main, ShopBase shopBase,ItemStack real, int amount) 
+	public ShopItemBase(Main main, ShopBase shopBase, ItemStack real, int amount) 
 	{
 		_metods = ImusAPI._metods;
 		_main = main;
@@ -51,13 +53,12 @@ public abstract class ShopItemBase
 		_real_stack = real.clone();
 		_display_stack = real.clone();
 		_display_stack.setAmount(1);
-		_display_stack_not_available =ImusAPI._metods.addLore(_display_stack.clone(), Metods.msgC("&cNOT AVAILABLE"), false);
-		
-		
-		
+		_display_stack_not_available = ImusAPI._metods.addLore(_display_stack.clone(), Metods.msgC("&cNOT AVAILABLE"), false);
+			
 		_amount = amount;
 		LoadLores();
-		SetItemPrice(new PriceMoney());
+		_price = _main.get_shopManager().GetPriceMaterial(real.getType());
+		//SetItemPrice((ItemPrice)(_main.get_shopManager().GetPriceMaterial(real.getType())));
 		
 		
 		//toolTip();
@@ -110,10 +111,12 @@ public abstract class ShopItemBase
 	
 	public void SetItemPrice(ItemPrice price)
 	{
-		if(price.getClass().equals(PriceMoney.class)) //price instanceof PriceMoney && !(price instanceof PriceOwn) 
-		{
-			((PriceMoney)price).SetPrice(_main.get_shopManager().GetMaterialPrice(GetRealItem().getType()));
-		}
+//		if(price.getClass().equals(PriceMaterial.class)) //price instanceof PriceMoney && !(price instanceof PriceOwn) 
+//		{
+//			//((PriceMoney)price).SetPrice(_main.get_shopManager().GetMaterialPrice(GetRealItem().getType()));
+//			price.SetPrice(_main.get_shopManager().GetPriceMaterial(_real_stack.getType()).GetPrice());
+//		}
+//		
 		
 		if(price instanceof PriceUnique && !(GetItemPrice() instanceof PriceOwn))
 		{
@@ -145,41 +148,52 @@ public abstract class ShopItemBase
 	void LoadLores()
 	{
 		_lores = new String[5];
-		_lores[0] =  Metods.msgC("&6Amount: &a");
-		_lores[1] =  Metods.msgC("&9Price 1 : &5");
-		_lores[2] =  Metods.msgC("&9Price 8  : &5");
-		_lores[3] =  Metods.msgC("&9Price 64 : &5");
-		_lores[4] =  Metods.msgC("&9Price All: &5");
+		String front = (this instanceof ShopItemSeller ? "&2BUY " : "&3SELL ");
+		_lores[0] =  Metods.msgC("&9____ &6Amount: &a");
+		_lores[1] =  Metods.msgC(" &bM1  "+front+" :  &e1  : &5");
+		_lores[2] =  Metods.msgC(" &bM2  "+front+" :  &e8  : &5");
+		_lores[3] =  Metods.msgC("&9S&bM1  "+front+" : &e64 : &5");
+		_lores[4] =  Metods.msgC("&9S&bM2  "+front+" : &eAll : &5");
 
 	}
 	
 	protected void toolTip()
 	{
-		String[] lores = _lores.clone();
-		lores[0] += _amount;
-		lores[1] += _price.GetShowPriceOfAmountStr(1);
-		lores[2] += _price.GetShowPriceOfAmountStr(8);
-		lores[3] += _price.GetShowPriceOfAmountStr(64);
-		lores[4] += _price.GetShowPriceOfAmountStr(_amount);
-		//_metods.addLore(_display_stack, lores, false);
-		_metods.SetLores(_display_stack, lores, false);
+		if(_amount <= 0)
+		{
+			_display_stack = _display_out_of_stock;
+			return;
+		}
+		_display_stack = _real_stack.clone();
+		_display_stack.setAmount(1);
+		String empty = "&4-";
+		String[] lores = new String[_lores.length];
+		lores[0] = _lores[0] + _amount+" &9____";
+		lores[1] = 	(_amount 	>= 1 	? 	_lores[1]+_price.GetShowPriceOfAmountStr(1) 		: empty);
+		lores[2] = 	(_amount  	>= 8 	? 	_lores[2]+_price.GetShowPriceOfAmountStr(8) 		: empty);
+		lores[3] = 	(_amount  	>= 64 	? 	_lores[3]+_price.GetShowPriceOfAmountStr(64) 		: empty);
+		if(lores[3].equalsIgnoreCase(empty))
+		{
+			lores[3] = 	(_amount  	>  8 	? 	_lores[4]+_price.GetShowPriceOfAmountStr(_amount) 	: empty);
+		}
+		else
+		{
+			lores[4] = 	(_amount  	>= 64 	? 	_lores[4]+_price.GetShowPriceOfAmountStr(_amount) 	: empty);
+		}
+		
+
+		_metods.addLore(_display_stack, lores);
 		//_metods.setlo
 	}
-
-	void SetLoreAtSpot(LoreSpot spot)
+	
+	public SlotInfo GetSlotInfo(Inventory inv)
 	{
-		switch (spot) {
-		case AMOUNT:
-			_metods.reSetLore(_display_stack, _lores[0]+_amount, 0);
-			_metods.reSetLore(_display_stack, _lores[4]+_price.GetShowPriceOfAmountStr(_amount), 4);
-			break;
-
-		default:
-			break;
-		}
+		return _slotPositions.get(inv);
 	}
+
 	public ItemStack GetDisplayItem()
 	{
+		toolTip();
 		return _display_stack;
 	}
 	
@@ -223,12 +237,10 @@ public abstract class ShopItemBase
 	public void AddAmount(int amount)
 	{
 		_amount+= amount;		
-		CheckDisplayItem();
-		
-		
+		//CheckDisplayItem();		
 	}
 	
-	void CheckDisplayItem()
+	void CheckDisplayIte()
 	{
 		if(_amount <= 0)
 		{
@@ -243,7 +255,8 @@ public abstract class ShopItemBase
 			}
 		}
 		
-		SetLoreAtSpot(LoreSpot.AMOUNT);
+		//SetLoreAtSpot(LoreSpot.AMOUNT);
+		toolTip();
 	}
 	
 	public int Get_amount() {
@@ -254,6 +267,6 @@ public abstract class ShopItemBase
 	public void Set_amount(int _amount) 
 	{
 		this._amount = _amount;
-		CheckDisplayItem();
+		//CheckDisplayItem();
 	}
 }
