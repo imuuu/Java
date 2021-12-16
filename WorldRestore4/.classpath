@@ -6,9 +6,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/spigot-1.16.5.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/Server/plugins/worldedit-bukkit-7.2.2-dist.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/Server/plugins/worldguard-bukkit-7.0.4.jar"/>
-	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.16.5-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/Server1.18/plugins/worldedit-bukkit-7.2.8.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/Server1.18/plugins/worldguard-bukkit-7.0.6-dist.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/spigot-1.18.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-API/target/spigot-api-1.18-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/Server1.18/plugins/imusAPI.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

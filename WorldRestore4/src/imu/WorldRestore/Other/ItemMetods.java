@@ -7,13 +7,8 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -31,12 +26,6 @@ import imu.WorldRestore.main.Main;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.ItemArmor;
-import net.minecraft.server.v1_16_R3.ItemElytra;
-import net.minecraft.server.v1_16_R3.ItemShield;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.TileEntity;
 
 public class ItemMetods 
 {
@@ -369,23 +358,23 @@ public class ItemMetods
 		return false;
 		
 	}
-	public boolean isArmor(ItemStack stack)
-	{
-		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemElytra)
-		{
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isShield(ItemStack stack)
-	{
-		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemShield)
-		{
-			return true;
-		}
-		return false;
-	}
+//	public boolean isArmor(ItemStack stack)
+//	{
+//		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemElytra)
+//		{
+//			return true;
+//		}
+//		return false;
+//	}
+//	
+//	public boolean isShield(ItemStack stack)
+//	{
+//		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemShield)
+//		{
+//			return true;
+//		}
+//		return false;
+//	}
 	
 	
 	public boolean isTool(ItemStack stack) 
@@ -761,51 +750,51 @@ public class ItemMetods
     	return false;
     }
 	
-	public boolean copyBlock(Block copyBlock, Block toSetBlock)
-	{
-		Material mat_copy = copyBlock.getType();
-		Material mat_set = toSetBlock.getType();
-		
-		if(mat_copy != mat_set)
-		{
-			toSetBlock.setType(mat_copy, false);
-		}
-		
-		if(copyBlock.getState() != toSetBlock.getState())
-		{			
-			final BlockState bState = toSetBlock.getState();
-			bState.setBlockData(copyBlock.getBlockData());
-			bState.update(true);
-		}
-		
-		CraftWorld cw1 = (CraftWorld)copyBlock.getWorld();
-		CraftWorld cw2 = (CraftWorld)toSetBlock.getWorld();
-		
-		Location loc_copy = copyBlock.getLocation();
-		TileEntity targetEntity = cw1.getHandle().getTileEntity(new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ()));
-		if(targetEntity == null)
-		{
-			return false;
-		}
-		Location loc_set = toSetBlock.getLocation();
-		TileEntity copyEntity = cw2.getHandle().getTileEntity(new BlockPosition(loc_set.getBlockX(),loc_set.getBlockY(),loc_set.getBlockZ()));
-		if(copyEntity == null)
-		{
-			return false;
-		}
-
-		NBTTagCompound ntc = new NBTTagCompound();
-		NBTTagCompound ntc2 = new NBTTagCompound();
-		targetEntity.save(ntc);
-		ntc2 = (NBTTagCompound) ntc.clone();
-		ntc2.setInt("x", loc_set.getBlockX());
-		ntc2.setInt("y", loc_set.getBlockY());
-		ntc2.setInt("z", loc_set.getBlockZ());
-		copyEntity.load(targetEntity.getBlock(),ntc2);
-		//copyEntity.
-		copyEntity.update();
-		
-		return true;
-	}
+//	public boolean copyBlock(Block copyBlock, Block toSetBlock)
+//	{
+//		Material mat_copy = copyBlock.getType();
+//		Material mat_set = toSetBlock.getType();
+//		
+//		if(mat_copy != mat_set)
+//		{
+//			toSetBlock.setType(mat_copy, false);
+//		}
+//		
+//		if(copyBlock.getState() != toSetBlock.getState())
+//		{			
+//			final BlockState bState = toSetBlock.getState();
+//			bState.setBlockData(copyBlock.getBlockData());
+//			bState.update(true);
+//		}
+//		
+//		CraftWorld cw1 = (CraftWorld)copyBlock.getWorld();
+//		CraftWorld cw2 = (CraftWorld)toSetBlock.getWorld();
+//		
+//		Location loc_copy = copyBlock.getLocation();
+//		TileEntity targetEntity = cw1.getHandle().getTileEntity(new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ()));
+//		if(targetEntity == null)
+//		{
+//			return false;
+//		}
+//		Location loc_set = toSetBlock.getLocation();
+//		TileEntity copyEntity = cw2.getHandle().getTileEntity(new BlockPosition(loc_set.getBlockX(),loc_set.getBlockY(),loc_set.getBlockZ()));
+//		if(copyEntity == null)
+//		{
+//			return false;
+//		}
+//
+//		NBTTagCompound ntc = new NBTTagCompound();
+//		NBTTagCompound ntc2 = new NBTTagCompound();
+//		targetEntity.save(ntc);
+//		ntc2 = (NBTTagCompound) ntc.clone();
+//		ntc2.setInt("x", loc_set.getBlockX());
+//		ntc2.setInt("y", loc_set.getBlockY());
+//		ntc2.setInt("z", loc_set.getBlockZ());
+//		copyEntity.load(targetEntity.getBlock(),ntc2);
+//		//copyEntity.
+//		copyEntity.update();
+//		
+//		return true;
+//	}
 	
 }

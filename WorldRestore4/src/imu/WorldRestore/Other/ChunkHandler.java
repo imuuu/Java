@@ -17,6 +17,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 
 import imu.WorldRestore.main.Main;
+import imu.iAPI.Main.ImusAPI;
 
 public class ChunkHandler 
 {
@@ -147,7 +148,8 @@ public class ChunkHandler
 				}
 				else 
 				{
-					itemM.copyBlock(dblock, block);
+					//itemM.copyBlock(dblock, block);
+					ImusAPI._metods.copyBlock(dblock, block);
 				}
 			}			
 		}

@@ -12,8 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import imu.WorldRestore.main.Main;
-import net.minecraft.server.v1_16_R3.Tuple;
-
+import imu.iAPI.Other.Tuple;
 
 public class PlayerData 
 {
@@ -72,7 +71,7 @@ public class PlayerData
 		boolean tele = false;
 		if(_quitLocations.containsKey(player.getUniqueId()))
 		{
-			if(_quitLocations.get(player.getUniqueId()).b())
+			if(_quitLocations.get(player.getUniqueId()).GetValue())
 			{
 				//tele
 				
@@ -106,7 +105,7 @@ public class PlayerData
 	{
 		for(Tuple<Location, Boolean> t : _quitLocations.values())
 		{
-			if(t.a().getChunk() == chunk)
+			if(t.GetKey().getChunk() == chunk)
 			{
 				return true;
 			}
@@ -127,7 +126,7 @@ public class PlayerData
 		while(it.hasNext())
 		{
 			Map.Entry<UUID, Tuple<Location, Boolean>> entry = it.next();
-			Location loc = entry.getValue().a();
+			Location loc = entry.getValue().GetKey();
 			if(loc.getChunk() == chunk)
 			{
 				entry.setValue(new Tuple<Location, Boolean>(loc, true));
