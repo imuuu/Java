@@ -10,12 +10,16 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -38,11 +42,14 @@ import imu.iAPI.Interfaces.DelaySendable;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemArmor;
 import net.minecraft.world.item.ItemElytra;
+import net.minecraft.world.item.ItemPotion;
 import net.minecraft.world.item.ItemShield;
 import net.minecraft.world.item.ItemTool;
-
+import net.minecraft.world.level.block.entity.TileEntity;
 
 public class Metods 
 {
@@ -498,7 +505,7 @@ public class Metods
 	}
 	public boolean isArmor(ItemStack stack)
 	{
-		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemElytra)
+		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).c() instanceof ItemElytra)
 		{
 			return true;
 		}
@@ -507,19 +514,25 @@ public class Metods
 	
 	public boolean isShield(ItemStack stack)
 	{
-		if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemShield)
+		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemShield)
 		{
 			return true;
 		}
 		return false;
 	}
 	
+	public boolean IsPotion(ItemStack stack)
+	{
+		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemPotion) return true;
+		return false;
+		
+	}
 	
 	public boolean isTool(ItemStack stack) 
 	{
 		if(stack != null && stack.getType()!= Material.AIR)
 		{
-			if(CraftItemStack.asNMSCopy(stack).getItem() instanceof ItemTool)
+			if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemTool)
 			{
 				//System.out.println("Checking if works: stack");
 				return true;
@@ -627,6 +640,7 @@ public class Metods
 	
 	public Integer[] InventoryAddItemOrDrop(ItemStack stack, Player player)
 	{
+		//System.out.println("===========>adding item to inventory: "+stack.getType() + " stack amount: "+stack.getAmount());
 		ArrayList<Integer> slots = new ArrayList<>();
 		if(stack == null || stack.getType() == Material.AIR)
 		{
@@ -645,49 +659,70 @@ public class Metods
 //		
 		
 		int amount = stack.getAmount();
-		
-		for(int i = 0; i < inv.getContents().length-6; ++i)
+		System.out.println("max stack size: "+stack.getMaxStackSize());
+		if(stack.getMaxStackSize() != 1)
 		{
-			ItemStack invItem = inv.getItem(i);
-			if(invItem == null) continue;
-			
-			if(invItem.isSimilar(stack) && invItem.getAmount() < invItem.getMaxStackSize())
+			for(int i = 0; i < inv.getContents().length-6; ++i)
 			{
-				int adding = invItem.getMaxStackSize() - invItem.getAmount();
-				if(adding > amount)
-					adding = amount;
+				ItemStack invItem = inv.getItem(i);
+				if(invItem == null) continue;
 				
-				invItem.setAmount(invItem.getAmount() + adding);
-				amount -= adding;
+				if(invItem.isSimilar(stack) && invItem.getAmount() < invItem.getMaxStackSize())
+				{
+					int adding = invItem.getMaxStackSize() - invItem.getAmount();
+					if(adding > amount)
+						adding = amount;
+					
+					invItem.setAmount(invItem.getAmount() + adding);
+					amount -= adding;
+					
+					slots.add(i);
+				}
 				
-				slots.add(i);
+				if(amount <= 0)
+					break;
 			}
 			
-			if(amount <= 0)
-				break;
+			
 		}
 		
 		if(amount > 0)
 		{
 			ItemStack clone = stack.clone();
-			clone.setAmount(amount);
-			int invSlot = inv.firstEmpty();
-			if(invSlot < 0)
+			int rolls = 1;
+			if(stack.getMaxStackSize() == 1)
 			{
-				dropItem(clone, player, true);
+				rolls = amount;
+				clone.setAmount(1);
 			}
 			else
 			{
-				inv.setItem(invSlot, clone);
-				slots.add(invSlot);
+				clone.setAmount(amount);
 			}
+
+			for(int i = 0; i < rolls; i++)
+			{
+				int invSlot = inv.firstEmpty();
+				if(invSlot < 0)
+				{
+					dropItem(clone.clone(), player, true);
+				}
+				else
+				{
+					inv.setItem(invSlot, clone);
+					slots.add(invSlot);
+				}
+			}
+			
 		}
+		
 
 		return slots.toArray(new Integer[slots.size()]);
 
 	}
 	public Integer[] InventoryAddItemOrDrop(ItemStack stack, Player player, int amount)
 	{
+		//System.out.println("==> adding item to inventory: "+stack.getType() + " custom stack amount: "+amount);
 		ArrayList<Integer> slots = new ArrayList<>();
 		int left = amount;
 		
@@ -1196,6 +1231,56 @@ public class Metods
 		ConversationFactory cf = new ConversationFactory(_main);
 		Conversation conversation = cf.withFirstPrompt(conv).withLocalEcho(true).buildConversation(player);
 		conversation.begin();
+	}
+	
+	public boolean copyBlock(Block copyBlock, Block toSetBlock)
+	{
+		Material mat_copy = copyBlock.getType();
+		Material mat_set = toSetBlock.getType();
+		
+		if(mat_copy != mat_set)
+		{
+			toSetBlock.setType(mat_copy, false);
+		}
+		
+		if(copyBlock.getState() != toSetBlock.getState())
+		{			
+			final BlockState bState = toSetBlock.getState();
+			bState.setBlockData(copyBlock.getBlockData());
+			bState.update(true);
+		}
+		
+		CraftWorld cw1 = (CraftWorld)copyBlock.getWorld();
+		CraftWorld cw2 = (CraftWorld)toSetBlock.getWorld();
+		
+		Location loc_copy = copyBlock.getLocation();
+		//TileEntity targetEntity = cw1.getHandle().
+		//cw1.getHandle().
+		TileEntity targetEntity = cw1.getHandle().c_(new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ()));
+		if(targetEntity == null)
+		{
+			return false;
+		}
+		Location loc_set = toSetBlock.getLocation();
+		TileEntity copyEntity = cw2.getHandle().c_(new BlockPosition(loc_set.getBlockX(),loc_set.getBlockY(),loc_set.getBlockZ())); //get tileentity
+		if(copyEntity == null)
+		{
+			return false;
+		}
+
+		NBTTagCompound ntc = new NBTTagCompound();
+		NBTTagCompound ntc2 = new NBTTagCompound();
+		targetEntity.a(ntc); //save
+		//targetEntity.a
+		ntc2 = (NBTTagCompound) ntc.g(); //ntc.clone()
+		ntc2.a("x", loc_set.getBlockX());
+		ntc2.a("y", loc_set.getBlockY()); //setInt
+		ntc2.a("z", loc_set.getBlockZ());
+		copyEntity.a(ntc2); //load  ja targetEntity.Getblock()
+		//copyEntity.
+		copyEntity.aa_(); //update
+		
+		return true;
 	}
 	
 

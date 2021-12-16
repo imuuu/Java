@@ -17,6 +17,7 @@ import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.ITuple;
+import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Tuple;
 import net.md_5.bungee.api.ChatColor;
@@ -147,16 +148,18 @@ public abstract class ShopBase
 		
 		_hCustomers.remove(uuid);
 	}
+
 	
-	public void LoadCustomerInvs()
+	public void LoadCustomerInvs(boolean loadShopSide, boolean loadPlayerSide)
 	{
 		for(Customer customer : _hCustomers.values())
 		{
-			customer._shopInv.LoadShopInv();
-			customer._shopInv.LoadPlayerInv();		
+			if(loadShopSide)customer._shopInv.LoadShopInv();
+			if(loadPlayerSide)customer._shopInv.LoadPlayerInv();		
 		}
 	}
 	
+
 	public void SaveData()
 	{
 		new BukkitRunnable() 
@@ -164,11 +167,11 @@ public abstract class ShopBase
 			@Override
 			public void run() 
 			{
-				boolean lock = HasLocked();
-				SetLocked(true);
-				ArrangeShopItems();
-				_main.get_shopManager().SaveShop(_name, false);
-				SetLocked(lock);
+				RemoveCustomerALL();
+
+				ArrangeShopItems(true);
+				_main.get_shopManager().SaveShop(GetUUID(), false);
+
 			}
 		}.runTaskAsynchronously(_main);
 	}
@@ -182,9 +185,10 @@ public abstract class ShopBase
 		_hCustomers.clear();
 	}
 	
-	public void ArrangeShopItems()
+	public void ArrangeShopItems(boolean removeEmpties)
 	{
 		//System.out.println("arrange shop");
+		SetLockToInteract(true);
 		for(int page = _items.size()-1; page >= 0 ; page--)
 		{
 			boolean isEmpty = true;
@@ -196,7 +200,14 @@ public abstract class ShopBase
 			for(int slot = 0;  slot < _items.get(page).length; ++slot)
 			{
 				ShopItemBase sib = _items.get(page)[slot];
-				if( sib != null && sib.Get_amount() > 0 || (sib instanceof ShopItemStockable))
+				
+				if(removeEmpties && sib != null && sib.Get_amount() <= 0)
+				{
+					//_main.GetShopManagerSQL().DeleteShopItem(sib);
+					continue;
+				}
+				
+				if( sib != null || (sib instanceof ShopItemStockable)) //if( sib != null && sib.Get_amount() > 0 || (sib instanceof ShopItemStockable))
 				{
 					//System.out.println("==> shopItem found");
 					if(sib instanceof ShopItemStockable)
@@ -212,10 +223,13 @@ public abstract class ShopBase
 						
 						items[idx] =_items.get(page)[slot].SetPageAndSlot(page, idx);
 						idx++;
-					}
-					
+					}					
 					isEmpty = false;
 				}
+//				if(sib != null && sib.Get_amount() <= 0)
+//				{
+//					_main.GetShopManagerSQL().DeleteShopItem(sib);
+//				}
 			}
 			
 			if(isEmpty && page != 0)
@@ -227,10 +241,21 @@ public abstract class ShopBase
 				_items.set(page, items);
 			}
 		}
+		
+		if(HasCustomers())
+			LoadCustomerInvs(true, false);
+		
+		SetLockToInteract(false);
 	}
 	
 	public void SetItem(ShopItemSeller sis, int page, int slot)
 	{
+		if(page > _items.size()-1)
+		{
+			int pagesNeeded = page - _items.size();
+			System.out.println("pages needed: "+pagesNeeded);
+			for(int i = 0 ; i < pagesNeeded; ++i) {_items.add(new ShopItemSeller[shopHolderSize]);}
+		}
 		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);
 	}
 	
@@ -246,7 +271,17 @@ public abstract class ShopBase
 	public void RemoveItem(int page, int idx)
 	{
 		//ShopItemBase sib = get_items().get(page)[idx];
+		ShopItemBase sib = _items.get(page)[idx];
 		_items.get(page)[idx] = null;
+		RemoveCustomerALL();
+		
+		ArrangeShopItems(false);
+		
+		new BukkitRunnable() {		
+			@Override
+			public void run() {_main.GetShopManagerSQL().DeleteShopItem(sib);			}
+		}.runTaskAsynchronously(_main);
+		
 	}
 	
 	public void UnRegisterItems(Inventory inv)
@@ -381,7 +416,7 @@ public abstract class ShopBase
 	public void SetName(String name)
 	{
 		_displayName = name;		
-		_name =  _main.GetMetods().StripColor(name);
+		_name =  ImusAPI._metods.StripColor(name);
 	}
 	
 	public String GetName() {return _name;}

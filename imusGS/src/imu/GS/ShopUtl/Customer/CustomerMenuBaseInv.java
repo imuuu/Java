@@ -8,8 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Invs.BuyCustomPriceINV;
@@ -22,6 +25,7 @@ import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 
 public class CustomerMenuBaseInv extends CustomerInv
@@ -46,6 +50,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	private PlayerTab _tab = PlayerTab.BLOCKS;
 	private int index_tab = 0;
+	
+	boolean _lock_player_sell = false;
+	
+	BukkitTask _task_loadPlayerInv;
 	
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
@@ -79,6 +87,19 @@ public class CustomerMenuBaseInv extends CustomerInv
 			_clickType = cType;
 			_shopItemBase = shopItemBase;
 			_slot = slot;
+		}
+		
+		public void Print()
+		{
+			System.out.println("============================");
+			System.out.println("button: "+_button);
+			System.out.println("click amount: "+_click_amount);
+			System.out.println("click type: "+_clickType);
+			System.out.println("_shopitemBase: "+_shopItemBase);
+			if(_shopItemBase != null ) System.out.println("item: "+_shopItemBase.GetRealItem().getType());
+			if(_shopItemBase != null ) System.out.println("item amount: "+_shopItemBase.GetRealItem().getAmount());
+			System.out.println("slot: "+_slot);
+			System.out.println("============================");
 		}
 	}
 
@@ -118,9 +139,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 		_shopBase.RemoveCustomer(_player.getUniqueId(), false);
 		if(!_shopBase.HasCustomers()) 
 		{
-			_shopBase.ArrangeShopItems();
+			_shopBase.ArrangeShopItems(true);
 		}
 			
+		if(_task_loadPlayerInv != null) _task_loadPlayerInv.cancel();
 	}
 
 	public void onClickInsideInv(InventoryClickEvent e) 
@@ -169,6 +191,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		if(si != null && amount > si.Get_amount())
 			amount = si.Get_amount();
 		
+		
 		ClickSorter(new ClickInfo(button,e.getSlot(),amount ,c_type, si));
 	}
 
@@ -196,6 +219,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	public void ClickSorter(ClickInfo cInfo)
 	{
+		//cInfo.Print();
 		switch (cInfo._button) 
 		{
 		case GO_LEFT_PLAYER:
@@ -220,6 +244,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 		case PLAYER_ITEM:
 			//System.out.println("player item: "+cInfo._click_amount);
+			if(_lock_player_sell) return;
 			Sell(cInfo);
 			break;
 		case SHOP_ITEM:
@@ -253,8 +278,11 @@ public class CustomerMenuBaseInv extends CustomerInv
 		cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
 		cInfo._shopItemBase.UpdateItem();
 		ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,cInfo._shopItemBase.GetRealItem(), cInfo._click_amount);
-		FindCustomerItem(sic,true);
-		_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sic, cInfo._click_amount, TransactionAction.BUY);
+		
+		//FindCustomerItem(sic,true);
+		ImusAPI._metods.InventoryAddItemOrDrop(cInfo._shopItemBase.GetRealItem(), _player, cInfo._click_amount);
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sic, cInfo._click_amount, TransactionAction.BUY);
+		LoadPlayerInv();
 		
 		
 	}
@@ -272,7 +300,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
 		_shopBase.AddNewItem(sis,false);	
 		cInfo._shopItemBase.UpdateItem();
-		_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sis, cInfo._click_amount, TransactionAction.SELL);
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sis, cInfo._click_amount, TransactionAction.SELL);
 		
 		
 	}
@@ -318,12 +346,15 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	@Override
 	public void SetShopSlot(ShopItemSeller sis, int page, int slot) {
+		
 		if(page != _shopInvPage)
 			return;
+		
 		if(!sis.CanShowToPlayer(_player))
 		{
 			System.out.println("cant show item: "+slot);
 			_inv.setItem(slot, SetButton(sis.GetDisplayItemNotAvailable(), BUTTON.NONE));
+			//_inv.setItem(slot, null);
 			return;
 		}
 		_inv.setItem(slot, SetButton(sis.GetDisplayItem(), BUTTON.SHOP_ITEM));
@@ -343,112 +374,126 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	public void LoadPlayerInv()
 	{
+		System.out.println("load player inv");
 		if(_shopBase.GetCustomersCanOnlyBuy()) return;
-		
-		ResetPlayerShopItemList();
-		
-		for (ItemStack itemStack : _player.getInventory().getContents()) 
-		{
-			if(itemStack == null) continue;
-				
-			if(!CheckTabItem(itemStack)) continue;
-			
-			boolean found = false;
-
-			for(int i = 0; i < _shopItemCustomer.size(); ++i) //page
+		_lock_player_sell = true;
+		CustomerMenuBaseInv inv = this;
+		if(_task_loadPlayerInv != null) _task_loadPlayerInv.cancel();
+		_task_loadPlayerInv = new BukkitRunnable() 
+		{		
+			@Override
+			public void run() 
 			{
-				for(int l = 0; l < _shopItemCustomer.get(i).length; ++l) //slot
+				ResetPlayerShopItemList();
+				
+				for (ItemStack itemStack : _player.getInventory().getContents()) 
 				{
-					ShopItemCustomer sic =  _shopItemCustomer.get(i)[l];
-					if(sic == null)
-					{					
-						//new item found
+					if(itemStack == null) continue;
+						
+					if(!CheckTabItem(itemStack)) continue;
+					
+					boolean found = false;
 
-						_shopItemCustomer.get(i)[l] = new ShopItemCustomer(_main,_shopBase,_player,itemStack, itemStack.getAmount());
-						_shopItemCustomer.get(i)[l].AddPlayerItemStackRef("loadINV1", itemStack);
-						_shopItemCustomer.get(i)[l].RegisterSlot(_inv, this,i, l, false);
+					for(int i = 0; i < _shopItemCustomer.size(); ++i) //page
+					{
+						for(int l = 0; l < _shopItemCustomer.get(i).length; ++l) //slot
+						{
+							ShopItemCustomer sic =  _shopItemCustomer.get(i)[l];
+							if(sic == null)
+							{					
+								//new item found
 
-						found = true;
-						break;
+								_shopItemCustomer.get(i)[l] = new ShopItemCustomer(_main,_shopBase,_player,itemStack, itemStack.getAmount());
+								_shopItemCustomer.get(i)[l].AddPlayerItemStackRef("loadINV1", itemStack);
+								_shopItemCustomer.get(i)[l].RegisterSlot(_inv, inv,i, l, false);
+
+								found = true;
+								break;
+							}
+							
+							if(sic.IsSameKind(itemStack))
+							{
+								sic.AddAmount(itemStack.getAmount());
+								sic.AddPlayerItemStackRef("loadInv2",itemStack);
+								found = true;
+								break;
+							}
+						}
+						if(found)
+							break;
 					}
 					
-					if(sic.IsSameKind(itemStack))
+					if(!found)
 					{
-						sic.AddAmount(itemStack.getAmount());
-						sic.AddPlayerItemStackRef("loadInv2",itemStack);
-						found = true;
-						break;
+						//System.out.println("MAKE2 new page for customer!");
+						_shopItemCustomer.add(new ShopItemCustomer[18]);
+						int page = _shopItemCustomer.size()-1;
+						int slot = 0;
+						_shopItemCustomer.get(page)[slot] = new ShopItemCustomer(_main,_shopBase, _player, itemStack, itemStack.getAmount());
+						_shopItemCustomer.get(page)[slot].AddPlayerItemStackRef("loadINV3", itemStack);
+						_shopItemCustomer.get(page)[slot].RegisterSlot(_inv, inv, page, slot, false);
 					}
+					
 				}
-				if(found)
-					break;
+				
+				RefreshPlayerDisplayPageSlots();
+				_lock_player_sell = false;
+				_task_loadPlayerInv = null;
 			}
-			
-			if(!found)
-			{
-				//System.out.println("MAKE2 new page for customer!");
-				_shopItemCustomer.add(new ShopItemCustomer[18]);
-				int page = _shopItemCustomer.size()-1;
-				int slot = 0;
-				_shopItemCustomer.get(page)[slot] = new ShopItemCustomer(_main,_shopBase, _player, itemStack, itemStack.getAmount());
-				_shopItemCustomer.get(page)[slot].AddPlayerItemStackRef("loadINV3", itemStack);
-				_shopItemCustomer.get(page)[slot].RegisterSlot(_inv, this, page, slot, false);
-			}
-			
-		}
-		
-		RefreshPlayerDisplayPageSlots();
+		}.runTaskAsynchronously(_main);
 		
 		//System.out.println("PlayerInvLoaded");
 		
 	}
-	void FindCustomerItem(ShopItemCustomer sic, boolean AddToPlayerToo)
-	{
-		int[] freeSlots = null;
-		for(int page = 0; page < _shopItemCustomer.size(); ++page)
-		{
-			for(int i = 0; i < _shopItemCustomer.get(page).length; ++i)
-			{
-				ShopItemCustomer customerItem = _shopItemCustomer.get(page)[i];
-				if(customerItem == null)
-				{
-					if(freeSlots == null)
-						freeSlots = new int[] {page,i};
-					continue;
-				}
-									
-				if(customerItem.IsSameKind(sic))
-				{
-					if(AddToPlayerToo)
-					{
-						customerItem.AddAmountToPlayer(sic.Get_amount());
-					}else
-					{
-						customerItem.AddAmount(sic.Get_amount());
-						customerItem.AddPlayerItemStackRef("new", sic.GetRealItem());
-					}
-					
-					customerItem.UpdateItem();
-					return;
-				}
-				
-			}
-		}
-		//jos ei oo spacii
-		if(freeSlots == null)
-		{
-			System.out.println("MAKE new page for customer!");
-			_shopItemCustomer.add(new ShopItemCustomer[18]);
-			freeSlots = new int[] {_shopItemCustomer.size()-1,0};
-		}
-			
-		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]] = new ShopItemCustomer(_main, _shopBase,_player,sic.GetRealItem(), 0);
-		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].RegisterSlot(_inv, this,freeSlots[0], freeSlots[1], false);
-
-		System.out.println("adding to player as NEW: "+sic.Get_amount());
-		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].AddAmountToPlayer(sic.Get_amount());
-		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].UpdateItem();
-	}
+//	void FindCustomerIte(ShopItemCustomer sic, boolean AddToPlayerToo)
+//	{
+//		
+//		int[] freeSlots = null;
+//		for(int page = 0; page < _shopItemCustomer.size(); ++page)
+//		{
+//			for(int i = 0; i < _shopItemCustomer.get(page).length; ++i)
+//			{
+//				ShopItemCustomer customerItem = _shopItemCustomer.get(page)[i];
+//				if(customerItem == null)
+//				{
+//					if(freeSlots == null)
+//						freeSlots = new int[] {page,i};
+//					continue;
+//				}
+//									
+//				if(customerItem.IsSameKind(sic))
+//				{
+//					if(AddToPlayerToo)
+//					{
+//						customerItem.AddAmountToPlayer(sic.Get_amount());
+//					}
+//					else
+//					{
+//						customerItem.AddAmount(sic.Get_amount());
+//						customerItem.AddPlayerItemStackRef("new", sic.GetRealItem());
+//					}
+//					
+//					customerItem.UpdateItem();
+//					return;
+//				}
+//				
+//			}
+//		}
+//		//jos ei oo spacii
+//		if(freeSlots == null)
+//		{
+//			System.out.println("MAKE new page for customer!");
+//			_shopItemCustomer.add(new ShopItemCustomer[18]);
+//			freeSlots = new int[] {_shopItemCustomer.size()-1,0};
+//		}
+//			
+//		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]] = new ShopItemCustomer(_main, _shopBase,_player,sic.GetRealItem(), 0);
+//		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].RegisterSlot(_inv, this,freeSlots[0], freeSlots[1], false);
+//
+//		System.out.println("adding to player as NEW: "+sic.Get_amount());
+//		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].AddAmountToPlayer(sic.Get_amount());
+//		_shopItemCustomer.get(freeSlots[0])[freeSlots[1]].UpdateItem();
+//	}
 	
 	
 	ShopItemSeller GetShopItemViaSlot(int slot)
@@ -510,6 +555,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	public void LoadShopInv()
 	{		
+		System.out.println("load shop inv");
 		int idx = 0;
 		for(int i = 0; i < _shopBase.get_items().get(_shopInvPage).length; ++i)
 		{
@@ -521,13 +567,15 @@ public class CustomerMenuBaseInv extends CustomerInv
 				continue;
 			}
 			
-			if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
+			if(!sis.CanShowToPlayer(_player) || !_shopBase.IsAbsoluteItemPositions()) // => tollon näkyy ettei available//if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
 			{
 				idx--;
 				continue;
 			}
 		
 			sis.RegisterSlot(_inv, this, _shopInvPage, i+idx, true);
+			//_inv.setItem(i+idx, sis.GetDisplayItem());
+			
 			sis.UpdateItem();
 			//UpdateShopSlot(_shopInvPage, i);
 		}

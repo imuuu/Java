@@ -4,16 +4,18 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.GS.CMDs.Cmd;
 import imu.GS.ENUMs.Cmd_add_options;
+import imu.GS.ENUMs.TagSubCmds;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.ShopManagerSQL;
+import imu.GS.Managers.TagManager;
 import imu.GS.Other.CmdHelper;
 import imu.GS.Other.DenizenScriptCreator;
 import imu.GS.SubCmds.SubAddStockableCMD;
@@ -22,46 +24,43 @@ import imu.GS.SubCmds.SubCreateUniqueCMD;
 import imu.GS.SubCmds.SubModifyShopCMD;
 import imu.GS.SubCmds.SubModifyUniqueCMD;
 import imu.GS.SubCmds.SubSetMaterialPriceCMD;
-import imu.GS.SubCmds.SubSetTagMaterialCMD;
 import imu.GS.SubCmds.SubShopCreateCMD;
-import imu.GS.SubCmds.SubShopDeleteCMD;
 import imu.GS.SubCmds.SubShopOpenCMD;
+import imu.GS.SubCmds.SubTagMaterialCMD;
 import imu.iAPI.Handelers.CommandHandler;
-import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
-import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.MySQL;
-import net.milkbowl.vault.economy.Economy;
-
 
 public class Main extends JavaPlugin
 {
-	ShopManager _shopManager;
-	DenizenScriptCreator _denizenScriptCreator;
+	private ShopManager _shopManager;
+	private TagManager _tagManager;
+	private DenizenScriptCreator _denizenScriptCreator;
 	
 
-	CmdHelper _cmdHelper;
-	Economy _econ = null;
-	ImusAPI _imusAPI;
-	MySQL _SQL;
-	ImusTabCompleter _tab_cmd1;
+	private CmdHelper _cmdHelper;
+	//Economy _econ = null;
+	private MySQL _SQL;
+	private ImusTabCompleter _tab_cmd1;
 	
-	HashMap<UUID, CustomInvLayout> _opendInvs = new HashMap<>();
+	private HashMap<UUID, CustomInvLayout> _opendInvs = new HashMap<>();
 	
 	@Override
 	public void onEnable() 
 	{
 		ConnectDataBase();
 		
-		setupImusApi();
-		setupEconomy();
+		//setupImusApi();
+		//setupEconomy();
 		_cmdHelper = new CmdHelper(this);
 		
 		// MANAGERS
 		_shopManager = new ShopManager(this);
 		_shopManager.Init();
 		_denizenScriptCreator = new DenizenScriptCreator();
+		
+		_tagManager = new TagManager(this);
 		//_shopManager.loadShopsAsync();
 		 
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" [imusGS] has been activated!");
@@ -118,10 +117,10 @@ public class Main extends JavaPlugin
 	    _cmdHelper.setCmd(full_sub2, "Open the Shop", full_sub2 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub2, new SubShopOpenCMD(this, _cmdHelper.getCmdData(full_sub2)));
 	    
-	    String cmd1_sub3 ="delete shop";
-	    String full_sub3 =cmd1+" "+cmd1_sub3;
-	    _cmdHelper.setCmd(full_sub3, "Delete the Shop", full_sub3 + " [ShopName]");
-	    handler.registerSubCmd(cmd1, cmd1_sub3, new SubShopDeleteCMD(this, _cmdHelper.getCmdData(full_sub2)));
+//	    String cmd1_sub3 ="delete shop";
+//	    String full_sub3 =cmd1+" "+cmd1_sub3;
+//	    _cmdHelper.setCmd(full_sub3, "Delete the Shop", full_sub3 + " [ShopName]");
+//	    handler.registerSubCmd(cmd1, cmd1_sub3, new SubShopDeleteCMD(this, _cmdHelper.getCmdData(full_sub2)));
 	    
 	    String cmd1_sub4="add";
 	    String full_sub4=cmd1+" "+cmd1_sub4;
@@ -153,21 +152,23 @@ public class Main extends JavaPlugin
 	    _cmdHelper.setCmd(full_sub9, "Setting material price", cmd1_sub9);
 	    handler.registerSubCmd(cmd1, cmd1_sub9, new SubSetMaterialPriceCMD(this, _cmdHelper.getCmdData(full_sub9)));
 	    
-	    String cmd1_sub10="setprice";
-	    String full_sub10=cmd1+" "+cmd1_sub9;
+	    String cmd1_sub10="tag";
+	    String full_sub10=cmd1+" "+cmd1_sub10;
 	    _cmdHelper.setCmd(full_sub10, "Set tag for materials", cmd1_sub10);
-	    handler.registerSubCmd(cmd1, cmd1_sub10, new SubSetTagMaterialCMD(this, _cmdHelper.getCmdData(full_sub10)));
+	    handler.registerSubCmd(cmd1, cmd1_sub10, new SubTagMaterialCMD(this, _cmdHelper.getCmdData(full_sub10)));
 	    
 	    
 	    
-	     
+	    String[] one_hotbar_inv = new String[] {Cmd_add_options.inventory.toString(),Cmd_add_options.hotbar.toString(),Cmd_add_options.hand.toString()};
 	    
-	    cmd1AndArguments.put(cmd1, new String[] {"create","open", "delete","add", "modify","assign","setprice"});
+	    cmd1AndArguments.put(cmd1, new String[] {"create","open","tag", "modify","assign","setprice","add"});
 	    cmd1AndArguments.put("open", new String[] {"shop"});
-	    cmd1AndArguments.put("delete", new String[] {"shop"});
+	    //cmd1AndArguments.put("delete", new String[] {"shop"});
 	    cmd1AndArguments.put("create", new String[] {"shop","unique"});
-	    cmd1AndArguments.put("add", new String[] {Cmd_add_options.inventory.toString()+" shop",Cmd_add_options.hotbar.toString()+" shop",Cmd_add_options.hand.toString()+" shop"});
-	    cmd1AndArguments.put("setprice", new String[] {Cmd_add_options.inventory.toString(),Cmd_add_options.hotbar.toString(),Cmd_add_options.hand.toString()});
+	    cmd1AndArguments.put("tag", Stream.of(TagSubCmds.values()).map(TagSubCmds::name).toArray((String[]::new))); //new String[] {"add","remove","remove_all_tags","set_price","increase_price"}
+	    cmd1AndArguments.put("add", one_hotbar_inv);
+	    
+	    cmd1AndArguments.put("setprice", one_hotbar_inv);
 	    cmd1AndArguments.put("modify", new String[] {"shop", "uniques"});
 	
 	    
@@ -178,12 +179,18 @@ public class Main extends JavaPlugin
 	    //_shopManager.CreateShop("test");
 	    
 	    
+	   
+	    _tab_cmd1.SetRule("/gs tag add", 3, Arrays.asList(one_hotbar_inv));
+	    _tab_cmd1.SetRule("/gs tag remove", 3, Arrays.asList(one_hotbar_inv));
+	    _tab_cmd1.SetRule("/gs tag remove_all_tags", 3, Arrays.asList(one_hotbar_inv));
+	    //
 	}	
 		
 	public void UpdateShopNames(String[] shopNames)
 	{
 		_tab_cmd1.SetRule("/"+"gs assign", 3, Arrays.asList(shopNames));
 		_tab_cmd1.SetRule("/"+"gs setprice", 4, Arrays.asList(shopNames));
+		_tab_cmd1.SetRule("/gs add", 3, Arrays.asList(shopNames));
 		_tab_cmd1.setArgumenrs("shop", shopNames);
 	}
 	
@@ -192,10 +199,7 @@ public class Main extends JavaPlugin
 		return _SQL;
 	}
 	
-	public ImusAPI GetIAPI()
-	{
-		return _imusAPI;
-	}
+	
 	
 	public DenizenScriptCreator GetDenizenSCreator()
 	{
@@ -206,30 +210,25 @@ public class Main extends JavaPlugin
 		return _tab_cmd1;
 	}
 	
-	public Economy get_econ() {
-			return _econ;
-		}
+//	public Economy get_econ() {
+//			return _econ;
+//		}
 
-	boolean setupImusApi()
-	{
-		if(Bukkit.getPluginManager().getPlugin("imusAPI") != null)
-		{
-			_imusAPI = (ImusAPI) Bukkit.getPluginManager().getPlugin("imusAPI");
-			return true;
-		}
-		return false;
-	}
+//	boolean setupImusApi()
+//	{
+//		if(Bukkit.getPluginManager().getPlugin("imusAPI") != null)
+//		{
+//			_imusAPI = (ImusAPI) Bukkit.getPluginManager().getPlugin("imusAPI");
+//			return true;
+//		}
+//		return false;
+//	}
 	
-	public ImusAPI getImusAPI()
-	{
-		return _imusAPI;
-	}
 
-	public Metods GetMetods()
+	public TagManager GetTagManager()
 	{
-		return ImusAPI._metods;
+		return _tagManager;
 	}
-	
 	public ShopManager get_shopManager() {
 		return _shopManager;
 	}
@@ -239,21 +238,21 @@ public class Main extends JavaPlugin
 		return _shopManager.GetShopManagerSQL();
 	}
 	
-	boolean setupEconomy() 
-	{
-        if (getServer().getPluginManager().getPlugin("Vault") == null) 
-        {
-        	System.out.println("Vault not found");
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-        
-        if (rsp == null) {
-            return false;
-        }
-        _econ = rsp.getProvider();
-        return _econ != null;
-    }
+//	boolean setupEconomy() 
+//	{
+//        if (getServer().getPluginManager().getPlugin("Vault") == null) 
+//        {
+//        	System.out.println("Vault not found");
+//            return false;
+//        }
+//        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+//        
+//        if (rsp == null) {
+//            return false;
+//        }
+//        _econ = rsp.getProvider();
+//        return _econ != null;
+//    }
 	
 	public void RegisterInv(CustomInvLayout inv)
 	{

@@ -10,7 +10,8 @@ public enum SQL_TABLES
 	shopitem_permissions,
 	shopitem_worlds,
 	shops,
-	tags,
+	tags_shopitems,
+	tags_material,
 	uniques,
 	custom_price,
 	log_transaction

@@ -3,6 +3,7 @@ package imu.DontLoseItems.Events;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -28,9 +29,11 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import imu.DontLoseItems.Other.ConfigMaker;
-import imu.DontLoseItems.Other.Cooldowns;
-import imu.DontLoseItems.Other.ItemMetods;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
+
 
 public class MainEvents implements Listener
 {
@@ -38,8 +41,8 @@ public class MainEvents implements Listener
 	HashMap<UUID, ItemStack[]> saved_items = new HashMap<UUID, ItemStack[]>();
 	HashMap<UUID, Boolean> died_pvp = new HashMap<UUID,Boolean>();
 
-	String[] tools = {"PICKAXE", "AXE", "HOE", "SHOVEL","ROD"};
-	String[] weapons = {"SWORD","BOW"};
+	final String[] tools = {"PICKAXE", "AXE", "HOE", "SHOVEL","ROD","ELYTRA"};
+	final String[] weapons = {"SWORD","BOW","TRIDENT","SHIELD","CROSSBOW"};
 	
 	boolean saveArmor = true;
 	boolean saveHotBar = true;
@@ -48,22 +51,22 @@ public class MainEvents implements Listener
 	
 	double durability_penalty_pve = 0.1;
 	double durability_penalty_pvp = 0.2;
-	double durability_penalty_mob = 0.03;
+	double durability_penalty_mob = 0.05;
 	
 	Plugin _plugin;
-	ItemMetods _itemM = null;
+	Metods _itemM = null;
 	Cooldowns _cd;
 	
 	String _cd_in_combat_dmg = "entity_combat_";
-	int _cd_in_combat_cooldown = 10;
+	int _cd_in_combat_cooldown = 5;
 	
 	HashMap<Player, ArrayList<EntityType>> _player_combat_with = new HashMap<>();
 	HashMap<UUID, Double> _player_combat_penalty_join = new HashMap<>();
 	
-	public MainEvents(Plugin plugin, ItemMetods itemM)
+	public MainEvents(Plugin plugin)
 	{
 		_plugin = plugin;
-		_itemM = itemM;
+		_itemM = ImusAPI._metods;
 		getSettings();
 		_cd = new Cooldowns();
 		runnable();
@@ -131,7 +134,8 @@ public class MainEvents implements Listener
 		}
 		if(send_smg2)
 		{
-			p.sendMessage(ChatColor.RED + "" +ChatColor.BOLD+ "If you log out, in combat you will lose durability from all items! ");
+			if(new Random().nextInt(10)  <= 1) p.sendMessage(ChatColor.RED + "If you log out, in combat you will lose durability from all items! ");
+			
 		}
 	}
 	
@@ -174,7 +178,7 @@ public class MainEvents implements Listener
 	{
 		if(_player_combat_with.containsKey(e.getPlayer()))
 		{
-			System.out.println("set durability penalty");
+			//System.out.println("set durability penalty");
 			_player_combat_penalty_join.put(e.getPlayer().getUniqueId(), durability_penalty_mob);
 			removeCooldownAndCombat(e.getPlayer());
 		}
@@ -373,78 +377,9 @@ public class MainEvents implements Listener
 		
 		return false;
 	}
-	void printItemStacks(ItemStack[] stacks)
-	{
-		System.out.println("===========================");
-		for (ItemStack itemStack : stacks)
-		{
-			if(itemStack != null)
-			{
-				System.out.println("Item: " + itemStack + "Material:" +itemStack.getType());
-			}else
-			{
-				System.out.println("Item: " + itemStack);
-			}
-				
-		}
-	}
 	
-	ItemStack[] copyItemStackArray(ItemStack[] itemstacks)
-	{
-		ItemStack[] clone = new ItemStack[itemstacks.length];
-		for(int i = 0 ; i < itemstacks.length; ++i)
-		{
-			ItemStack org = itemstacks[i];
-			ItemStack copy = new ItemStack(Material.AIR);
-			
-			if(org != null)
-				copy = new ItemStack(org);
-			
-			clone[i] = copy;
-		}
-		return clone;
-	}
 	
-	public void dropItem(ItemStack stack, Player player)
-	{
-		ItemStack copy = new ItemStack(stack);
-		stack.setAmount(0);
-		
-		player.sendMessage(ChatColor.RED + "You have dropped your: "+ ChatColor.AQUA +copy.getType().toString());
-		Item dropped = player.getWorld().dropItemNaturally(player.getLocation(), copy);
-		PlayerDropItemEvent event = new PlayerDropItemEvent(player, dropped);
-		Bukkit.getPluginManager().callEvent(event);
-	}
 	
-	/**
-	 * 
-	 * Put item to player inventory if there is free space.. if not drop it on ground.. can include hotbar
-	 * @return
-	 */
-	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player)
-	{
-		if(stack == null || stack.getType() == Material.AIR)
-		{
-			return;
-		}
-		ItemStack copy = new ItemStack(stack);
-		stack.setAmount(0);
-		
-		PlayerInventory inv = player.getInventory();
-		
-		int invSlot = inv.firstEmpty();
-		
-		if( invSlot != -1)
-		{
-			player.sendMessage(ChatColor.RED + "You got your item back: "+ ChatColor.AQUA + copy.getType().toString());
-			inv.setItem(invSlot, copy);
-		}else
-		{
-			player.sendMessage(ChatColor.RED + "You don't have space!");
-			dropItem(copy,player);
-			
-			
-		}
-		
-	}
+	
+	
 }

@@ -63,6 +63,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		SET_CAN_BE_SOLD,
 		SET_DISTANCE,
 		REMOVE_INF,
+		CLONE_TO_INV,
 		SET_TIME_SELL;
 						
 	}
@@ -90,6 +91,7 @@ public class ShopModModifyINV extends CustomInvLayout
 		setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "<< CONFIRM", 9*2);
 		_inv.setItem(9, new ItemStack(copy_item));
 		setupButton(BUTTON.REMOVE_INF, Material.LAVA_BUCKET, ChatColor.RED + ""+ChatColor.BOLD + "Remove this items from shop", 8);
+		setupButton(BUTTON.CLONE_TO_INV, Material.SLIME_BALL, ChatColor.AQUA + ""+ChatColor.BOLD + "Clone to your inv", _size-1);
 		
 		id = 2;
 		lore = _modData.GetValueStr(ModDataShopStockable.MAX_AMOUNT,setTo ,null, false_setTo);
@@ -130,15 +132,15 @@ public class ShopModModifyINV extends CustomInvLayout
 		ImusAPI._metods.addLore(setCusPrice, ChatColor.YELLOW + "Be carefull with money explote! Cant be too cheap!", true);
 		ImusAPI._metods.addLore(setCusPrice, m1m2, false);
 		
-		
-		id = 20;
-		lore = _modData.GetValueStr(ModDataShopStockable.WORLD_NAMES,setTo , null,  false_setTo);
-		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
-		
-		ImusAPI._metods.addLore(setWorlds, lore, false);
-		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Set worlds where you can get this item and", true);
-		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Item will be removed(from inv) if entered wrong world", true);
-		ImusAPI._metods.addLore(setWorlds, m1m2, false);
+		//TODO
+//		id = 20;
+//		lore = _modData.GetValueStr(ModDataShopStockable.WORLD_NAMES,setTo , null,  false_setTo);
+//		ItemStack setWorlds = setupButton(BUTTON.SET_WORLDS, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE, ChatColor.DARK_PURPLE + "Set Spesific worlds", id);
+//		
+//		ImusAPI._metods.addLore(setWorlds, lore, false);
+//		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Set worlds where you can get this item and", true);
+//		ImusAPI._metods.addLore(setWorlds, ChatColor.YELLOW + "Item will be removed(from inv) if entered wrong world", true);
+//		ImusAPI._metods.addLore(setWorlds, m1m2, false);
 								
 		id = 22;
 		lore = _modData.GetValueStr(ModDataShopStockable.DISTANCE_LOC, null ,null, false_setTo);
@@ -156,6 +158,10 @@ public class ShopModModifyINV extends CustomInvLayout
 		ImusAPI._metods.addLore(setTimeSell, lore , false);
 		ImusAPI._metods.addLore(setTimeSell, ChatColor.YELLOW + "Set time when item will be apearing in shop", true);
 		ImusAPI._metods.addLore(setTimeSell, m1m2 , false);
+		
+		id = _size-1;
+		
+		
 			
 	}
 	
@@ -241,6 +247,9 @@ public class ShopModModifyINV extends CustomInvLayout
 				_shop.RemoveItem(_sis.GetPage(), _sis.GetSlot());
 				_player.closeInventory();
 				new ShopModINV(_main, _player, _shop).openThis();
+				return;
+			case CLONE_TO_INV:
+				ImusAPI._metods.InventoryAddItemOrDrop(_sis.GetRealItem().clone(), _player);
 				return;
 			case SET_TIME_SELL:
 				question = ChatColor.DARK_PURPLE + "Give startTime and endTime  Seperate by space(ex: 0 13000(whole daytime)(min:0 max:24000)";

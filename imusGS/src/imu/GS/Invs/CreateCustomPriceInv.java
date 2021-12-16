@@ -264,6 +264,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	
 	void SetCPriceItem(int idx, ItemStack stack, int amount, BUTTON button)
 	{
+		stack.setAmount(1);
 		_priceItems[idx] = new CPriceItem(stack, idx, button);		
 		_priceItems[idx]._value = amount;
 		
@@ -445,7 +446,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 			_player.closeInventory();
 			return;
 		case LOAD_TEMP_SAVED_CUSTOM_PRICE:
-			new LoaderPriceCustomInv(_main, _player, _smmi, _sis, _modData).openThis();
+			new LoaderPriceCustomInv(_main, _player, _smmi, _sis, _modData, CreatePriceCustom()).openThis();
 			return;
 		case SAVE_TEMP_CUSTOM_PRICE:
 			question = "&3Give save name for temp custom price";

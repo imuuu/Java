@@ -1,6 +1,8 @@
 package imu.GS.ShopUtl;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Material;
@@ -15,10 +17,8 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
-import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
-import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
@@ -44,6 +44,9 @@ public abstract class ShopItemBase
 	ItemPrice _price;
 	protected Main _main;
 	protected ShopBase _shopBase;
+	
+	Set<String> _tags = new HashSet<>();
+	
 	public ShopItemBase(Main main, ShopBase shopBase, ItemStack real, int amount) 
 	{
 		_metods = ImusAPI._metods;
@@ -67,6 +70,28 @@ public abstract class ShopItemBase
 	enum LoreSpot
 	{
 		AMOUNT;
+	}
+	
+	public boolean AddTag(String tagName)
+	{
+		if(_tags.contains(tagName.toLowerCase())) return false;
+		_tags.add(tagName.toLowerCase());
+		return true;
+	}
+	
+	public void RemoveTag(String tagName)
+	{
+		_tags.remove(tagName.toLowerCase());
+	}
+	
+	public boolean HasTag(String tagName)
+	{
+		return _tags.contains(tagName.toLowerCase());
+	}
+	
+	public void ClearTags()
+	{
+		_tags.clear();
 	}
 	
 	class SlotInfo
@@ -118,13 +143,22 @@ public abstract class ShopItemBase
 //		}
 //		
 		
-		if(price instanceof PriceUnique && !(GetItemPrice() instanceof PriceOwn))
-		{
-			_price = price;
-		}
-		
-		SetShowPrice(price);		
+//		if(price instanceof PriceUnique && !(GetItemPrice() instanceof PriceOwn))
+//		{
+//			_price = price;
+//		}
+		System.out.println("Setting price type: "+price);
 		_price = price;
+			
+		if(price instanceof PriceOwn)
+		{
+			//System.out.println("it is priceMoney: "+price.GetPrice());
+			((PriceMoney)price).SetShowPrice(price.GetPrice());
+		}
+		else
+		{
+			SetShowPrice(price);	
+		}
 
 		toolTip();
 	}

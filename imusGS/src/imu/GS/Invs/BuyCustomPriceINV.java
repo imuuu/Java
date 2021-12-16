@@ -354,7 +354,7 @@ public class BuyCustomPriceINV extends CustomerInv
 				_player.sendMessage(Metods.msgC("&cYou were able to buy only &2"+amount+" &cbecause there weren't enough items in stock!"));
 			}else
 			{
-				_main.get_shopManager().GetShopManagerSQL().LogPurchase(_player, sib, amount, TransactionAction.BUY);
+				_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sib, amount, TransactionAction.BUY);
 			}
 			
 			if(e.getClick() == ClickType.LEFT) {Back();return;};

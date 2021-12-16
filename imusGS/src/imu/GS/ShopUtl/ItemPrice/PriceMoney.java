@@ -4,6 +4,7 @@ public class PriceMoney extends ItemPrice
 {
 	double _price = 0;
 	double _showPrice = 0;
+	
 	@Override
 	public String GetShowPriceOfAmountStr(int amount) 
 	{

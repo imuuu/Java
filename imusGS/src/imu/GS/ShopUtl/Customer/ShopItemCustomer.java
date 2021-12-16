@@ -13,6 +13,7 @@ import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
+import imu.iAPI.Main.ImusAPI;
 
 public class ShopItemCustomer extends ShopItemBase
 {
@@ -35,8 +36,10 @@ public class ShopItemCustomer extends ShopItemBase
 		if(price instanceof PriceMaterial)
 		{
 			double p = price.GetPrice();
-			((PriceMoney)price).SetShowPrice(p * _shopBase.get_buyM());			
+			((PriceMoney)price).SetShowPrice(p * _shopBase.get_buyM());
+			return;
 		}
+		
 	}
 	
 	public void AddPlayerItemStackRef(String id, ItemStack stack)
@@ -92,78 +95,85 @@ public class ShopItemCustomer extends ShopItemBase
 	
 	void PlusAmount(int amount)
 	{
-
+		System.out.println("plus amount");
 		int left = amount;
-		for(ItemStack s : _player_itemstack_refs)
+		Integer[] slots = ImusAPI._metods.InventoryAddItemOrDrop(_real_stack.clone(), _player,amount);
+		for(Integer slot : slots)
 		{
-			int num = 64 - s.getAmount();
-			if(num == 0)
-				continue;
-			
-			if(num > left)
-				num = left;
-			
-			s.setAmount(s.getAmount() + num);
-			
-			left -= num;
-			
-			if(left <= 0)
-				return;
+			//System.out.println("slot: "+slot);
+			if(slot == null) continue;
+			AddPlayerItemStackRef("plus amount1",_player.getInventory().getItem(slot));
 		}
-
-		int leftOver;
-		if(left > 64)
-		{
-			leftOver = left % 64;
-		}
-		else
-		{
-			leftOver = left;
-		}
-
-		int full_stacks_amount = (left -leftOver) == 0 ? 0 : (left -leftOver) / 64;
-		ItemStack newStack;
-
-		for(int i = 0; i < full_stacks_amount; ++i)
-		{
-			newStack= _real_stack.clone();
-			newStack.setAmount(64);
-			
-			Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
-			if(slots.length == 0)
-			{
-				//System.out.println("not space found minus: "+64);
-				AddAmount(64 * -1);
-				continue;
-			}
-				
-			
-			//total_amount_setted += newStack.getAmount();
-			for(int slot = 0; slot < slots.length; slot++)
-			{
-				AddPlayerItemStackRef("plus amount1",_player.getInventory().getItem(slot));
-			}
-			
-		}
-		//AddAmount(total_amount_setted);
-		if(leftOver == 0)
-			return;
-		//total_amount_setted = 0;
-		//System.out.println("N4: "+n4);
-		newStack = _real_stack.clone();
-		newStack.setAmount(leftOver);
-		Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
-		if(slots.length == 0)
-		{
-			System.out.println("not space found minus2: "+leftOver);
-			AddAmount(leftOver * -1);
-			return;
-		}
-		
-		for(int slot = 0; slot < slots.length; slot++)
-		{
-			AddPlayerItemStackRef("plus amount2",_player.getInventory().getItem(slot));
-		}
+//		for(ItemStack s : _player_itemstack_refs)
+//		{
+//			int num = 64 - s.getAmount();
+//			if(num == 0)
+//				continue;
+//			
+//			if(num > left)
+//				num = left;
+//			
+//			s.setAmount(s.getAmount() + num);
+//			
+//			left -= num;
+//			
+//			if(left <= 0)
+//				break;
+//		}
+//
+//		int leftOver;
+//		if(left > 64)
+//		{
+//			leftOver = left % 64;
+//		}
+//		else
+//		{
+//			leftOver = left;
+//		}
+//
+//		int full_stacks_amount = (left -leftOver) == 0 ? 0 : (left -leftOver) / 64;
+//		ItemStack newStack;
+//
+//		for(int i = 0; i < full_stacks_amount; ++i)
+//		{
+//			newStack= _real_stack.clone();
+//			newStack.setAmount(64);
+//			
+//			Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
+//			if(slots.length == 0)
+//			{
+//				//System.out.println("not space found minus: "+64);
+//				AddAmount(64 * -1);
+//				continue;
+//			}
+//				
+//			
+//			//total_amount_setted += newStack.getAmount();
+//			for(int slot = 0; slot < slots.length; slot++)
+//			{
+//				AddPlayerItemStackRef("plus amount1",_player.getInventory().getItem(slot));
+//			}
+//			
+//		}
+//		//AddAmount(total_amount_setted);
+//		if(leftOver == 0)
+//			return;
+//		//total_amount_setted = 0;
+//		//System.out.println("N4: "+n4);
+//		newStack = _real_stack.clone();
+//		newStack.setAmount(leftOver);
+//		Integer[] slots = _metods.InventoryAddItemOrDrop(newStack, _player);
+//		if(slots.length == 0)
+//		{
+//			System.out.println("not space found minus2: "+leftOver);
+//			AddAmount(leftOver * -1);
+//			return;
+//		}
+//		
+//		for(int slot = 0; slot < slots.length; slot++)
+//		{
+//			AddPlayerItemStackRef("plus amount2",_player.getInventory().getItem(slot));
+//		}
 	
 
 	}

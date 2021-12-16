@@ -7,10 +7,8 @@ import org.bukkit.conversations.StringPrompt;
 import com.google.common.base.Strings;
 
 import imu.GS.Invs.CreateCustomPriceInv;
-import imu.GS.Invs.CreateCustomPriceInv.CCPdata;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
-import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
 public class ConvCCPINVsavePC extends StringPrompt
@@ -33,11 +31,8 @@ public class ConvCCPINVsavePC extends StringPrompt
 	{
 		String anw = anwser;
 		if(Strings.isNullOrEmpty(anwser)) anw = " ";
-		for(int i = 0; i < 28; i++)
-		{
-			_main.get_shopManager().SavePriceCustom(_ccpInv.GetPlayer().getUniqueId(), anw+i,_pc);
-		}
-		
+
+		_main.get_shopManager().SavePriceCustom(_ccpInv.GetPlayer().getUniqueId(), anw,_pc);
 		_ccpInv.GetPlayer().sendMessage(Metods.msgC("&6Custom Price saved with name: &9"+anw));
 		_ccpInv.openThis();
 		

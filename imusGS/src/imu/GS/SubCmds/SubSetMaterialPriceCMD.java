@@ -75,13 +75,13 @@ public class SubSetMaterialPriceCMD implements CommandInterface
     	if(!ImusAPI._metods.isDigit(args[2])) return false;
     	
     	double price = Double.parseDouble(args[2]);
-    	SendMaterialData(stacks, price,player);
+    	SendMaterialDataAsync(stacks, price,player);
     	
     	
         return false;
     }
     
-    void SendMaterialData(ItemStack[] stacks, double price, Player player)
+    void SendMaterialDataAsync(ItemStack[] stacks, double price, Player player)
     {
     	new BukkitRunnable() 
     	{

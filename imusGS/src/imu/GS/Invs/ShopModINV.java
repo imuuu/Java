@@ -183,7 +183,7 @@ public class ShopModINV extends CustomInvLayout
 			refreshItems();
 			return;
 		case SAVE_SHOP_DATA:
-			_main.get_shopManager().SaveShop(_shop.GetName(), false);
+			_main.get_shopManager().SaveShop(_shop.GetUUID(), false);
 			_player.closeInventory();
 			_player.sendMessage(ChatColor.GOLD + "(Shop) "+_shop.GetNameWithColor()+ " items has been saved!");
 			break;

@@ -34,12 +34,13 @@ public class SubAddStockableCMD implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length < 4)
+    	//ImusAPI._metods.printArray("add", args);
+    	if(args.length < 3)
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
     	}
-    	String shopName = StringUtils.join(Arrays.copyOfRange(args, 3, args.length)," ");
+    	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
     	ShopBase shop = _main.get_shopManager().GetShop(shopName);
     	
     	if(shop == null)

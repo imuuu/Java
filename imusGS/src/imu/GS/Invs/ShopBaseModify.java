@@ -142,8 +142,17 @@ public class ShopBaseModify extends CustomInvLayout
 	}
 	
 	void Confirm()
-	{
-		ShopBase shop = _main.get_shopManager().GetShop(_shopBase.GetName());
+	{		
+		ShopBase shop = _main.get_shopManager().GetShop(_shopBase.GetUUID());
+		
+		if(_shopModData._removeShop)
+		{
+			_main.get_shopManager().RemoveShop(shop.GetUUID());
+			_player.sendMessage(Metods.msgC("&9Shop named "+shop.GetName()+" &9has been &cremoved"));
+			_player.closeInventory();
+			_main.get_shopManager().UpdateTabCompliters();
+			return;
+		}
 		if(shop == null)
 		{
 			_player.sendMessage(ChatColor.RED + "Couldn't find shop named as "+_shopBase.GetName());
@@ -159,8 +168,8 @@ public class ShopBaseModify extends CustomInvLayout
 
 		if(!shop.GetDisplayName().equalsIgnoreCase(_shopModData._name)) 
 		{
-			System.out.println("Setting name");
-			_main.get_shopManager().RemoveShop(shop.GetName());
+			_player.sendMessage(Metods.msgC("&2 Shop name has been changed from "+shop.GetDisplayName()+ "&2 to "+_shopModData._name));
+			_player.sendMessage(Metods.msgC("&e Shop data has been saved to database!"));
 			shop.SetName(_shopModData._name);
 			_main.get_shopManager().AddShop(shop);
 			shop.SaveData();

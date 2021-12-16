@@ -28,7 +28,7 @@ public class ShopManager
 {
 	private Main _main;
 	
-	ArrayList<ShopBase> _shops;
+	private ArrayList<ShopBase> _shops;
 	
 	private HashMap<Material, PriceMaterial> _material_prices = new HashMap<>();
 	
@@ -63,6 +63,7 @@ public class ShopManager
 				_shopManagerSQL.LoadTables();
 				_shopManagerSQL.LoadMaterialPrices();
 				LoadShops();
+				_main.GetTagManager().LoadTagsAsync();
 				_shopManagerSQL.LoadUniques();
 			}
 		}.runTaskAsynchronously(_main);
@@ -71,7 +72,7 @@ public class ShopManager
 		RunnableAsync();
 	}
 	
-	public void PutMaterialPrice(Material mat, double price)
+	void PutMaterialPrice(Material mat, double price)
 	{		
 		_material_prices.put(mat, (PriceMaterial)(new PriceMaterial().SetPrice(price)));
 	}
@@ -124,6 +125,11 @@ public class ShopManager
 		return (_savedPriceCustoms.containsKey(playerUUID) ? _savedPriceCustoms.get(playerUUID) : new ArrayList<Tuple<String,PriceCustom>>());
 	}
 	
+	public ArrayList<ShopBase> GetShops()
+	{
+		return _shops;
+	}
+	
 	void RunnableAsync()
 	{
 		RunnableAsyncTask = new BukkitRunnable() 
@@ -136,24 +142,18 @@ public class ShopManager
 				{
 					if(shop.HasExpired()) // && 
 					{
-						if(!shop.HasCustomers())
-						{
-//							boolean locked = shop.HasLocked();
-//							shop.SetLocked(true);
-							
-//							shop.SetLocked(locked);
-						}
-						System.out.println("Check shop");
+						
+						
+						//System.out.println("Check shop");
 						shop.SetLockToInteract(true);
-						CheckShopItems(shop);
-					
+						CheckShopItems(shop);				
 						shop.SetNewExpire();
-						shop.ArrangeShopItems();
 						
-						if(shop.HasCustomers())
-							shop.LoadCustomerInvs();
+						shop.ArrangeShopItems(shop.HasCustomers() ? false : true); // => interact fill be true
 						
-						shop.SetLockToInteract(false);
+						
+						
+						//shop.SetLockToInteract(false);
 					}
 				}			
 			}
@@ -163,14 +163,14 @@ public class ShopManager
 	}
 	void CheckShopItems(ShopBase sBase)
 	{
-
 		for(ShopItemSeller[] siss : sBase.get_items())
 		{
+
 			for(ShopItemSeller sis : siss)
 			{
+				
 				if(sis == null)
 					continue;
-				
 				if(sis instanceof ShopItemStockable)
 				{
 					if(((ShopItemStockable)sis).AbleToFill())
@@ -178,19 +178,22 @@ public class ShopManager
 						((ShopItemStockable)sis).Fill();
 						((ShopItemStockable)sis).RefreshFillCD();
 					}
-					return;
+					continue;
 				}
 				
 				int amount = sis.Get_amount();
+				
 				int newAmount = (int)Math.floor(amount * (1.0 - sBase.get_expire_percent()));
 				if(newAmount < 0)
 					newAmount = 0;
-				
+				//System.out.println("refreshing sis amount "+ amount + " and now: "+newAmount+ " with expP: "+sBase.get_expire_percent());
 				sis.Set_amount(newAmount);
+				
 				//sis.UpdateItem();
 			}
 		}
 	}
+	
 //	public double GetMaterialPrice(Material material)
 //	{
 //		return _material_prices.get(material);
@@ -198,7 +201,14 @@ public class ShopManager
 //	
 	public void SaveMaterialPrice(Material mat, double price)
 	{
-		if(price < 0) price = 0;		
+		if(price < 0) 
+		{
+			price = 0;
+		}else
+		{
+			price = Math.round(price * 100.00) / 100.00;
+		}
+		
 		PutMaterialPrice(mat, price);
 		
 		final double pricee = price;
@@ -253,25 +263,34 @@ public class ShopManager
 	public void AddShop(ShopBase shopBase)
 	{
 		_shops.add(shopBase);
-		SaveShop(shopBase.GetName(), true);
+		SaveShop(shopBase.GetUUID(), true);
 		UpdateTabCompliters();
 	}
 	
-	public void RemoveShop(String name)
+	public void RemoveShop(UUID uuid)
 	{
-		ShopBase s = GetShop(name);
+		ShopBase s = GetShop(uuid);
 		if(s == null)
 			return;
 		
 		s.RemoveCustomerALL();
 		_shops.remove(s);
 
-		_shopManagerSQL.DeleteShop(s);
+		_shopManagerSQL.DeleteShopAsync(s);
+	}
+	
+	public ShopBase GetShop(UUID uuid)
+	{
+		for(ShopBase s : _shops)
+		{
+			if(s.GetUUID().equals(uuid)) return s;
+		}
+		return null;
 	}
 	
 	public ShopBase GetShop(String name)
 	{
-		String searchName = _main.GetMetods().StripColor(name);
+		String searchName = ImusAPI._metods.StripColor(name);
 		for(ShopBase s : _shops)
 		{
 			if(s.GetName().toLowerCase().contains(searchName.toLowerCase()))
@@ -280,17 +299,17 @@ public class ShopManager
 		return null;
 	}
 	
-	public void SaveShop(String name, boolean dontsavedatabase)
+	public void SaveShop(UUID uuid, boolean dontsavedatabase)
 	{
 		if(_main.GetSQL() == null || dontsavedatabase)
 			return;
 		
-		ShopBase sBase = GetShop(name);
+		ShopBase sBase = GetShop(uuid);
 		
 		if(sBase == null)
 			return;
 		
-		_shopManagerSQL.SaveShop(sBase);
+		_shopManagerSQL.SaveShopAsync(sBase);
 	}
 	
 	public void LoadShops()

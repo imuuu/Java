@@ -4,8 +4,8 @@ package imu.DontLoseItems.Commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import imu.DontLoseItems.Interfaces.CommandInterface;
- 
+import imu.iAPI.Interfaces.CommandInterface;
+
 public class ExampleCmd implements CommandInterface
 {
  
@@ -17,5 +17,11 @@ public class ExampleCmd implements CommandInterface
         
         return true;
     }
+
+	@Override
+	public void FailedMsg(CommandSender arg0, String arg1) {
+		// TODO Auto-generated method stub
+		
+	}
  
 }

@@ -167,13 +167,21 @@ public class ShopManagerSQL
 			
 			System.out.println("====> material_prices");	
 			
-			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags.toString()+" ("
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_material.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
-					+ "uuid_or_materialName VARCHAR(50) NOT NULL, "
-					+ "tagName VARCHAR(30),"
+					+ "material_name VARCHAR(50) NOT NULL, "
+					+ "tag_name VARCHAR(30),"
 					+ "PRIMARY KEY(id))");
 			ps.executeUpdate();
-			System.out.println("=====> tags");
+			System.out.println("=====> tags_materials");
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_shopitems.toString()+" ("
+					+ "id INT NOT NULL AUTO_INCREMENT, "
+					+ "sib_uuid CHAR(36) NOT NULL, "
+					+ "tag_name VARCHAR(30),"
+					+ "PRIMARY KEY(id))");
+			ps.executeUpdate();
+			System.out.println("=====> tags_shopitems");
 
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.uniques.toString()+" ("
 					+ "uuid CHAR(36), "	
@@ -209,7 +217,7 @@ public class ShopManagerSQL
 		System.out.println("===TABLE LOADING FINNISHED===");
 	}
 	
-	public void LogPurchase(Player player, ShopItemBase sib, int amount,TransactionAction tAction)
+	public void LogPurchaseAsync(Player player, ShopItemBase sib, int amount,TransactionAction tAction)
 	{
 		//System.out.println("Loging..");
 		new BukkitRunnable() 
@@ -243,7 +251,7 @@ public class ShopManagerSQL
 		}.runTaskAsynchronously(_main);
 	}
 	
-	public void LoadShops()
+	void LoadShops()
 	{
 		if(_main.GetSQL() == null)
 			return;
@@ -286,7 +294,7 @@ public class ShopManagerSQL
 							
 				System.out.println("Shop loaded from sql: "+ name);
 				LoadShopItems(shop);
-				_shopManager._shops.add(shop);
+				_shopManager.GetShops().add(shop);
 								
 			}
 			_shopManager.UpdateTabCompliters();
@@ -334,12 +342,13 @@ public class ShopManagerSQL
 		}	
 	}
 	
-	public void SaveMaterialPrice(Material mat, double price)
+	void SaveMaterialPrice(Material mat, double price)
 	{
 		PreparedStatement ps;
 		try 
 		{
-			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO"+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");
+			//System.out.println("try to save to data base material "+mat+ " and price: "+price);
+			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");
 			ps.setString(1, mat.name());
 			ps.setFloat(2, (float)price);
 			ps.executeUpdate();
@@ -351,9 +360,9 @@ public class ShopManagerSQL
 		
 	}
 	
-	public void LoadShopItems(ShopBase shop) throws SQLException
+	void LoadShopItems(ShopBase shop) throws SQLException
 	{
-		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM shopitems WHERE shop_uuid='"+shop.GetUUID().toString()+"';");
+		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitems.toString()+" WHERE shop_uuid='"+shop.GetUUID().toString()+"';");
 		ResultSet rs2 = ps.executeQuery();
 		
 		if(rs2.isBeforeFirst())
@@ -479,6 +488,8 @@ public class ShopManagerSQL
 			}
 		}
 		
+		//_main.get_shopManager().CheckShopItems(shop);
+		
 	}
 	
 	double GetPriceValue(UUID shopItemSellerUUID) throws SQLException 
@@ -552,7 +563,7 @@ public class ShopManagerSQL
 	
 	void SavePriceCustom(UUID shopItemUUID, PriceCustom pc) throws SQLException
 	{
-		//RemovePriceCustom(shopItemUUID);
+		
 		PreparedStatement ps;
 		for(CustomPriceData item : pc.GetItems())
 		{
@@ -577,79 +588,148 @@ public class ShopManagerSQL
 		
 	}
 	
-	public void DeleteShop(ShopBase shop)
+	public void DeleteShopAsync(ShopBase shop)
 	{
 		if(_main.GetSQL() == null)
 			return;
-		
-		PreparedStatement ps;
-		try 
-		{		
-			ps = _main.GetSQL().GetConnection().prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shops.toString()+" WHERE uuid='"+shop.GetUUID().toString()+"'");
+		new BukkitRunnable() {
 			
-			ps.executeUpdate();
-		} catch (Exception e) 
-		{
-			System.out.println("TRY TO DELETE SHOP NAMED "+shop.GetName()+".. something went wrong!");
-			e.printStackTrace();
-		}
-	}
-	
-	public void SaveShop(ShopBase shop)
-	{
-		boolean lock = shop.HasLocked();
-		shop.SetLocked(true);
-		PreparedStatement ps;
-		try 
-		{
-			System.out.println("saving shop");
-			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shops.toString()+" "
-					+ "(uuid, name, display_name, pages,shop_type, sellM, buyM, expire_percent, expire_cooldown, locked, customer_can_sell,absolutePositions)"
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
-			ps.setString(1, shop.GetUUID().toString());
-			ps.setString(2, shop.GetName());
-			ps.setString(3, shop.GetDisplayName());
-			ps.setInt	(4, shop.get_items().size());
-			ps.setString(5, "1");
-			ps.setFloat	(6, (float)shop.get_sellM());
-			ps.setFloat	(7, (float)shop.get_buyM());
-			ps.setFloat	(8, (float)shop.get_expire_percent());
-			ps.setInt	(9, shop.get_expire_cooldown_m());		
-			ps.setInt	(10, (lock ? 1 : 0));		
-			ps.setInt	(11, (shop.GetCustomersCanOnlyBuy() ? 1 : 0));		
-			ps.setInt	(12, (shop.GetAbsolutePosBool() ? 1 : 0));		
-			ps.executeUpdate();
-			
-			int page = 0;
-			for (ShopItemSeller[] siss : shop.get_items()) 
+			@Override
+			public void run() 
 			{
-				for(int slot = 0; slot < siss.length; ++slot)
-				{
-					ShopItemSeller sis = siss[slot];
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM shopitems WHERE page="+page+" AND slot="+slot+" AND shop_uuid='"+shop.GetUUID().toString()+"';");
-					ps.executeUpdate();	
-					if(sis == null)
-					{												
-						continue;
-					}
-
-					SaveShopItem(sis, page, slot);
+				try 
+				{		
+					PreparedStatement ps;
+					ps = _main.GetSQL().GetConnection().prepareStatement(""
+							+ "DELETE FROM "+SQL_TABLES.shops.toString()+" WHERE uuid='"+shop.GetUUID().toString()+"'");
 					
+					ps.executeUpdate();
+					
+					for (ShopItemSeller[] siss : shop.get_items()) 
+					{
+						for(int slot = 0; slot < siss.length; ++slot)
+						{
+							DeleteShopItem(siss[slot]);
+						}
+					}
+					
+				} catch (Exception e) 
+				{
+					System.out.println("TRY TO DELETE SHOP NAMED "+shop.GetName()+".. something went wrong!");
+					e.printStackTrace();
 				}
-				page++;
 			}
-			
-		} catch (Exception e) 
-		{
-			System.out.println("Couldnt save shop data, probably SQL's shops table is missing");
-			e.printStackTrace();
-		}
+		}.runTaskAsynchronously(_main);
 		
-		shop.SetLocked(lock);
+		
 	}
 	
-	public void SaveShopItem(ShopItemSeller sis, int page, int slot)
+	public void DeleteShopItem(ShopItemBase sib)
+	{
+		
+		if(sib == null) return;
+		
+		try {
+			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.shopitems.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(""
+					+ "DELETE FROM "+SQL_TABLES.custom_price.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+			ps.executeUpdate();
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("error happend deleting shopitem: "+sib.GetItemType()+"");
+		}
+		
+		
+	}
+	
+	public void SaveShopAsync(ShopBase shop)
+	{
+		//boolean lock = shop.HasLocked();
+		//shop.SetLocked(true);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				PreparedStatement ps;
+				try 
+				{
+					System.out.println("saving shop");
+					ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shops.toString()+" "
+							+ "(uuid, name, display_name, pages,shop_type, sellM, buyM, expire_percent, expire_cooldown, locked, customer_can_sell,absolutePositions)"
+							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
+					ps.setString(1, shop.GetUUID().toString());
+					ps.setString(2, shop.GetName());
+					ps.setString(3, shop.GetDisplayName());
+					ps.setInt	(4, shop.get_items().size());
+					ps.setString(5, "1");
+					ps.setFloat	(6, (float)shop.get_sellM());
+					ps.setFloat	(7, (float)shop.get_buyM());
+					ps.setFloat	(8, (float)shop.get_expire_percent());
+					ps.setInt	(9, shop.get_expire_cooldown_m());		
+					ps.setInt	(10, (shop.HasLocked() ? 1 : 0));		
+					ps.setInt	(11, (shop.GetCustomersCanOnlyBuy() ? 1 : 0));		
+					ps.setInt	(12, (shop.GetAbsolutePosBool() ? 1 : 0));		
+					ps.executeUpdate();
+					System.out.println("shop name data saved");
+					int page = 0;
+					for (ShopItemSeller[] siss : shop.get_items()) 
+					{
+						for(int slot = 0; slot < siss.length; ++slot)
+						{
+							ShopItemSeller sis = siss[slot];
+//							ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM shopitems WHERE page="+page+" AND slot="+slot+" AND shop_uuid='"+shop.GetUUID().toString()+"';");
+//							ps.executeUpdate();	
+							
+							DeleteShopItem(sis);
+							if(sis == null)
+							{												
+								continue;
+							}
+							
+							SaveShopItem(sis, page, slot);
+							
+						}
+						page++;
+					}
+					System.out.println("shop item data saved");
+				} catch (Exception e) 
+				{
+					System.out.println("Couldnt save shop data, probably SQL's shops table is missing");
+					e.printStackTrace();
+				}
+				
+			}
+		}.runTaskAsynchronously(_main);
+		
+		//shop.SetLocked(lock);
+	}
+	
+	void SaveShopItem(ShopItemSeller sis, int page, int slot)
 	{
 		if(sis.GetShop() == null)
 			return;
@@ -766,7 +846,7 @@ public class ShopManagerSQL
 			ps.setInt(i++, sellTimeEnd);
 			
 			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
-			ps.setString(i++, _main.GetMetods().EncodeItemStack(sis.GetRealItem()));			
+			ps.setString(i++, ImusAPI._metods.EncodeItemStack(sis.GetRealItem()));			
 			ps.executeUpdate();
 			
 		
@@ -781,7 +861,7 @@ public class ShopManagerSQL
 		
 	}
 
-	public void SaveUniqueItem(ShopItemUnique siu)
+	void SaveUniqueItem(ShopItemUnique siu)
 	{
 		System.out.println("saving unique");
 		
@@ -808,7 +888,7 @@ public class ShopManagerSQL
 		}	
 	}
 	
-	public void DeleteUniqueItem(ShopItemUnique siu)
+	void DeleteUniqueItem(ShopItemUnique siu)
 	{
 		try 
 		{
@@ -822,7 +902,7 @@ public class ShopManagerSQL
 		}	
 	}
 	
-	public void LoadUniques()
+	void LoadUniques()
 	{
 		if(_main.GetSQL() == null)
 			return;

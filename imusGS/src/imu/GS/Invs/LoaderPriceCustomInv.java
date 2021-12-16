@@ -12,7 +12,6 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.base.Strings;
 
-import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
@@ -31,7 +30,8 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 	CustomInvLayout _lastInv;
 	ShopItemStockable _sis;
 	ShopItemModData _modData;
-	public LoaderPriceCustomInv(Plugin main, Player player, CustomInvLayout inv, ShopItemStockable sis, ShopItemModData modData) 
+	PriceCustom _lastPriceCustom;
+	public LoaderPriceCustomInv(Plugin main, Player player, CustomInvLayout inv, ShopItemStockable sis, ShopItemModData modData, PriceCustom lastPriceCustom) 
 	{
 		super(main, player, "&9Load Custom Price ", 4*9);
 		_main = (Main)main;
@@ -39,7 +39,7 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 		_sis = sis;
 		_modData = modData;
 		_lastInv = inv;
-	
+		_lastPriceCustom = lastPriceCustom;
 		_priceCustoms = _main.get_shopManager().GetSavedPlayerPriceCustoms(player.getUniqueId());
 	}
 	
@@ -89,7 +89,7 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 				lores[1] = "&9==== Contains items below ====";
 				for(int l = 0; l < pc.GetItems().length; l++)
 				{
-					lores[2+l] = "&7"+pc.GetItems()[l]._stack.getType().toString();
+					lores[2+l] = "&e"+pc.GetItems()[l]._amount+" &7"+pc.GetItems()[l]._stack.getType().toString();
 				}
 				_metods.SetLores(displayItem, lores, false);	
 				SetButton(displayItem, BUTTON.PRICE_CUSTOM_ITEM);
@@ -98,15 +98,7 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 			_inv.setItem(i, displayItem);
 		}
 	}
-	
-//	void ChancePlayerPage(int page)
-//	{
-//		int maxPages =(int) Math.ceil(_priceCustoms.size()/27.0)-1;
-//		_page += page;
-//		if(_page < 0){_page = maxPages; return;}				
-//		if(_page > maxPages) {_page = 0; return;}		
-//	}
-	
+
 	@Override
 	public void openThis() 
 	{
@@ -125,7 +117,9 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 	void Back()
 	{
 		_player.closeInventory();
-		new CreateCustomPriceInv(_main, _player, (ShopModModifyINV)_lastInv, _sis, _modData).openThis();
+		CreateCustomPriceInv ccp = new CreateCustomPriceInv(_main, _player, (ShopModModifyINV)_lastInv, _sis, _modData);
+		ccp.openThis();
+		ccp.LoadPriceCustom(_lastPriceCustom);
 		
 	}
 	@Override
