@@ -30,6 +30,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public ArrayList<String> _permissions;
 	public ArrayList<String> _worldNames;
+	public ArrayList<String> _tags;
 	
 	public ItemPrice _itemPrice;
 	
@@ -91,8 +92,10 @@ public class ShopItemModData implements Cloneable, IModData
 			}		
 			str += _locations != null ? trueFrontText + ImusAPI._metods.CombineArrayToOneString(strs, "; ")+trueBackText : falseStr;
 			break;
-		default:
+		case TAGS:
+			str += _tags != null ? trueFrontText+ImusAPI._metods.CombineArrayToOneString(_tags.toArray(), "; ")+trueBackText : falseStr;
 			break;
+	
 		}
 
 		return str;
@@ -138,8 +141,10 @@ public class ShopItemModData implements Cloneable, IModData
 		case WORLD_NAMES:
 			AddWorldName(str);				
 			break;
-		default:
+		case TAGS:
+			AddTag(str.toLowerCase());
 			break;
+		
 		}
 		return true;
 	}
@@ -155,6 +160,18 @@ public class ShopItemModData implements Cloneable, IModData
 		String[] parts = loc_str.split(" ");
 		Location loc = new Location(Bukkit.getWorld(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Integer.parseInt(parts[4]));
 		AddLocation(Integer.parseInt(parts[0]), loc);
+	}
+	
+	public void AddTag(String tagName)
+	{
+		System.out.println("tag added: "+tagName);
+		if(_tags == null) _tags = new ArrayList<>();
+		_tags.add(tagName.toLowerCase());
+	}
+	
+	public void ClearTags()
+	{
+		_tags = null;
 	}
 	boolean IsLocationValid(String loc_str)
 	{

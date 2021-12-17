@@ -17,6 +17,7 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -45,7 +46,7 @@ public abstract class ShopItemBase
 	protected Main _main;
 	protected ShopBase _shopBase;
 	
-	Set<String> _tags = new HashSet<>();
+	private Set<String> _tags = new HashSet<>();
 	
 	public ShopItemBase(Main main, ShopBase shopBase, ItemStack real, int amount) 
 	{
@@ -61,15 +62,17 @@ public abstract class ShopItemBase
 		_amount = amount;
 		LoadLores();
 		_price = _main.get_shopManager().GetPriceMaterial(real.getType());
-		//SetItemPrice((ItemPrice)(_main.get_shopManager().GetPriceMaterial(real.getType())));
 		
-		
-		//toolTip();
 		
 	}
 	enum LoreSpot
 	{
 		AMOUNT;
+	}
+	
+	public Set<String> GetTags()
+	{
+		return _tags;
 	}
 	
 	public boolean AddTag(String tagName)
@@ -86,6 +89,7 @@ public abstract class ShopItemBase
 	
 	public boolean HasTag(String tagName)
 	{
+		System.out.println("CHECKING IF SHOP HAS TAG: "+tagName+ "   "+_tags.contains(tagName.toLowerCase()));
 		return _tags.contains(tagName.toLowerCase());
 	}
 	
@@ -143,23 +147,21 @@ public abstract class ShopItemBase
 //		}
 //		
 		
-//		if(price instanceof PriceUnique && !(GetItemPrice() instanceof PriceOwn))
-//		{
-//			_price = price;
-//		}
-		System.out.println("Setting price type: "+price);
-		_price = price;
-			
+
+		if(price instanceof PriceMaterial)
+		{
+			price = _main.get_shopManager().GetPriceMaterial(_real_stack.getType());
+		}
+		
 		if(price instanceof PriceOwn)
 		{
-			//System.out.println("it is priceMoney: "+price.GetPrice());
-			((PriceMoney)price).SetShowPrice(price.GetPrice());
+			((PriceMoney)price).SetCustomerPrice(price.GetPrice());
 		}
 		else
 		{
 			SetShowPrice(price);	
 		}
-
+		_price = price;
 		toolTip();
 	}
 	protected abstract void SetShowPrice(ItemPrice price);

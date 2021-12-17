@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
@@ -63,8 +64,9 @@ public class ShopManager
 				_shopManagerSQL.LoadTables();
 				_shopManagerSQL.LoadMaterialPrices();
 				LoadShops();
-				_main.GetTagManager().LoadTagsAsync();
+				_main.GetTagManager().LoadMaterialTagsAsync();
 				_shopManagerSQL.LoadUniques();
+				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
 			}
 		}.runTaskAsynchronously(_main);
 		
@@ -212,6 +214,26 @@ public class ShopManager
 		PutMaterialPrice(mat, price);
 		
 		final double pricee = price;
+		
+
+		for(ShopBase shop : _shops)
+		{
+			boolean removeCustomers = false;
+			for(ShopItemBase[] pages : shop.get_items())
+			{
+				for(ShopItemBase sib : pages)
+				{
+					if(sib == null) continue;
+					
+					if(sib.GetItemPrice() instanceof PriceMaterial && sib.GetRealItem().getType() == mat)
+					{
+						sib.SetItemPrice(GetPriceMaterial(mat));
+						removeCustomers = true;
+					}
+				}
+			}
+			if(removeCustomers) shop.RemoveCustomerALL();
+		}
 		new BukkitRunnable() 
     	{
 			@Override
@@ -221,6 +243,7 @@ public class ShopManager
 			}
 		}.runTaskAsynchronously(_main);	
 	}
+	
 	
 	public boolean OpenShop(Player p,String name)
 	{

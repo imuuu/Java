@@ -459,9 +459,20 @@ public class ShopManagerSQL
 						System.out.println("world added");
 					}
 					
+					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems+" WHERE sib_uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddTag(rs.getString(3).toLowerCase());
+						}
+					}
 					
 					switch (priceType) {
 					case None:
+						modData._itemPrice = _main.get_shopManager().GetPriceMaterial(stack.getType());
 						break;
 					case PriceCustom:
 						modData._itemPrice = GetPriceCustom(uuid);
@@ -650,12 +661,17 @@ public class ShopManagerSQL
 					+ "DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
 			ps.executeUpdate();
 			
-			ps = _main.GetSQL().GetConnection().prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
-			ps.executeUpdate();
+//			ps = _main.GetSQL().GetConnection().prepareStatement(""
+//					+ "DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+//			ps.executeUpdate();
+			RemovePriceCustom(sib.GetUUID());
+			RemovePriceValue(sib.GetUUID());
 			
-			ps = _main.GetSQL().GetConnection().prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.custom_price.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+//			ps = _main.GetSQL().GetConnection().prepareStatement(""
+//					+ "DELETE FROM "+SQL_TABLES.custom_price.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+//			ps.executeUpdate();
+			
+			ps = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='%s';",sib.GetUUID().toString()));
 			ps.executeUpdate();
 		} 
 		catch (Exception e) 
@@ -670,11 +686,13 @@ public class ShopManagerSQL
 	{
 		//boolean lock = shop.HasLocked();
 		//shop.SetLocked(true);
+		
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
+				shop._temp_lock = true;
 				PreparedStatement ps;
 				try 
 				{
@@ -702,10 +720,7 @@ public class ShopManagerSQL
 						for(int slot = 0; slot < siss.length; ++slot)
 						{
 							ShopItemSeller sis = siss[slot];
-//							ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM shopitems WHERE page="+page+" AND slot="+slot+" AND shop_uuid='"+shop.GetUUID().toString()+"';");
-//							ps.executeUpdate();	
 							
-							DeleteShopItem(sis);
 							if(sis == null)
 							{												
 								continue;
@@ -717,12 +732,14 @@ public class ShopManagerSQL
 						page++;
 					}
 					System.out.println("shop item data saved");
+					
 				} catch (Exception e) 
 				{
 					System.out.println("Couldnt save shop data, probably SQL's shops table is missing");
 					e.printStackTrace();
 				}
-				
+				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
+				shop._temp_lock = false;
 			}
 		}.runTaskAsynchronously(_main);
 		
@@ -738,6 +755,7 @@ public class ShopManagerSQL
 		PreparedStatement ps,ps2;
 		try 
 		{
+			DeleteShopItem(sis);
 //			ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.shopitems.toString()+" WHERE uuid='"+sis.GetUUID().toString()+"';");
 //			ps.executeUpdate();	
 			
@@ -768,8 +786,8 @@ public class ShopManagerSQL
 				sellTimeStart = modData._sellTimeStart;
 				sellTimeEnd = modData._sellTimeEnd;
 				
-				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-				ps2.executeUpdate();
+//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
+//				ps2.executeUpdate();
 				
 				if(modData._permissions != null)
 				{
@@ -783,8 +801,8 @@ public class ShopManagerSQL
 					}
 				}
 				
-				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-				ps2.executeUpdate();
+//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
+//				ps2.executeUpdate();
 				if(modData._worldNames != null)
 				{
 					for(String worldName : modData._worldNames)
@@ -797,8 +815,8 @@ public class ShopManagerSQL
 					}
 				}
 				
-				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-				ps2.executeUpdate();			
+//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
+//				ps2.executeUpdate();			
 				if(modData._locations != null)
 				{
 					for(Tuple<Integer, Location> disLoc : modData._locations)
@@ -817,13 +835,19 @@ public class ShopManagerSQL
 					}
 				}
 				
-				RemovePriceCustom(sis.GetUUID());
-				RemovePriceValue(sis.GetUUID());
-				
+				if(!sis.GetTags().isEmpty())
+				{
+					_main.GetTagManager().SaveTagsAsync(sis);
+						
+				}
+//				
+//				RemovePriceCustom(sis.GetUUID());
+//				RemovePriceValue(sis.GetUUID());
+				//System.out.println("READING: "+sis.GetItemPrice());
 				if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
 				{
 					priceType = ItemPriceType.PriceCustom;
-					System.out.println("item: "+sis.GetDisplayItem() + " contains custom price");
+					//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains custom price");
 					SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()));
 					
 				}
@@ -831,6 +855,7 @@ public class ShopManagerSQL
 				if(sis.GetItemPrice().getClass().equals(PriceOwn.class))
 				{
 					priceType = ItemPriceType.PriceOwn;
+					//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
 					SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
 				}
 				

@@ -40,10 +40,31 @@ public class ShopItemStockable extends ShopItemSeller
 		SetMaxAmount(_modData._maxAmount);
 		SetFillAmount(_modData._fillAmount);
 		SetFillDelayMinutes(_modData._fillDelayMinutes);
+		ClearTags();
+		if(_modData._tags != null)
+		{
+			for(String tag : modData._tags)
+			{
+				GetTags().add(tag);
+			}
+		}
+		
 		if(_modData._itemPrice instanceof ItemPrice)//if(_modData._ownPrice != -1)
 		{
+			System.out.println("price set to: "+_modData._itemPrice);
 			SetItemPrice(_modData._itemPrice);
 		}
+	}
+	
+	@Override
+	public boolean AddTag(String tagName) 
+	{
+		boolean b = super.AddTag(tagName);
+		if(b)
+		{
+			_modData.AddTag(tagName.toLowerCase());
+		}
+		return b;
 	}
 	
 	@Override

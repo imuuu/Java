@@ -11,6 +11,10 @@ import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.ENUMs.TagSubCmds;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
+import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ItemPrice.PriceMoney;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
@@ -21,6 +25,12 @@ public class SubTagMaterialCMD implements CommandInterface
 	Main _main = null;
 
 	CmdData _data;
+	
+	enum Choise
+	{
+		materials,
+		shopitems
+	}
 	public SubTagMaterialCMD(Main main, CmdData data) 
 	{
 		_main = main;
@@ -34,9 +44,9 @@ public class SubTagMaterialCMD implements CommandInterface
     {
     	Player player = (Player) sender;
     	ImusAPI._metods.printArray("tag", args);
-    	if(args.length < 3)
+    	if(args.length < 4)
     	{  		
-    		if(!(args.length > 1 && args[1].equalsIgnoreCase("remove_all_tags")))
+    		if(!(args.length > 2 && args[2].equalsIgnoreCase("remove_all_tags")))
     		{
     			player.sendMessage(_data.get_syntaxText());
         		return false;
@@ -46,9 +56,13 @@ public class SubTagMaterialCMD implements CommandInterface
     	
     	Cmd_add_options option = null;
     	TagSubCmds subCMD = null;
+    	Choise choise = null;
+    	try {
+    		choise = Choise.valueOf(args[1].toLowerCase());
+		} catch (Exception e) {return false;}
     	try 
     	{
-			option = Cmd_add_options.valueOf(args[2].toLowerCase());
+			option = Cmd_add_options.valueOf(args[3].toLowerCase());
 			
 		} 
     	catch (Exception e){}
@@ -74,36 +88,41 @@ public class SubTagMaterialCMD implements CommandInterface
     	double number = -1;
     	try 
     	{
-    		subCMD = TagSubCmds.valueOf(args[1].toLowerCase());
-    		if(ImusAPI._metods.isDigit(args[3]))
+    		subCMD = TagSubCmds.valueOf(args[2].toLowerCase());
+    		if(ImusAPI._metods.isDigit(args[4]))
     		{
     			System.out.println("it is digit");
-    			number = Double.valueOf(args[3]);
-    		}else
-    		{
-    			player.sendMessage(ChatColor.RED + "Last number should be digit");
-    			return false;
+    			number = Double.valueOf(args[4]);
     		}
     		
 		} 
     	catch (Exception e) {}
     	
+    	if(args.length < 5 && choise == Choise.shopitems)
+    	{
+    		player.sendMessage(ChatColor.RED + "1Last number should be digit");
+    		return false;
+    	}
     	switch (subCMD) 
     	{
 		case add:
-			AddTags(player, stacks, args[3]);
+			if(choise != Choise.materials) return false;
+			AddTags(player, stacks, args[4]);
 			return false;		
 		case remove:
-			RemoveTag(player, stacks, args[3]);
+			if(choise != Choise.materials) return false;
+			RemoveTag(player, stacks, args[4]);
     		return false;
 		case remove_all_tags:
-			RemoveAll(player, stacks);
+			if(choise == Choise.materials) RemoveAll(player, stacks);
     		return false;
 		case set_price:
-			SetPriceAsync(player,number, args[2]);
+			if(choise == Choise.materials) SetMaterialPriceAsync(player,number, args[3]);
+			if(choise == Choise.shopitems) SetShopItemSetPrice(player,number, args[3]);
 			break;
 		case increase_price:
-			SetInceasePriceAsync(player, number, args[2]);
+			if(choise == Choise.materials) SetMaterialInceasePriceAsync(player, number, args[3]);
+			if(choise == Choise.shopitems) SetShopItemIncreasePrice(player, number, args[3]);
 			break;
 		
 		}
@@ -113,7 +132,7 @@ public class SubTagMaterialCMD implements CommandInterface
     }
     
     
-    void SetPriceAsync(Player player, double price, String tag)
+    void SetMaterialPriceAsync(Player player,double price, String tag)
     {
     	if( price < 0) 
     	{
@@ -131,14 +150,82 @@ public class SubTagMaterialCMD implements CommandInterface
 					_main.get_shopManager().SaveMaterialPrice(mat, price);
 				}
 				
-				player.sendMessage(Metods.msgC("&2All with tag '&b"+tag.toLowerCase()+"&2' the price is set to: &a"+price));
+				player.sendMessage(Metods.msgC("&2All materials with tag '&b"+tag.toLowerCase()+"&2' the price is set to: &a"+price));
 				
 				
 			}
 		}.runTaskAsynchronously(_main);
     }
     
-    void SetInceasePriceAsync(Player player,double multiplier, String tag)
+    void SetShopItemSetPrice(Player player, double price, String tag)
+    {
+    	if( price < 0) 
+    	{
+    		player.sendMessage(Metods.msgC("&c Couldnt set price with &2"+price));
+    		return;
+    	}
+    	int count = 0;
+    	for(ShopBase shop : _main.get_shopManager().GetShops())
+    	{
+    		boolean closeShop = false;
+    		for(ShopItemBase[] pages : shop.get_items())
+    		{
+    			for(ShopItemBase sib : pages)
+    			{
+    				if(sib != null && sib.HasTag(tag))
+    				{
+    					if(sib.GetItemPrice() instanceof PriceOwn)
+    					{
+    						sib.SetItemPrice(sib.GetItemPrice().SetPrice(price));
+    						count++;
+    					}
+    					closeShop = true;
+    				}
+    			}
+    		}
+    		if(closeShop) shop.RemoveCustomerALL();
+    		_main.GetShopManagerSQL().SaveShopAsync(shop);
+    	}
+    	
+    	player.sendMessage(Metods.msgC("&2All shopitems&7(&e"+count+"&7)&2 with tag '&b"+tag.toLowerCase()+"&2' the price is set to: &a"+price));
+    }
+    
+    void SetShopItemIncreasePrice(Player player, double multiplier, String tag)
+    {
+    	
+    	if( multiplier < 0) 
+    	{
+    		player.sendMessage(Metods.msgC("&c Couldnt increase with negative multiplier => &2"+multiplier));
+    		return;
+    	}
+    	int count = 0;
+    	for(ShopBase shop : _main.get_shopManager().GetShops())
+    	{
+    		boolean closeShop = false;
+    		for(ShopItemBase[] pages : shop.get_items())
+    		{
+    			for(ShopItemBase sib : pages)
+    			{
+    				if(sib != null && sib.HasTag(tag))
+    				{
+    					if(sib.GetItemPrice() instanceof PriceOwn)
+    					{
+    						double price = sib.GetItemPrice().GetPrice() * multiplier;
+    						sib.SetItemPrice(sib.GetItemPrice().SetPrice(price));
+    						count++;
+    					}
+    					closeShop = true;
+    				}
+    			}
+    		}
+    		if(closeShop) shop.RemoveCustomerALL();
+    		_main.GetShopManagerSQL().SaveShopAsync(shop);
+    	}
+    	
+    	player.sendMessage(Metods.msgC("&2All shopitems&7(&e"+count+"&7)&2 with tag '&b"+tag.toLowerCase()+"&2' the price is increased by: &b"+multiplier));
+    }
+    
+    void SetMaterialInceasePriceAsync(Player player,double multiplier, String tag)
     {
     	if( multiplier < 0) 
     	{
@@ -156,7 +243,7 @@ public class SubTagMaterialCMD implements CommandInterface
 					_main.get_shopManager().SaveMaterialPrice(mat, price * multiplier);
 				}
 				
-				player.sendMessage(Metods.msgC("&2All with tag '&b"+tag.toLowerCase()+"&2' the price is increased by: &b"+multiplier));
+				player.sendMessage(Metods.msgC("&2All materials with tag '&b"+tag.toLowerCase()+"&2' the price is increased by: &b"+multiplier));
 				
 				
 			}

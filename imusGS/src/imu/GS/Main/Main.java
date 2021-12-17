@@ -1,6 +1,7 @@
 package imu.GS.Main;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
@@ -8,7 +9,9 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GS.CMDs.Cmd;
 import imu.GS.ENUMs.Cmd_add_options;
@@ -31,6 +34,7 @@ import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
+import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin
 {
@@ -40,7 +44,7 @@ public class Main extends JavaPlugin
 	
 
 	private CmdHelper _cmdHelper;
-	//Economy _econ = null;
+	Economy _econ = null;
 	private MySQL _SQL;
 	private ImusTabCompleter _tab_cmd1;
 	
@@ -52,7 +56,7 @@ public class Main extends JavaPlugin
 		ConnectDataBase();
 		
 		//setupImusApi();
-		//setupEconomy();
+		setupEconomy();
 		_cmdHelper = new CmdHelper(this);
 		
 		// MANAGERS
@@ -78,12 +82,9 @@ public class Main extends JavaPlugin
 		
 		if(_shopManager != null)
 			_shopManager.onDisabled();
-		
-		
-		
+				
 		if(_SQL != null)
-			_SQL.Disconnect();
-		
+			_SQL.Disconnect();		
 		
 	}
 	
@@ -165,7 +166,7 @@ public class Main extends JavaPlugin
 	    cmd1AndArguments.put("open", new String[] {"shop"});
 	    //cmd1AndArguments.put("delete", new String[] {"shop"});
 	    cmd1AndArguments.put("create", new String[] {"shop","unique"});
-	    cmd1AndArguments.put("tag", Stream.of(TagSubCmds.values()).map(TagSubCmds::name).toArray((String[]::new))); //new String[] {"add","remove","remove_all_tags","set_price","increase_price"}
+	    cmd1AndArguments.put("tag", new String[] {"materials","shopitems"}); //new String[] {"add","remove","remove_all_tags","set_price","increase_price"}
 	    cmd1AndArguments.put("add", one_hotbar_inv);
 	    
 	    cmd1AndArguments.put("setprice", one_hotbar_inv);
@@ -179,10 +180,13 @@ public class Main extends JavaPlugin
 	    //_shopManager.CreateShop("test");
 	    
 	    
-	   
-	    _tab_cmd1.SetRule("/gs tag add", 3, Arrays.asList(one_hotbar_inv));
-	    _tab_cmd1.SetRule("/gs tag remove", 3, Arrays.asList(one_hotbar_inv));
-	    _tab_cmd1.SetRule("/gs tag remove_all_tags", 3, Arrays.asList(one_hotbar_inv));
+	    //Stream.of(TagSubCmds.values()).map(TagSubCmds::name).toArray((String[]::new))
+	    _tab_cmd1.SetRule("/gs tag materials", 3, Arrays.asList(Stream.of(TagSubCmds.values()).map(TagSubCmds::name).toArray((String[]::new))));
+	    _tab_cmd1.SetRule("/gs tag materials add", 4, Arrays.asList(one_hotbar_inv));
+	    _tab_cmd1.SetRule("/gs tag materials remove", 4, Arrays.asList(one_hotbar_inv));
+	    _tab_cmd1.SetRule("/gs tag materials remove_all_tags", 4, Arrays.asList(one_hotbar_inv));
+	    
+	    _tab_cmd1.SetRule("/gs tag shopitems", 3, Arrays.asList(new String[] {TagSubCmds.set_price.toString(),TagSubCmds.increase_price.toString()}));
 	    //
 	}	
 		
@@ -210,9 +214,9 @@ public class Main extends JavaPlugin
 		return _tab_cmd1;
 	}
 	
-//	public Economy get_econ() {
-//			return _econ;
-//		}
+	public Economy get_econ() {
+			return _econ;
+		}
 
 //	boolean setupImusApi()
 //	{
@@ -238,21 +242,29 @@ public class Main extends JavaPlugin
 		return _shopManager.GetShopManagerSQL();
 	}
 	
-//	boolean setupEconomy() 
-//	{
-//        if (getServer().getPluginManager().getPlugin("Vault") == null) 
-//        {
-//        	System.out.println("Vault not found");
-//            return false;
-//        }
-//        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-//        
-//        if (rsp == null) {
-//            return false;
-//        }
-//        _econ = rsp.getProvider();
-//        return _econ != null;
-//    }
+	void setupEconomy() 
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				 if (getServer().getPluginManager().getPlugin("Vault") == null) 
+			        {
+			        	System.out.println("Vault not found");
+			            return;
+			        }
+			        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+			        //System.out.println("rsp: "+rsp);
+			        if (rsp == null) {
+			            return;
+			        }
+			        _econ = rsp.getProvider();
+			        return;
+			}
+		}.runTaskLaterAsynchronously(this, 20);
+       
+    }
 	
 	public void RegisterInv(CustomInvLayout inv)
 	{

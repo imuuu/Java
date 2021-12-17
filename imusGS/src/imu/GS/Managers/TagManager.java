@@ -25,7 +25,7 @@ public class TagManager
 {
 	Main _main;
 	private HashMap<Material, HashSet<String>> _tags_material = new HashMap<>();
-	//private HashMap<UUID, ArrayList<String>> _tags_shopItems = new HashMap<>();
+	private Set<String> _tags_shopItems = new HashSet<>();
 	
 	public TagManager(Main main)
 	{
@@ -46,10 +46,34 @@ public class TagManager
 		
 		return newSet.stream().toArray(String[] :: new);
 	}
-	public void UpdateTabList()
+	public void UpdateMaterialTabList()
 	{
-		_main.get_tab_cmd1().SetRule("/gs tag "+TagSubCmds.increase_price, 3,  Arrays.asList(GetAllMaterialTags()));
-		_main.get_tab_cmd1().SetRule("/gs tag "+TagSubCmds.set_price, 3,  Arrays.asList(GetAllMaterialTags()));
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_main.get_tab_cmd1().SetRule("/gs tag materials "+TagSubCmds.increase_price, 4,  Arrays.asList(GetAllMaterialTags()));
+				_main.get_tab_cmd1().SetRule("/gs tag materials "+TagSubCmds.set_price, 4,  Arrays.asList(GetAllMaterialTags()));
+			}
+		}.runTask(_main);
+		
+		
+		
+	}
+	
+	public void UpdateShopitemTabList()
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_main.get_tab_cmd1().SetRule("/gs tag shopitems "+TagSubCmds.set_price, 4,  Arrays.asList(_tags_shopItems.toArray(String[] :: new)));
+				_main.get_tab_cmd1().SetRule("/gs tag shopitems "+TagSubCmds.increase_price, 4,  Arrays.asList(_tags_shopItems.toArray(String[] :: new)));		
+			}
+		}.runTask(_main);
+		
 	}
 	
 	public ArrayList<Material> GetAllMaterialsWithTag(String tagName)
@@ -63,7 +87,41 @@ public class TagManager
 		return mats;
 	}
 	
-	public void LoadTagsAsync()
+	public void LoadAllShopItemTagsNamesAsync()
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_tags_shopItems.clear();
+				try 
+				{
+					PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);
+					ResultSet rs = ps.executeQuery();
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							String tag = rs.getString(3);
+							//System.out.println("loading tag: "+tag);
+							_tags_shopItems.add(tag);
+						}
+					}
+					
+				
+				} catch (Exception e) {
+					System.out.println("Couldnt load tag names from database!");
+				}
+				UpdateShopitemTabList();
+			}
+		}.runTaskAsynchronously(_main);
+		
+		
+	}
+	
+	
+	public void LoadMaterialTagsAsync()
 	{
 		new BukkitRunnable() {			
 			@Override
@@ -84,20 +142,20 @@ public class TagManager
 						}
 					}
 					
-					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);
-					rs = ps.executeQuery();
-					
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							UUID sib_uuid = UUID.fromString(rs.getString(2));
-							String tagName = rs.getString(3).toLowerCase();
-							FindAndAddTag(sib_uuid, tagName);
-							System.out.println("adding tag "+tagName+" to sib: "+sib_uuid);
-						}
-					}
-					UpdateTabList();
+//					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);
+//					rs = ps.executeQuery();
+//					
+//					if(rs.isBeforeFirst())
+//					{
+//						while(rs.next())
+//						{
+//							UUID sib_uuid = UUID.fromString(rs.getString(2));
+//							String tagName = rs.getString(3).toLowerCase();
+//							FindAndAddTag(sib_uuid, tagName);
+//							System.out.println("adding tag "+tagName+" to sib: "+sib_uuid);
+//						}
+//					}
+					UpdateMaterialTabList();
 				} 
 				catch (SQLException e) {
 					e.printStackTrace();
@@ -130,14 +188,14 @@ public class TagManager
 					e.printStackTrace();
 				}
 				
-				UpdateTabList();
+				UpdateMaterialTabList();
 			}
 		}.runTaskAsynchronously(_main);
 		
 		
 	}
 	
-	public void SaveTagAsync(ShopItemBase sib, String tagName)
+	public void SaveTagsAsync(ShopItemBase sib)
 	{
 		new BukkitRunnable() {			
 			@Override
@@ -147,12 +205,18 @@ public class TagManager
 				try {
 					
 					//if(!AddTag(sib, tagName)) return;
-					sib.AddTag(tagName);
-					ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.tags_shopitems.toString()+" "
-							+ "(sib_uuid, tag_name) VALUES (?,?)");
-					ps.setString(1, sib.GetUUID().toString());
-					ps.setString(2, tagName);
+					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"';");
 					ps.executeUpdate();
+					
+					for(String tagName : sib.GetTags())
+					{
+						ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.tags_shopitems.toString()+" "
+								+ "(sib_uuid, tag_name) VALUES (?,?)");
+						ps.setString(1, sib.GetUUID().toString());
+						ps.setString(2, tagName);
+						ps.executeUpdate();
+					}
+					
 					
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -193,9 +257,7 @@ public class TagManager
 				}
 			}
 		}
-		return true;
-		
-		
+		return true;		
 	}
 	
 	
@@ -220,7 +282,7 @@ public class TagManager
 					e.printStackTrace();
 				}
 				
-				UpdateTabList();
+				UpdateMaterialTabList();
 			}
 		}.runTaskAsynchronously(_main);
 		
@@ -266,7 +328,7 @@ public class TagManager
 					e.printStackTrace();
 				}
 				
-				UpdateTabList();
+				UpdateMaterialTabList();
 			}
 		}.runTaskAsynchronously(_main);
 	}

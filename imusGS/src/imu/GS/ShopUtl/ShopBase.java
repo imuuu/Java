@@ -19,6 +19,7 @@ import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.ITuple;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 import net.md_5.bungee.api.ChatColor;
 
@@ -47,7 +48,7 @@ public abstract class ShopBase
 	private boolean _locked = false;
 	private boolean _intererActlocked = false;
 	private boolean _customers_can_only_buy = false;
-	
+	public boolean _temp_lock = false;
 	
 	public ShopBase(Main main, UUID uuid,String name, int pages)
 	{
@@ -130,9 +131,40 @@ public abstract class ShopBase
 		return _intererActlocked;
 	}
 	
+	public boolean BuyConfirmation(Player player, ShopItemBase sib, int amount)
+	{
+		if(_main.get_econ() == null ) {
+			return false;
+		}
+		double price = sib.GetItemPrice().GetCustomerPrice() * amount;
+		if(_main.get_econ().getBalance(player) >= price)
+		{
+			_main.get_econ().withdrawPlayer(player, price);
+			player.sendMessage(Metods.msgC("&4Buy &9confirmed! Purchase value: &e "+Metods.Round(price)+" &2$&9. &9Balance: &e"+Metods.Round(_main.get_econ().getBalance(player))+"&2$&9."));
+			return true;
+		}
+		player.sendMessage(Metods.msgC("&4Buy &cCanceled! &9Balance isn't enough! Purchase value: &e "+Metods.Round(price)+" &2$&9. &9Balance: &e"+Metods.Round(_main.get_econ().getBalance(player))+"&2$&9."));
+		return false;
+	}
+	
+	public boolean SellConfirmation(Player player, ShopItemBase sib, int amount)
+	{
+		if(_main.get_econ() == null ) {
+			return false;
+		}
+		double price = sib.GetItemPrice().GetCustomerPrice() * amount;
+
+		_main.get_econ().depositPlayer(player, price );
+		
+		player.sendMessage(Metods.msgC("&3Sell &9confirmed! Sold value: &e "+Metods.Round(price)+" &2$&9. &9Balance: &e"+Metods.Round(_main.get_econ().getBalance(player))+"&2$&9."));
+		return true;
+	}
+	
 	public void AddNewCustomer(Player player)
 	{
 		//System.out.println("add customer");
+		if(_temp_lock || _locked) return;
+		
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
 	
@@ -201,7 +233,7 @@ public abstract class ShopBase
 			{
 				ShopItemBase sib = _items.get(page)[slot];
 				
-				if(removeEmpties && sib != null && sib.Get_amount() <= 0)
+				if(removeEmpties && sib != null && sib.Get_amount() <= 0 && !(sib instanceof ShopItemStockable))
 				{
 					//_main.GetShopManagerSQL().DeleteShopItem(sib);
 					continue;
@@ -320,7 +352,7 @@ public abstract class ShopBase
 		if(sis.GetItemPrice() instanceof PriceMoney)
 		{
 			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
-			((PriceMoney)sis.GetItemPrice()).SetShowPrice(price * _sellM);
+			((PriceMoney)sis.GetItemPrice()).SetCustomerPrice(price * _sellM);
 		}
 		
 		ITuple<Integer, Integer> firstFree = null;

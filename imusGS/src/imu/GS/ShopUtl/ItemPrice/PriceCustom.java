@@ -2,6 +2,7 @@ package imu.GS.ShopUtl.ItemPrice;
 
 import imu.GS.Other.CustomPriceData;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 
 
 public class PriceCustom extends ItemPrice
@@ -14,7 +15,13 @@ public class PriceCustom extends ItemPrice
 	{
 		return _customMoney;
 	}
-
+	
+	@Override
+	public double GetCustomerPrice() 
+	{
+		return -1;
+	}
+	
 	@Override
 	public ItemPrice SetPrice(double price) 
 	{
@@ -31,7 +38,7 @@ public class PriceCustom extends ItemPrice
 	public ItemPrice SetItemsAndPrice(CustomPriceData[] items, double price, int minimumStackAmount)
 	{
 		_items = items;
-		_customMoney = price;
+		_customMoney = Metods.Round(price);
 		_minimumStackAmount = minimumStackAmount;
 		return this;
 	}
@@ -55,6 +62,8 @@ public class PriceCustom extends ItemPrice
 		}
 		return str;
 	}
+
+	
 	
 	
 

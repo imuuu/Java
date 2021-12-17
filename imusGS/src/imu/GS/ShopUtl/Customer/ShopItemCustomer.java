@@ -36,7 +36,7 @@ public class ShopItemCustomer extends ShopItemBase
 		if(price instanceof PriceMaterial)
 		{
 			double p = price.GetPrice();
-			((PriceMoney)price).SetShowPrice(p * _shopBase.get_buyM());
+			((PriceMoney)price).SetCustomerPrice(p * _shopBase.get_buyM());
 			return;
 		}
 		
@@ -64,6 +64,21 @@ public class ShopItemCustomer extends ShopItemBase
 			return;
 		}
 		MinusAmount(amount);	
+	}
+	
+	public boolean EnoughItems(int amount)
+	{
+		int count = 0;
+		for(ItemStack stack : _player_itemstack_refs)
+		{
+			if(stack != null && stack.isSimilar(_real_stack))
+			{
+				count += stack.getAmount();
+			}
+			
+			if(count >= amount) return true;
+		}
+		return false;
 	}
 	
 	void MinusAmount(int amount)

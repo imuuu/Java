@@ -12,7 +12,10 @@ import org.bukkit.inventory.ItemStack;
 import com.google.common.base.Strings;
 
 import imu.GS.ENUMs.ModDataShopStockable;
+import imu.GS.Interfaces.IModData;
+import imu.GS.Interfaces.IModDataInv;
 import imu.GS.Main.Main;
+import imu.GS.Prompts.ConvModData;
 import imu.GS.Prompts.ConvPromptModModifyINV;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemModData;
@@ -24,7 +27,7 @@ import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
-public class ShopModModifyINV extends CustomInvLayout
+public class ShopModModifyINV extends CustomInvLayout implements IModDataInv
 {
 	ShopItemSeller _sis;
 	ItemStack copy_item;
@@ -39,7 +42,7 @@ public class ShopModModifyINV extends CustomInvLayout
 	boolean _isClosed;
 	public ShopModModifyINV(Main main, Player player, ShopItemSeller sis, ShopItemModData modData) 
 	{
-		super(main, player, "Modify item", 9*3);
+		super(main, player, "&3Modify Stockable Item", 9*3);
 		_main = main;
 		_sis = sis;
 		copy_item = _sis.GetRealItem().clone();
@@ -62,17 +65,25 @@ public class ShopModModifyINV extends CustomInvLayout
 		SET_WORLDS,
 		SET_CAN_BE_SOLD,
 		SET_DISTANCE,
+		SET_TAGS,
 		REMOVE_INF,
 		CLONE_TO_INV,
 		SET_TIME_SELL;
 						
 	}
 	
-	public ShopModModifyINV SetModData(ShopItemModData modData)
+//	public ShopModModifyINV SetModData(ShopItemModData modData)
+//	{
+//		_modData = modData;
+//		makeInv();
+//		return this;
+//	}
+	
+	@Override
+	public void SetModData(IModData modData) 
 	{
-		_modData = modData;
+		_modData = (ShopItemModData)modData;
 		makeInv();
-		return this;
 	}
 	
 	void makeInv()
@@ -159,6 +170,14 @@ public class ShopModModifyINV extends CustomInvLayout
 		ImusAPI._metods.addLore(setTimeSell, ChatColor.YELLOW + "Set time when item will be apearing in shop", true);
 		ImusAPI._metods.addLore(setTimeSell, m1m2 , false);
 		
+		id = 10;
+		lore = _modData.GetValueStr(ModDataShopStockable.TAGS, setTo ,null,  false_setTo);
+		ItemStack tags = setupButton(BUTTON.SET_TAGS, lore.equalsIgnoreCase(false_setTo) ? Material.GLASS_PANE : Material.BLUE_STAINED_GLASS_PANE,  ChatColor.DARK_PURPLE + "Add Tags", id);
+		
+		ImusAPI._metods.addLore(tags, lore , false);
+		ImusAPI._metods.addLore(tags, ChatColor.YELLOW + "Give tags", true);
+		ImusAPI._metods.addLore(tags, m1m2 , false);
+		
 		id = _size-1;
 		
 		
@@ -207,12 +226,12 @@ public class ShopModModifyINV extends CustomInvLayout
 				new ShopModINV(_main, _player, _shop).openThis();
 				return;
 			case CONFIRM:
-//				if(confirm())						
-//					_smm.openModShopInv(_player, _shop);
-//				
+				
 				((ShopItemStockable)_sis).SetModData(_modData);
+				_main.GetTagManager().SaveTagsAsync(_sis);
+				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
 				_player.closeInventory();
-				new ShopModINV(_main, _player, _shop).openThis();
+				new ShopModINV(_main, _player, _main.get_shopManager().GetShop(_shop.GetUUID())).openThis();
 				return;
 			case CUSTOM_AMOUNT:				
 				question = ChatColor.DARK_PURPLE + "Give Custom amount?";
@@ -254,9 +273,11 @@ public class ShopModModifyINV extends CustomInvLayout
 			case SET_TIME_SELL:
 				question = ChatColor.DARK_PURPLE + "Give startTime and endTime  Seperate by space(ex: 0 13000(whole daytime)(min:0 max:24000)";
 				conv = cf.withFirstPrompt(new ConvPromptModModifyINV(_player, ModDataShopStockable.SELL_TIME_START, this, _modData, question)).withLocalEcho(true).buildConversation(_player);
-				break;	
-			default:
 				break;
+			case SET_TAGS:
+				ImusAPI._metods.ConversationWithPlayer(_player, new ConvModData(ModDataShopStockable.TAGS, this, _modData, "&eGive tag"));
+				break;
+			
 			}
 			if(conv != null) conv.begin();			
 			_player.closeInventory();
@@ -305,7 +326,10 @@ public class ShopModModifyINV extends CustomInvLayout
 				break;
 			case SET_CAN_BE_SOLD:
 				break;
-			default:
+			case CLONE_TO_INV:
+				break;
+			case SET_TAGS:
+				_modData.ClearTags();
 				break;
 			
 			}
@@ -331,6 +355,8 @@ public class ShopModModifyINV extends CustomInvLayout
 		// TODO Auto-generated method stub
 		
 	}
+
+	
 	
 	
 	

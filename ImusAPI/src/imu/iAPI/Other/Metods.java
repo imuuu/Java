@@ -15,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
@@ -27,6 +28,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -512,6 +514,19 @@ public class Metods
 		return false;
 	}
 	
+	public boolean isShulkerBox(ItemStack stack)
+	{
+		if(stack.getItemMeta() instanceof BlockStateMeta )
+		{
+			BlockStateMeta im = (BlockStateMeta)stack.getItemMeta();
+            if(im.getBlockState() instanceof ShulkerBox){
+            	return true;
+            }
+			
+		}
+		return false;
+	}
+	
 	public boolean isShield(ItemStack stack)
 	{
 		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemShield)
@@ -659,7 +674,7 @@ public class Metods
 //		
 		
 		int amount = stack.getAmount();
-		System.out.println("max stack size: "+stack.getMaxStackSize());
+		//System.out.println("max stack size: "+stack.getMaxStackSize());
 		if(stack.getMaxStackSize() != 1)
 		{
 			for(int i = 0; i < inv.getContents().length-6; ++i)
@@ -950,7 +965,6 @@ public class Metods
 					
 				if(givenDamage >= maxDur)
 				{
-					System.out.println("RESET");
 					meta.setDamage(maxDur);
 					if(destroyItem)
 					{
@@ -958,7 +972,6 @@ public class Metods
 					}
 				}else
 				{
-					System.out.println("DAMAGE SET: "+givenDamage);
 					meta.setDamage(givenDamage);
 				}
 				
@@ -1232,7 +1245,10 @@ public class Metods
 		Conversation conversation = cf.withFirstPrompt(conv).withLocalEcho(true).buildConversation(player);
 		conversation.begin();
 	}
-	
+	public static double Round(double value)
+	{
+		return Math.round(value * 100.00) / 100.00;
+	}
 	public boolean copyBlock(Block copyBlock, Block toSetBlock)
 	{
 		Material mat_copy = copyBlock.getType();

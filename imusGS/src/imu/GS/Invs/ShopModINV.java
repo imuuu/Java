@@ -209,7 +209,7 @@ public class ShopModINV extends CustomInvLayout
 		String modifyStr = ChatColor.YELLOW +"== Click to modify ==";
 		ImusAPI._metods.addLore(stack, modifyStr, false);
 		
-		String custom_amount, c_permission, c_price ,c_worlds, c_fill_delay, c_fill_amount, c_soldDistance, c_selltime;
+		String custom_amount, c_permission, c_price ,c_worlds, c_fill_delay, c_fill_amount, c_soldDistance, c_selltime,c_tags;
 		String none_color = ChatColor.RED + "";
 		String true_color = ChatColor.AQUA + "";
 		
@@ -225,6 +225,8 @@ public class ShopModINV extends CustomInvLayout
 		String[] disStr = _modData.GetValueStr(ModDataShopStockable.DISTANCE_LOC, null,null,none_str).split("; ");
 		c_soldDistance = disStr.length > 1 ? true_color + "More than one" : disStr[0];		
 		c_selltime =           _modData.GetValueStr(ModDataShopStockable.SELL_TIME_START, null,null,none_str);
+		c_tags 					=_modData._tags != null ? 		true_color+ ImusAPI._metods.CombineArrayToOneString(_modData._tags.toArray(), "; ") : none_str;
+		
 		String color = ChatColor.BLUE+"";
 		String color2 = ChatColor.YELLOW+"";
 		
@@ -239,6 +241,7 @@ public class ShopModINV extends CustomInvLayout
 		//ImusAPI._metods.addLore(stack, c_soldDistance, _isClosed)
 		
 		ImusAPI._metods.addLore(stack, color +"Sell time: "+color2+c_selltime, true);
+		ImusAPI._metods.addLore(stack, color +"Tags: "+color2+c_tags, true);
 		
 		
 		

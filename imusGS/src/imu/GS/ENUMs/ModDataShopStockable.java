@@ -13,5 +13,6 @@ public enum ModDataShopStockable implements IModDataValues
 	PERMISSIONS,
 	WORLD_NAMES,
 	CUSTOM_PRICE,
+	TAGS,
 	
 }

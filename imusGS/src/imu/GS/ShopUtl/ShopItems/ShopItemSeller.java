@@ -67,7 +67,7 @@ public class ShopItemSeller extends ShopItemBase
 		if(price instanceof PriceMaterial)
 		{
 			double p = price.GetPrice();
-			((PriceMoney)price).SetShowPrice(p * _shopBase.get_sellM());			
+			((PriceMoney)price).SetCustomerPrice(p * _shopBase.get_sellM());			
 		}
 		
 		

@@ -1,5 +1,7 @@
 package imu.GS.ShopUtl.ItemPrice;
 
+import imu.iAPI.Other.Metods;
+
 public class PriceMoney extends ItemPrice
 {
 	double _price = 0;
@@ -11,16 +13,22 @@ public class PriceMoney extends ItemPrice
 		return String.valueOf((_showPrice*amount));
 	}
 	
+	@Override
+	public double GetCustomerPrice() 
+	{
+		return _showPrice;
+	}
+	
 	public ItemPrice SetPrice(double price)
 	{
-		_price = price;
+		_price = Metods.Round(price);
 		//System.out.println("info:"+info+ "price has been set: "+price);
 		return this;
 	}
 	
-	public void SetShowPrice(double showPrice)
+	public void SetCustomerPrice(double showPrice)
 	{
-		_showPrice = showPrice;
+		_showPrice = Metods.Round(showPrice);
 	}
 	
 	@Override
@@ -28,10 +36,4 @@ public class PriceMoney extends ItemPrice
 	{
 		return _price;
 	}
-	
-	public double GetShowPrice()
-	{
-		return _showPrice;
-	}
-
 }
