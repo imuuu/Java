@@ -164,7 +164,6 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public void AddTag(String tagName)
 	{
-		System.out.println("tag added: "+tagName);
 		if(_tags == null) _tags = new ArrayList<>();
 		_tags.add(tagName.toLowerCase());
 	}

@@ -3,7 +3,6 @@ package imu.GS.Prompts;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.entity.Player;
 
 import imu.GS.Interfaces.IModData;
 import imu.GS.Interfaces.IModDataValues;

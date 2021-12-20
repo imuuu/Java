@@ -17,7 +17,6 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
-import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -31,9 +30,9 @@ public abstract class ShopItemBase
 	protected ShopItemType _type = ShopItemType.NORMAL;
 	protected ItemStack _display_stack;
 	ItemStack _display_stack_not_available;
-	final ItemStack _display_out_of_stock = Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), "&9-");
+	private ItemStack _display_out_of_stock = Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), "&9-");
 	
-	int _amount = 0;
+	protected int _amount = 0;
 	
 	String lore_amount_str;
 	String lore_price_str;
@@ -47,6 +46,7 @@ public abstract class ShopItemBase
 	protected ShopBase _shopBase;
 	
 	private Set<String> _tags = new HashSet<>();
+	public boolean AddGlow = false;
 	
 	public ShopItemBase(Main main, ShopBase shopBase, ItemStack real, int amount) 
 	{
@@ -61,13 +61,23 @@ public abstract class ShopItemBase
 			
 		_amount = amount;
 		LoadLores();
-		_price = _main.get_shopManager().GetPriceMaterial(real.getType());
+		_price = _main.get_shopManager().GetPriceMaterialAndCheck(real);
 		
 		
 	}
 	enum LoreSpot
 	{
 		AMOUNT;
+	}
+	
+	public void SetDisplayOutOfStock(ItemStack stack)
+	{
+		_display_out_of_stock = stack.clone();
+	}
+	
+	protected ItemStack GetDisplayOutOfStock()
+	{
+		return _display_out_of_stock;
 	}
 	
 	public Set<String> GetTags()
@@ -89,7 +99,7 @@ public abstract class ShopItemBase
 	
 	public boolean HasTag(String tagName)
 	{
-		System.out.println("CHECKING IF SHOP HAS TAG: "+tagName+ "   "+_tags.contains(tagName.toLowerCase()));
+		//System.out.println("CHECKING IF SHOP HAS TAG: "+tagName+ "   "+_tags.contains(tagName.toLowerCase()));
 		return _tags.contains(tagName.toLowerCase());
 	}
 	
@@ -148,10 +158,10 @@ public abstract class ShopItemBase
 //		
 		
 
-		if(price instanceof PriceMaterial)
-		{
-			price = _main.get_shopManager().GetPriceMaterial(_real_stack.getType());
-		}
+//		if(price instanceof PriceMaterial)
+//		{
+//			price = _main.get_shopManager().GetPriceMaterialAndCheck(_real_stack);
+//		}
 		
 		if(price instanceof PriceOwn)
 		{
@@ -165,6 +175,8 @@ public abstract class ShopItemBase
 		toolTip();
 	}
 	protected abstract void SetShowPrice(ItemPrice price);
+	
+	public abstract ShopItemResult[] GetTransactionResultItemStack();
 	
 	public ItemPrice GetItemPrice()
 	{
@@ -217,7 +229,7 @@ public abstract class ShopItemBase
 			lores[4] = 	(_amount  	>= 64 	? 	_lores[4]+_price.GetShowPriceOfAmountStr(_amount) 	: empty);
 		}
 		
-
+		
 		_metods.addLore(_display_stack, lores);
 		//_metods.setlo
 	}
@@ -230,6 +242,10 @@ public abstract class ShopItemBase
 	public ItemStack GetDisplayItem()
 	{
 		toolTip();
+		if(AddGlow) 
+		{
+			ImusAPI._metods.AddGlow(_display_stack);
+		}
 		return _display_stack;
 	}
 	

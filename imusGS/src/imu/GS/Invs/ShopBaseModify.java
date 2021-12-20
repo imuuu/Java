@@ -172,7 +172,7 @@ public class ShopBaseModify extends CustomInvLayout
 			_player.sendMessage(Metods.msgC("&e Shop data has been saved to database!"));
 			shop.SetName(_shopModData._name);
 			_main.get_shopManager().AddShop(shop);
-			shop.SaveData();
+			shop.SaveDataAsync();
 			
 		}
 		

@@ -26,10 +26,12 @@ public class ImusTabCompleter implements TabCompleter
 	HashMap<String, String[]> _cmdAndArguments = new HashMap<>();
 	String _mainCmd;
 	HashMap<Integer, ArrayList<Rule>> _rules = new HashMap<>();
-	public ImusTabCompleter(String mainCmd,HashMap<String, String[]> cmdAndArguments) 
+	private String _permission = null;
+	public ImusTabCompleter(String mainCmd, HashMap<String, String[]> cmdAndArguments, String permission) 
 	{
 		_cmdAndArguments = cmdAndArguments;
 		_mainCmd = mainCmd;
+		_permission = permission;
 	}
 	
 	public void setArgumenrs(String argumentName, String[] argumnets)
@@ -67,6 +69,8 @@ public class ImusTabCompleter implements TabCompleter
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) 
 	{		
+		if(_permission != null && !sender.hasPermission(_permission)) return null;
+		
 		if(!_rules.isEmpty() );
 		{		
 			if(_rules.containsKey(args.length))

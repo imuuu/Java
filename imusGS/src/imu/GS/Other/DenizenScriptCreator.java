@@ -15,7 +15,7 @@ public class DenizenScriptCreator
 	
 	ArrayList<String> example_script;
 	String str_script_name = null;
-	String cmd = "gs open ";
+	String cmd = "gs open shop ";
 	public DenizenScriptCreator() 
 	{
 		_path = "plugins/Denizen/scripts/"+_nameTag;

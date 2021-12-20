@@ -62,6 +62,10 @@ public class UniquesINV extends CustomInvLayout
 		_shopManager.RegisterOpenedInv(_player, this);
 		
 		_unique_items = new ArrayList<ShopItemUnique>(_uniqueManager.GetUniques().values());
+//		for(ShopItemUnique siu : _unique_items)
+//		{
+//			System.out.println("loading inv: "+siu.GetRealItem());
+//		}
 		Init();
 		refreshItems();
 	}
@@ -248,15 +252,15 @@ public class UniquesINV extends CustomInvLayout
 		
 		for(int i = _size-1; i > unique_slots-1; --i)
 		{
-			if(makeSlot == i)
-				continue;
+//			if(makeSlot == i)
+//				continue;
 			_inv.setItem(i, optionLine);
 		}
-		ItemStack marker = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE);
-		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"Add new unique here >>");
-		_inv.setItem(makeSlot-1, marker);
-		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"<< Add new unique here");
-		_inv.setItem(makeSlot+1, marker);
+//		ItemStack marker = new ItemStack(Material.MAGENTA_STAINED_GLASS_PANE);
+//		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"Add new unique here >>");
+//		_inv.setItem(makeSlot-1, marker);
+//		Metods.setDisplayName(marker, ChatColor.DARK_PURPLE +"<< Add new unique here");
+//		_inv.setItem(makeSlot+1, marker);
 		
 		ItemStack left_button = new ItemStack(Material.BIRCH_SIGN);
 		ItemStack right_button = left_button.clone();

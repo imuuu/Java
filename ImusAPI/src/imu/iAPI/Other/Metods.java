@@ -516,6 +516,8 @@ public class Metods
 	
 	public boolean isShulkerBox(ItemStack stack)
 	{
+		if(stack == null) return false;
+		
 		if(stack.getItemMeta() instanceof BlockStateMeta )
 		{
 			BlockStateMeta im = (BlockStateMeta)stack.getItemMeta();
@@ -1299,6 +1301,47 @@ public class Metods
 		return true;
 	}
 	
+	public ItemStack[] GetShulkerBoxContent(ItemStack stack)
+	{
+		if(!isShulkerBox(stack)) return null;
+		BlockStateMeta bsm = (BlockStateMeta)stack.getItemMeta();
+		if(bsm.getBlockState() instanceof ShulkerBox)
+		{
+			return ((ShulkerBox)bsm.getBlockState()).getInventory().getContents();
+		}
+		return null;
+	}
+	
+	public boolean SetShulkerBoxContent(ItemStack stack, ItemStack[] content)
+	{
+		if(!isShulkerBox(stack)) return false;
+		BlockStateMeta bsm = (BlockStateMeta)stack.getItemMeta();
+		if(bsm.getBlockState() instanceof ShulkerBox)
+		{
+			ShulkerBox shulker = (ShulkerBox)bsm.getBlockState();
+			shulker.getInventory().setContents(content);
+			bsm.setBlockState(shulker);
+			stack.setItemMeta(bsm);
+			return true;
+		}
+		return false;
+	}
+	
+	public HashMap<Integer, ItemStack> AddItemShulkerBoxContent(ItemStack stack, ItemStack addedItem)
+	{
+		if(!isShulkerBox(stack)) return null;
+
+		BlockStateMeta bsm = (BlockStateMeta)stack.getItemMeta();
+		if(bsm.getBlockState() instanceof ShulkerBox)
+		{
+			ShulkerBox shulker = (ShulkerBox)bsm.getBlockState();
+			HashMap<Integer, ItemStack> hash = shulker.getInventory().addItem(addedItem);
+			bsm.setBlockState(shulker);
+			stack.setItemMeta(bsm);
+			return hash;
+		}
+		return null;
+	}
 
 	
 	

@@ -13,7 +13,6 @@ import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
-import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
@@ -43,7 +42,7 @@ public class SubTagMaterialCMD implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	ImusAPI._metods.printArray("tag", args);
+    	//ImusAPI._metods.printArray("tag", args);
     	if(args.length < 4)
     	{  		
     		if(!(args.length > 2 && args[2].equalsIgnoreCase("remove_all_tags")))
@@ -91,7 +90,7 @@ public class SubTagMaterialCMD implements CommandInterface
     		subCMD = TagSubCmds.valueOf(args[2].toLowerCase());
     		if(ImusAPI._metods.isDigit(args[4]))
     		{
-    			System.out.println("it is digit");
+    			//System.out.println("it is digit");
     			number = Double.valueOf(args[4]);
     		}
     		
@@ -100,7 +99,7 @@ public class SubTagMaterialCMD implements CommandInterface
     	
     	if(args.length < 5 && choise == Choise.shopitems)
     	{
-    		player.sendMessage(ChatColor.RED + "1Last number should be digit");
+    		player.sendMessage(ChatColor.RED + "Last number should be digit");
     		return false;
     	}
     	switch (subCMD) 

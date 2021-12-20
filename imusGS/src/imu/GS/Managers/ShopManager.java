@@ -40,7 +40,7 @@ public class ShopManager
 	private HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
 	private HashMap<UUID, ArrayList<Tuple<String, PriceCustom>>> _savedPriceCustoms = new HashMap<>();
 	
-	private int _shopCheckTime = 10;
+	private int _shopCheckTime_s = 20;
 	
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
@@ -63,9 +63,10 @@ public class ShopManager
 			{
 				_shopManagerSQL.LoadTables();
 				_shopManagerSQL.LoadMaterialPrices();
+				_shopManagerSQL.LoadUniques();
 				LoadShops();
 				_main.GetTagManager().LoadMaterialTagsAsync();
-				_shopManagerSQL.LoadUniques();
+				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
 			}
 		}.runTaskAsynchronously(_main);
@@ -82,6 +83,20 @@ public class ShopManager
 	public PriceMaterial GetPriceMaterial(Material mat)
 	{
 		return _material_prices.get(mat);
+	}
+	
+	public PriceMaterial GetPriceMaterialAndCheck(ItemStack stack)
+	{
+		PriceMaterial priceMaterial = new PriceMaterial();
+		priceMaterial.SetPrice(0);
+		if(stack == null || stack.getType() == Material.AIR) return priceMaterial;
+		if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
+		
+	
+		priceMaterial.SetPrice(_material_prices.get(stack.getType()).GetPrice());
+	
+		
+		return priceMaterial;
 	}
 	
 	public ShopManagerSQL GetShopManagerSQL()
@@ -143,27 +158,29 @@ public class ShopManager
 				for(ShopBase shop : _shops)
 				{
 					if(shop.HasExpired()) // && 
-					{
-						
-						
+					{						
 						//System.out.println("Check shop");
 						shop.SetLockToInteract(true);
-						CheckShopItems(shop);				
+						CheckShopItems(shop,true);				
 						shop.SetNewExpire();
 						
-						shop.ArrangeShopItems(shop.HasCustomers() ? false : true); // => interact fill be true
-						
-						
-						
+						shop.ArrangeShopItems(shop.HasCustomers() ? false : true); // => interact fill be false
+												
 						//shop.SetLockToInteract(false);
+					}
+					else
+					{
+						shop.SetLockToInteract(true);
+						CheckShopItems(shop,false);
+						shop.SetLockToInteract(false);
 					}
 				}			
 			}
-		}.runTaskTimerAsynchronously(_main, 20 * _shopCheckTime, 20 * _shopCheckTime);
+		}.runTaskTimerAsynchronously(_main, 20 * _shopCheckTime_s, 20 * _shopCheckTime_s);
 		
 		
 	}
-	void CheckShopItems(ShopBase sBase)
+	void CheckShopItems(ShopBase sBase, boolean checkExpires)
 	{
 		for(ShopItemSeller[] siss : sBase.get_items())
 		{
@@ -182,6 +199,8 @@ public class ShopManager
 					}
 					continue;
 				}
+				
+				if(!checkExpires) continue;
 				
 				int amount = sis.Get_amount();
 				

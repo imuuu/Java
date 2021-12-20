@@ -6,9 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
@@ -39,7 +36,7 @@ public class SubAssingToNpcCMD implements CommandInterface
         }
     	
     	ImusAPI._metods.printArray("test", args);
-        String nameShop = StringUtils.join(Arrays.copyOfRange(args, 3, args.length)," ");
+        String nameShop = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
         System.out.println("shop name: "+nameShop);
         if(_main.get_shopManager().GetShop(nameShop) == null)
         {

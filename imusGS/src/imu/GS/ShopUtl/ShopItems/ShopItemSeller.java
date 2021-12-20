@@ -9,9 +9,11 @@ import com.google.gson.JsonObject;
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
+import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Main.ImusAPI;
 
 
@@ -19,7 +21,7 @@ public class ShopItemSeller extends ShopItemBase
 {
 	int _shopPage = -1;
 	int _slot = -1;
-	public ShopItemSeller(Main main, ShopBase shopBase,ItemStack real, int amount) {
+	public ShopItemSeller(Main main, ShopBase shopBase, ItemStack real, int amount) {
 		super(main,shopBase, real, amount);
 
 	}
@@ -64,7 +66,7 @@ public class ShopItemSeller extends ShopItemBase
 		if(_shopBase == null)
 			return;
 		
-		if(price instanceof PriceMaterial)
+		if(price instanceof PriceMoney && !(price instanceof PriceOwn))
 		{
 			double p = price.GetPrice();
 			((PriceMoney)price).SetCustomerPrice(p * _shopBase.get_sellM());			
@@ -87,6 +89,11 @@ public class ShopItemSeller extends ShopItemBase
 	{
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public ShopItemResult[] GetTransactionResultItemStack() {
+		return new ShopItemResult[] {new ShopItemResult(GetRealItem(), GetRealItem().getAmount())};
 	}
 	
 }

@@ -13,25 +13,25 @@ import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
-public class SubSetMaterialPriceCMD implements CommandInterface
+public class SubGetPlayerPriceCMD implements CommandInterface
 {
 	Main _main = null;
 
 	CmdData _data;
 	//HashMap<UUID, List<String>> _chosenValues;
-	public SubSetMaterialPriceCMD(Main main, CmdData data) 
+	public SubGetPlayerPriceCMD(Main main, CmdData data) 
 	{
 		_main = main;
 		_data = data;
 		//_chosenValues = new HashMap<>();
-		_data.set_syntaxText("/"+_data.get_cmd_name() + " {hand/hotbar/inv} {price}");
+		_data.set_syntaxText("/"+_data.get_cmd_name() + " {hand/hotbar/inv}");
 	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length != 3)
+    	if(args.length != 2)
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
@@ -60,17 +60,14 @@ public class SubSetMaterialPriceCMD implements CommandInterface
 			break;
 		
 		}
-    	
-    	if(!ImusAPI._metods.isDigit(args[2])) return false;
-    	
-    	double price = Double.parseDouble(args[2]);
-    	SendMaterialDataAsync(stacks, price,player);
+
+    	GetMaterialDataPrice(stacks, player);
     	
     	
         return false;
     }
     
-    void SendMaterialDataAsync(ItemStack[] stacks, double price, Player player)
+    void GetMaterialDataPrice(ItemStack[] stacks,Player player)
     {
     	new BukkitRunnable() 
     	{
@@ -81,11 +78,8 @@ public class SubSetMaterialPriceCMD implements CommandInterface
 				{
 					if(stack == null) continue;
 					double lastprice =_main.get_shopManager().GetPriceMaterial(stack.getType()).GetPrice();
-					_main.get_shopManager().SaveMaterialPrice(stack.getType(), price);
-					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice set to: &2 "+price+" &7From "+lastprice));
-				}
-				
-				
+					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice is: &2 "+lastprice));
+				}				
 			}
 		}.runTaskAsynchronously(_main);
     }

@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.Customer.Customer;
@@ -36,6 +37,7 @@ public abstract class ShopBase
 	
 	private double _sellM = 1.0;
 	private double _buyM  = 1.0;
+	private int _saveIfPossible_s = 10;
 	
 	private double _expire_percent = 0.1f;
 	private int _expire_cooldown_m = 1;
@@ -49,6 +51,8 @@ public abstract class ShopBase
 	private boolean _intererActlocked = false;
 	private boolean _customers_can_only_buy = false;
 	public boolean _temp_lock = false;
+	
+	BukkitTask _saveRunnable = null;
 	
 	public ShopBase(Main main, UUID uuid,String name, int pages)
 	{
@@ -121,6 +125,24 @@ public abstract class ShopBase
 		}
 	}
 	
+	public void SaveIfPossible()
+	{
+		if(_saveRunnable != null) _saveRunnable.cancel();
+		
+		_saveRunnable =  new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				if(!HasCustomers())
+				{
+					_main.get_shopManager().GetShopManagerSQL().SaveShopAsync(_main.get_shopManager().GetShop(GetUUID()));
+				}
+				_saveRunnable = null;
+			}
+		}.runTaskLaterAsynchronously(_main, 20 * _saveIfPossible_s);
+	}
+	
 	public void SetLockToInteract(boolean lock)
 	{
 		_intererActlocked = lock;
@@ -163,7 +185,10 @@ public abstract class ShopBase
 	public void AddNewCustomer(Player player)
 	{
 		//System.out.println("add customer");
-		if(_temp_lock || _locked) return;
+		if(_temp_lock || _locked) 
+		{
+			return;
+		}
 		
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
@@ -192,7 +217,7 @@ public abstract class ShopBase
 	}
 	
 
-	public void SaveData()
+	public void SaveDataAsync()
 	{
 		new BukkitRunnable() 
 		{			
@@ -285,7 +310,7 @@ public abstract class ShopBase
 		if(page > _items.size()-1)
 		{
 			int pagesNeeded = page - _items.size();
-			System.out.println("pages needed: "+pagesNeeded);
+			//System.out.println("pages needed: "+pagesNeeded);
 			for(int i = 0 ; i < pagesNeeded; ++i) {_items.add(new ShopItemSeller[shopHolderSize]);}
 		}
 		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);
@@ -391,16 +416,32 @@ public abstract class ShopBase
 			//System.out.println("Shop: Not free space found, make new page!");
 			get_items().add(new ShopItemSeller[shopHolderSize]);
 			get_items().get(get_items().size()-1)[0] =  sis.SetPageAndSlot(get_items().size()-1, 0);
+			
+			SaveNewItemAsync(get_items().get(get_items().size()-1)[0]);
+			
 			RegisterAndLoadNewItemsClients();
 			return;
 		}
 		//System.out.println("Shop: Adding to free slot");
 		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = sis.SetPageAndSlot(firstFree.GetKey(), firstFree.GetValue());
 		//UpdateClients(firstFree.GetKey(), firstFree.GetValue());
+		SaveNewItemAsync(get_items().get(firstFree.GetKey())[firstFree.GetValue()]);
 		RegisterAndLoadNewItemsClients();
 		return;
 	}
-
+	
+	void SaveNewItemAsync(ShopItemSeller sis)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_main.GetShopManagerSQL().SaveShopItem(sis, sis.GetPage(), sis.GetSlot());
+			}
+		}.runTaskAsynchronously(_main);
+	}
+	
 	public ArrayList<ShopItemSeller[]> get_items() {
 		return _items;
 	}

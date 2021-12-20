@@ -7,3 +7,5 @@ softdepend: [Vault, ImusAPI]
 commands:
    gs:
    
+   g:
+   

@@ -1,7 +1,6 @@
 package imu.GS.Main;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
@@ -9,11 +8,13 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.GS.CMDs.Cmd;
+import imu.GS.CMDs.Cmd2;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.ENUMs.TagSubCmds;
 import imu.GS.Managers.ShopManager;
@@ -24,6 +25,7 @@ import imu.GS.Other.DenizenScriptCreator;
 import imu.GS.SubCmds.SubAddStockableCMD;
 import imu.GS.SubCmds.SubAssingToNpcCMD;
 import imu.GS.SubCmds.SubCreateUniqueCMD;
+import imu.GS.SubCmds.SubGetPlayerPriceCMD;
 import imu.GS.SubCmds.SubModifyShopCMD;
 import imu.GS.SubCmds.SubModifyUniqueCMD;
 import imu.GS.SubCmds.SubSetMaterialPriceCMD;
@@ -107,16 +109,19 @@ public class Main extends JavaPlugin
 		CommandHandler handler = new CommandHandler(this);
 		String cmd1="gs";
 	    handler.registerCmd(cmd1, new Cmd(this));
+	   
 	     	     
-	    String cmd1_sub1 = "create";
+	    String cmd1_sub1 = "create shop";
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
 	    _cmdHelper.setCmd(full_sub1, "Create Shop", full_sub1 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubShopCreateCMD(this, _cmdHelper.getCmdData(full_sub1)));
+	    handler.setPermissionOnLastCmd("gs.create.shop");
 	    
 	    String cmd1_sub2 = "open shop";
 	    String full_sub2 = cmd1+" "+cmd1_sub2;
 	    _cmdHelper.setCmd(full_sub2, "Open the Shop", full_sub2 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub2, new SubShopOpenCMD(this, _cmdHelper.getCmdData(full_sub2)));
+	    handler.setPermissionOnLastCmd("gs.open.shop");
 	    
 //	    String cmd1_sub3 ="delete shop";
 //	    String full_sub3 =cmd1+" "+cmd1_sub3;
@@ -127,36 +132,43 @@ public class Main extends JavaPlugin
 	    String full_sub4=cmd1+" "+cmd1_sub4;
 	    _cmdHelper.setCmd(full_sub4, "Add Stockable to shop", cmd1_sub4 + " [ShopName]");
 	    handler.registerSubCmd(cmd1, cmd1_sub4, new SubAddStockableCMD(this, _cmdHelper.getCmdData(full_sub4)));
+	    handler.setPermissionOnLastCmd("gs.add");
 	    
 	    String cmd1_sub5="create unique";
 	    String full_sub5=cmd1+" "+cmd1_sub5;
 	    _cmdHelper.setCmd(full_sub5, "Create Unique Item", cmd1_sub5 + " {price}");
 	    handler.registerSubCmd(cmd1, cmd1_sub5, new SubCreateUniqueCMD(this, _cmdHelper.getCmdData(full_sub5)));
+	    handler.setPermissionOnLastCmd("gs.create.uniques");
 	    
 	    String cmd1_sub6="modify uniques";
 	    String full_sub6=cmd1+" "+cmd1_sub6;
 	    _cmdHelper.setCmd(full_sub6, "Modify Uniques", cmd1_sub6);
 	    handler.registerSubCmd(cmd1, cmd1_sub6, new SubModifyUniqueCMD(this, _cmdHelper.getCmdData(full_sub6)));
+	    handler.setPermissionOnLastCmd("gs.modify.uniques");
 	    
 	    String cmd1_sub7="modify shop";
 	    String full_sub7=cmd1+" "+cmd1_sub7;
 	    _cmdHelper.setCmd(full_sub7, "Modify Shop", cmd1_sub7);
 	    handler.registerSubCmd(cmd1, cmd1_sub7, new SubModifyShopCMD(this, _cmdHelper.getCmdData(full_sub7)));
+	    handler.setPermissionOnLastCmd("gs.modify.shop");
 	    
 	    String cmd1_sub8="assign";
 	    String full_sub8=cmd1+" "+cmd1_sub8;
 	    _cmdHelper.setCmd(full_sub8, "assign shop to npc", cmd1_sub8);
 	    handler.registerSubCmd(cmd1, cmd1_sub8, new SubAssingToNpcCMD(this, _cmdHelper.getCmdData(full_sub8)));
+	    handler.setPermissionOnLastCmd("gs.assing");
 	    
 	    String cmd1_sub9="setprice";
 	    String full_sub9=cmd1+" "+cmd1_sub9;
 	    _cmdHelper.setCmd(full_sub9, "Setting material price", cmd1_sub9);
 	    handler.registerSubCmd(cmd1, cmd1_sub9, new SubSetMaterialPriceCMD(this, _cmdHelper.getCmdData(full_sub9)));
+	    handler.setPermissionOnLastCmd("gs.setprice");
 	    
 	    String cmd1_sub10="tag";
 	    String full_sub10=cmd1+" "+cmd1_sub10;
 	    _cmdHelper.setCmd(full_sub10, "Set tag for materials", cmd1_sub10);
 	    handler.registerSubCmd(cmd1, cmd1_sub10, new SubTagMaterialCMD(this, _cmdHelper.getCmdData(full_sub10)));
+	    handler.setPermissionOnLastCmd("gs.tag");
 	    
 	    
 	    
@@ -174,7 +186,7 @@ public class Main extends JavaPlugin
 	
 	    
 	    getCommand(cmd1).setExecutor(handler);
-	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments);
+	    _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments, "gs.tabcompleter");
 	    getCommand(cmd1).setTabCompleter(_tab_cmd1);
 	    _shopManager.UpdateTabCompliters();
 	    //_shopManager.CreateShop("test");
@@ -188,6 +200,23 @@ public class Main extends JavaPlugin
 	    
 	    _tab_cmd1.SetRule("/gs tag shopitems", 3, Arrays.asList(new String[] {TagSubCmds.set_price.toString(),TagSubCmds.increase_price.toString()}));
 	    //
+	    
+	    
+	    HashMap<String, String[]> cmd2AndArguments = new HashMap<>();
+	    String cmd2="g";
+	    handler.registerCmd(cmd2, new Cmd2(this));
+	    
+	    String cmd2_sub1 = "getprice";
+	    String full2_sub1 = cmd2+" "+cmd2_sub1;
+	    _cmdHelper.setCmd(full2_sub1, "Get price of item", full2_sub1);
+	    handler.registerSubCmd(cmd2, cmd2_sub1, new SubGetPlayerPriceCMD(this, _cmdHelper.getCmdData(full2_sub1)));
+	    //handler.setPermissionOnLastCmd("g.");
+	    
+	    cmd2AndArguments.put(cmd2, new String[] {"getprice"});
+	    cmd2AndArguments.put("getprice", one_hotbar_inv);
+	    getCommand(cmd2).setExecutor(handler);
+	    ImusTabCompleter tab2 = new ImusTabCompleter(cmd2, cmd2AndArguments, null);
+	    getCommand(cmd2).setTabCompleter(tab2);
 	}	
 		
 	public void UpdateShopNames(String[] shopNames)

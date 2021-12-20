@@ -1,7 +1,5 @@
 generalstore_script:
-
     type: assignment
-
     interact scripts:
 
     - generalstore_open
@@ -11,9 +9,6 @@ generalstore_script:
         on assignment: 
 
         - trigger name:damage toggle:true
-#        - trigger name:click toggle:true
-
-
 
 generalstore_open:
 	debug: false
@@ -29,8 +24,3 @@ generalstore_open:
 
                 - execute as_op 'gs shop'
 
-            click trigger:
-
-                script:
-
-                - execute as_op 'gs shop'

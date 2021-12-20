@@ -29,6 +29,7 @@ import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
+import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
@@ -360,6 +361,7 @@ public class ShopManagerSQL
 		
 	}
 	
+	@SuppressWarnings("deprecation")
 	void LoadShopItems(ShopBase shop) throws SQLException
 	{
 		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitems.toString()+" WHERE shop_uuid='"+shop.GetUUID().toString()+"';");
@@ -397,7 +399,7 @@ public class ShopManagerSQL
 					sis = new ShopItemSeller(_main,shop, stack, amount);
 					break;
 				case UNIQUE:
-					sis = new ShopItemUnique(_main,shop, stack, amount);
+					sis = new ShopItemSeller(_main, shop, stack, amount);
 					break;
 				case STOCKABLE:
 					sis = new ShopItemStockable(_main, shop, stack, amount);
@@ -408,6 +410,8 @@ public class ShopManagerSQL
 					}
 
 				sis.SetUUID(uuid);
+				
+				
 				
 				if(sis instanceof ShopItemStockable)
 				{
@@ -470,30 +474,34 @@ public class ShopManagerSQL
 						}
 					}
 					
-					switch (priceType) {
-					case None:
-						modData._itemPrice = _main.get_shopManager().GetPriceMaterial(stack.getType());
-						break;
-					case PriceCustom:
-						modData._itemPrice = GetPriceCustom(uuid);
-						break;
-					case PriceOwn:
-						modData._itemPrice = new PriceOwn().SetPrice(GetPriceValue(uuid));
-						break;
-					default:
-						break;
 					
-					}
 					
 					((ShopItemStockable)sis).SetModData(modData);
 					sis.Set_amount(amount);
 					
 					
 				}
-								
+					
+				switch (priceType) {
+				case None:
+					sis.SetItemPrice( _main.get_shopManager().GetPriceMaterialAndCheck(stack));
+					break;
+				case PriceCustom:
+					sis.SetItemPrice( GetPriceCustom(uuid));
+					break;
+				case PriceOwn:
+					sis.SetItemPrice(new PriceOwn().SetPrice(GetPriceValue(uuid)));
+					break;
+				case PriceUnique:
+					sis.SetItemPrice(GetUniquePrice( _shopManager.GetUniqueManager().GetUniqueUUID(stack)));
+					break;
+				
+				}
+				
 				if(!Strings.isNullOrEmpty(typeData))
 					sis.ParseJsonData(new JsonParser().parse(typeData).getAsJsonObject());
 			
+				//System.out.println("sis: "+sis.GetRealItem().getType()+ " price: "+sis.GetItemPrice());
 				shop.SetItem(sis, page, slot);
 				
 			}
@@ -745,8 +753,33 @@ public class ShopManagerSQL
 		
 		//shop.SetLocked(lock);
 	}
-	
-	void SaveShopItem(ShopItemSeller sis, int page, int slot)
+//	public void ShopItemAddUpdateAsync(ShopItemSeller sis, int amount)
+//	{
+//		new BukkitRunnable() {
+//			
+//			@Override
+//			public void run() 
+//			{
+//				try {
+//					PreparedStatement ps =_main.GetSQL().GetConnection().prepareStatement("UPDATE "+SQL_TABLES.shopitems+" "
+//							+ "SET shopitems.amount = IF((shopitems.fill_amount > 0 AND shopitems.fill_delay > 0), IF(shopitems.max_amount < shopitems.amount+"+amount+", shopitems.max_amount,shopitems.amount+"+amount+"), shopitems.amount) "
+//									+ "WHERE shopitems.uuid='"+sis.GetUUID().toString()+"';");
+//					ps.executeUpdate();
+//					System.out.println("updateing : "+sis.GetRealItem().getType() + " amount "+amount);
+//					ps =_main.GetSQL().GetConnection().prepareStatement("UPDATE "+SQL_TABLES.shopitems+" "
+//							+"SET shopitems.amount = IF(shopitems.amount < 0, 0, shopitems.amount)"
+//							+"WHERE shopitems.uuid='"+sis.GetUUID().toString()+"';");
+//					ps.executeUpdate();
+//					
+//				} catch (SQLException e) 
+//				{
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}.runTaskAsynchronously(_main);
+//	}
+	public void SaveShopItem(ShopItemSeller sis, int page, int slot)
 	{
 		if(sis.GetShop() == null)
 			return;
@@ -844,24 +877,34 @@ public class ShopManagerSQL
 //				RemovePriceCustom(sis.GetUUID());
 //				RemovePriceValue(sis.GetUUID());
 				//System.out.println("READING: "+sis.GetItemPrice());
-				if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
-				{
-					priceType = ItemPriceType.PriceCustom;
-					//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains custom price");
-					SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()));
-					
-				}
 				
-				if(sis.GetItemPrice().getClass().equals(PriceOwn.class))
-				{
-					priceType = ItemPriceType.PriceOwn;
-					//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
-					SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
-				}
 				
 				
 				
 			}
+			
+			if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
+			{
+				priceType = ItemPriceType.PriceCustom;
+				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains custom price");
+				SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()));
+				
+			}
+			
+			if(sis.GetItemPrice().getClass().equals(PriceOwn.class))
+			{
+				priceType = ItemPriceType.PriceOwn;
+				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
+				SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
+			}
+			
+			if(sis.GetItemPrice().getClass().equals(PriceUnique.class))
+			{
+				priceType = ItemPriceType.PriceUnique;
+				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
+				//SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
+			}
+			
 			//ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
 			ps.setString(i++, priceType.toString());
 			ps.setInt(i++, max_amount);
@@ -886,45 +929,84 @@ public class ShopManagerSQL
 		
 	}
 
-	void SaveUniqueItem(ShopItemUnique siu)
+	void SaveUniqueItemAsync(ShopItemUnique siu)
 	{
-		System.out.println("saving unique");
-		
-		if(siu.GetRealItem().getType() == Material.AIR) return;
-		
-		PreparedStatement ps;
-		try 
-		{
-			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO uniques "
-					+ "(uuid, item_display_name, price, itemstack)"
-					+ "VALUES (?, ?, ?, ?)");
+		new BukkitRunnable() {
 			
-			int i = 1;
-			ps.setString(i++, siu.GetUUID().toString());
-			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(siu.GetRealItem()));
-			ps.setFloat(i++, (float)siu.GetItemPrice().GetPrice());
-			ps.setString(i++, ImusAPI._metods.EncodeItemStack(siu.GetRealItem()));
-			ps.executeUpdate();
-		} 
-		catch (Exception e) 
-		{
-			System.out.println("Couldnt save unique");
-			e.printStackTrace();
-		}	
+			@Override
+			public void run() 
+			{
+				
+				if(siu.GetRealItem().getType() == Material.AIR) return;
+				
+				PreparedStatement ps;
+				try 
+				{
+					ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO uniques "
+							+ "(uuid, item_display_name, price, itemstack)"
+							+ "VALUES (?, ?, ?, ?)");
+					
+					int i = 1;
+					ps.setString(i++, siu.GetUUID().toString());
+					ps.setString(i++, ImusAPI._metods.GetItemDisplayName(siu.GetRealItem()));
+					ps.setFloat(i++, (float)siu.GetItemPrice().GetPrice());
+					ps.setString(i++, ImusAPI._metods.EncodeItemStack(siu.GetRealItem()));
+					ps.executeUpdate();
+				} 
+				catch (Exception e) 
+				{
+					System.out.println("Couldnt save unique");
+					e.printStackTrace();
+				}	
+			}
+		}.runTaskAsynchronously(_main);
+		
 	}
 	
-	void DeleteUniqueItem(ShopItemUnique siu)
+	public void DeleteUniqueItemAsync(ShopItemBase sib)
 	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				try 
+				{
+					PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM uniques WHERE uuid='"+sib.GetUUID().toString()+"';");
+					ps.executeUpdate();
+				} 
+				catch (Exception e) 
+				{
+					System.out.println("Couldnt save unique");
+					e.printStackTrace();
+				}	
+			}
+		}.runTaskAsynchronously(_main);
+		
+	}
+	
+	private PriceUnique GetUniquePrice(UUID uuid)
+	{
+		PriceUnique priceUnique  = new PriceUnique();
 		try 
 		{
-			_main.GetSQL().GetConnection().prepareStatement("DELETE FROM uniques WHERE uuid='"+siu.GetUUID().toString()+"'");
-			
+			//System.out.println("getting unique price");
+			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM uniques WHERE uuid='"+uuid.toString()+"';");
+			ResultSet rs = ps.executeQuery();
+			if(rs.isBeforeFirst())
+			{
+				rs.next();
+				//System.out.println("rs: "+rs.getDouble(3));
+				double price = (double)rs.getFloat(3);
+				priceUnique.SetPrice(price);
+			}
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("Couldnt save unique");
+			System.out.println("Couldnt get unique price");
 			e.printStackTrace();
 		}	
+		return priceUnique;
 	}
 	
 	void LoadUniques()
@@ -949,6 +1031,7 @@ public class ShopManagerSQL
 				i++;
 				double price = (double)rs.getFloat(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs.getString(i++));
+				System.out.println("Unique loaded: "+price);
 				ShopItemUnique unique = new ShopItemUnique(_main, null, stack, 1);
 				unique.SetUUID(uuid);
 				unique.GetItemPrice().SetPrice(price);

@@ -51,7 +51,7 @@ public class ShopItemStockable extends ShopItemSeller
 		
 		if(_modData._itemPrice instanceof ItemPrice)//if(_modData._ownPrice != -1)
 		{
-			System.out.println("price set to: "+_modData._itemPrice);
+			//System.out.println("price set to: "+_modData._itemPrice);
 			SetItemPrice(_modData._itemPrice);
 		}
 	}
@@ -131,7 +131,7 @@ public class ShopItemStockable extends ShopItemSeller
 		{
 			String[] lores = {
 					_lores[0]+Get_amount()+" &9____",
-					"&9Click to see price!",
+					"&9(&l&eClick&r&9) to see price!",
 					"",
 
 					

@@ -198,6 +198,7 @@ public class ShopModModifyINV extends CustomInvLayout implements IModDataInv
 	}
 	
 
+	@SuppressWarnings("incomplete-switch")
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{

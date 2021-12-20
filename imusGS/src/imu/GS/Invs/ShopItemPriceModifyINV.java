@@ -14,6 +14,7 @@ import com.google.common.base.Strings;
 import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.UniqueManager;
+import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.IButton;
@@ -52,8 +53,8 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 
 	String[] _dataNames = {};
 	Main _main;
-	ShopItemSeller _sis;
-	public ShopItemPriceModifyINV(Main main, Player player, UniquesINV uinv, ShopItemSeller sis) 
+	ShopItemBase _sib;
+	public ShopItemPriceModifyINV(Main main, Player player, UniquesINV uinv, ShopItemBase sis) 
 	{
 		super(main, player, "Modify", 9*3);
 		_main = main;
@@ -62,22 +63,21 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		_shopManager = main.get_shopManager();
 		_uniqueManager = _shopManager.GetUniqueManager();
 		_shopManager.RegisterOpenedInv(player, this);
-		_sis = sis;
-		
+		_sib = sis;
 		INIT(sis.GetRealItem());
 		
 	}
 	
 	public void INIT(ItemStack uniqueItemStack)
 	{
-		_price = new Double[] {_sis.GetItemPrice().GetPrice()};
+		_price = new Double[] {_sib.GetItemPrice().GetPrice()};
 		_default_price = _price.clone();
 		_orginalStack = uniqueItemStack;
 		
 		_orginalStack_copy = _orginalStack.clone();
 		_copy = _orginalStack.clone();
 		
-		setData(_sis.GetItemPrice().GetPrice());
+		setData(_sib.GetItemPrice().GetPrice());
 		
 		_value_state_now = 0;
 		
@@ -163,8 +163,8 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 	
 	void GoBack()
 	{
-
-		_uinv.openThis();
+		
+		new UniquesINV(_main, _player).openThis();
 	}
 	
 	
@@ -197,22 +197,24 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		case CONFIRM:
 			_edited = true;
 			_player.sendMessage(ChatColor.YELLOW + "Unique item has been chanced!");
-			_sis.GetItemPrice().SetPrice(_price[0]);
-			_uniqueManager.AddUniqueItem((ShopItemUnique)_sis);
+			_sib.GetItemPrice().SetPrice(_price[0]);
+			_uniqueManager.AddUniqueItem((ShopItemUnique)_sib);
 			//_shopManager.addUniqueItem(_orginalStack, _prices.clone(), false);
 			
 			GoBack();
 			return;
 		case COPY:		
-			ImusAPI._metods.moveItemFirstFreeSpaceInv(_sis.GetRealItem(), _player, true);
+			//ImusAPI._metods.moveItemFirstFreeSpaceInv(_sis.GetRealItem(), _player, true);
+			//System.out.println("copy: "+_sib.GetRealItem());
+			ImusAPI._metods.InventoryAddItemOrDrop(_sib.GetRealItem().clone(), _player);
+			
 			break;
 		case GO_BACK:
 			GoBack();
 			return;
 		case REMOVE:
-			ItemStack returned_item = _sis.GetRealItem().clone();
-			_uniqueManager.RemovePDuuid(stack);
-			ImusAPI._metods.moveItemFirstFreeSpaceInv(returned_item, _player, true);
+			_uniqueManager.RemoveShopItemUnique(_sib);			
+			ImusAPI._metods.InventoryAddItemOrDrop(_sib.GetRealItem().clone(), _player);
 			GoBack();
 			return;
 		case RESET_ITEM:
