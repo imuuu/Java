@@ -6,21 +6,25 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Shulker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -52,7 +56,7 @@ public class MainEvents implements Listener
 	double durability_penalty_pve = 0.1;
 	double durability_penalty_pvp = 0.2;
 	double durability_penalty_mob = 0.05;
-	
+	double _mendNerf = 0.4f;  // => 60%
 	Plugin _plugin;
 	Metods _itemM = null;
 	Cooldowns _cd;
@@ -72,7 +76,71 @@ public class MainEvents implements Listener
 		runnable();
 	}
 	
-
+	
+//	@EventHandler
+//	public void ProjectileLaunch(ProjectileLaunchEvent e)
+//	{
+//		//System.out.println("projectile launched: "+e.getEntity().getShooter() );
+//		if(e.getEntity().getShooter() instanceof Shulker)
+//		{
+//			System.out.println("its shulker");
+//			Projectile prot = e.getEntity();
+//			double mult = 100.0;
+//			prot.setGlowing(true);
+//			ShulkerBullet bullet = (ShulkerBullet)prot;
+//			bullet.setVelocity(bullet.getVelocity().multiply(mult));
+//			//bullet.getVelocity().multiply(10);
+//		}
+//	}
+	
+	@EventHandler
+	public void ProjectileLaunch(ProjectileHitEvent e)
+	{
+		//System.out.println("projectile launched: "+e.getEntity().getShooter() );
+		if(e.getEntity().getShooter() instanceof Shulker)
+		{
+			//System.out.println("its shulker HIT");
+			if(e.getHitEntity() instanceof Player)
+			{
+				
+				Player player = (Player)e.getHitEntity();
+				
+				if(player.getGameMode() != GameMode.SURVIVAL ) return;
+				
+				if(player.isBlocking() && !player.hasCooldown(Material.SHIELD)) 
+				{
+					player.setCooldown(Material.SHIELD, 60);
+					return;
+				}
+				
+				int protectionLevel = ImusAPI._metods.GetArmorSlotEnchantCount(player, Enchantment.PROTECTION_ENVIRONMENTAL);
+				int protectileLevel = ImusAPI._metods.GetArmorSlotEnchantCount(player, Enchantment.PROTECTION_PROJECTILE);
+//				System.out.println("prot lvl: "+ protectionLevel + " proj: "+protectileLevel);
+				//System.out.println("player blocking: "+player.isBlocking());
+				double toughnest = player.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue();
+				
+				if(toughnest < 1) toughnest = 1;
+//				System.out.println("damage: " + (16.0 * 	(17.0 / (1.0+0.2*protectionLevel+0.4*protectileLevel) )   /  ( toughnest * 2)));
+				double health = player.getHealth()-(16.0 * (17.0 / (1.0+0.2*protectionLevel+0.4*protectileLevel) ) / (toughnest * 2));			
+//				System.out.println(player.getAttribute(Attribute.GENERIC_ARMOR).getValue());
+//				System.out.println(player.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue());
+				
+				if(health < 0) health = 0;
+				
+				player.setHealth(health);
+			}
+		}
+	}
+	
+	@EventHandler
+	public void MendingXp(PlayerItemMendEvent e)
+	{
+		e.setCancelled(true);
+		ImusAPI._metods.giveDamage(e.getItem(), (int)(e.getRepairAmount() * -1 * _mendNerf), false);
+		
+	}
+	
+	
 	@EventHandler
 	public void onInteract(EntityDamageByEntityEvent event)
 	{

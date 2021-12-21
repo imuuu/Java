@@ -18,13 +18,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.HomeTele.Other.ConfigMaker;
 import imu.HomeTele.Other.Cooldowns;
 import imu.HomeTele.Other.TeleChecks;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-
-
 public class Commands implements CommandExecutor
 {
 
@@ -39,9 +36,9 @@ public class Commands implements CommandExecutor
 	
 	HashMap<UUID, Location> allHomes = new HashMap<UUID, Location>();
 	
-	double teleport_castTime = 15;
-	double teleport_cooldown = 60*15; // 15min
-	double setHome_cooldown = 60*60; // 1h
+	double teleport_castTime = 10;
+	double teleport_cooldown = 60*5; // 5min
+	double setHome_cooldown = 60*30; // 30min
 	
 	
 	public Commands(Plugin plugin)
@@ -97,7 +94,7 @@ public class Commands implements CommandExecutor
 				}
 				
 				
-			}else if(cmd.getName().equalsIgnoreCase(cmds[2])) //homelist
+			}else if(cmd.getName().equalsIgnoreCase(cmds[2]) && player.isOp()) //homelist
 			{
 				homeList(player);
 				
@@ -128,7 +125,7 @@ public class Commands implements CommandExecutor
 
 			String lastName = config.getString("homes."+player_uuid+".name");
 						
-			BaseComponent message = new TextComponent("Teleport home of ");	
+			TextComponent message = new TextComponent("Teleport home of ");	
 			message.setColor( net.md_5.bungee.api.ChatColor.GRAY );
 			TextComponent pName = new TextComponent(lastName);
 			pName.setBold( true );

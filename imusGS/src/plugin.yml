@@ -6,6 +6,12 @@ api-version: 1.18
 softdepend: [Vault, ImusAPI]
 commands:
    gs:
-   
+     description: GS
+     usage: /<command>
+   gs create shop:
+     description: Create Shop
+     usage: /<command>
    g:
+     description: G
+     usage: /<command>
    

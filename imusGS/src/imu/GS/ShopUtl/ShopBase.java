@@ -35,12 +35,12 @@ public abstract class ShopBase
 	private ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
 	
 	
-	private double _sellM = 1.0;
+	private double _sellM = 5.0;
 	private double _buyM  = 1.0;
 	private int _saveIfPossible_s = 10;
 	
 	private double _expire_percent = 0.1f;
-	private int _expire_cooldown_m = 1;
+	private int _expire_cooldown_m = 60;
 	private boolean _absoluteItemPosition = true;
 	private String _cd_expire = "expire";
 	

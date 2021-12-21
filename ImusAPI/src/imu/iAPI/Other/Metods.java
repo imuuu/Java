@@ -963,7 +963,7 @@ public class Metods
 			{
 				Damageable meta = (Damageable) stack.getItemMeta();
 				int maxDur=stack.getType().getMaxDurability();
-				int givenDamage = meta.getDamage()+ dmg;
+				int givenDamage = meta.getDamage() + dmg;
 					
 				if(givenDamage >= maxDur)
 				{
@@ -1341,6 +1341,25 @@ public class Metods
 			return hash;
 		}
 		return null;
+	}
+	
+	
+	public int GetArmorSlotEnchantCount(Player player, Enchantment searchEnch)
+	{
+		int value = 0;
+		
+		for(int i = player.getInventory().getContents().length - 6 ; i < player.getInventory().getContents().length; i++)
+		{
+			ItemStack stack = player.getInventory().getContents()[i];
+			if(stack == null || stack.getType() == Material.AIR) continue;
+			
+			for(Entry<Enchantment, Integer> ench : stack.getEnchantments().entrySet())
+			{
+				if(ench.getKey().equals(searchEnch)) value += ench.getValue();
+			}
+		}
+		
+		return value;
 	}
 
 	

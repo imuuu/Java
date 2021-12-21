@@ -77,7 +77,9 @@ public class ShopManager
 	
 	void PutMaterialPrice(Material mat, double price)
 	{		
-		_material_prices.put(mat, (PriceMaterial)(new PriceMaterial().SetPrice(price)));
+		PriceMaterial pm = new PriceMaterial();
+		pm.SetPrice(price);
+		_material_prices.put(mat, pm);
 	}
 	
 	public PriceMaterial GetPriceMaterial(Material mat)

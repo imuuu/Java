@@ -54,8 +54,7 @@ public class ShopManagerSQL
 		PreparedStatement ps;
 		try 
 		{
-			System.out.println("===LOADING TABLES===");
-			
+			_main.getLogger().info("===LOADING TABLES===");
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shops.toString()+" ("
 					+ "uuid CHAR(36) NOT NULL, "
 					+ "name VARCHAR(100) NOT NULL, "
@@ -71,7 +70,7 @@ public class ShopManagerSQL
 					+ "absolutePositions INT(1), PRIMARY KEY(uuid))");
 			ps.executeUpdate();
 			
-			System.out.println("==> shops");
+			_main.getLogger().info("==> shops");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitems.toString()+" (" 
 					+ "uuid CHAR(36), "	
@@ -97,7 +96,7 @@ public class ShopManagerSQL
 //					+ "FOREIGN KEY(custom_recipe_price) REFERENCES custom_prices_recipes(uuid))");
 			ps.executeUpdate();
 			
-			System.out.println("===> shopItems");
+			_main.getLogger().info("===> shopItems");
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_permissions.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
 					+ "uuid CHAR(36), "					
@@ -105,7 +104,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id))");
 
 			ps.executeUpdate();
-			System.out.println("===> shopItems => permissions");
+			_main.getLogger().info("===> shopItems => permissions");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_worlds.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -114,7 +113,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id))");
 
 			ps.executeUpdate();
-			System.out.println("===> shopItems => worldNames");
+			_main.getLogger().info("===> shopItems => worldNames");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_locations.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -128,7 +127,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id))");
 
 			ps.executeUpdate();
-			System.out.println("===> shopItems => locations");
+			_main.getLogger().info("===> shopItems => locations");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_customs.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -138,16 +137,18 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id))");
 
 			ps.executeUpdate();
-			System.out.println("===> price type => custom");
+			_main.getLogger().info("===> price type => custom");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_values.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
-					+ "uuid CHAR(36), "				
-					+ "amount FLOAT(20), "							
+					+ "uuid CHAR(36), "
+					+ "name VARCHAR(36), "				
+					+ "amount FLOAT(20), "
+					+ "mark VARCHAR(10), "					
 					+ "PRIMARY KEY(id))");
 
 			ps.executeUpdate();
-			System.out.println("===> price type => priceValues");
+			_main.getLogger().info("===> price type => priceValues");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.custom_price.toString()+" ("
 					+ "uuid CHAR(36), "				
@@ -155,7 +156,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(uuid))");
 
 			ps.executeUpdate();
-			System.out.println("===> CustomPrice");
+			_main.getLogger().info("===> CustomPrice");
 			
 			
 			
@@ -166,7 +167,7 @@ public class ShopManagerSQL
 					+ ")");
 			ps.executeUpdate();
 			
-			System.out.println("====> material_prices");	
+			_main.getLogger().info("====> material_prices");	
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_material.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -174,7 +175,7 @@ public class ShopManagerSQL
 					+ "tag_name VARCHAR(30),"
 					+ "PRIMARY KEY(id))");
 			ps.executeUpdate();
-			System.out.println("=====> tags_materials");
+			_main.getLogger().info("=====> tags_materials");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_shopitems.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -182,7 +183,7 @@ public class ShopManagerSQL
 					+ "tag_name VARCHAR(30),"
 					+ "PRIMARY KEY(id))");
 			ps.executeUpdate();
-			System.out.println("=====> tags_shopitems");
+			_main.getLogger().info("=====> tags_shopitems");
 
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.uniques.toString()+" ("
 					+ "uuid CHAR(36), "	
@@ -191,7 +192,7 @@ public class ShopManagerSQL
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(uuid))");
 			ps.executeUpdate();
-			System.out.println("=====> uniques");
+			_main.getLogger().info("=====> uniques");
 			
 			ps = _main.GetSQL().GetConnection().prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.log_transaction.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "	
@@ -209,18 +210,18 @@ public class ShopManagerSQL
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(id))");
 			ps.executeUpdate();
-			System.out.println("=====> log");
+			_main.getLogger().info("=====> log");
 			
 		} catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
-		System.out.println("===TABLE LOADING FINNISHED===");
+		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
 	public void LogPurchaseAsync(Player player, ShopItemBase sib, int amount,TransactionAction tAction)
 	{
-		//System.out.println("Loging..");
+		//_main.getLogger().info("Loging..");
 		new BukkitRunnable() 
 		{	
 			@Override
@@ -264,7 +265,7 @@ public class ShopManagerSQL
 			if(!rs.isBeforeFirst())
 			{
 				//NO DATA
-				System.out.println("No shops found!");
+				_main.getLogger().info("No shops found!");
 				return;
 			}
 			while(rs.next())
@@ -293,7 +294,7 @@ public class ShopManagerSQL
 				shop.SetAbsolutePosBool(absolutePos);
 				
 							
-				System.out.println("Shop loaded from sql: "+ name);
+				_main.getLogger().info("Shop loaded from sql: "+ name);
 				LoadShopItems(shop);
 				_shopManager.GetShops().add(shop);
 								
@@ -333,12 +334,12 @@ public class ShopManagerSQL
 					String mat_name = rs.getString(i++);
 					_shopManager.PutMaterialPrice(Material.getMaterial(mat_name), (double)rs.getFloat(i++));
 				}
-				System.out.println("Material prices loaded");
+				_main.getLogger().info("Material prices loaded");
 			}
 		}
 		catch (SQLException e) 
 		{
-			System.out.println("Couldnt add materials!");
+			_main.getLogger().info("Couldnt add materials!");
 			e.printStackTrace();
 		}	
 	}
@@ -348,7 +349,7 @@ public class ShopManagerSQL
 		PreparedStatement ps;
 		try 
 		{
-			//System.out.println("try to save to data base material "+mat+ " and price: "+price);
+			//_main.getLogger().info("try to save to data base material "+mat+ " and price: "+price);
 			ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");
 			ps.setString(1, mat.name());
 			ps.setFloat(2, (float)price);
@@ -356,7 +357,7 @@ public class ShopManagerSQL
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("Couldnt Save Material ( "+mat.toString()+" ) to database");
+			_main.getLogger().info("Couldnt Save Material ( "+mat.toString()+" ) to database");
 		}
 		
 	}
@@ -438,7 +439,7 @@ public class ShopManagerSQL
 							//modData.
 							
 						}
-						System.out.println("distance added");
+						_main.getLogger().info("distance added");
 					}
 					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+uuid.toString()+"';");
 					rs = ps.executeQuery();
@@ -449,7 +450,7 @@ public class ShopManagerSQL
 						{
 							modData.AddPermission(rs.getString(3));						
 						}
-						System.out.println("permission added");
+						_main.getLogger().info("permission added");
 					}
 					
 					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+uuid.toString()+"';");
@@ -460,7 +461,7 @@ public class ShopManagerSQL
 						{
 							modData.AddWorldName(rs.getString(3));						
 						}
-						System.out.println("world added");
+						_main.getLogger().info("world added");
 					}
 					
 					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems+" WHERE sib_uuid='"+uuid.toString()+"';");
@@ -501,7 +502,7 @@ public class ShopManagerSQL
 				if(!Strings.isNullOrEmpty(typeData))
 					sis.ParseJsonData(new JsonParser().parse(typeData).getAsJsonObject());
 			
-				//System.out.println("sis: "+sis.GetRealItem().getType()+ " price: "+sis.GetItemPrice());
+				//_main.getLogger().info("sis: "+sis.GetRealItem().getType()+ " price: "+sis.GetItemPrice());
 				shop.SetItem(sis, page, slot);
 				
 			}
@@ -519,7 +520,7 @@ public class ShopManagerSQL
 		if(rs.isBeforeFirst()) 
 		{
 			rs.next();
-			priceValue = (double)rs.getFloat(3);
+			priceValue = (double)rs.getFloat(4);
 		}
 		
 		return priceValue;
@@ -535,9 +536,11 @@ public class ShopManagerSQL
 	{		
 		//RemovePriceValue(shopItemSellerUUID);
 		PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.price_values.toString()+" "
-				+ "(uuid, amount) VALUES (?,?)");
+				+ "(uuid, name, amount, mark) VALUES (?,?, ?, ?)");
 		ps.setString(1, shopItemSellerUUID.toString());
-		ps.setFloat(2, (float)value);
+		ps.setString(2, "");
+		ps.setFloat(3, (float)value);
+		ps.setString(4, "$");
 		ps.executeUpdate();
 	}
 	
@@ -586,7 +589,7 @@ public class ShopManagerSQL
 		PreparedStatement ps;
 		for(CustomPriceData item : pc.GetItems())
 		{
-			System.out.println("saving custom item: "+item._stack.getType());
+			_main.getLogger().info("saving custom item: "+item._stack.getType());
 			ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_TABLES.price_customs.toString()+" "
 					+ "(uuid, amount, itemstack) VALUES (?,?,?)");
 			ps.setString(1, shopItemUUID.toString());
@@ -634,7 +637,7 @@ public class ShopManagerSQL
 					
 				} catch (Exception e) 
 				{
-					System.out.println("TRY TO DELETE SHOP NAMED "+shop.GetName()+".. something went wrong!");
+					_main.getLogger().info("TRY TO DELETE SHOP NAMED "+shop.GetName()+".. something went wrong!");
 					e.printStackTrace();
 				}
 			}
@@ -684,7 +687,7 @@ public class ShopManagerSQL
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("error happend deleting shopitem: "+sib.GetItemType()+"");
+			_main.getLogger().info("error happend deleting shopitem: "+sib.GetItemType()+"");
 		}
 		
 		
@@ -704,7 +707,7 @@ public class ShopManagerSQL
 				PreparedStatement ps;
 				try 
 				{
-					System.out.println("saving shop");
+					_main.getLogger().info("saving shop");
 					ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.shops.toString()+" "
 							+ "(uuid, name, display_name, pages,shop_type, sellM, buyM, expire_percent, expire_cooldown, locked, customer_can_sell,absolutePositions)"
 							+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)");
@@ -721,7 +724,7 @@ public class ShopManagerSQL
 					ps.setInt	(11, (shop.GetCustomersCanOnlyBuy() ? 1 : 0));		
 					ps.setInt	(12, (shop.GetAbsolutePosBool() ? 1 : 0));		
 					ps.executeUpdate();
-					System.out.println("shop name data saved");
+					_main.getLogger().info("shop name data saved");
 					int page = 0;
 					for (ShopItemSeller[] siss : shop.get_items()) 
 					{
@@ -739,11 +742,11 @@ public class ShopManagerSQL
 						}
 						page++;
 					}
-					System.out.println("shop item data saved");
+					_main.getLogger().info("shop item data saved");
 					
 				} catch (Exception e) 
 				{
-					System.out.println("Couldnt save shop data, probably SQL's shops table is missing");
+					_main.getLogger().info("Couldnt save shop data, probably SQL's shops table is missing");
 					e.printStackTrace();
 				}
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
@@ -765,7 +768,7 @@ public class ShopManagerSQL
 //							+ "SET shopitems.amount = IF((shopitems.fill_amount > 0 AND shopitems.fill_delay > 0), IF(shopitems.max_amount < shopitems.amount+"+amount+", shopitems.max_amount,shopitems.amount+"+amount+"), shopitems.amount) "
 //									+ "WHERE shopitems.uuid='"+sis.GetUUID().toString()+"';");
 //					ps.executeUpdate();
-//					System.out.println("updateing : "+sis.GetRealItem().getType() + " amount "+amount);
+//					_main.getLogger().info("updateing : "+sis.GetRealItem().getType() + " amount "+amount);
 //					ps =_main.GetSQL().GetConnection().prepareStatement("UPDATE "+SQL_TABLES.shopitems+" "
 //							+"SET shopitems.amount = IF(shopitems.amount < 0, 0, shopitems.amount)"
 //							+"WHERE shopitems.uuid='"+sis.GetUUID().toString()+"';");
@@ -876,7 +879,7 @@ public class ShopManagerSQL
 //				
 //				RemovePriceCustom(sis.GetUUID());
 //				RemovePriceValue(sis.GetUUID());
-				//System.out.println("READING: "+sis.GetItemPrice());
+				//_main.getLogger().info("READING: "+sis.GetItemPrice());
 				
 				
 				
@@ -886,7 +889,7 @@ public class ShopManagerSQL
 			if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
 			{
 				priceType = ItemPriceType.PriceCustom;
-				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains custom price");
+				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains custom price");
 				SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()));
 				
 			}
@@ -894,14 +897,14 @@ public class ShopManagerSQL
 			if(sis.GetItemPrice().getClass().equals(PriceOwn.class))
 			{
 				priceType = ItemPriceType.PriceOwn;
-				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
+				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
 				SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
 			}
 			
 			if(sis.GetItemPrice().getClass().equals(PriceUnique.class))
 			{
 				priceType = ItemPriceType.PriceUnique;
-				//System.out.println("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
+				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
 				//SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
 			}
 			
@@ -924,7 +927,7 @@ public class ShopManagerSQL
 		catch (Exception e) 
 		{
 			e.printStackTrace();
-			System.out.println("Saving shopitem: Couldnt add item");
+			_main.getLogger().info("Saving shopitem: Couldnt add item");
 		}
 		
 	}
@@ -955,7 +958,7 @@ public class ShopManagerSQL
 				} 
 				catch (Exception e) 
 				{
-					System.out.println("Couldnt save unique");
+					_main.getLogger().info("Couldnt save unique");
 					e.printStackTrace();
 				}	
 			}
@@ -977,7 +980,7 @@ public class ShopManagerSQL
 				} 
 				catch (Exception e) 
 				{
-					System.out.println("Couldnt save unique");
+					_main.getLogger().info("Couldnt save unique");
 					e.printStackTrace();
 				}	
 			}
@@ -990,20 +993,20 @@ public class ShopManagerSQL
 		PriceUnique priceUnique  = new PriceUnique();
 		try 
 		{
-			//System.out.println("getting unique price");
+			//_main.getLogger().info("getting unique price");
 			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM uniques WHERE uuid='"+uuid.toString()+"';");
 			ResultSet rs = ps.executeQuery();
 			if(rs.isBeforeFirst())
 			{
 				rs.next();
-				//System.out.println("rs: "+rs.getDouble(3));
+				//_main.getLogger().info("rs: "+rs.getDouble(3));
 				double price = (double)rs.getFloat(3);
 				priceUnique.SetPrice(price);
 			}
 		} 
 		catch (Exception e) 
 		{
-			System.out.println("Couldnt get unique price");
+			_main.getLogger().info("Couldnt get unique price");
 			e.printStackTrace();
 		}	
 		return priceUnique;
@@ -1021,7 +1024,7 @@ public class ShopManagerSQL
 			if(!rs.isBeforeFirst())
 			{
 				//NO DATA
-				System.out.println("Uniques not found!");
+				_main.getLogger().info("Uniques not found!");
 				return;
 			}
 			while(rs.next())
@@ -1031,7 +1034,7 @@ public class ShopManagerSQL
 				i++;
 				double price = (double)rs.getFloat(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs.getString(i++));
-				System.out.println("Unique loaded: "+price);
+				_main.getLogger().info("Unique loaded: "+price);
 				ShopItemUnique unique = new ShopItemUnique(_main, null, stack, 1);
 				unique.SetUUID(uuid);
 				unique.GetItemPrice().SetPrice(price);
@@ -1041,7 +1044,7 @@ public class ShopManagerSQL
 			}
 		} catch (SQLException e) 
 		{
-			System.out.println("Loading Unique ERROR");
+			_main.getLogger().info("Loading Unique ERROR");
 			e.printStackTrace();
 		}
 	}

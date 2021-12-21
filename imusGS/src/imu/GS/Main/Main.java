@@ -69,9 +69,9 @@ public class Main extends JavaPlugin
 		_tagManager = new TagManager(this);
 		//_shopManager.loadShopsAsync();
 		 
-		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" [imusGS] has been activated!");
-		
+	
 		registerCommands();
+		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" [imusGS] has been activated!");
 		
 		
 	}
