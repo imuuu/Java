@@ -7,20 +7,16 @@ import org.bukkit.entity.Player;
 
 import imu.TokenTp.CustomItems.ItemTeleTokenBase;
 import imu.TokenTp.Interfaces.CommandInterface;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.main.Main;
 
 public class subSpawnBaseCmd implements CommandInterface
 {
 	Main _main = null;
-	ItemMetods _itemM = null;
-	
 	String[] codes = {"pos", "bind","player"};
 	String _sub_str = "";
 	public subSpawnBaseCmd(Main main) 
 	{
 		_main = main;
-		_itemM = _main.getItemM();
 	}
 	
     @Override

@@ -23,6 +23,7 @@ import imu.TokenTp.Enums.TeleTokenType;
 import imu.TokenTp.Enums.TokenType;
 import imu.TokenTp.Managers.TeleTokenManager;
 import imu.TokenTp.main.Main;
+import imu.iAPI.Main.ImusAPI;
 
 public class TokenEvents implements Listener
 {
@@ -62,7 +63,8 @@ public class TokenEvents implements Listener
 					{
 						ItemStack token = _ttManager.makeToken(_ttManager.getTheCard(content[0], content[1]));
 	
-						_main.getItemM().moveItemFirstFreeSpaceInv(token, p, true);
+						//ImusAPI._metods.moveItemFirstFreeSpaceInv(token, p, true);
+						ImusAPI._metods.InventoryAddItemOrDrop(token, p);
 						for(ItemStack s : event.getInventory())
 						{
 							if(s!= null && s.getAmount()> 0)

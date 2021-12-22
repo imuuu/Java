@@ -89,7 +89,7 @@ public class ShopBaseModify extends CustomInvLayout
 		
 		ItemStack stack = new ItemStack(Material.PAPER);
 		Metods.setDisplayName(stack, "&6Rename shop name");
-		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.NAME, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
+		_metods.addLore(stack, setTo+"&r" +_shopModData.GetValueStr(ModDataShop.NAME, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(0, SetButton(stack, BUTTON.SHOP_NAME));
 		
 		stack = new ItemStack(Material.GOLD_INGOT);
@@ -166,11 +166,17 @@ public class ShopBaseModify extends CustomInvLayout
 		shop.SetAbsolutePosBool(_shopModData._absoluteItemPosition);
 		shop.SetCustomersCanOnlyBuy(_shopModData._customersCanOnlyBuy);
 
-		if(!shop.GetDisplayName().equalsIgnoreCase(_shopModData._name)) 
+		if(!shop.GetDisplayName().equalsIgnoreCase(_shopModData._displayName)) 
 		{
-			_player.sendMessage(Metods.msgC("&2 Shop name has been changed from "+shop.GetDisplayName()+ "&2 to "+_shopModData._name));
-			_player.sendMessage(Metods.msgC("&e Shop data has been saved to database!"));
-			shop.SetName(_shopModData._name);
+			String oldName = shop.GetName();
+			_player.sendMessage(Metods.msgC("&2 Shop name has been changed from "+shop.GetDisplayName()+ "&2 to "+_shopModData._displayName));
+			_player.sendMessage(Metods.msgC("&e Shop data has been saved to database!"));			
+			shop.SetName(_shopModData._displayName);
+			if(_main.GetDenizenSCreator().IsFileExist())
+			{
+				_main.GetDenizenSCreator().RenameShop(oldName, shop.GetName());
+				_player.sendMessage(Metods.msgC("&9Remember &2reload &9DenizenScripts! =>  &b/ex reload!"));
+			}
 			_main.get_shopManager().AddShop(shop);
 			shop.SaveDataAsync();
 			

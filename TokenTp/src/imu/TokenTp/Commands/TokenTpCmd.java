@@ -6,18 +6,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import imu.TokenTp.Interfaces.CommandInterface;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.main.Main;
+import imu.iAPI.Other.Metods;
  
 public class TokenTpCmd implements CommandInterface
 {
-	Main _main = null;
-	ItemMetods _itemM = null;
-	public TokenTpCmd(Main main)
-	{
-		_main = main;
-		_itemM = main.getItemM();
-	}
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
  

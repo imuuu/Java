@@ -64,7 +64,7 @@ public class Main extends JavaPlugin
 		// MANAGERS
 		_shopManager = new ShopManager(this);
 		_shopManager.Init();
-		_denizenScriptCreator = new DenizenScriptCreator();
+		_denizenScriptCreator = new DenizenScriptCreator(this);
 		
 		_tagManager = new TagManager(this);
 		//_shopManager.loadShopsAsync();

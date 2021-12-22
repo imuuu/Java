@@ -187,6 +187,7 @@ public abstract class ShopBase
 		//System.out.println("add customer");
 		if(_temp_lock || _locked) 
 		{
+			player.sendMessage(Metods.msgC("&9The Shop is temporarily closed! Come back laiter!"));
 			return;
 		}
 		

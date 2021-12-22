@@ -35,9 +35,9 @@ public class SubAssingToNpcCMD implements CommandInterface
     		return false;
         }
     	
-    	ImusAPI._metods.printArray("test", args);
+    	//ImusAPI._metods.printArray("test", args);
         String nameShop = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
-        System.out.println("shop name: "+nameShop);
+        //System.out.println("shop name: "+nameShop);
         if(_main.get_shopManager().GetShop(nameShop) == null)
         {
         	player.sendMessage(ChatColor.RED + "Shopname not found!");

@@ -9,32 +9,29 @@ import imu.TokenTp.Commands.TokenTtpTpCmd;
 import imu.TokenTp.Events.TokenEvents;
 import imu.TokenTp.Handlers.CommandHandler;
 import imu.TokenTp.Managers.TeleTokenManager;
-import imu.TokenTp.Other.ConfigMaker;
-import imu.TokenTp.Other.ItemMetods;
+import imu.TokenTp.SubCommands.subReloadCmd;
 import imu.TokenTp.SubCommands.subSetDescCmd;
 import imu.TokenTp.SubCommands.subSetDestCmd;
 import imu.TokenTp.SubCommands.subSpawnBaseCmd;
 import imu.TokenTp.SubCommands.subSpawnCardCmd;
 import imu.TokenTp.SubCommands.subSpawnTokenCmd;
-import imu.TokenTp.SubCommands.subReloadCmd;
 import imu.TokenTp.SubCommands.subTtpTpAnwserCmd;
 import imu.TokenTp.SubCommands.subTtpTpListCmd;
 import imu.TokenTp.SubCommands.subTtpTpRequestCmd;
+import imu.iAPI.Other.ConfigMaker;
 
 public class Main extends JavaPlugin
 {
 
 	Main instance = null;
 	TeleTokenManager _ttManager = null;
-	
-	ItemMetods itemM = null;
-	
+
 	public void registerCommands() 
     {  	
         CommandHandler handler = new CommandHandler();
 
         String cmd1="ttp";
-        handler.registerCmd(cmd1, new TokenTpCmd(this));  
+        handler.registerCmd(cmd1, new TokenTpCmd());  
         handler.setPermissionOnLastCmd("ttp");
         handler.registerSubCmd(cmd1, "reload", new subReloadCmd(this));
         handler.registerSubCmd(cmd1, "spawn card", new subSpawnCardCmd(this,"spawn card"));
@@ -44,7 +41,7 @@ public class Main extends JavaPlugin
         handler.registerSubCmd(cmd1, "set dest", new subSetDestCmd(this));
         
         String cmd2="tttp";
-        handler.registerCmd(cmd2, new TokenTtpTpCmd(this)); 
+        handler.registerCmd(cmd2, new TokenTtpTpCmd()); 
         handler.registerSubCmd(cmd2, "list", new subTtpTpListCmd(this));
         handler.registerSubCmd(cmd2, "request", new subTtpTpRequestCmd(this));
         handler.registerSubCmd(cmd2, "anwser", new subTtpTpAnwserCmd(this));
@@ -59,7 +56,7 @@ public class Main extends JavaPlugin
 	public void onEnable() 
 	{		
 		instance = this;
-		itemM = new ItemMetods(this);
+
 		_ttManager = new TeleTokenManager(this);
 
 		ConfigsSetup();
@@ -134,10 +131,10 @@ public class Main extends JavaPlugin
 		
 		
 	}
-	public ItemMetods getItemM() 
-	{
-		return itemM;
-	}
+//	public ItemMetods getItemM() 
+//	{
+//		return itemM;
+//	}
 
 		
 	

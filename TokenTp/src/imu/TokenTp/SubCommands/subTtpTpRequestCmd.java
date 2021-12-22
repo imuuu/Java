@@ -12,19 +12,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.TokenTp.Enums.TokenType;
 import imu.TokenTp.Interfaces.CommandInterface;
 import imu.TokenTp.Managers.TeleTokenManager;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.main.Main;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class subTtpTpRequestCmd implements CommandInterface
 {
 	Main _main = null;
-	ItemMetods _itemM = null;
+	Metods _itemM = null;
 	TeleTokenManager _ttManager;
 	public subTtpTpRequestCmd(Main main) 
 	{
 		_main = main;
-		_itemM = main.getItemM();
+		_itemM = ImusAPI._metods;
 		_ttManager = main.getTeleTokenManager();
 				
 	}

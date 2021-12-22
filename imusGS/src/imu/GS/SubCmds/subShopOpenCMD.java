@@ -39,6 +39,7 @@ public class SubShopOpenCMD implements CommandInterface
     	ShopBase shop = _main.get_shopManager().GetShop(shopName);
     	if(shop != null)
     	{
+    		//player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cTrying to open &9"+shopName));
     		shop.AddNewCustomer(player);
     	}else
     	{

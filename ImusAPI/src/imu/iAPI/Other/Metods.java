@@ -788,48 +788,48 @@ public class Metods
 
 	}
 	
-	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
-	{
-		if(stack == null || stack.getType() == Material.AIR)
-		{
-			return;
-		}
-		ItemStack copy = new ItemStack(stack);
-		stack.setAmount(0);
-		int dropAmount = 1;
-		if(copy.getAmount() > copy.getMaxStackSize())
-		{
-			dropAmount = copy.getAmount();
-			copy.setAmount(1);
-		}
-		PlayerInventory inv = player.getInventory();
+//	public void moveItemFirstFreeSpaceInv(ItemStack stack, Player player, boolean includeHotbar)
+//	{
+//		if(stack == null || stack.getType() == Material.AIR)
+//		{
+//			return;
+//		}
+//		ItemStack copy = new ItemStack(stack);
+//		stack.setAmount(0);
+//		int dropAmount = 1;
+//		if(copy.getAmount() > copy.getMaxStackSize())
+//		{
+//			dropAmount = copy.getAmount();
+//			copy.setAmount(1);
+//		}
+//		PlayerInventory inv = player.getInventory();
+//		
+//		for(int i = 0; i < dropAmount ; ++i)
+//		{
+//			int invSlot;
+//			if(includeHotbar)
+//			{
+//				invSlot = inv.firstEmpty();
+//			}else
+//			{
+//				invSlot = getFirstEmpty(inv.getContents()); // no need I think
+//			}
+//
+//			if( invSlot != -1)
+//			{
+//
+//				//inv.addItem(copy);
+//				inv.setItem(invSlot, copy);
+//				
+//			}else
+//			{
+//				player.sendMessage(ChatColor.RED + "You don't have space!");
+//				dropItem(copy,player,true);			
+//			}
+//		}
 		
-		for(int i = 0; i < dropAmount ; ++i)
-		{
-			int invSlot;
-			if(includeHotbar)
-			{
-				invSlot = inv.firstEmpty();
-			}else
-			{
-				invSlot = getFirstEmpty(inv.getContents()); // no need I think
-			}
-
-			if( invSlot != -1)
-			{
-
-				//inv.addItem(copy);
-				inv.setItem(invSlot, copy);
-				
-			}else
-			{
-				player.sendMessage(ChatColor.RED + "You don't have space!");
-				dropItem(copy,player,true);			
-			}
-		}
 		
-		
-	}
+//	}
 	
 	public int getFirstEmpty(ItemStack[] itemStacks)
 	{
@@ -1065,9 +1065,10 @@ public class Metods
 	 * @param table text is key and value would be command. Remember command: /command pal pla
 	 * @param seperator
 	 */
-	public void SendMessageCommands(Player player, HashMap<String, String> table, String seperator)
+	public void SendMessageCommands(Player player, String frontText, HashMap<String, String> table, String backText ,String seperator)
 	{
 		TextComponent main_msg = new TextComponent();
+		main_msg.addExtra(frontText);
 		for (Map.Entry<String, String> entry : table.entrySet()) 
 		{
 		    String text = entry.getKey();
@@ -1084,6 +1085,7 @@ public class Metods
 		    main_msg.addExtra(msgSlash);
 		    
 		}
+		main_msg.addExtra(backText);
 		player.spigot().sendMessage(main_msg);
 	}
 	

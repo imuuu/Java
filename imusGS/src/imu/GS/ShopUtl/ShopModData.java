@@ -7,7 +7,7 @@ import imu.iAPI.Main.ImusAPI;
 
 public class ShopModData implements IModData
 {
-	public String _name = "";
+	//public String _name = "";
 	public String _displayName = "";
 	
 	public double _sellMultiplier = -1.0;
@@ -26,7 +26,7 @@ public class ShopModData implements IModData
 	
 	public ShopModData ReadShop(ShopBase shop)
 	{
-		_name = shop.GetName();
+		//_name = shop.GetName();
 		_displayName = shop.GetDisplayName();
 		_sellMultiplier = shop.get_sellM();
 		_buyMultiplier = shop.get_buyM();
@@ -55,7 +55,7 @@ public class ShopModData implements IModData
 			str += _sellMultiplier;
 			break;
 		case NAME:
-			str+= _name;
+			str+= _displayName;
 			break;
 //		case DISPLAYNAME:
 //			str += _displayName;
@@ -94,7 +94,7 @@ public class ShopModData implements IModData
 		switch(value)
 		{
 		case NAME:
-			_name = str; return true;	
+			_displayName = str; return true;	
 		case BUY_MUL:
 			if(!ImusAPI._metods.isDigit(str)) return false;
 			_buyMultiplier = Double.parseDouble(str);

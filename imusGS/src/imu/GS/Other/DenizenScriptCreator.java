@@ -3,21 +3,28 @@ package imu.GS.Other;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import org.bukkit.scheduler.BukkitRunnable;
+
+import imu.GS.Main.Main;
+
 public class DenizenScriptCreator 
 {
-	private String _nameTag="gs_assignments_shops.dsc";
+	final private String _nameTag="gs_assignments_shops.dsc";
 	private String _path = "";
 	
 	ArrayList<String> example_script;
 	String str_script_name = null;
-	String cmd = "gs open shop ";
-	public DenizenScriptCreator() 
+	final private String cmd = "gs open shop ";
+	private Main _main;
+	public DenizenScriptCreator(Main main) 
 	{
+		_main = main;
 		_path = "plugins/Denizen/scripts/"+_nameTag;
 		example_script = ReadDenizenTemplate();
 		
@@ -25,7 +32,7 @@ public class DenizenScriptCreator
 	
 	public String CreateAssignScript(String script_name, String shopname)
 	{
-		WriteTheNewScript(script_name, CoverLines(script_name,shopname));		
+		WriteTheNewScript(CoverLines(script_name,shopname), false);		
 		return str_script_name;
 	}
 	
@@ -61,7 +68,7 @@ public class DenizenScriptCreator
 		return lines_for_new;
 	}
 	
-	void WriteTheNewScript(String fileName, ArrayList<String> lines)
+	void WriteTheNewScript(ArrayList<String> lines, boolean overide)
 	{
 		try 
 		{
@@ -69,7 +76,7 @@ public class DenizenScriptCreator
 			
 			File f = new File(_path);
 			BufferedWriter bw;
-			if(!f.exists())
+			if(!f.exists() || overide)
 			{
 				bw = new BufferedWriter(new FileWriter(_path));
 			}else
@@ -77,17 +84,72 @@ public class DenizenScriptCreator
 				bw = new BufferedWriter(new FileWriter(f,true));
 			}
 			
-			
-			for(String line : lines)
+			if(!overide)
 			{
-				bw.append(line);
+				for(String line : lines)
+				{
+					bw.append(line);
+				}
+			}else
+			{
+				for(String line : lines)
+				{
+					bw.write(line);
+					bw.newLine();
+				}
 			}
+			
 			bw.close();
 		} catch (Exception e) 
 		{
 			System.out.println("Coulndt write denizen folderscript");
 		}
 	}
+	public boolean IsFileExist()
+	{
+		return new File(_path).exists();
+	}
+	public void RenameShop(String oldShopName, String newShopName)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				try 
+				{
+					//System.out.println("try to find: "+_main.getDataFolder()+"/Denizen/scripts/"+script_name+".dc");
+					
+					File f = new File(_path);
+					
+					if(!f.exists())
+					{
+						return;
+					}
+					BufferedReader br = new BufferedReader(new FileReader(f));
+					ArrayList<String> lines = new ArrayList<>();
+					String line;
+					while(( line = br.readLine())!= null)
+					{
+						if(line.contains(oldShopName))
+						{
+							line = line.replace(oldShopName, newShopName);
+						}
+						//System.out.println("line: "+line);
+						lines.add(line);
+					}
+					br.close();
+					
+					WriteTheNewScript(lines, true);	
+					
+				} catch (Exception e) 
+				{
+					System.out.println("Coulndt re write denizen folderscript");
+				}
+			}
+		}.runTaskAsynchronously(_main);
+	}
+	
 	ArrayList<String> ReadDenizenTemplate()
 	{
 		ArrayList<String> lines = new ArrayList<>();

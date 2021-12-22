@@ -16,16 +16,17 @@ import imu.TokenTp.CustomItems.ItemTeleTokenToken;
 import imu.TokenTp.Enums.TeleState;
 import imu.TokenTp.Enums.TeleTokenType;
 import imu.TokenTp.Enums.TokenType;
-import imu.TokenTp.Other.Cooldowns;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.Other.TeleChecks;
 import imu.TokenTp.main.Main;
-import net.minecraft.server.v1_16_R3.Tuple;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.Tuple;
 
 public class TeleTokenManager 
 {
 	Main _main = null;
-	ItemMetods _itemM = null;
+	Metods _itemM = null;
 	
 	int _teleport_time = 7;
 	
@@ -52,7 +53,7 @@ public class TeleTokenManager
 	public TeleTokenManager(Main main) 
 	{
 		_main = main;
-		_itemM = _main.getItemM();
+		_itemM = ImusAPI._metods;
 		setPdDataWords();
 	}
 	
@@ -119,7 +120,7 @@ public class TeleTokenManager
 	}
 	public Boolean getRequestAnwser(UUID teleporter)
 	{
-		return _anwsers.get(teleporter).b();
+		return _anwsers.get(teleporter).GetValue();
 	}
 	public int getRequestCDtime()
 	{
@@ -131,11 +132,11 @@ public class TeleTokenManager
 	}
 	public UUID getRequestTarget(UUID teleporter)
 	{
-		return _anwsers.get(teleporter).a();
+		return _anwsers.get(teleporter).GetKey();
 	}
 	public Boolean hasRequestTargetThis(UUID teleporter, UUID target)
 	{
-		if(_anwsers.containsKey(teleporter) && _anwsers.get(teleporter).a() == target)
+		if(_anwsers.containsKey(teleporter) && _anwsers.get(teleporter).GetKey() == target)
 		{
 			return true;
 		}
@@ -146,7 +147,7 @@ public class TeleTokenManager
 	{
 		if(_anwsers.containsKey(teleporter))
 		{
-			if(_anwsers.get(teleporter).b() == null)
+			if(_anwsers.get(teleporter).GetValue() == null)
 			{
 				return false;
 			}

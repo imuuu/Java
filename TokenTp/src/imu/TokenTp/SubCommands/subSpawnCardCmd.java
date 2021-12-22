@@ -12,20 +12,21 @@ import imu.TokenTp.CustomItems.ItemTeleTokenCard;
 import imu.TokenTp.Enums.TeleTokenType;
 import imu.TokenTp.Enums.TokenType;
 import imu.TokenTp.Interfaces.CommandInterface;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.main.Main;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 
 public class subSpawnCardCmd implements CommandInterface
 {
 	Main _main = null;
-	ItemMetods _itemM = null;
+	Metods _itemM = null;
 	
 	String[] codes = {"pos", "bind","player"};
 	String _sub_str = "";
 	public subSpawnCardCmd(Main main, String subStr) 
 	{
 		_main = main;
-		_itemM = _main.getItemM();
+		_itemM = ImusAPI._metods;
 		_sub_str = subStr;
 	}
 	

@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+import chestcleaner.sorting.SortingEvent;
 import imu.iAPI.Interfaces.CustomInv;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
@@ -42,9 +43,10 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 
 		_name = Metods.msgC(name);
 		_size = size;
-		_player = player;		
-		_inv =  _plugin.getServer().createInventory(null, _size, _name);		
+		_player = player;	
+		_inv =  _plugin.getServer().createInventory(null, _size, _name);
 		RegisterToEvents();
+		
 	}
 	protected enum DENY_ITEM_MOVE
 	{
@@ -86,13 +88,14 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	
 	public boolean isThisInv(InventoryEvent e) 
 	{
-		if(e.getInventory().equals(_inv))
-		{
-			return true;
-		}
-		return false;
+		return isThisInv(e.getInventory());
 	}
-		
+	
+	public boolean isThisInv(Inventory inv)
+	{
+		return inv.equals(_inv);
+	}
+	
 	public void onDisable()
 	{
 		_player.closeInventory();
@@ -101,11 +104,19 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	public void openThis() 
 	{	
 		_player.openInventory(_inv);
-		
 		if(!HasRegistered())
 			RegisterToEvents();
+		
 	}
 	
+	@EventHandler
+	public void OnInvSort(SortingEvent e) //ChectCleaner.plugin support
+	{
+		if(isThisInv(e.getInventory()))
+		{
+			e.setCancelled(true);
+		}
+	}
 	@EventHandler
 	public void invClose(InventoryCloseEvent e)
 	{
@@ -204,7 +215,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	public ItemStack setupButton(IButton b, Material material, String displayName, Integer itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_metods.setDisplayName(sbutton, Metods.msgC(displayName));
+		Metods.setDisplayName(sbutton, Metods.msgC(displayName));
 		SetButton(sbutton, b);
 		if(itemSlot != null)
 		{

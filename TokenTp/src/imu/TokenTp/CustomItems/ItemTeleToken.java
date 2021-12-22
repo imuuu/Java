@@ -8,14 +8,15 @@ import org.bukkit.persistence.PersistentDataType;
 import imu.TokenTp.Enums.TeleTokenType;
 import imu.TokenTp.Enums.TokenType;
 import imu.TokenTp.Managers.TeleTokenManager;
-import imu.TokenTp.Other.ItemMetods;
 import imu.TokenTp.main.Main;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
 public class ItemTeleToken extends ItemStack
 {
 	Main _main = null;
-	ItemMetods _itemM = null;
+	Metods _itemM = null;
 	TeleTokenManager _ttManager = null;
 	
 	Material _mat = Material.PAPER;
@@ -37,7 +38,7 @@ public class ItemTeleToken extends ItemStack
 		super(Material.STONE);
 		_main = main;
 		_ttManager = main.getTeleTokenManager();
-		_itemM = main.getItemM();
+		_itemM = ImusAPI._metods;
 		setTokenType(TokenType.TOKEN_TO_LOCATION);
 		setData();
 	}
@@ -47,7 +48,7 @@ public class ItemTeleToken extends ItemStack
 		super(stack);
 		_main = main;
 		_ttManager = main.getTeleTokenManager();
-		_itemM = main.getItemM();
+		_itemM =  ImusAPI._metods;
 	}
 		
 	void setData()
