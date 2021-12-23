@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import imu.iAPI.Interfaces.CommandInterface;
+import imu.iAPI.Other.Metods;
 import imu.iWaystones.Main.ImusWaystones;
 import imu.iWaystones.Other.CmdData;
 
@@ -30,6 +31,7 @@ public class SubWaystoneConfirmationCmd implements CommandInterface
 		{
 			UUID uuid = UUID.fromString(args[1]);
 			ImusWaystones._instance.GetWaystoneManager().ConfirmWaystoneCreation(uuid);
+			sender.sendMessage(Metods.msgC("&3Waystone has been registered"));
 		} 
     	catch (Exception e) 
 		{

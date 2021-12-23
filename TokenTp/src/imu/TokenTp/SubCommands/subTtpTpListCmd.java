@@ -60,7 +60,7 @@ public class subTtpTpListCmd implements CommandInterface
 	    			 HashMap<String, String> hMap = new HashMap<String, String>();
 		    		 //player.sendMessage("=======================================");
 					 hMap.put(ChatColor.GOLD+"Send request to teleport to (press this with mouse): "+ChatColor.AQUA +targetPlayer.getName(), "/tttp request " + targetPlayer.getName());			
-					 _itemM.SendMessageCommands(player, hMap, " ");
+					 _itemM.SendMessageCommands(player, "",hMap,"", " ");
 					 //player.sendMessage("=======================================");
 	    		 }
 	    		    		 

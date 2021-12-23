@@ -16,6 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.TileState;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
@@ -651,6 +652,38 @@ public class Metods
 			}
 		}
 		
+				
+		return value;
+	}
+	
+	//works only below things
+	//    Banner, Barrel, Beacon, Bed, Beehive, Bell, BlastFurnace, BrewingStand, Campfire, Chest, CommandBlock, 
+	//Comparator, Conduit, Container, CreatureSpawner, DaylightDetector, Dispenser, Dropper, EnchantingTable, EnderChest, EndGateway, EntityBlockStorage<T>, 
+	//Furnace, Hopper, Jigsaw, Jukebox, Lectern, SculkSensor, ShulkerBox, Sign, Skull, Smoker, Structure
+	public <T> Block setPersistenData(Block block, String keyName, PersistentDataType<T, T> type, T data)
+	{
+		if(block == null || !(block.getState() instanceof TileState)) return null;
+		
+		TileState tileState = (TileState)block.getState();
+		NamespacedKey key = new NamespacedKey(_main, keyName);
+		tileState.getPersistentDataContainer().set(key, type, data);
+		tileState.update();
+		System.out.println( "persistent data set to block: "+block.getType());
+		return block;
+	}
+	
+	public <T> T getPersistenData(Block block, String keyName, PersistentDataType<T, T> type)
+	{
+		T value = null;
+		if(block == null || !(block.getState() instanceof TileState)) return value;
+		
+		TileState tileState = (TileState)block.getState();
+		NamespacedKey key = new NamespacedKey(_main, keyName);
+		PersistentDataContainer container = tileState.getPersistentDataContainer();
+		if(container.has(key, type))
+		{
+			return container.get(key, type);
+		}
 				
 		return value;
 	}

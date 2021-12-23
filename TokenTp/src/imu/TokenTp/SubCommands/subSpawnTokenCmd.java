@@ -67,7 +67,7 @@ public class subSpawnTokenCmd implements CommandInterface
     		hMap.put("Bind", "/"+cmd.getName() +" "+ _sub_str+ " " +codes[1]);
     		hMap.put("PlayerTp", "/"+cmd.getName() +" "+ _sub_str+ " " +codes[2]);
     		
-    		_itemM.SendMessageCommands(player, hMap, "/");
+    		_itemM.SendMessageCommands(player,"" ,hMap, "","/");
     	}
     	
     	if(card != null)

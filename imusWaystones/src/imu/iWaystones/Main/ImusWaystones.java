@@ -11,6 +11,7 @@ import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
 import imu.iWaystones.Managers.WaystoneManager;
+import imu.iWaystones.Managers.WaystoneManagerSQL;
 import imu.iWaystones.Other.CmdHelper;
 import imu.iWaystones.SubCmds.CMD;
 import imu.iWaystones.SubCmds.SubWaystoneConfirmationCmd;
@@ -30,9 +31,15 @@ public class ImusWaystones extends JavaPlugin
 	public void onEnable() 
 	{
 		_instance = this;	
-		ConnectDataBase();
+		if(!ConnectDataBase())
+		{
+			getServer().getConsoleSender().sendMessage(ChatColor.RED +_pluginName+" has been disabled due to unable to connect to database!");
+			getServer().getConsoleSender().sendMessage(ChatColor.RED +_pluginName+" Plugin folder you can adjust database settings");
+			return;
+		}
 		
 		_waystoneManagers = new WaystoneManager();
+		
 		
 		_cmdHelper = new CmdHelper();
 		
@@ -42,6 +49,8 @@ public class ImusWaystones extends JavaPlugin
 		registerCommands();
 		
 		new WaystoneEvents();
+		
+		_waystoneManagers.Init();
 	}
 	
 
@@ -55,17 +64,20 @@ public class ImusWaystones extends JavaPlugin
 		
 	}
 	
-	void ConnectDataBase()
+	boolean ConnectDataBase()
 	{
 		_SQL = new MySQL(this, "imusWaystones");
 		try {
 			_SQL.Connect();
 			Bukkit.getLogger().info(ChatColor.GREEN +_pluginName+" Database Connected!");
+			return true;
 		} 
 		catch (ClassNotFoundException | SQLException e) {
 
 			Bukkit.getLogger().info(ChatColor.GREEN +_pluginName+" Database not connected");
 		}
+		
+		return false;
 	}
 	
 	public void registerCommands() 
@@ -89,6 +101,10 @@ public class ImusWaystones extends JavaPlugin
 		return _waystoneManagers;
 	}
 	
+	public WaystoneManagerSQL GetWaystoneManagerSQL()
+	{
+		return _waystoneManagers.GetWaystoneManagerSQL();
+	}
 	
 	public MySQL GetSQL()
 	{

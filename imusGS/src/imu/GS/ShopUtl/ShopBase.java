@@ -308,10 +308,9 @@ public abstract class ShopBase
 	
 	public void SetItem(ShopItemSeller sis, int page, int slot)
 	{
-		if(page > _items.size()-1)
+		if(page >= _items.size())
 		{
-			int pagesNeeded = page - _items.size();
-			//System.out.println("pages needed: "+pagesNeeded);
+			int pagesNeeded = page - (_items.size()-1);
 			for(int i = 0 ; i < pagesNeeded; ++i) {_items.add(new ShopItemSeller[shopHolderSize]);}
 		}
 		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);

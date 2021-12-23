@@ -74,6 +74,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	{
 		_hasRegisteredEvents = true;
 		_plugin.getServer().getPluginManager().registerEvents(this, _plugin);
+		
 	}
 	
 	public boolean HasRegistered()
@@ -104,6 +105,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	public void openThis() 
 	{	
 		_player.openInventory(_inv);
+		ImusAPI._instance.RegisterInvOpen(this);
 		if(!HasRegistered())
 			RegisterToEvents();
 		
@@ -125,6 +127,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 			invClosed(e);
 			HandlerList.unregisterAll(this);
 			_hasRegisteredEvents = false;
+			ImusAPI._instance.UnregisterInv(this);
 		}
 	}
 	

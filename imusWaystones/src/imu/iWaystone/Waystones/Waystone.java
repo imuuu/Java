@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 public class Waystone 
 {
+	private String _name;
 	private Block _top,_mid,_low;
 	private UUID _owner_uuid;
 	private String _owner_name;
@@ -14,10 +15,26 @@ public class Waystone
 	
 	public Waystone(Block top, Block mid, Block low) 
 	{
-		_top = top; _mid = mid; _low = low;
+		
+		
 		_uuid = UUID.randomUUID();
+		
+		
+		_top = top; _mid = mid; _low = low;
 	}
 	
+	
+//	void SetUUIDtoBlock(Block block)
+//	{
+//		ImusAPI._metods.setPersistenData(block, ImusWaystones._instance.GetWaystoneManager().pd_waystoneUUID, PersistentDataType.STRING, _uuid.toString());
+//	}
+//	
+//	public void RegisterWaystoneBlocks()
+//	{
+//		SetUUIDtoBlock(_top);
+//		SetUUIDtoBlock(_mid);
+//		SetUUIDtoBlock(_low);
+//	}
 	public void SetUUID(UUID uuid)
 	{
 		_uuid = uuid;
