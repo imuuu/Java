@@ -54,7 +54,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 	Main _main;
 	ShopManager _sm;
 	UniqueManager _uniqueManager;
-	HashMap<Material, ArrayList<ShopItemCustomer>> players_materialCompares;
 	int materialCompares_counter = 0;
 	
 	private PlayerTab _tab = PlayerTab.BLOCKS;
@@ -158,7 +157,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	void ResetPlayerShopItemList()
 	{
-		players_materialCompares = new HashMap<>();
 		_shopItemCustomer = new ArrayList<>();
 		_shopItemCustomer.add(new ShopItemCustomer[18]);
 	}

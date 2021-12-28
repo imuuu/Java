@@ -10,6 +10,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Main.ImusWaystones;
@@ -19,7 +20,7 @@ public class WaystoneEvents implements Listener
 {
 	ImusWaystones _main = ImusWaystones._instance;
 	WaystoneManager _waystoneManager;
-	
+	Cooldowns _cds = new Cooldowns();
 	public WaystoneEvents() 
 	{
 		ImusWaystones._instance.getServer().getPluginManager().registerEvents(this, ImusWaystones._instance);
@@ -46,11 +47,32 @@ public class WaystoneEvents implements Listener
 	@EventHandler
 	public void OnBlockInteract(PlayerInteractEvent e)
 	{
+		if(e.getClickedBlock() != null)
+		{
+			//System.out.println("interact: "+ e.getClickedBlock().getType() + " loc: "+e.getClickedBlock().getLocation().toVector());
+		}
+		
 		if(e.getAction() != Action.RIGHT_CLICK_BLOCK || !_waystoneManager.IsWaystone(e.getClickedBlock())) return;
-		if(ImusAPI._instance.GetOpenedInv(e.getPlayer()) != null) return;
-
-		_waystoneManager.OpenWaystone(e.getPlayer(),_waystoneManager.GetWaystone(e.getClickedBlock()));
+		
 		e.setCancelled(true);
+		
+		if(!_cds.isCooldownReady("click")) return;
+		
+		_cds.setCooldownInSeconds("click", 0.5f);
+		
+		
+		Waystone ws = _waystoneManager.GetWaystone(e.getClickedBlock());
+		if(!_waystoneManager.HasDiscovered(e.getPlayer(), ws))
+		{
+			_waystoneManager.AddDiscovered(e.getPlayer().getUniqueId(), ws.GetUUID(), true);
+			e.getPlayer().sendMessage(Metods.msgC("&3You have discovered new waystone named as "+ws.GetName()));
+			return;
+		}
+		
+		if(ImusAPI._instance.GetOpenedInv(e.getPlayer()) != null) return;
+	
+		_waystoneManager.OpenWaystone(e.getPlayer(),ws);
+		
 	
 	}
 	
@@ -59,7 +81,9 @@ public class WaystoneEvents implements Listener
 	{
 		if(!_waystoneManager.IsWaystone(e.getBlock())) return;
 		
-		_waystoneManager.RemoveWaystone(_waystoneManager.GetWaystone(e.getBlock()));
+		Waystone ws =_waystoneManager.GetWaystone(e.getBlock());
+		ws.SendMessageToOwner("&3Someone has &cDestroyed &3your &ewaystone &3named as "+ws.GetName());
+		_waystoneManager.RemoveWaystone(ws);
 		e.getPlayer().sendMessage(Metods.msgC("&3Waystone has been &cDestroyid"));
 	}
 	

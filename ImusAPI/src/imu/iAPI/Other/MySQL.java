@@ -79,7 +79,19 @@ public class MySQL
 	}
 	
 	public Connection GetConnection()
-	{
+	{		
+		try 
+		{
+			if(_connection.isClosed())
+			{
+				System.out.println("IS CLOSED ==> RECONNECT!");
+				Con(_dataBase);
+			}
+			
+		} catch (Exception e) 
+		{
+			Bukkit.getLogger().info("Coulnd't reconnect to database named:" +_dataBase);
+		}
 		return _connection;
 	}
 	

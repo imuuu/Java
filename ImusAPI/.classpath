@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/Spigot/Spigot-Server/target/spigot-1.18-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="C:/McServerThings/BuildTools/spigot-1.18.jar"/>
 	<classpathentry kind="lib" path="C:/McServerThings/Server1.18/plugins/ChestCleaner-2-4-2.jar"/>
+	<classpathentry kind="lib" path="C:/McServerThings/Server1.18/plugins/ProtocolLib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

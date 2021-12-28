@@ -1,21 +1,30 @@
 package imu.iWaystones.Managers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
+import imu.iWaystone.Upgrades.BaseUpgrade;
+import imu.iWaystone.Upgrades.PlayerUpgradePanel;
+import imu.iWaystone.Upgrades.UpgradeCastTime;
+import imu.iWaystone.Upgrades.UpgradeCooldown;
+import imu.iWaystone.Upgrades.UpgradeDimension;
+import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystone.Waystones.Waystone;
+import imu.iWaystones.Enums.UpgradeType;
 import imu.iWaystones.Invs.WaystoneMenuInv;
 import imu.iWaystones.Main.ImusWaystones;
 
@@ -32,36 +41,87 @@ public class WaystoneManager
 	
 	private HashMap<UUID, Waystone> _waystones = new HashMap<>();
 	private HashMap<UUID, HashSet<UUID>> _discoveredWaystones = new HashMap<>();
+	//private HashMap<UUID, PlayerUpgradePanel> _playerUpgradePanel = new HashMap<>();
 	private HashMap<Location, UUID> _location_of_waystones = new HashMap<>();
 	
 	public final String pd_waystoneUUID = "iw.waystoneUUID";
+	public final String pd_waystoneHolo = "iw.holo";
 	private WaystoneManagerSQL _waystoneManagersSQL;
 	
 	public WaystoneManager()
 	{
-		_waystoneManagersSQL = new WaystoneManagerSQL();
+		_waystoneManagersSQL = new WaystoneManagerSQL(this);
 		
+	}
+	
+	public void OnDisable() 
+	{
+		ClearHolograms();
 	}
 	
 	public void Init()
 	{
+		ClearHolograms();
+		
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
 				SetupValidBlocks();
-				_waystoneManagersSQL.LoadTables();
+				_waystoneManagersSQL.CreateTables();
+				_waystoneManagersSQL.LoadWaystones();
+				_waystoneManagersSQL.LoadDiscoveredWaystones();
 				
 			}
 		}.runTaskAsynchronously(_main);
 	}
-	
+	public void ClearHolograms()
+	{
+		for(World world : Bukkit.getWorlds())
+		{
+			for(Entity entity : world.getEntities())
+			{
+				if(Metods._ins.getPersistenData(entity, pd_waystoneHolo, PersistentDataType.STRING) != null) entity.remove();
+			}
+		}
+	}
 	public WaystoneManagerSQL GetWaystoneManagerSQL()
 	{
 		return _waystoneManagersSQL;
 	}
+	public Waystone GetWaystone(UUID uuid_ws)
+	{
+		return _waystones.get(uuid_ws);
+	}
 	
+	public HashMap<UUID, Waystone> GetWaystones()
+	{
+		return _waystones;
+	}
+	
+//	public PlayerUpgradePanel GetPlayerUpgradePanel(UUID uuid_player)
+//	{
+//		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
+//		return _playerUpgradePanel.get(uuid_player);
+//	}
+	
+	public BaseUpgrade GetNewUpgrade(UpgradeType type) 
+	{
+		switch(type)
+		{
+		case CAST_TIME:
+			return new UpgradeCastTime();
+		case COOLDOWN:
+			return new UpgradeCooldown();
+		case DIMENSION:
+			return new UpgradeDimension();
+		case XP_USAGE:
+			return new UpgradeXPusage();
+
+		}
+		return null;
+	}
 	void SetupValidBlocks()
 	{
 		for(Material mat : Material.values())
@@ -106,7 +166,7 @@ public class WaystoneManager
 	}
 	Waystone CreateWayStone(Block top,Block mid,Block low)
 	{
-		if(_valid_top_mats.contains(top.getType()) && _valid_mid_mats.contains(mid.getType()) && _valid_low_mats.contains(low.getType())) return new Waystone(top, mid, low);
+		if(_valid_top_mats.contains(top.getType()) && _valid_mid_mats.contains(mid.getType()) && _valid_low_mats.contains(low.getType())) return new Waystone(new Location(low.getWorld(), low.getX(), low.getY(), low.getZ()));
 		return null;
 	}
 	public Waystone TryToCreateWaystone(Block block)
@@ -121,6 +181,11 @@ public class WaystoneManager
 		
 	}
 	
+	public HashMap<UUID, HashSet<UUID>> GetDiscovered()
+	{
+		return _discoveredWaystones;
+	}
+	
 	public boolean HasDiscovered(Player player, Waystone waystone)
 	{
 		if(!_discoveredWaystones.containsKey(player.getUniqueId())) return false;
@@ -129,10 +194,13 @@ public class WaystoneManager
 		return false;
 	}
 	
-	public void AddDiscovered(UUID player_uuid, Waystone waystone)
+	public void AddDiscovered(UUID player_uuid, UUID uuid_ws, boolean saveDatabase)
 	{
+		if(player_uuid == null || uuid_ws == null) return;
+		
 		if(!_discoveredWaystones.containsKey(player_uuid)) _discoveredWaystones.put(player_uuid, new HashSet<>());
-		_discoveredWaystones.get(player_uuid).add(waystone.GetUUID());
+		_discoveredWaystones.get(player_uuid).add(uuid_ws);
+		if(saveDatabase) _waystoneManagersSQL.SaveDiscovered(player_uuid, uuid_ws);
 	}
 	
 	public void SetPlayerConfirmation(UUID uuid, Waystone waystone)
@@ -146,17 +214,23 @@ public class WaystoneManager
 		Waystone wStone = _waitingPlayerConfirm.get(uuid);
 		_waitingPlayerConfirm.remove(uuid);
 		
-		SaveWaystone(wStone);
+		SaveWaystone(wStone, true);
 	}
 	
 	public void RemoveWaystone(UUID uuid)
 	{
 		Waystone waystone = _waystones.get(uuid);
 		if(waystone == null) return;
+		//Metods._ins.printHashMap(_location_of_waystones);
 		_location_of_waystones.remove(waystone.GetLowBlock().getLocation());
 		_location_of_waystones.remove(waystone.GetMidBlock().getLocation());
 		_location_of_waystones.remove(waystone.GetTopBlock().getLocation());
-		_waystones.remove(uuid);
+		waystone.GetHologram().remove();
+		
+		_waystones.remove(uuid);		
+		_waystoneManagersSQL.RemoveWaystoneAsync(waystone);
+		_waystoneManagersSQL.RemoveDiscoveredAsync(waystone.GetUUID());
+		for(HashSet<UUID> set : _discoveredWaystones.values()) {set.remove(waystone.GetUUID());}
 	}
 	
 	public void RemoveWaystone(Waystone waystone)
@@ -169,18 +243,20 @@ public class WaystoneManager
 		_location_of_waystones.put(waystone.GetMidBlock().getLocation(), waystone.GetUUID());
 		_location_of_waystones.put(waystone.GetTopBlock().getLocation(), waystone.GetUUID());
 	}
-	public void SaveWaystone(Waystone waystone)
+	public void SaveWaystone(Waystone waystone, boolean saveDatabase)
 	{
 		RegisterWaystoneLocation(waystone);
 		_waystones.put(waystone.GetUUID(), waystone);
-		AddDiscovered(waystone.GetOwnerUUID(), waystone);
+		AddDiscovered(waystone.GetOwnerUUID(), waystone.GetUUID(), saveDatabase);
+		waystone.CreateHologram();
+		if(saveDatabase)
+		{
+			_waystoneManagersSQL.SaveWaystoneAsync(waystone);
+			
+		}
+
 	}
-	
-//	public void SetWaystoneUUIDtoBlock(Block block, UUID uuid)
-//	{
-//		ImusAPI._metods.setPersistenData(block, ImusWaystones._instance.GetWaystoneManager().pd_waystoneUUID, PersistentDataType.STRING, uuid.toString());
-//	}
-	
+
 	public boolean IsWaystone(Block block)
 	{
 		if(block == null) return false;
@@ -188,22 +264,24 @@ public class WaystoneManager
 		return _location_of_waystones.containsKey(block.getLocation());
 	}
 	
+	public boolean IsValid(Waystone waystone)
+	{
+		if(_valid_top_mats.contains(waystone.GetTopBlock().getType()) && _valid_mid_mats.contains(waystone.GetMidBlock().getType()) && _valid_low_mats.contains(waystone.GetLowBlock().getType())) return true;
+		return false;
+	}
+	
 	public Waystone GetWaystone(Block block)
 	{
 		return _waystones.get(_location_of_waystones.get(block.getLocation()));
 	}
-	
-//	public UUID GetWaystoneUUIDFromBlock(Block block)
-//	{
-//		String uuid_str = ImusAPI._metods.getPersistenData(block, pd_waystoneUUID, PersistentDataType.STRING);
-//		if(uuid_str == null) return null;
-//		return UUID.fromString(uuid_str);
-//	}
+
 	
 	public void OpenWaystone(Player player, Waystone waystone)
 	{
 		new WaystoneMenuInv(waystone, player).openThis();
 	}
+
+	
 	
 	
 	

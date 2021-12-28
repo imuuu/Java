@@ -155,16 +155,10 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	@EventHandler
 	public void onClick(InventoryClickEvent e)
 	{
-//		System.out.println("inv click: "+e.getSlotType());
-//
-//		System.out.println("ACTION: "+e.getAction());
-//		
-//		System.out.println("Click type: "+e.getClick());
+
 		if(isThisInv(e))
 		{
-//			System.out.println("raw slot: "+e.getRawSlot());
-//			System.out.println("slot slot: "+e.getSlot());
-//			System.out.println();
+
 			SetDroppedTakenStacks(e);
 			switch (_denyItemMove) 
 			{

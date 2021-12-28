@@ -16,7 +16,6 @@ import imu.iWaystones.Other.CmdHelper;
 import imu.iWaystones.SubCmds.CMD;
 import imu.iWaystones.SubCmds.SubWaystoneConfirmationCmd;
 import imus.iWaystones.Events.WaystoneEvents;
-
 public class ImusWaystones extends JavaPlugin
 {
 	public static ImusWaystones _instance;
@@ -26,7 +25,7 @@ public class ImusWaystones extends JavaPlugin
 	final private String _pluginName = "[imusWaystones]";
 	
 	private WaystoneManager _waystoneManagers;
-	
+	private String perm_showUpgradeInv = "iw.show.upgradeinv";
 	@Override
 	public void onEnable() 
 	{
@@ -40,7 +39,6 @@ public class ImusWaystones extends JavaPlugin
 		
 		_waystoneManagers = new WaystoneManager();
 		
-		
 		_cmdHelper = new CmdHelper();
 		
 		
@@ -51,13 +49,14 @@ public class ImusWaystones extends JavaPlugin
 		new WaystoneEvents();
 		
 		_waystoneManagers.Init();
+
 	}
 	
 
 	@Override
 	 public void onDisable()
 	{
-				
+		_waystoneManagers.OnDisable();	
 		if(_SQL != null)
 			_SQL.Disconnect();
 		

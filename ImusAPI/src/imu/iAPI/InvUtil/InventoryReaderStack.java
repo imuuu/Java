@@ -1,0 +1,114 @@
+package imu.iAPI.InvUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+public class InventoryReaderStack 
+{
+	class ItemInfo
+	{
+		public int _totalCount = 0;
+		public ArrayList<ItemStack> _refs = new ArrayList<>();
+		
+		public ItemInfo Add(ItemStack stack)
+		{
+			_refs.add(stack);
+			_totalCount+= stack.getAmount();
+			//System.out.println("adding: "+stack.getType()+ " total amount: "+_totalCount);
+			return this;
+		}
+		
+		public boolean HasEnough(int amount)
+		{
+			return _totalCount  >= amount;
+		}
+		
+		public boolean Reduce(int amount)
+		{
+			if(_totalCount < amount) return false;
+			
+			int left = amount;
+			for(int i = _refs.size()-1; i >= 0; i--)
+			{
+				ItemStack s = _refs.get(i);
+				int num = s.getAmount() - left;
+				if(num <= 0)
+				{
+					s.setAmount(0);
+					_refs.remove(i);
+					left = Math.abs(num);
+					
+					if(left == 0)
+					{
+						_totalCount -= amount;
+						return true;
+					}				
+				}
+				else
+				{
+					s.setAmount(num);
+					_totalCount -= amount;
+					return true;
+				}		
+			}
+			
+			return false;
+		}
+	}
+	
+	HashMap<ItemStack, ItemInfo> _info = new HashMap<>();
+	public InventoryReaderStack(Inventory inv)
+	{
+		LoadInv(inv);
+	}
+	
+	public boolean Reduce(ItemStack stack, int amount)
+	{
+		if(!HasStack(stack)) return false;
+		
+		return GetInfo(stack).Reduce(amount);
+	}
+	
+	ItemInfo GetInfo(ItemStack stack)
+	{
+		ItemStack test = stack.clone();
+		test.setAmount(1);
+		return  _info.get(test);
+	}
+	
+	public boolean HasStack(ItemStack stack)
+	{				
+		return GetInfo(stack) == null ? false : true;
+	}
+	
+	public boolean HasEnough(ItemStack stack, int amount)
+	{
+		if(!HasStack(stack)) return false;
+		return GetInfo(stack).HasEnough(amount);
+	}
+	
+	void LoadInv(Inventory inv)
+	{
+		for(ItemStack stack : inv.getContents())
+		{
+			if(stack == null || stack.getType() == Material.AIR) continue;
+			
+			AddToInfo(stack);
+		}
+	}
+	
+	void AddToInfo(ItemStack stack)
+	{
+		ItemStack test = stack.clone();
+		test.setAmount(1);
+		if(!_info.containsKey(stack))
+		{
+			_info.put(test, new ItemInfo());
+		}
+		_info.get(test).Add(stack);
+	}
+}

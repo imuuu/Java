@@ -18,11 +18,15 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.TileState;
 import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.Conversation.ConversationState;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -56,9 +60,11 @@ import net.minecraft.world.level.block.entity.TileEntity;
 
 public class Metods 
 {
+	public static Metods _ins;
 	Plugin _main = null;
 	public Metods(Plugin main) 
 	{
+		_ins = this;
 		_main = main;
 	}
 	
@@ -134,27 +140,26 @@ public class Metods
     	if(stack != null && stack.getType() != Material.AIR)
     	{
 			ItemMeta meta = stack.getItemMeta();
-			ArrayList<String> metaLores;
-			if(!meta.hasLore())
-			{
-				metaLores = new ArrayList<>();	
-			}else
-			{
-				metaLores = (ArrayList<String>)meta.getLore();
-			}
+			ArrayList<String> metaLores = new ArrayList<>();
+//			if(!meta.hasLore())
+//			{
+//				metaLores = new ArrayList<>();	
+//			}else
+//			{
+//				metaLores = (ArrayList<String>)meta.getLore();
+//			}
 			
-			int size = metaLores.size();
-    		if(size < lores.length)
+//			int size = metaLores.size();
+//    		if(size < lores.length)
+//    		{			
+//    			for(int i = 0; i < lores.length-size; ++i)
+//    			{
+//    				metaLores.add(msgC(lores[size+i]));
+//    			}
+//    		}
+    		for(String lore : lores)
     		{
-    			
-    			for(int i = 0; i < lores.length-size; ++i)
-    			{
-    				metaLores.add(msgC(lores[size+i]));
-    			}
-    		}
-    		for(int i = 0; i < lores.length; ++i)
-    		{
-    			metaLores.set(i, msgC(lores[i]));
+    			metaLores.add(msgC(lore));
     		}
     		if(removeEmpty)
     		{
@@ -668,7 +673,7 @@ public class Metods
 		NamespacedKey key = new NamespacedKey(_main, keyName);
 		tileState.getPersistentDataContainer().set(key, type, data);
 		tileState.update();
-		System.out.println( "persistent data set to block: "+block.getType());
+		//System.out.println( "persistent data set to block: "+block.getType());
 		return block;
 	}
 	
@@ -685,6 +690,26 @@ public class Metods
 			return container.get(key, type);
 		}
 				
+		return value;
+	}
+	
+	public <T> Entity setPersistenData(Entity entity, String keyName, PersistentDataType<T, T> type, T data)
+	{
+		if(entity == null) return null;
+		NamespacedKey key = new NamespacedKey(_main, keyName);
+		entity.getPersistentDataContainer().set(key, type, data);
+
+		return entity;
+	}
+	
+	public <T> T getPersistenData(Entity entity, String keyName, PersistentDataType<T, T> type)
+	{
+		T value = null;
+		if(entity == null) return value;
+		
+		NamespacedKey key = new NamespacedKey(_main, keyName);
+		if(entity.getPersistentDataContainer().has(key, type)) return entity.getPersistentDataContainer().get(key, type);
+		
 		return value;
 	}
 	
@@ -1281,6 +1306,20 @@ public class Metods
 		ConversationFactory cf = new ConversationFactory(_main);
 		Conversation conversation = cf.withFirstPrompt(conv).withLocalEcho(true).buildConversation(player);
 		conversation.begin();
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				if(conversation.getState() == ConversationState.STARTED)
+				{
+					if(player.isOnline())
+						player.sendMessage(msgC("&3Took too long to anwser. Please try again!"));
+					
+					conversation.abandon();
+				}
+			}
+		}.runTaskLaterAsynchronously(_main, 20 * 30);
 	}
 	public static double Round(double value)
 	{
@@ -1396,6 +1435,18 @@ public class Metods
 		
 		return value;
 	}
+	
+	public ArmorStand CreateHologram(String str, Location loc)
+	{
+		ArmorStand hologram = (ArmorStand)loc.getWorld().spawnEntity(loc, EntityType.ARMOR_STAND);
+		hologram.setVisible(false);
+		hologram.setCustomNameVisible(true);
+		hologram.setCustomName(msgC(str));
+		hologram.setGravity(false);
+		return hologram;
+	}
+	
+	
 
 	
 	
