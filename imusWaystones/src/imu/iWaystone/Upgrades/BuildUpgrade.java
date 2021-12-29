@@ -6,11 +6,12 @@ public abstract class BuildUpgrade
 {
 	private Material _mat;
 	private double _value;
-	
+
 	public BuildUpgrade(Material mat, double value) 
 	{
 		set_mat(mat);
 		set_value(value);
+		
 	}
 
 	public Material get_mat() {

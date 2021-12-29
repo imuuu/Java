@@ -2,6 +2,7 @@ package imus.iWaystones.Events;
 
 import java.util.HashMap;
 
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -31,16 +32,15 @@ public class WaystoneEvents implements Listener
 	@EventHandler
 	public void OnBlockPlace(BlockPlaceEvent e)
 	{
-
 		Waystone wStone = _waystoneManager.TryToCreateWaystone(e.getBlock());
 		if(wStone == null ) return;
 		
 		wStone.SetOwner(e.getPlayer());
 		
 		HashMap<String, String> cmds = new HashMap<String, String>();
-		cmds.put("( CONFIRM )", "/iw confirm "+e.getPlayer().getUniqueId());
+		cmds.put("( CONFIRM )", "/iw confirm "+wStone.GetLoc().getWorld().getName()+" "+wStone.GetLoc().toVector());
 		//ImusAPI._metods.SendMessageCommands(e.getPlayer(), cmds, " // ");
-		ImusAPI._metods.SendMessageCommands(e.getPlayer(), "Waystone created! ",cmds, "","");
+		ImusAPI._metods.SendMessageCommands(e.getPlayer(), "Waystone creation started! ",cmds, "","");
 		_waystoneManager.SetPlayerConfirmation(e.getPlayer().getUniqueId(), wStone);
 	}
 	
@@ -96,7 +96,8 @@ public class WaystoneEvents implements Listener
 		Waystone ws =_waystoneManager.GetWaystone(e.getBlock());
 		ws.SendMessageToOwner("&3Someone has &cDestroyed &3your &ewaystone &3named as "+ws.GetName());
 		_waystoneManager.RemoveWaystone(ws);
-		e.getPlayer().sendMessage(Metods.msgC("&3Waystone has been &cDestroyid"));
+		e.getPlayer().sendMessage(Metods.msgC("&3Waystone has been &cDestroyed"));
+		e.getPlayer().playSound(ws.GetLoc(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 0.1f, 0.1f);
 	}
 	
 	

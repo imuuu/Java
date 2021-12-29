@@ -1,8 +1,10 @@
 package imu.iWaystone.Upgrades;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeXPusage extends BaseUpgrade
@@ -11,10 +13,10 @@ public class UpgradeXPusage extends BaseUpgrade
 	Tier[] SetTiers() 
 	{
 		Tier[] tiers = new Tier[4];
-		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,3)});
-		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,1),new ItemStack(Material.GOLD_BLOCK,4)});
-		tiers[2] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,1),new ItemStack(Material.GOLD_BLOCK,3),new ItemStack(Material.DIAMOND_BLOCK,3)});
-		tiers[3] = new Tier(new ItemStack[] {new ItemStack(Material.NETHERITE_BLOCK,1)});
+		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,5)});
+		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,3),new ItemStack(Material.GOLD_BLOCK,5)});
+		tiers[2] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,1),new ItemStack(Material.GOLD_BLOCK,3),new ItemStack(Material.DIAMOND_BLOCK,5)});
+		tiers[3] = new Tier(new ItemStack[] {new ItemStack(Material.GOLD_BLOCK,1),new ItemStack(Material.DIAMOND_BLOCK,3),new ItemStack(Material.NETHERITE_BLOCK,1)});
 		return tiers;
 	}
 
@@ -52,5 +54,13 @@ public class UpgradeXPusage extends BaseUpgrade
 	{
 		return value - _tierReduceValue * GetCurrentTier();
 	}
+
+	@Override
+	public void ButtonPressUpgradeTier(Player player, Waystone ws, int tierBeforeUpgrade) 
+	{
+		
+	}
+
+	
 
 }

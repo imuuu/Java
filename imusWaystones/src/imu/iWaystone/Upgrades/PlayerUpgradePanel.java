@@ -1,6 +1,9 @@
 package imu.iWaystone.Upgrades;
 
+import java.util.UUID;
+
 import imu.iWaystones.Enums.UpgradeType;
+import imu.iWaystones.Main.ImusWaystones;
 
 public class PlayerUpgradePanel 
 {
@@ -8,13 +11,14 @@ public class PlayerUpgradePanel
 	private UpgradeCooldown _cooldown;
 	private UpgradeDimension _dimension;
 	private UpgradeXPusage _xpUsage;
-	
-	public PlayerUpgradePanel(UpgradeCastTime castime, UpgradeCooldown cooldown, UpgradeDimension dimension, UpgradeXPusage xpUsage)
+	private UUID _uuid_ws;
+	public PlayerUpgradePanel(UUID uuid_ws,UpgradeCastTime castime, UpgradeCooldown cooldown, UpgradeDimension dimension, UpgradeXPusage xpUsage)
 	{
 		_castTime = castime;
 		_cooldown = cooldown;
 		_dimension = dimension;
 		_xpUsage = xpUsage;
+		_uuid_ws = uuid_ws;
 	}
 
 	public UpgradeCooldown get_cooldown() {
@@ -81,7 +85,11 @@ public class PlayerUpgradePanel
 			return get_dimension();
 		case XP_USAGE:
 			return get_xpUsage();
+		case BUILD:
+			return ImusWaystones._instance.GetWaystoneManager().GetWaystone(_uuid_ws).GetUpgradeBottomUpgrade();
 
+
+			
 		}
 		return null;
 	}

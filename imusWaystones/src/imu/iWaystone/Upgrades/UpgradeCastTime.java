@@ -1,8 +1,10 @@
 package imu.iWaystone.Upgrades;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeCastTime extends BaseUpgrade
@@ -17,7 +19,7 @@ public class UpgradeCastTime extends BaseUpgrade
 	Tier[] SetTiers() 
 	{
 		Tier[] tiers = new Tier[4];
-		ItemStack stack = new ItemStack(Material.LAPIS_BLOCK,5);
+		ItemStack stack = new ItemStack(Material.LAPIS_BLOCK,22);
 		tiers[0] = new Tier(new ItemStack[] {stack});
 		tiers[1] = new Tier(new ItemStack[] {stack});
 		tiers[2] = new Tier(new ItemStack[] {stack});
@@ -28,12 +30,12 @@ public class UpgradeCastTime extends BaseUpgrade
 	@Override
 	public String[] SetDescription() 
 	{
-		return new String[] {"&eEvery &6&ltier &ereduces cast time &23&es"};
+		return new String[] {"&eEvery &6&ltier &ereduces cast time &25&es"};
 	}
 
 	@Override
 	public double SetTierReduceValue() {
-		return 3.0;
+		return 5.0;
 	}
 
 	@Override
@@ -56,7 +58,14 @@ public class UpgradeCastTime extends BaseUpgrade
 	public double GetCombinedValue(double value) 
 	{
 		return value - _tierReduceValue * GetCurrentTier();
-	}	
+	}
+
+	@Override
+	public void ButtonPressUpgradeTier(Player player, Waystone ws, int tierBeforeUpgrade) {
+		
+	}
+
+	
 	
 
 	

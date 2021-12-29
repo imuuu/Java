@@ -18,6 +18,7 @@ import imu.iWaystone.Interfaces.IModDataInv;
 import imu.iWaystone.Interfaces.IModDataValues;
 import imu.iWaystone.Upgrades.BaseUpgrade;
 import imu.iWaystone.Upgrades.PlayerUpgradePanel;
+import imu.iWaystone.Upgrades.UpgradeBottomBuild;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.ConvUpgradeModData;
 import imu.iWaystones.Enums.UpgradeType;
@@ -78,6 +79,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
+		ImusWaystones._instance.GetWaystoneManager().UnRegisterInv(_waystone, this);
 		if(!CheckIfValid()) return;
 	}
 	
@@ -110,6 +112,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	public void openThis() 
 	{
 		super.openThis();
+		ImusWaystones._instance.GetWaystoneManager().RegisterInv(_waystone, this);
 		setupButtons();
 		
 		
@@ -163,7 +166,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 				for(int i = 0; i < _size; i++) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, " ", i);}
 
 				setupButton(BUTTON.BACK, Material.RED_WOOL, "&bBACK", _size-9);
-				if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())) setupButton(BUTTON.SET_NAME, Material.NAME_TAG, "&2Rename Waystone", _size-5);
+				if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())) setupButton(BUTTON.SET_NAME, Material.NAME_TAG, "&2Rename Waystone", _size-6);
 				
 				//setupButton(BUTTON.UPGRADE_CASTTIME, Material.LAPIS_BLOCK, "&bCast Time", 1);
 				LoadUpgradePanel();
@@ -181,8 +184,14 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 			@Override
 			public void run() 
 			{
+			
+
+				ItemStack stack = _waystone.GetUpgradeBottomUpgrade()._displayItem.clone();
+				Metods._ins.addLore(stack, " ", false);
+				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.BUILD.toString());
+				_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
 				
-				ItemStack stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
+				stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
 				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.CAST_TIME.toString());
 				Metods._ins.addLore(stack, " ", false);
 				Metods._ins.addLore(stack, "&9Cast time: &1"+_waystone.GetValue(_panel.get_castTime()), false);
@@ -196,14 +205,16 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 				
 				stack = SetButton(_panel.get_dimension()._displayItem.clone(), BUTTON.UPGRADE);
 				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.DIMENSION.toString());
+				Metods._ins.addLore(stack, " ", false);
 				_inv.setItem(5,stack);
 				
 				stack = _panel.get_cooldown()._displayItem.clone();
 				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.COOLDOWN.toString());
-				//Metods._ins.addLore(stack, "&2BASE: 60min", false);
 				Metods._ins.addLore(stack, " ", false);
 				Metods._ins.addLore(stack, "&9Cooldown: &1"+Metods.FormatTime((long)(_waystone.GetValue(_panel.get_cooldown())* 1000)), false);
 				_inv.setItem(7,SetButton(stack, BUTTON.UPGRADE));
+				
+				
 
 			}
 		}.runTaskAsynchronously(_main);
@@ -244,9 +255,22 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 				
 				if(CheckItems())
 				{
-					upgrade.IncreaseCurrentTier(1);
-					upgrade.Tooltip();
-					_wManager.GetWaystoneManagerSQL().SaveUpgradeAsync(_player.getUniqueId(), _waystone.GetUUID(), upgrade);
+					
+					
+					
+					if(!(upgrade instanceof UpgradeBottomBuild))
+					{
+						upgrade.IncreaseCurrentTier(1);
+						upgrade.Tooltip();
+						_wManager.GetWaystoneManagerSQL().SaveUpgradeAsync(_player.getUniqueId(), _waystone.GetUUID(), upgrade);
+						
+					}else
+					{
+						_waystone.GetUpgradeBottomUpgrade();
+						upgrade.ButtonPressUpgradeTier(_player, _waystone, upgrade.GetCurrentTier());
+
+					}
+					
 					SetUpgradesAsync();					
 				}
 

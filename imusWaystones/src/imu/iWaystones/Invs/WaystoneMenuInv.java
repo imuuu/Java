@@ -37,7 +37,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		_main = ImusWaystones._instance;
 		_waystone = waystone;
 		_wManager = _main.GetWaystoneManager();
-
+		_waystone.ReadBuildUpgrade();
 		
 	}
 	
@@ -62,13 +62,11 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			
 			if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
 			{
-				System.out.println("nether not unlocked1!");
 				continue;
 			}
 			
 			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
 			{
-				System.out.println("nether not unlocked2!");
 				continue;
 			}
 			
@@ -76,13 +74,11 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			
 			if(ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
 			{
-				System.out.println("end not unlocked1!");
 				continue;
 			}
 			
 			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
 			{
-				System.out.println("end not unlocked!2");
 				continue;
 			}
 			
@@ -115,7 +111,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
-		
+		ImusWaystones._instance.GetWaystoneManager().UnRegisterInv(_waystone, this);
 	}
 
 	@Override
@@ -190,6 +186,22 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	@Override
 	public void openThis() {
 		super.openThis();
+		ImusWaystones._instance.GetWaystoneManager().RegisterInv(_waystone, this);
+		if(!CheckIfValid())
+		{
+			new BukkitRunnable() {
+				
+				@Override
+				public void run() 
+				{
+					_player.closeInventory();
+					_wManager.RemoveWaystone(_waystone);					
+				}
+			}.runTaskLater(_main, 1);
+			return;
+		}
+		
+		
 		setupButtons();
 		LoadWaystones();
 	}
@@ -205,7 +217,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 				for(int i = _size-9; i < _size; i++) {setupButton(BUTTON.NONE, Material.CYAN_STAINED_GLASS_PANE, " ", i);}
 				setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, "&b<<", _size-9);
 				setupButton(BUTTON.GO_RIGHT, Material.BIRCH_SIGN, "&b>>", _size-1);
-				if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())) setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
+				setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
 				
 			}
 		}.runTaskAsynchronously(_main);

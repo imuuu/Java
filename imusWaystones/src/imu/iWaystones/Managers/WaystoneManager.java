@@ -1,11 +1,13 @@
 package imu.iWaystones.Managers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -15,9 +17,16 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
+import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Upgrades.BaseUpgrade;
+import imu.iWaystone.Upgrades.BuildUpgrade;
+import imu.iWaystone.Upgrades.BuildUpgradeCommon;
+import imu.iWaystone.Upgrades.BuildUpgradeEpic;
+import imu.iWaystone.Upgrades.BuildUpgradeLegendary;
+import imu.iWaystone.Upgrades.BuildUpgradeRare;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeCooldown;
 import imu.iWaystone.Upgrades.UpgradeDimension;
@@ -35,8 +44,11 @@ public class WaystoneManager
 	private Set<Material> _valid_top_mats = new HashSet<>();
 	private Set<Material> _valid_mid_mats = new HashSet<>();
 	private Set<Material> _valid_low_mats = new HashSet<>();
+	private HashMap<Material, BuildUpgrade> _buildUpgrades = new HashMap<>();
 	
 	private HashMap<UUID, Waystone> _waitingPlayerConfirm = new HashMap<>();
+	
+	private HashMap<UUID, ArrayList<CustomInvLayout>> _invs = new HashMap<>(); 
 	
 	private HashMap<UUID, Waystone> _waystones = new HashMap<>();
 	private HashSet<UUID> _IsTeleporting = new HashSet<>();
@@ -46,17 +58,78 @@ public class WaystoneManager
 	
 	public final String pd_waystoneUUID = "iw.waystoneUUID";
 	public final String pd_waystoneHolo = "iw.holo";
-	private WaystoneManagerSQL _waystoneManagersSQL;
+	public final int _seeDistance = 20;
+	public final int _buildDistance = 30;
 	
+	private WaystoneManagerSQL _waystoneManagersSQL;
+	private BukkitTask _runnable;
 	public WaystoneManager()
 	{
 		_waystoneManagersSQL = new WaystoneManagerSQL(this);
-		
+		Runnable();
 	}
 	
 	public void OnDisable() 
 	{
 		ClearHolograms();
+		if(_runnable != null) _runnable.cancel();
+	}
+	
+	void Runnable()
+	{
+		if(_runnable != null) _runnable.cancel();
+		
+		_runnable = new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				for(Waystone ws : _waystones.values())
+				{
+					if(CheckVisibility(ws)) continue;
+					ws.SetHoloNameVisible(false);
+				}
+			}
+			
+			boolean CheckVisibility(Waystone ws)
+			{
+				for(Player p : Bukkit.getOnlinePlayers())
+				{
+					if(p.getGameMode() == GameMode.SPECTATOR) continue;
+					if(ws.GetLoc().getWorld().equals(p.getWorld()) && ws.GetLoc().distance(p.getLocation()) < _seeDistance)
+					{
+						if(!ws.IsHoloNameVisible())
+						{
+							ws.SetHoloNameVisible(true);
+						}
+						return true;
+					}
+				}
+				return false;
+			}
+		}.runTaskTimerAsynchronously(_main, 0, 20);
+	}
+	
+	public void RegisterInv(Waystone ws, CustomInvLayout inv)
+	{
+		if(!_invs.containsKey(ws.GetUUID())) _invs.put(ws.GetUUID(), new ArrayList<>());
+		_invs.get(ws.GetUUID()).add(inv);
+	}
+	
+	public void UnRegisterInv(Waystone ws, CustomInvLayout inv)
+	{
+		if(!_invs.containsKey(ws.GetUUID())) return;
+		_invs.get(ws.GetUUID()).remove(inv);
+	}
+	
+	public void CloseAllInvs(Waystone ws)
+	{
+		if(!_invs.containsKey(ws.GetUUID())) return;
+		for(CustomInvLayout inv : _invs.get(ws.GetUUID()))
+		{
+			inv.GetPlayer().closeInventory();
+		}
+		_invs.remove(ws.GetUUID());
 	}
 	
 	public void Init()
@@ -147,10 +220,23 @@ public class WaystoneManager
 
 		}
 		
+		//build upgrades could be own manager;
+		
 		AddValidLow(Material.IRON_BLOCK);
+		BuildUpgrade bUpgrade = new BuildUpgradeCommon();
+		_buildUpgrades.put(bUpgrade.get_mat(),bUpgrade);
+		
 		AddValidLow(Material.GOLD_BLOCK);
+		bUpgrade = new BuildUpgradeRare();
+		_buildUpgrades.put(bUpgrade.get_mat(),bUpgrade);
+		
 		AddValidLow(Material.DIAMOND_BLOCK);
+		bUpgrade = new BuildUpgradeEpic();
+		_buildUpgrades.put(bUpgrade.get_mat(),bUpgrade);
+		
 		AddValidLow(Material.NETHERITE_BLOCK);
+		bUpgrade = new BuildUpgradeLegendary();
+		_buildUpgrades.put(bUpgrade.get_mat(),bUpgrade);
 	}
 	void AddValidTop(Material mat)
 	{
@@ -168,6 +254,11 @@ public class WaystoneManager
 	{
 		_valid_mats.add(mat);
 		_valid_low_mats.add(mat);
+	}
+	
+	public BuildUpgrade GetBuildUpgrade(Material mat)
+	{
+		return _buildUpgrades.get(mat);
 	}
 	
 	boolean IsValidMaterial(Block block)
@@ -219,12 +310,23 @@ public class WaystoneManager
 		_waitingPlayerConfirm.put(uuid, waystone);
 	}
 	
-	public void ConfirmWaystoneCreation(UUID uuid)
+	public Waystone GetConfirmWaystone(UUID uuid_player)
 	{
-		Waystone wStone = _waitingPlayerConfirm.get(uuid);
-		_waitingPlayerConfirm.remove(uuid);
+		 return _waitingPlayerConfirm.get(uuid_player);
+	}
+	public void RemoveConfirmWaystone(UUID uuid_player)
+	{
+		_waitingPlayerConfirm.remove(uuid_player);
+	}
+
+	public boolean IsNearByWaystones(Waystone waystone)
+	{
+		for(Waystone ws : _waystones.values())
+		{
+			if(ws.GetLoc().getWorld().equals(waystone.GetLoc().getWorld()) && ws.GetLoc().distance(waystone.GetLoc()) < _buildDistance) return true;
+		}
 		
-		SaveWaystone(wStone, true);
+		return false;
 	}
 	
 	public void RemoveWaystone(UUID uuid)
@@ -240,7 +342,9 @@ public class WaystoneManager
 		_waystones.remove(uuid);		
 		_waystoneManagersSQL.RemoveWaystoneAsync(waystone);
 		_waystoneManagersSQL.RemoveDiscoveredAsync(waystone.GetUUID());
+		CloseAllInvs(waystone);
 		for(HashSet<UUID> set : _discoveredWaystones.values()) {set.remove(waystone.GetUUID());}
+		
 	}
 	
 	public void RemoveWaystone(Waystone waystone)

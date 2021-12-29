@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.iAPI.Handelers.CommandHandler;
@@ -25,7 +26,7 @@ public class ImusWaystones extends JavaPlugin
 	final private String _pluginName = "[imusWaystones]";
 	
 	private WaystoneManager _waystoneManagers;
-	private String perm_showUpgradeInv = "iw.show.upgradeinv";
+	final public Permission perm_buildIngnore = new Permission("iw.build.ingnore");
 	@Override
 	public void onEnable() 
 	{
@@ -52,13 +53,17 @@ public class ImusWaystones extends JavaPlugin
 
 	}
 	
-
+	void RegisterPermissions()
+	{
+		Bukkit.getPluginManager().addPermission(perm_buildIngnore);
+	}
 	@Override
 	 public void onDisable()
 	{
-		_waystoneManagers.OnDisable();	
-		if(_SQL != null)
-			_SQL.Disconnect();
+		if(_waystoneManagers != null) _waystoneManagers.OnDisable();	
+		
+		if(_SQL != null) _SQL.Disconnect();
+			
 		
 		
 	}
@@ -88,7 +93,7 @@ public class ImusWaystones extends JavaPlugin
 	    
 	    String cmd1_sub1 = "confirm";
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
-	    _cmdHelper.setCmd(full_sub1, "Confirm waystone", full_sub1 + " [ShopName]");
+	    _cmdHelper.setCmd(full_sub1, "Confirm waystone", full_sub1);
 	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubWaystoneConfirmationCmd(_cmdHelper.getCmdData(full_sub1)));
 	    
 	    getCommand(cmd1).setExecutor(handler);

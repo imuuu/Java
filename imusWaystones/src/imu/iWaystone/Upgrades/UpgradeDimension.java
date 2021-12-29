@@ -1,8 +1,10 @@
 package imu.iWaystone.Upgrades;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeDimension extends BaseUpgrade
@@ -12,7 +14,7 @@ public class UpgradeDimension extends BaseUpgrade
 	Tier[] SetTiers() 
 	{
 		Tier[] tiers = new Tier[2];
-		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,5)});
+		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,10)});
 		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,16)});
 		return tiers;
 	}
@@ -60,5 +62,12 @@ public class UpgradeDimension extends BaseUpgrade
 	{
 		return GetCurrentTier() >= 2;
 	}
+
+	@Override
+	public void ButtonPressUpgradeTier(Player player, Waystone ws, int tierBeforeUpgrade) {
+		
+	}
+
+	
 	
 }

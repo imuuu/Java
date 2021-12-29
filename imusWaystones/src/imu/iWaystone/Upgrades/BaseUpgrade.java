@@ -3,9 +3,11 @@ package imu.iWaystone.Upgrades;
 import java.util.ArrayList;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Other.Metods;
+import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
 
 public abstract class BaseUpgrade 
@@ -36,6 +38,7 @@ public abstract class BaseUpgrade
 	public abstract Material SetMaterial();
 	public abstract UpgradeType SetType();
 	public abstract double GetCombinedValue(double value);
+	public abstract void ButtonPressUpgradeTier(Player player, Waystone ws,int tierBeforeUpgrade);
 	
 	public void Tooltip()
 	{

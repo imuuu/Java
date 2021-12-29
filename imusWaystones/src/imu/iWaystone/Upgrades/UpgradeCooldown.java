@@ -1,8 +1,10 @@
 package imu.iWaystone.Upgrades;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeCooldown extends BaseUpgrade
@@ -14,7 +16,7 @@ public class UpgradeCooldown extends BaseUpgrade
 		Tier[] tiers = new Tier[10];
 		for(int i = 0; i < tiers.length; i++)
 		{
-			tiers[i] = new Tier(new ItemStack[] {new ItemStack(Material.DIAMOND,5)});
+			tiers[i] = new Tier(new ItemStack[] {new ItemStack(Material.DIAMOND,10)});
 		}
 		return tiers;
 	}
@@ -55,4 +57,10 @@ public class UpgradeCooldown extends BaseUpgrade
 		return value * (1.0 - _tierReduceValue * GetCurrentTier());
 	}
 
+	@Override
+	public void ButtonPressUpgradeTier(Player player, Waystone ws, int tierBeforeUpgrade) {
+
+	}
+
+	
 }

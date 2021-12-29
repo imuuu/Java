@@ -21,6 +21,7 @@ import imu.iAPI.Other.XpUtil;
 import imu.iWaystone.Upgrades.BaseUpgrade;
 import imu.iWaystone.Upgrades.BuildUpgrade;
 import imu.iWaystone.Upgrades.PlayerUpgradePanel;
+import imu.iWaystone.Upgrades.UpgradeBottomBuild;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeCooldown;
 import imu.iWaystone.Upgrades.UpgradeDimension;
@@ -39,24 +40,27 @@ public class Waystone
 	private ArmorStand _hologram;
 	private HashMap<UUID, PlayerUpgradePanel> _playerUpgradePanel = new HashMap<>();
 	
-	private double base_cooldown = 600;
-	private double base_casttime = 16;
-	private double base_xpUsage = 2.5;
+	//private double base_cooldown = 600;
+	private double base_casttime = 21;
+	private double base_xpUsage = 3.0;
 	private ImusWaystones _main = ImusWaystones._instance;
 	
 	private final double _move_telecancel_dis = 0.2;
 	private Cooldowns _cds = new Cooldowns();
 	private BuildUpgrade _buildUpgrade;
+	
+	private UpgradeBottomBuild _upgradeBottomBuild = new UpgradeBottomBuild();
+	
 	public Waystone(Location loc) 
 	{
 		_uuid = UUID.randomUUID();		
 		_loc = loc;
-		//System.out.println("waystone location created to: "+_loc.toVector());
-		//_top = top; _mid = mid; _low = low;
+		ReadBuildUpgrade();
 	}
 	
 	public void SetBuildUpgrade(BuildUpgrade buildUpgrade)
 	{
+		//System.out.println("setting up buildUpgrade => "+buildUpgrade);
 		_buildUpgrade = buildUpgrade;
 	}
 	
@@ -64,6 +68,15 @@ public class Waystone
 	{
 		return _buildUpgrade;
 	}
+	
+	public UpgradeBottomBuild GetUpgradeBottomUpgrade()
+	{
+		ReadBuildUpgrade();
+		_upgradeBottomBuild.ReadTier(GetBuildUpgrade());
+		_upgradeBottomBuild.Tooltip();
+		return _upgradeBottomBuild;
+	}
+	
 	public void CreateHologram()
 	{
 		new BukkitRunnable() {
@@ -74,6 +87,7 @@ public class Waystone
 				hologram.setCustomName(Metods.msgC(_name));
 				Metods._ins.setPersistenData(hologram, ImusWaystones._instance.GetWaystoneManager().pd_waystoneHolo, PersistentDataType.STRING, _uuid.toString());
 				_hologram = hologram;
+				_hologram.setCustomNameVisible(true);
 				//System.out.println("holo created: "+_hologram.getLocation().toVector());
 			}
 		}.runTask(ImusWaystones._instance);
@@ -81,16 +95,17 @@ public class Waystone
 		
 	}
 	
+	
 	public PlayerUpgradePanel GetPlayerUpgradePanel(UUID uuid_player)
 	{
-		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
+		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(GetUUID(),new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
 		return _playerUpgradePanel.get(uuid_player);
 	}
 	
 	public void SetPlayerUpgrade(UUID uuid_player, BaseUpgrade upgrade)
 	{
 		//System.out.println("Setting upgrade to player: "+uuid_player + " upgrade: "+upgrade + " tier: "+upgrade.GetCurrentTier());
-		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
+		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(GetUUID(),new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
 		
 		_playerUpgradePanel.get(uuid_player).SetUpgrade(upgrade);
 	}
@@ -103,6 +118,20 @@ public class Waystone
 	public ArmorStand GetHologram()
 	{
 		return _hologram;
+	}
+	
+	public boolean IsHoloNameVisible()
+	{
+		if(_hologram == null) return false;
+		
+		return _hologram.isCustomNameVisible();
+	}
+	
+	public void SetHoloNameVisible(boolean b)
+	{
+		if(_hologram == null) return;
+		
+		_hologram.setCustomNameVisible(b);
 	}
 	
 	public Location GetLoc()
@@ -169,7 +198,12 @@ public class Waystone
 			
 			@Override
 			public void run() {
-				try {
+				try 
+				{
+					System.out.println("Owner uuid: "+_owner_uuid);
+					Player p = Bukkit.getServer().getPlayer(_owner_uuid);
+					if(p == null) return;
+					
 					Bukkit.getServer().getPlayer(_owner_uuid).sendMessage(Metods.msgC(str));
 				} 
 				catch (Exception e) 
@@ -177,7 +211,7 @@ public class Waystone
 					//Bukkit.getLogger().info("Couldnt inform owner!");
 				}
 			}
-		}.runTaskAsynchronously(ImusWaystones._instance);
+		}.runTask(ImusWaystones._instance);
 	}
 	
 	public Block GetTopBlock()
@@ -198,13 +232,16 @@ public class Waystone
 
 
 	public double getBase_cooldown() {
-		return base_cooldown;
+		return GetBuildUpgrade().get_value();
 	}
 
-
-	public void setBase_cooldown(int base_cooldown) {
-		this.base_cooldown = base_cooldown;
+	public void ReadBuildUpgrade()
+	{
+		SetBuildUpgrade(_main.GetWaystoneManager().GetBuildUpgrade(GetLowBlock().getType()));
 	}
+//	public void setBase_cooldown(int base_cooldown) {
+//		this.base_cooldown = base_cooldown;
+//	}
 
 
 	public double getBase_casttime() {
@@ -255,7 +292,7 @@ public class Waystone
 		
 		if(upgrade instanceof UpgradeCooldown)
 		{		
-			return upgrade.GetCombinedValue(base_cooldown);
+			return upgrade.GetCombinedValue(GetBuildUpgrade().get_value());
 		}
 		return null;
 	}
@@ -331,6 +368,7 @@ public class Waystone
 						player.teleport(target_waystone.GetLoc().clone().add(x, 1, z));
 						ReduceExp(player);
 						SetCooldownPlayer(player);
+						target_waystone.CreateHologram();
 					}
 				}.runTask(_main);
 				
