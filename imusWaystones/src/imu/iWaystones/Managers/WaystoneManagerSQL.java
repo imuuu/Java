@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -114,9 +115,9 @@ public class WaystoneManagerSQL
 				int tier = rs.getInt(5);
 				BaseUpgrade upgrade = _waystoneManager.GetNewUpgrade(type);
 				upgrade.SetCurrentier(tier);
-				waystone.SetPlayerUpgrade(uuid_player, upgrade);
-				return waystone;
+				waystone.SetPlayerUpgrade(uuid_player, upgrade);			
 			}
+			return waystone;
 		} 
 		catch (Exception e) 
 		{
@@ -125,8 +126,19 @@ public class WaystoneManagerSQL
 		return waystone;
 	}
 	
+	
+	
 	void SaveUpgrades(Waystone waystone)
 	{
+		try(PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.upgrades.toString()+" "
+				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';");)
+		{
+			ps.executeUpdate();
+		}
+		catch (Exception e) 
+		{
+			_main.getLogger().info("===> SAVING ERROR: SaveUpgrades ===");
+		}	
 		
 		try (Connection con = _main.GetSQL().GetConnection()){
 			
@@ -161,34 +173,25 @@ public class WaystoneManagerSQL
 			@Override
 			public void run() 
 			{
-				
-				try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.upgrades.toString()+" "
-						+ "WHERE uuid_ws=? AND uuid_player=? AND upgrade_name=?;"))
+
+				String str1 = "DELETE FROM upgrades WHERE uuid_ws='"+uuid_ws.toString()+"' AND uuid_player='"+uuid_player.toString()+"' AND upgrade_name='"+upgrade._id.toString()+"';";
+				String str22 = " INSERT INTO upgrades (uuid_ws, uuid_player, upgrade_name, tier) VALUES('"+uuid_ws.toString()+"', '"+uuid_player.toString()+"', '"+upgrade._id.toString()+"', '"+upgrade.GetCurrentTier()+"');";
+
+				try
 				{
-					
-					ps.setString(1, uuid_ws.toString());
-					ps.setString(2, uuid_player.toString());
-					ps.setString(3, upgrade._id.toString());
+					Connection con = _main.GetSQL().GetConnection();
+					PreparedStatement ps =con.prepareStatement(str1);
 					ps.executeUpdate();
-					ps.close();
-				} 
-				catch (Exception e) {
-					_main.getLogger().info("===> SAVING ERROR1: SaveUpgradeAsync ===");
-				}
-				
-				try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_tables.upgrades.toString()+" "
-						+ "(uuid_ws,uuid_player,upgrade_name,tier) VALUES (?,?,?,?);"))
-				{
 					
-					ps.setString(1, uuid_ws.toString());
-					ps.setString(2, uuid_player.toString());
-					ps.setString(3, upgrade._id.toString());
-					ps.setInt(4, upgrade.GetCurrentTier());
+					ps = con.prepareStatement(str22);
 					ps.executeUpdate();
+					
+					con.close();
 					ps.close();
 				} 
 				catch (Exception e) {
 					_main.getLogger().info("===> SAVING ERROR2: SaveUpgradeAsync ===");
+					
 				}
 			}
 		}.runTaskAsynchronously(_main);

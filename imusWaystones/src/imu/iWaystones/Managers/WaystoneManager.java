@@ -18,7 +18,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Upgrades.BaseUpgrade;
-import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeCooldown;
 import imu.iWaystone.Upgrades.UpgradeDimension;
@@ -40,6 +39,7 @@ public class WaystoneManager
 	private HashMap<UUID, Waystone> _waitingPlayerConfirm = new HashMap<>();
 	
 	private HashMap<UUID, Waystone> _waystones = new HashMap<>();
+	private HashSet<UUID> _IsTeleporting = new HashSet<>();
 	private HashMap<UUID, HashSet<UUID>> _discoveredWaystones = new HashMap<>();
 	//private HashMap<UUID, PlayerUpgradePanel> _playerUpgradePanel = new HashMap<>();
 	private HashMap<Location, UUID> _location_of_waystones = new HashMap<>();
@@ -100,12 +100,22 @@ public class WaystoneManager
 		return _waystones;
 	}
 	
-//	public PlayerUpgradePanel GetPlayerUpgradePanel(UUID uuid_player)
-//	{
-//		if(!_playerUpgradePanel.containsKey(uuid_player)) _playerUpgradePanel.put(uuid_player, new PlayerUpgradePanel(new UpgradeCastTime(), new UpgradeCooldown(), new UpgradeDimension(), new UpgradeXPusage()));
-//		return _playerUpgradePanel.get(uuid_player);
-//	}
+	public boolean IsTeleporting(Player player)
+	{
+		return _IsTeleporting.contains(player.getUniqueId());
+	}
 	
+	public void SetTeleporting(Player player)
+	{
+		_IsTeleporting.add(player.getUniqueId());
+	}
+	
+	public void RemoveTeleportin(UUID uuid_player)
+	{
+		_IsTeleporting.remove(uuid_player);
+	}
+	
+
 	public BaseUpgrade GetNewUpgrade(UpgradeType type) 
 	{
 		switch(type)
@@ -266,7 +276,10 @@ public class WaystoneManager
 	
 	public boolean IsValid(Waystone waystone)
 	{
+		if(waystone == null) return false;
+		
 		if(_valid_top_mats.contains(waystone.GetTopBlock().getType()) && _valid_mid_mats.contains(waystone.GetMidBlock().getType()) && _valid_low_mats.contains(waystone.GetLowBlock().getType())) return true;
+		
 		return false;
 	}
 	

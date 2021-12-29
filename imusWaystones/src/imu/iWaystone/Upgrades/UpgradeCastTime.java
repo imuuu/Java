@@ -28,16 +28,17 @@ public class UpgradeCastTime extends BaseUpgrade
 	@Override
 	public String[] SetDescription() 
 	{
-		return new String[] {"&eEvery &6&ltier &ereduces cast time &25&es"};
+		return new String[] {"&eEvery &6&ltier &ereduces cast time &23&es"};
 	}
 
 	@Override
 	public double SetTierReduceValue() {
-		return 5.0;
+		return 3.0;
 	}
 
 	@Override
-	public String SetDisplayName() {
+	public String SetDisplayName() 
+	{
 		return  "&2Reduce Cast time";
 	}
 
@@ -49,6 +50,12 @@ public class UpgradeCastTime extends BaseUpgrade
 	@Override
 	public UpgradeType SetType() {
 		return UpgradeType.CAST_TIME;
+	}
+
+	@Override
+	public double GetCombinedValue(double value) 
+	{
+		return value - _tierReduceValue * GetCurrentTier();
 	}	
 	
 

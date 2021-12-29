@@ -28,7 +28,7 @@ public class UpgradeCooldown extends BaseUpgrade
 	@Override
 	public double SetTierReduceValue() 
 	{
-		return 5.0;
+		return 0.05;
 	}
 
 	@Override
@@ -47,6 +47,12 @@ public class UpgradeCooldown extends BaseUpgrade
 	public UpgradeType SetType() 
 	{
 		return UpgradeType.COOLDOWN;
+	}
+
+	@Override
+	public double GetCombinedValue(double value) 
+	{
+		return value * (1.0 - _tierReduceValue * GetCurrentTier());
 	}
 
 }

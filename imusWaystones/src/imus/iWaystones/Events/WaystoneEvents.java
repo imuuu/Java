@@ -56,12 +56,24 @@ public class WaystoneEvents implements Listener
 		
 		e.setCancelled(true);
 		
+		if(_waystoneManager.IsTeleporting(e.getPlayer())) 
+		{
+			return;
+		}
+		
 		if(!_cds.isCooldownReady("click")) return;
 		
 		_cds.setCooldownInSeconds("click", 0.5f);
 		
 		
 		Waystone ws = _waystoneManager.GetWaystone(e.getClickedBlock());
+		
+		if(!_waystoneManager.IsValid(ws))
+		{
+			_waystoneManager.RemoveWaystone(ws);
+			return;
+		}
+		
 		if(!_waystoneManager.HasDiscovered(e.getPlayer(), ws))
 		{
 			_waystoneManager.AddDiscovered(e.getPlayer().getUniqueId(), ws.GetUUID(), true);

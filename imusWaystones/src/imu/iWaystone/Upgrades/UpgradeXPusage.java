@@ -47,4 +47,10 @@ public class UpgradeXPusage extends BaseUpgrade
 		return UpgradeType.XP_USAGE;
 	}
 
+	@Override
+	public double GetCombinedValue(double value) 
+	{
+		return value - _tierReduceValue * GetCurrentTier();
+	}
+
 }

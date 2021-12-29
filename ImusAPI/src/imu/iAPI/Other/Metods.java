@@ -79,6 +79,12 @@ public class Metods
 		return DIGIT_PATTERN.matcher(str).matches();
 	}
 	
+	public static final String FormatTime(long millis) 
+	{
+	    long secs = millis / 1000;
+	    String str =String.format("&4%02dh &e: &3%02dm &e: &7%02ds", secs / 3600, (secs % 3600) / 60, secs % 60);
+	    return msgC(str);
+	}
 	public ItemStack addLore(ItemStack stack, String lore, boolean addLast)
 	{
 		

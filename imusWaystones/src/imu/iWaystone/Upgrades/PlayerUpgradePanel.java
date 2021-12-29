@@ -38,6 +38,11 @@ public class PlayerUpgradePanel
 		return new BaseUpgrade[] {_castTime,_cooldown, _dimension, _xpUsage};	
 	}
 	
+	public void LoadToolTips()
+	{
+		for(BaseUpgrade upgrade : GetUpgrades()) {upgrade.Tooltip();}
+	}
+	
 	public void SetUpgrade(BaseUpgrade upgrade)
 	{
 		if(upgrade instanceof UpgradeCastTime)

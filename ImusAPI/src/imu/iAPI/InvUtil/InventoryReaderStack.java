@@ -7,6 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iAPI.Other.Metods;
+
 public class InventoryReaderStack 
 {
 	class ItemInfo
@@ -18,7 +20,7 @@ public class InventoryReaderStack
 		{
 			_refs.add(stack);
 			_totalCount+= stack.getAmount();
-			//System.out.println("adding: "+stack.getType()+ " total amount: "+_totalCount);
+			//System.out.println("adding: "+stack+ " total amount: "+_totalCount);
 			return this;
 		}
 		
@@ -30,7 +32,8 @@ public class InventoryReaderStack
 		public boolean Reduce(int amount)
 		{
 			if(_totalCount < amount) return false;
-			
+		
+			//System.out.println("start reducing");
 			int left = amount;
 			for(int i = _refs.size()-1; i >= 0; i--)
 			{
@@ -64,6 +67,7 @@ public class InventoryReaderStack
 	public InventoryReaderStack(Inventory inv)
 	{
 		LoadInv(inv);
+		//Metods._ins.printHashMap(_info);
 	}
 	
 	public boolean Reduce(ItemStack stack, int amount)
@@ -77,6 +81,7 @@ public class InventoryReaderStack
 	{
 		ItemStack test = stack.clone();
 		test.setAmount(1);
+		//System.out.println("asking: "+test +" AND : "+_info.get(test)._totalCount+" ");
 		return  _info.get(test);
 	}
 	
@@ -105,7 +110,7 @@ public class InventoryReaderStack
 	{
 		ItemStack test = stack.clone();
 		test.setAmount(1);
-		if(!_info.containsKey(stack))
+		if(!_info.containsKey(test))
 		{
 			_info.put(test, new ItemInfo());
 		}

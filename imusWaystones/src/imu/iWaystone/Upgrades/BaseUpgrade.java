@@ -25,7 +25,7 @@ public abstract class BaseUpgrade
 		_tierReduceValue = SetTierReduceValue();
 		_displayItem = new ItemStack(SetMaterial());
 		Metods.setDisplayName(_displayItem, SetDisplayName());
-		Tooltip();
+		//Tooltip();
 	}
 	
 	abstract Tier[] SetTiers();
@@ -35,6 +35,7 @@ public abstract class BaseUpgrade
 	public abstract String SetDisplayName();
 	public abstract Material SetMaterial();
 	public abstract UpgradeType SetType();
+	public abstract double GetCombinedValue(double value);
 	
 	public void Tooltip()
 	{
@@ -69,7 +70,7 @@ public abstract class BaseUpgrade
 			}
 			lores.add(" ");
 			lores.add("&4===> &e&k#&7(&bCLICK&7)&e&k# &eto &5UPGRADE!");
-			System.out.println("setting up upgrade");
+			//System.out.println("setting up upgrade");
 			break;
 			
 		}
@@ -88,7 +89,6 @@ public abstract class BaseUpgrade
 		if(tierlvl < 0) tierlvl = 0;
 		if(tierlvl > GetMaxTier()) tierlvl = GetMaxTier();
 		_currentTier = tierlvl;
-		Tooltip();
 	}
 	
 	public void IncreaseCurrentTier(int amount)
@@ -101,8 +101,7 @@ public abstract class BaseUpgrade
 		
 		
 		_currentTier += amount;
-		
-		Tooltip();
+
 	}
 	public boolean IsMaxTier()
 	{

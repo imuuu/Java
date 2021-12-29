@@ -48,4 +48,9 @@ public class Cooldowns
 	{
 		cooldowns.remove(cd_name.toLowerCase());
 	}
+	
+	public String GetCdInReadableTime(String cd_name)
+	{
+		return Metods.FormatTime((long)(GetCdInSeconds(cd_name) * 1000));
+	}
 }
