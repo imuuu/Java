@@ -3,4 +3,5 @@ author: imukuppikorva
 version: 1.0
 main: imu.iAPI.Main.ImusAPI
 description: imus own api
-api-version: 1.17
+softdepend: [ProtocolLib]
+api-version: 1.18

@@ -132,7 +132,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			break;		
 		case UPGRADE:
 			_player.closeInventory();
-			new WaystoneUpgradeMenu(_main, _player, _waystone, this).openThis();
+			new WaystoneUpgradeMenu(_main, _player, _waystone).openThis();
 			break;
 		case WAYSTONE:
 			

@@ -425,7 +425,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				//FindCustomerItem(sic,true);
 				ImusAPI._metods.InventoryAddItemOrDrop(resultItems[0]._stack, _player, cInfo._click_amount);
 				
-				_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sic, cInfo._click_amount, TransactionAction.BUY); // sic have to change in future if resultItem will be null!
+				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sic, cInfo._click_amount, TransactionAction.BUY); // sic have to change in future if resultItem will be null!
 				//_main.get_shopManager().GetShopManagerSQL().ShopItemAddUpdateAsync((ShopItemSeller)cInfo._shopItemBase, cInfo._click_amount * -1);
 				LoadPlayerInv();
 			}
@@ -474,7 +474,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				
 				_shopBase.AddNewItem(sis,false);
 				
-				_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, new ShopItemSeller(_main, _shopBase, stack, cInfo._click_amount), amount, TransactionAction.SELL);
+				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, new ShopItemSeller(_main, _shopBase, stack, cInfo._click_amount), amount, TransactionAction.SELL);
 			}
 		}.runTask(_main);
 		

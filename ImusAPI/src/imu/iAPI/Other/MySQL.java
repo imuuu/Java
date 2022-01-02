@@ -84,7 +84,7 @@ public class MySQL
 		{
 			if(_connection.isClosed())
 			{
-				System.out.println("IS CLOSED ==> RECONNECT!");
+				//System.out.println("IS CLOSED ==> RECONNECT!");
 				Con(_dataBase);
 			}
 			
@@ -92,6 +92,7 @@ public class MySQL
 		{
 			Bukkit.getLogger().info("Coulnd't reconnect to database named:" +_dataBase);
 		}
+		//System.out.println("sending new connection: "+_connection);
 		return _connection;
 	}
 	

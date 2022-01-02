@@ -31,18 +31,17 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	private ImusWaystones _main;
 	private Waystone _waystone;
 	private WaystoneManager _wManager;
-	private CustomInvLayout _lastinv;
-	
+
 	PlayerUpgradePanel _panel;
 	boolean upgrading = false;
-	
-	public WaystoneUpgradeMenu(Plugin main, Player player, Waystone waystone, CustomInvLayout lastinv) 
+	private String _namePrefix = "&5Upgrading: &r";
+	public WaystoneUpgradeMenu(Plugin main, Player player, Waystone waystone) 
 	{
-		super(main, player, "&6Upgrading: "+waystone.GetName(), 4 * 9);
+		super(main, player,"&5Upgrading: &r"+waystone.GetName(), 4 * 9);
+		
 		_main = ImusWaystones._instance;
 		_waystone = waystone;
 		_wManager = _main.GetWaystoneManager();
-		_lastinv = lastinv;
 	}
 
 	enum BUTTON implements IButton
@@ -94,15 +93,8 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 			_wManager.GetWaystone(_waystone.GetUUID()).SetName(value);
 			_wManager.GetWaystone(_waystone.GetUUID()).CreateHologram();
 			_wManager.SaveWaystone(_waystone, true);
-			new BukkitRunnable() {
-				
-				@Override
-				public void run() 
-				{
-					_player.closeInventory();
-				}
-			}.runTaskLater(_main, 1);
-			
+			RenameWindow(_namePrefix+value);
+
 			break;
 	
 		}
@@ -127,7 +119,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 		case BACK:
 			if(!CheckIfValid()) return;
 			_player.closeInventory();
-			_lastinv.openThis();
+			new WaystoneMenuInv(_wManager.GetWaystone(_waystone.GetUUID()), _player).openThis();
 			break;
 		case NONE:
 			break;

@@ -3,7 +3,7 @@ author: imu
 version: 1.0
 main: imu.GS.Main.Main
 api-version: 1.18
-softdepend: [Vault, ImusAPI]
+softdepend: [Vault, imusAPI]
 commands:
    gs:
      description: GS

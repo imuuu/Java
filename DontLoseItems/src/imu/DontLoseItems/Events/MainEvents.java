@@ -76,23 +76,7 @@ public class MainEvents implements Listener
 		runnable();
 	}
 	
-	
-//	@EventHandler
-//	public void ProjectileLaunch(ProjectileLaunchEvent e)
-//	{
-//		//System.out.println("projectile launched: "+e.getEntity().getShooter() );
-//		if(e.getEntity().getShooter() instanceof Shulker)
-//		{
-//			System.out.println("its shulker");
-//			Projectile prot = e.getEntity();
-//			double mult = 100.0;
-//			prot.setGlowing(true);
-//			ShulkerBullet bullet = (ShulkerBullet)prot;
-//			bullet.setVelocity(bullet.getVelocity().multiply(mult));
-//			//bullet.getVelocity().multiply(10);
-//		}
-//	}
-	
+
 	@EventHandler
 	public void ProjectileLaunch(ProjectileHitEvent e)
 	{

@@ -1,7 +1,9 @@
 package imu.iAPI.Other;
 
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -11,13 +13,25 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.InventoryView.Property;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 import chestcleaner.sorting.SortingEvent;
 import imu.iAPI.Interfaces.CustomInv;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.level.EntityPlayer;
 
 public abstract class CustomInvLayout implements Listener, CustomInv
 {
@@ -37,6 +51,8 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	protected int _droppedSlot = -1;
 	protected int _takenSlot = -1;
 	
+	private int _windowID;
+	private int _windowTypeID;
 	public CustomInvLayout(Plugin main, Player player, String name, int size)
 	{
 		_plugin = main;
@@ -46,6 +62,12 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		_player = player;	
 		_inv =  _plugin.getServer().createInventory(null, _size, _name);
 		RegisterToEvents();
+		ProtocolManager pManager = ImusAPI._instance.GetProtocolManager();
+		
+		
+		
+		//pManager.removePacketListener(this);
+		
 		
 	}
 	protected enum DENY_ITEM_MOVE
@@ -64,6 +86,36 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		if(page < 0){page = maxPages; return page;}				
 		if(page > maxPages) {page = 0; return page;}	
 		return page;
+	}
+	
+	public BukkitTask RenameWindow(String rename)
+	{
+		return new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				
+				ProtocolManager pManager = ImusAPI._instance.GetProtocolManager();
+				PacketContainer packet = pManager.createPacket(PacketType.Play.Server.OPEN_WINDOW);
+				packet.getIntegers().write(0, ImusAPI._instance.GetProtocolLibUtil().GetInventoryID(_player));
+				packet.getIntegers().write(1, ImusAPI._instance.GetProtocolLibUtil().GetInventoryType(_player));
+				packet.getChatComponents().write(0, WrappedChatComponent.fromText(Metods.msgC(rename)));
+				try 
+				{
+					pManager.sendServerPacket(_player, packet);
+				} 
+				catch (Exception e) 
+				{
+					Bukkit.getLogger().info("Couldnt rename window!");
+					//e.printStackTrace();
+				}
+				_player.updateInventory();
+			}
+		}.runTaskLater(_plugin, 1);
+		
+		
+		
 	}
 	
 	public Player GetPlayer()

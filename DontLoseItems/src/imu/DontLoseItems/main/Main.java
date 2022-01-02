@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.DontLoseItems.Commands.ExampleCmd;
+import imu.DontLoseItems.Events.FishingEvent;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Main.ImusAPI;
@@ -38,6 +39,7 @@ public class Main extends JavaPlugin
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" Dont lose your items has been activated!");
 		getServer().getPluginManager().registerEvents(new MainEvents(this), this);
+		//getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 	}
 	
 	public Metods getItemMetods()

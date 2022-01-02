@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.ENUMs.SQL_TABLES;
 import imu.GS.ENUMs.TagSubCmds;
@@ -87,17 +88,17 @@ public class TagManager
 		return mats;
 	}
 	
-	public void LoadAllShopItemTagsNamesAsync()
+	public BukkitTask LoadAllShopItemTagsNamesAsync()
 	{
-		new BukkitRunnable() {
+		return new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
 				_tags_shopItems.clear();
-				try 
+				try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);)
 				{
-					PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);
+					
 					ResultSet rs = ps.executeQuery();
 					if(rs.isBeforeFirst())
 					{
@@ -120,10 +121,9 @@ public class TagManager
 		
 	}
 	
-	
-	public void LoadMaterialTagsAsync()
+	public BukkitTask LoadMaterialTagsAsync()
 	{
-		new BukkitRunnable() {			
+		return new BukkitRunnable() {			
 			@Override
 			public void run() 
 			{
@@ -142,19 +142,6 @@ public class TagManager
 						}
 					}
 					
-//					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);
-//					rs = ps.executeQuery();
-//					
-//					if(rs.isBeforeFirst())
-//					{
-//						while(rs.next())
-//						{
-//							UUID sib_uuid = UUID.fromString(rs.getString(2));
-//							String tagName = rs.getString(3).toLowerCase();
-//							FindAndAddTag(sib_uuid, tagName);
-//							System.out.println("adding tag "+tagName+" to sib: "+sib_uuid);
-//						}
-//					}
 					UpdateMaterialTabList();
 				} 
 				catch (SQLException e) {

@@ -186,7 +186,6 @@ public class ShopManager
 	{
 		for(ShopItemSeller[] siss : sBase.get_items())
 		{
-
 			for(ShopItemSeller sis : siss)
 			{
 				
@@ -209,19 +208,12 @@ public class ShopManager
 				int newAmount = (int)Math.floor(amount * (1.0 - sBase.get_expire_percent()));
 				if(newAmount < 0)
 					newAmount = 0;
-				//System.out.println("refreshing sis amount "+ amount + " and now: "+newAmount+ " with expP: "+sBase.get_expire_percent());
+
 				sis.Set_amount(newAmount);
-				
-				//sis.UpdateItem();
 			}
 		}
 	}
-	
-//	public double GetMaterialPrice(Material material)
-//	{
-//		return _material_prices.get(material);
-//	}
-//	
+
 	public void SaveMaterialPrice(Material mat, double price)
 	{
 		if(price < 0) 
