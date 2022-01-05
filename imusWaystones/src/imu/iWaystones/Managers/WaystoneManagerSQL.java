@@ -113,7 +113,7 @@ public class WaystoneManagerSQL
 				UUID uuid_player = UUID.fromString(rs.getString(3));
 				UpgradeType type = UpgradeType.valueOf(rs.getString(4));
 				int tier = rs.getInt(5);
-				BaseUpgrade upgrade = _waystoneManager.GetNewUpgrade(type);
+				BaseUpgrade upgrade = BaseUpgrade.GetNewUpgrade(type);
 				upgrade.SetCurrentier(tier);
 				waystone.SetPlayerUpgrade(uuid_player, upgrade);			
 			}
@@ -122,6 +122,7 @@ public class WaystoneManagerSQL
 		catch (Exception e) 
 		{
 			_main.getLogger().info("===> LOADING ERROR: LoadUpgrades ===");
+			//e.printStackTrace();
 		}
 		return waystone;
 	}

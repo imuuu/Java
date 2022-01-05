@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -30,12 +31,14 @@ import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
+import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 
 public class ShopManagerSQL 
@@ -84,12 +87,12 @@ public class ShopManagerSQL
 					+ "slot INT(27),"
 					
 					+ "price_type 		VARCHAR(20),"
-					+ "max_amount 		INT(20),"
-					+ "fill_amount 		INT(20),"
-					+ "fill_delay 		INT(20),"
-					
-					+ "selltime_start 	INT(20),"
-					+ "selltime_end		INT(20),"
+//					+ "max_amount 		INT(20),"
+//					+ "fill_amount 		INT(20),"
+//					+ "fill_delay 		INT(20),"
+//					
+//					+ "selltime_start 	INT(20),"
+//					+ "selltime_end		INT(20),"
 					
 					+ "type_data TEXT(16000),"
 					+ "itemstack TEXT(16000),"
@@ -206,15 +209,31 @@ public class ShopManagerSQL
 					+ "shopitem_uuid CHAR(36),"
 					+ "amount INT(10),"
 					+ "price FLOAT(20), "
+					+ "cal_total_price FLOAT(20), "
 					+ "custom_price_view VARCHAR(10000), "
 					+ "itemstack_displayname VARCHAR(100), "
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(id));");
 			ps.executeUpdate();
 			_main.getLogger().info("=====> log");
+						
+			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_moddata.toString()+" ("
+					+ "id INT NOT NULL AUTO_INCREMENT, "
+					+ "uuid CHAR(36) NOT NULL, "
+					+ "max_amount 		INT(20),"
+					+ "fill_amount 		INT(20),"
+					+ "fill_delay 		INT(20),"
+					
+					+ "selltime_start 	INT(20),"
+					+ "selltime_end		INT(20),"
+					+ "PRIMARY KEY(id));");
 			
-			con.close();
+			_main.getLogger().info("=====> modData");
+			ps.executeUpdate();
+			
+			
 			ps.close();
+			con.close();
 		} catch (Exception e) 
 		{
 			e.printStackTrace();
@@ -222,7 +241,7 @@ public class ShopManagerSQL
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
-	public BukkitTask LogPurchaseAsync(Player player, ShopItemBase sib, int amount, TransactionAction tAction)
+	public BukkitTask LogPurchaseAsync(Player player, ArrayList<ShopItemBase> sibs)
 	{
 		//_main.getLogger().info("Loging..");
 		return new BukkitRunnable() 
@@ -234,20 +253,27 @@ public class ShopManagerSQL
 				{
 					Connection con = _main.GetSQL().GetConnection();
 					PreparedStatement ps = con.prepareStatement("INSERT INTO "+SQL_TABLES.log_transaction.toString()+" "
-							+ "(player_uuid, player_name, action, shop_uuid, shopname, shopitem_uuid, amount, price, custom_price_view, itemstack_displayname, itemstack) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-					int i = 1;
-					ps.setString(i++, player.getUniqueId().toString());
-					ps.setString(i++, player.getName());
-					ps.setString(i++, tAction.toString());
-					ps.setString(i++, sib.GetShop().GetUUID().toString());
-					ps.setString(i++, sib.GetShop().GetName());
-					ps.setString(i++, sib.GetUUID().toString());
-					ps.setInt(i++, amount);
-					ps.setFloat(i++, (float)sib.GetItemPrice().GetPrice());
-					ps.setString(i++, sib.GetItemPrice() instanceof PriceCustom ? ((PriceCustom)sib.GetItemPrice()).GetViewStringOfItems(amount) : "");
-					ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sib.GetRealItem()));
-					ps.setString(i++, ImusAPI._metods.EncodeItemStack(sib.GetRealItem()));
-					ps.executeUpdate();
+							+ "(player_uuid, player_name, action, shop_uuid, shopname, shopitem_uuid, amount, price, cal_total_price,custom_price_view, itemstack_displayname, itemstack) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+					
+					for(ShopItemBase sib : sibs)
+					{
+						int i = 1;
+						ps.setString(i++, player.getUniqueId().toString());
+						ps.setString(i++, player.getName());
+						ps.setString(i++, sib instanceof ShopItemSeller ? TransactionAction.SELL.toString() : TransactionAction.BUY.toString() );
+						ps.setString(i++, sib.GetShop().GetUUID().toString());
+						ps.setString(i++, sib.GetShop().GetName());
+						ps.setString(i++, sib.GetUUID().toString());
+						ps.setInt(i++, sib.Get_amount());
+						ps.setFloat(i++, (float)sib.GetItemPrice().GetPrice());
+						ps.setFloat(i++, (float) Metods.Round((sib.Get_amount() *sib.GetItemPrice().GetPrice()) * (sib instanceof ShopItemSeller ? 1 : -1)));
+						ps.setString(i++, sib.GetItemPrice() instanceof PriceCustom ? ((PriceCustom)sib.GetItemPrice()).GetViewStringOfItems(sib.Get_amount()) : "");
+						ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sib.GetRealItem()));
+						ps.setString(i++, ImusAPI._metods.EncodeItemStack(sib.GetRealItem()));
+						ps.addBatch();
+					}
+					
+					ps.executeBatch();
 					
 					ps.close();
 					con.close();
@@ -256,7 +282,7 @@ public class ShopManagerSQL
 				catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:LogPurchaseAsync ERROR");
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}.runTaskAsynchronously(_main);
@@ -275,8 +301,10 @@ public class ShopManagerSQL
 
 			if(!rs.isBeforeFirst())
 			{
-				//NO DATA
 				_main.getLogger().info("No shops found!");
+				rs.close();
+				ps.close();
+				con.close();
 				return;
 			}
 			while(rs.next())
@@ -302,31 +330,49 @@ public class ShopManagerSQL
 				shop.set_expire_cooldown_m(expireCooldown);
 				shop.SetLocked(locked);
 				shop.SetCustomersCanOnlyBuy(customerCanOnlySell);
-				shop.SetAbsolutePosBool(absolutePos);
-				
-				
+				shop.SetAbsolutePosBool(absolutePos);	
 				_shopManager.GetShops().add(shop);
 				_main.getLogger().info("Shop loaded named: "+ name);
 						
 				
 			}
 			
+			
+		
+			rs.close();
 			ps.close();
 			con.close();
 			
-			for(ShopBase sBase : _shopManager.GetShops())
-			{
-				LoadShopItems(sBase);
-			}
-		
 			
-			_shopManager.UpdateTabCompliters();
 		} catch (SQLException e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:LoadShops: ERROR");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		
+		
+		
+		
+		
+		
+	}
+	
+	public void LoadShopItems()
+	{
+		try 
+		{
+			for(ShopBase sBase : _shopManager.GetShops())
+			{
+				LoadShopItems(sBase);
+				LoadModDataForShopItems(sBase);
+			}
+		} 
+		catch (Exception e) 
+		{
+			Bukkit.getLogger().info("ShopManagerSQL:LoadShopsItems: ERROR");
+			e.printStackTrace();
+		}
+		_shopManager.UpdateTabCompliters();
 	}
 	
 	void LoadMaterialPrices()
@@ -367,8 +413,10 @@ public class ShopManagerSQL
 				_main.getLogger().info("Material prices loaded");
 			}
 			
-			con.close();
+			
+			rs.close();
 			ps.close();
+			con.close();
 		}
 		catch (SQLException e) 
 		{
@@ -378,6 +426,102 @@ public class ShopManagerSQL
 		}
 		
 		
+	}
+	
+	void LoadModDataForShopItems(ShopBase shopBase)
+	{
+		try 
+		{
+			Connection con = _main.GetSQL().GetConnection();
+			for(ShopItemBase[] sibs : shopBase.get_items())
+			{
+				for(ShopItemBase sib : sibs)
+				{
+					if(sib == null) continue;
+					
+					if(!(sib instanceof ShopItemStockable)) continue;
+					
+					UUID uuid = sib.GetUUID();
+					
+					PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_moddata.toString()+" WHERE uuid='"+uuid.toString()+"';");
+					ResultSet rs = ps.executeQuery();
+					ShopItemModData modData = new ShopItemModData();
+					
+					if(rs.isBeforeFirst())
+					{
+						rs.next();
+						modData._maxAmount = rs.getInt(3);
+						modData._fillAmount = rs.getInt(4);
+						modData._fillDelayMinutes =rs.getInt(5);
+						modData._sellTimeStart = rs.getInt(6);
+						modData._sellTimeEnd = rs.getInt(7);
+					}
+					
+					
+					ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							int l = 1;
+							l++; l++; //id uuid
+							int distance = rs.getInt(l++);
+							Location loc = new Location(Bukkit.getWorld(rs.getString(l++)), rs.getInt(l++), rs.getInt(l++), rs.getInt(l++));
+							modData.AddLocation(distance, loc);
+							//modData.
+							
+						}
+						_main.getLogger().info("distance added");
+					}
+					ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddPermission(rs.getString(3));						
+						}
+						_main.getLogger().info("permission added");
+					}
+					
+					ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddWorldName(rs.getString(3));						
+						}
+						_main.getLogger().info("world added");
+					}
+					
+					ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems+" WHERE sib_uuid='"+uuid.toString()+"';");
+					rs = ps.executeQuery();
+					
+					if(rs.isBeforeFirst())
+					{
+						while(rs.next())
+						{
+							modData.AddTag(rs.getString(3).toLowerCase());
+						}
+					}
+					((ShopItemStockable)sib).SetModData(modData);
+					//sis.Set_amount(amount);
+					
+					rs.close();
+					ps.close();
+				}
+			}
+			con.close();
+		} 
+		catch (Exception e) 
+		{
+			Bukkit.getLogger().info("ShopManagerSQL:LoadShopItemModData: ERROR");
+			//e.printStackTrace();
+		}
 	}
 	
 	void SaveMaterialPrice(Material mat, double price)
@@ -417,18 +561,10 @@ public class ShopManagerSQL
 				int amount = rs2.getInt(i++);
 				int page = rs2.getInt(i++);
 				int slot = rs2.getInt(i++);
-				
-				//float own_price = rs2.getFloat(i++);
+
 				ItemPriceType priceType = ItemPriceType.valueOf(rs2.getString(i++));
-				int max_amount = rs2.getInt(i++);
-				int fill_amount = rs2.getInt(i++);
-				int fill_delay = rs2.getInt(i++);
-				
-				int selltimeStart = rs2.getInt(i++);
-				int selltimeEnd = rs2.getInt(i++);
 
 				String typeData = rs2.getString(i++);
-				//String custom_recipe_price = rs2.getString(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs2.getString(i++));					
 				ShopItemSeller sis = null;
 				switch (siType) 
@@ -448,90 +584,19 @@ public class ShopManagerSQL
 					}
 
 				sis.SetUUID(uuid);
-				
-				
-				
-				if(sis instanceof ShopItemStockable)
-				{
-					ShopItemModData modData = new ShopItemModData();
-					//modData._itemPrice = own_price > -1 ? new PriceOwn().SetPrice(own_price) : null;
-					modData._maxAmount = max_amount;
-					modData._fillAmount = fill_amount;
-					modData._fillDelayMinutes =fill_delay;
-					modData._sellTimeStart = selltimeStart;
-					modData._sellTimeEnd = selltimeEnd;
-					
-					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='"+uuid.toString()+"';");
-					ResultSet rs = ps.executeQuery();
-					
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							int l = 1;
-							l++; l++; //id uuid
-							int distance = rs.getInt(l++);
-							Location loc = new Location(Bukkit.getWorld(rs.getString(l++)), rs.getInt(l++), rs.getInt(l++), rs.getInt(l++));
-							modData.AddLocation(distance, loc);
-							//modData.
-							
-						}
-						_main.getLogger().info("distance added");
-					}
-					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+uuid.toString()+"';");
-					rs = ps.executeQuery();
-					
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							modData.AddPermission(rs.getString(3));						
-						}
-						_main.getLogger().info("permission added");
-					}
-					
-					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+uuid.toString()+"';");
-					rs = ps.executeQuery();
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							modData.AddWorldName(rs.getString(3));						
-						}
-						_main.getLogger().info("world added");
-					}
-					
-					ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems+" WHERE sib_uuid='"+uuid.toString()+"';");
-					rs = ps.executeQuery();
-					
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							modData.AddTag(rs.getString(3).toLowerCase());
-						}
-					}
-					
-					
-					
-					((ShopItemStockable)sis).SetModData(modData);
-					sis.Set_amount(amount);
-					
-					
-				}
 					
 				switch (priceType) {
 				case None:
 					sis.SetItemPrice( _main.get_shopManager().GetPriceMaterialAndCheck(stack));
 					break;
 				case PriceCustom:
-					sis.SetItemPrice( GetPriceCustom(uuid));
+					sis.SetItemPrice( GetPriceCustom(uuid, false));
 					break;
 				case PriceOwn:
-					sis.SetItemPrice(new PriceOwn().SetPrice(GetPriceValue(uuid)));
+					sis.SetItemPrice(new PriceOwn().SetPrice(GetPriceValue(uuid,false)));
 					break;
 				case PriceUnique:
-					sis.SetItemPrice(GetUniquePrice( _shopManager.GetUniqueManager().GetUniqueUUID(stack)));
+					sis.SetItemPrice(GetUniquePrice( _shopManager.GetUniqueManager().GetUniqueUUID(stack), false));
 					break;
 				
 				}
@@ -547,11 +612,12 @@ public class ShopManagerSQL
 		
 		con.close();
 		ps.close();
+		
 		//_main.get_shopManager().CheckShopItems(shop);
 		
 	}
 	
-	double GetPriceValue(UUID shopItemSellerUUID) throws SQLException 
+	double GetPriceValue(UUID shopItemSellerUUID, boolean closeConnect) throws SQLException 
 	{
 		Connection con = _main.GetSQL().GetConnection();
 		double priceValue = 0;
@@ -562,23 +628,28 @@ public class ShopManagerSQL
 			rs.next();
 			priceValue = (double)rs.getFloat(4);
 		}
-		
-		con.close();
+		rs.close();
 		ps.close();
+		if(closeConnect)
+		{			
+			con.close();		
+		}
+		
 		
 		return priceValue;
 	}
 	
-	void RemovePriceValue(UUID shopItemSellerUUID) throws SQLException
-	{
-		Connection con = _main.GetSQL().GetConnection();
-		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='%s';",shopItemSellerUUID.toString()));
-		ps.executeUpdate();
-		con.close();
-		ps.close();
-	}
+//	void RemovePriceValu(UUID shopItemSellerUUID) throws SQLException
+//	{
+//		Connection con = _main.GetSQL().GetConnection();
+//		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='%s';",shopItemSellerUUID.toString()));
+//		ps.executeUpdate();
+//		
+//		ps.close();
+//		con.close();
+//	}
 	
-	void SavePriceValue(UUID shopItemSellerUUID, double value) throws SQLException
+	void SavePriceValue(UUID shopItemSellerUUID, double value, boolean closeConnection) throws SQLException
 	{		
 		//RemovePriceValue(shopItemSellerUUID);
 		Connection con =_main.GetSQL().GetConnection();
@@ -590,11 +661,16 @@ public class ShopManagerSQL
 		ps.setString(4, "$");
 		ps.executeUpdate();
 		
-		con.close();
-		ps.close();
+		if(closeConnection)
+		{
+			ps.close();
+			con.close();
+		}
+		
+		
 	}
 	
-	PriceCustom GetPriceCustom(UUID uuid) throws SQLException 
+	PriceCustom GetPriceCustom(UUID uuid, boolean closeConnection) throws SQLException 
 	{
 		Connection con = _main.GetSQL().GetConnection();
 		PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='"+uuid.toString()+"';");
@@ -626,32 +702,38 @@ public class ShopManagerSQL
 		CustomPriceData[] array = new CustomPriceData[datas.size()];
 		for(int i = 0; i < array.length; i++) {array[i] = datas.get(i);}
 			
-		pc.SetItemsAndPrice(array, GetPriceValue(uuid), minimumStackAmount);
+		pc.SetItemsAndPrice(array, GetPriceValue(uuid, false), minimumStackAmount);
 		
-		con.close();
+		rs.close();
 		ps.close();
+		
+		if(closeConnection)
+		{
+			con.close();
+		}
+		
 		
 		return pc;
 	}
 	
-	void RemovePriceCustom(UUID shopItemUUID) throws SQLException
-	{
-		Connection con = _main.GetSQL().GetConnection();
-		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",shopItemUUID.toString()));
-		ps.executeUpdate();
-		
-		con.close();
-		ps.close();
-	}
+//	void RemovePriceCusto(UUID shopItemUUID) throws SQLException
+//	{
+//		Connection con = _main.GetSQL().GetConnection();
+//		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",shopItemUUID.toString()));
+//		ps.executeUpdate();
+//		ps.close();
+//		con.close();
+//		
+//	}
 	
-	void SavePriceCustom(UUID shopItemUUID, PriceCustom pc) throws SQLException
+	void SavePriceCustom(UUID shopItemUUID, PriceCustom pc, boolean closeConnection) throws SQLException
 	{
 		Connection con = _main.GetSQL().GetConnection();
 		PreparedStatement ps = con.prepareStatement("INSERT INTO "+SQL_TABLES.price_customs.toString()+" "
 				+ "(uuid, amount, itemstack) VALUES (?,?,?)");
 		for(CustomPriceData item : pc.GetItems())
 		{
-			_main.getLogger().info("saving custom item: "+item._stack.getType());
+			//_main.getLogger().info("saving custom item: "+item._stack.getType());
 			
 			ps.setString(1, shopItemUUID.toString());
 			ps.setInt(2, item._amount);
@@ -661,11 +743,10 @@ public class ShopManagerSQL
 		}
 		
 		ps.executeBatch();
-		ps.close();
-		
-		if(pc.GetPrice() > 0)
+
+		if(pc.GetPrice() >= 0)
 		{
-			SavePriceValue(shopItemUUID, pc.GetPrice());
+			SavePriceValue(shopItemUUID, pc.GetPrice(), false);
 		}
 		
 		ps = con.prepareStatement("REPLACE INTO "+SQL_TABLES.custom_price.toString()+" "
@@ -674,8 +755,13 @@ public class ShopManagerSQL
 		ps.setInt(2, pc.GetMinimumStackAmount());
 		ps.executeUpdate();
 		
-		con.close();
-		ps.close();
+		if(closeConnection)
+		{
+			ps.close();
+			con.close();
+		}
+		
+		
 		
 	}
 	
@@ -708,62 +794,72 @@ public class ShopManagerSQL
 		
 	}
 	
-	public void DeleteShopItem(ShopItemBase sib)
+	public void DeleteShopItem(ArrayList<ShopItemBase> sibs, boolean closeAfter)
 	{
-		
-		if(sib == null) return;
 		
 		try {
 			Connection con = _main.GetSQL().GetConnection();
-			PreparedStatement ps = con.prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shopitems.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
-			ps.executeUpdate();
-
-			ps = con.prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
-			ps.executeUpdate();
-
+			Statement stms = con.createStatement();
+//			PreparedStatement ps = con.prepareStatement(""
+//					+ "DELETE FROM "+SQL_TABLES.shopitems.toString()+" WHERE uuid='"+sib.GetUUID()+"'");			
+//			ps.executeUpdate();
 			
-			ps = con.prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
-			ps.executeUpdate();
-
+//			String statement ="DELETE FROM "
+//					+ SQL_TABLES.shopitems.toString()+ ", "
+//					+SQL_TABLES.shopitem_locations.toString() +", "
+//					+SQL_TABLES.shopitem_permissions.toString() +", "
+//					+SQL_TABLES.shopitem_worlds.toString() +", "
+//					+SQL_TABLES.price_customs.toString() +", "
+//					+SQL_TABLES.tags_shopitems.toString() +", "
+//					+ "WHERE uuid='"+sib.GetUUID()+"';";
+//			
+//			System.out.println("str: "+statement);
+//			PreparedStatement ps = con.prepareStatement(statement);
 			
-			ps = con.prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
-			ps.executeUpdate();
+			for(ShopItemBase sib : sibs)
+			{
+				if(sib == null) continue;
+				
+				stms.addBatch(""
+						+ "DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
+				
+				stms.addBatch(""
+						+ "DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
+				
+				stms.addBatch(""
+						+ "DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
+				
+				stms.addBatch(""
+						+ "DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
+				
+				stms.addBatch(String.format("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='%s';",sib.GetUUID().toString()));
+				
+				stms.addBatch(String.format("DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='%s';",sib.GetUUID().toString()));
+				
+				stms.addBatch(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",sib.toString()));
+				
+				stms.addBatch("DELETE FROM "+SQL_TABLES.shopitem_moddata.toString()+ " WHERE uuid='"+sib.GetUUID().toString()+"';");
+			}
 
+			stms.executeBatch();
+			stms.clearBatch();
 			
-			ps = con.prepareStatement(""
-					+ "DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='"+sib.GetUUID()+"';");			
-			ps.executeUpdate();
+			if(closeAfter)
+			{
+				stms.close();
 
+				con.close();
+			}
 			
-
-		
-
-			ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='%s';",sib.GetUUID().toString()));
-			ps.executeUpdate();
-			ps.close();
-			
-			con.close();
 			
 			//System.out.println("sib deleted: "+sib.GetDisplayItem().getType());
 		} 
 		catch (Exception e) 
 		{
-			Bukkit.getLogger().info("ShopManagerSQL:DeleteShopItem:Error happend deleting shopitem: "+sib.GetItemType()+"");
+			Bukkit.getLogger().info("ShopManagerSQL:DeleteShopItem:111 Error happend deleting shopitem:");
+			e.printStackTrace();
+			return;
 		}
-		
-		try 
-		{
-			RemovePriceCustom(sib.GetUUID());
-			RemovePriceValue(sib.GetUUID());
-		} 
-		catch (Exception e) {
-			System.out.println("shoppi errori");
-		}
-		
 		
 		
 	}
@@ -778,15 +874,18 @@ public class ShopManagerSQL
 			Bukkit.getLogger().info("ShopManagerSQL:DeleteAllShopItems: ERROR");
 		}
 		
+		ArrayList<ShopItemBase> sibs = new ArrayList<>();
 		for (ShopItemSeller[] siss : shop.get_items()) 
 		{
 			for(int slot = 0; slot < siss.length; ++slot)
 			{
-				DeleteShopItem(siss[slot]);
+				sibs.add(siss[slot]);
 			}
 		}
+		
+		DeleteShopItem(sibs, true);
 	}
-	public BukkitTask SaveShopAsync(ShopBase shop)
+	public BukkitTask SaveShopAsync(ShopBase shop)   
 	{
 		//boolean lock = shop.HasLocked();
 		//shop.SetLocked(true);
@@ -842,7 +941,7 @@ public class ShopManagerSQL
 							continue;
 						}
 						
-						SaveShopItem(sis, page, slot);
+						SaveShopItem(sis, false);
 						
 					}
 					page++;
@@ -854,161 +953,291 @@ public class ShopManagerSQL
 		}.runTaskAsynchronously(_main);
 
 	}
-
-	public void SaveShopItem(ShopItemSeller sis, int page, int slot)
+	
+	
+	ArrayList<String> GetINSERTModDataStatement(ShopItemStockable sis)
 	{
-		if(sis.GetShop() == null)
-			return;
+		ArrayList<String> array = new ArrayList<String>();
+		String modData = "INSERT INTO "+SQL_TABLES.shopitem_moddata.toString()+" (uuid, max_amount, fill_amount, fill_delay, selltime_start,selltime_end) VALUES("
+				+  "'"+sis.GetUUID().toString()+"',"
+				+ sis.GetModData()._maxAmount+","
+				+ sis.GetModData()._fillAmount+","
+				+ sis.GetModData()._fillDelayMinutes+","
+				+ sis.GetModData()._sellTimeStart+","
+				+ sis.GetModData()._sellTimeEnd+""
+				+ ");";
 		
-		int i = 1;
-		DeleteShopItem(sis);
+		array.add(modData);
 		
-		try 
+		if(sis.GetItemPrice() instanceof PriceOwn)
 		{
+			String priceOwn = "INSERT INTO "+SQL_TABLES.price_values.toString()+" "
+					+ "(uuid, name, amount, mark) VALUES ("
+					+ "'"+sis.GetUUID().toString()+"',"
+					+ "'-',"
+					+ (float)sis.GetItemPrice().GetPrice()+","
+					+ "'$'"
+					+ ");";
+			array.add(priceOwn);
+		}
+		
+		if(sis.GetModData()._permissions != null)
+		{
+			for(String permission : sis.GetModData()._permissions)
+			{
+				String permis ="INSERT INTO "+SQL_TABLES.shopitem_permissions.toString() +"(uuid, name) VALUES("
+						+  "'"+sis.GetUUID().toString()+"',"
+						+ "'"+permission+"'"
+						+ ");";
+				array.add(permis);
+			}
+		}
+
+		if(sis.GetModData()._worldNames != null)
+		{
+			for(String worldName : sis.GetModData()._worldNames)
+			{
+				String world = "INSERT INTO "+SQL_TABLES.shopitem_worlds.toString()+" "
+						+ "(uuid, name) VALUES ("
+						+ "'"+sis.GetUUID().toString()+"',"
+						+ "'"+worldName+"',"
+						+ ");";
+				array.add(world);
+			}
+		}
+		
+		if(sis.GetModData()._locations != null)
+		{
+			for(Tuple<Integer, Location> disLoc : sis.GetModData()._locations)
+			{
+				Location loc = disLoc.GetValue();
+				String locSTR = "INSERT INTO "+SQL_TABLES.shopitem_locations.toString()+" "
+						+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES ("
+						+  "'"+sis.GetUUID().toString()+"',"
+						+ disLoc.GetKey()+","
+						+ "'"+loc.getWorld().getName()+"',"
+						+ loc.getBlockX()+","
+						+ loc.getBlockY()+","
+						+ loc.getBlockZ()+""
+						+ ");";
+				
+				array.add(locSTR);
+			}
+		}
+		
+		
+		return array;
+	}
+	
+	ArrayList<String> GetINSERTShopItemStatements(ShopItemSeller sib)
+	{
+		ArrayList<String> statements = new ArrayList<String>();
+		String shopItem = "INSERT INTO "+SQL_TABLES.shopitems.toString()+" (uuid, shop_uuid, type, item_display_name, amount, page, slot, price_type, type_data, itemstack) VALUES("
+				+"'"+sib.GetUUID().toString()+"',"
+				+"'"+sib.GetShop().GetUUID().toString()+"',"
+				+"'"+sib.GetItemType().toString()+"',"
+				+"'"+ImusAPI._metods.GetItemDisplayName(sib.GetRealItem())+"',"
+				+sib.Get_amount()+","
+				+sib.GetPage()+","
+				+sib.GetSlot()+","
+				+"'"+GetPriceType(sib).toString()+"',"
+				+"'"+new Gson().toJson(sib.GetJsonData())+"',"
+				+"'"+ImusAPI._metods.EncodeItemStack(sib.GetRealItem())+"'"
+				+");";
+		
+		
+		statements.add(shopItem);
+		if(sib instanceof ShopItemStockable) statements.addAll(GetINSERTModDataStatement((ShopItemStockable)sib));
+		
+		return statements;
+	}
+	ItemPriceType GetPriceType(ShopItemBase sib)
+	{
+		if(sib.GetItemPrice().getClass().equals(PriceCustom.class)) return ItemPriceType.PriceCustom;
+
+		
+		if(sib.GetItemPrice().getClass().equals(PriceOwn.class)) return ItemPriceType.PriceOwn;
+
+		if(sib.GetItemPrice().getClass().equals(PriceUnique.class)) return ItemPriceType.PriceUnique;
+		
+		return ItemPriceType.None;
+	}
+	
+	
+	public void SaveShopItem(ShopItemSeller sis, boolean deleteAllData)
+	{
+		if(deleteAllData)
+		{
+			ArrayList<ShopItemBase> ar = new ArrayList<ShopItemBase>();
+			ar.add(sis);
+			DeleteShopItem(ar, false);
+		}
+		
+		try
+		{
+			
+			
 			Connection con = _main.GetSQL().GetConnection();
-			PreparedStatement ps = con.prepareStatement("REPLACE INTO "+SQL_TABLES.shopitems.toString()+" "
-					+ "(uuid, shop_uuid, type , item_display_name, amount, page, slot, price_type, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data, itemstack) "
-					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-		
 			
-			ps.setString(i++, sis.GetUUID().toString());
-			ps.setString(i++, sis.GetShop().GetUUID().toString());
-			ps.setString(i++, sis.GetItemType().toString());
-			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sis.GetRealItem()));
-			ps.setInt(i++, sis.Get_amount());
-			ps.setInt(i++, page);
-			ps.setInt(i++, slot);
-			
-			ItemPriceType priceType = ItemPriceType.None;
-			int max_amount = -1;
-			int fill_amount = -1;
-			int fill_delay = -1;
-			int sellTimeStart = -1;
-			int sellTimeEnd = -1;
-			if(sis instanceof ShopItemStockable)
+			if(GetPriceType(sis) == ItemPriceType.PriceCustom) SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()), false);
+			Statement stmt = con.createStatement();			
+			for(String strStatements : GetINSERTShopItemStatements(sis))
 			{
-				ShopItemModData modData = ((ShopItemStockable)sis).GetModData(); 
-				//ownPrice = modData._itemPrice.getClass().equals(PriceOwn.class) ? modData._itemPrice.GetPrice() : -1 ;
-				max_amount = modData._maxAmount;
-				fill_amount = modData._fillAmount;
-				fill_delay = modData._fillDelayMinutes;
-				sellTimeStart = modData._sellTimeStart;
-				sellTimeEnd = modData._sellTimeEnd;
-				
-//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_permissions.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-//				ps2.executeUpdate();
-				PreparedStatement ps2;
-				if(modData._permissions != null)
-				{
-					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_permissions.toString()+" "
-							+ "(uuid, name) VALUES (?,?)");
-					for(String permission : modData._permissions)
-					{
-						
-						ps2.setString(1, sis.GetUUID().toString());
-						ps2.setString(2, permission);
-						ps2.addBatch();
-					}
-					ps2.executeBatch();
-					ps2.close();
-				}
-				
-//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-//				ps2.executeUpdate();
-				if(modData._worldNames != null)
-				{
-					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_worlds.toString()+" "
-							+ "(uuid, name) VALUES (?,?)");
-					for(String worldName : modData._worldNames)
-					{
-						
-						ps2.setString(1, sis.GetUUID().toString());
-						ps2.setString(2, worldName);
-						ps2.addBatch();
-					}
-					ps2.executeBatch();
-					ps2.close();
-				}
-				
-//				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-//				ps2.executeUpdate();			
-				if(modData._locations != null)
-				{
-					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_locations.toString()+" "
-							+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES (?,?,?,?,?,?)");
-					for(Tuple<Integer, Location> disLoc : modData._locations)
-					{
-						int l = 1;
-						
-						Location loc = disLoc.GetValue();
-						ps2.setString(l++, sis.GetUUID().toString());					
-						ps2.setInt(l++, disLoc.GetKey());
-						ps2.setString(l++, loc.getWorld().getName());
-						ps2.setInt(l++, loc.getBlockX());
-						ps2.setInt(l++, loc.getBlockY());
-						ps2.setInt(l++, loc.getBlockZ());
-						ps2.addBatch();
-					}
-					ps2.executeBatch();
-					ps2.close();
-				}
-				
-				if(!sis.GetTags().isEmpty())
-				{
-					_main.GetTagManager().SaveTagsAsync(sis);
-						
-				}
-				
+				stmt.addBatch(strStatements);
 			}
 			
-			if(sis.GetItemPrice().getClass().equals(PriceCustom.class))
-			{
-				priceType = ItemPriceType.PriceCustom;
-				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains custom price");
-				SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()));
-				
-			}
-			
-			if(sis.GetItemPrice().getClass().equals(PriceOwn.class))
-			{
-				priceType = ItemPriceType.PriceOwn;
-				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
-				SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
-			}
-			
-			if(sis.GetItemPrice().getClass().equals(PriceUnique.class))
-			{
-				priceType = ItemPriceType.PriceUnique;
-				//_main.getLogger().info("item: "+sis.GetDisplayItem().getType() + " contains PriceOwn price");
-				//SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice());
-			}
-			
-			//ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
-			ps.setString(i++, priceType.toString());
-			ps.setInt(i++, max_amount);
-			ps.setInt(i++, fill_amount);
-			ps.setInt(i++, fill_delay);
-			ps.setInt(i++, sellTimeStart);
-			ps.setInt(i++, sellTimeEnd);
-			
-			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
-			ps.setString(i++, ImusAPI._metods.EncodeItemStack(sis.GetRealItem()));			
-			ps.executeUpdate();
-			
+			stmt.executeBatch();
 			con.close();
-			ps.close();
-			
-		
-			
-			
 		} 
 		catch (Exception e) 
 		{
+			Bukkit.getLogger().info("ShopManagerSQL:SaveShopItem:Saving shopitem: Couldnt add item NEW");
 			//e.printStackTrace();
-			Bukkit.getLogger().info("ShopManagerSQL:SaveShopItem:Saving shopitem: Couldnt add item");
 		}
 		
 	}
+	
+//	public void SaveShopIte(ShopItemSeller sis, int page, int slot, boolean deleteAllData)
+//	{
+//		if(sis.GetShop() == null)
+//			return;
+//		
+//
+//		if(deleteAllData)
+//		{
+//			ArrayList<ShopItemBase> ar = new ArrayList<ShopItemBase>();
+//			ar.add(sis);
+//			DeleteShopItem(ar, false);
+//		}
+//		
+//		
+//		try 
+//		{
+//			Connection con = _main.GetSQL().GetConnection();
+////			Statement stmt = con.createStatement();
+////			
+////			stmt.;
+//			PreparedStatement ps = con.prepareStatement("REPLACE INTO "+SQL_TABLES.shopitems.toString()+" "
+//					+ "(uuid, shop_uuid, type , item_display_name, amount, page, slot, price_type, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data, itemstack) "
+//					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+//			
+//			
+//			int i = 1;
+//			ps.setString(i++, sis.GetUUID().toString());
+//			ps.setString(i++, sis.GetShop().GetUUID().toString());
+//			ps.setString(i++, sis.GetItemType().toString());
+//			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sis.GetRealItem()));
+//			ps.setInt(i++, sis.Get_amount());
+//			ps.setInt(i++, page);
+//			ps.setInt(i++, slot);
+//			
+//			ShopItemModData modData = sis instanceof ShopItemStockable ? ((ShopItemStockable)sis).GetModData() : null; 
+//			
+//			ItemPriceType priceType = ItemPriceType.None;
+//			int max_amount =    modData == null ? -1 : modData._maxAmount;
+//			int fill_amount =  modData == null ? -1 : modData._fillAmount;
+//			int fill_delay = modData == null ? -1 : modData._fillDelayMinutes;
+//			int sellTimeStart = modData == null ? -1 : modData._sellTimeStart;
+//			int sellTimeEnd = modData == null ? -1 : modData._sellTimeEnd;
+//			
+//			if(sis.GetItemPrice().getClass().equals(PriceCustom.class)) priceType = ItemPriceType.PriceCustom;
+//
+//			
+//			if(sis.GetItemPrice().getClass().equals(PriceOwn.class)) priceType = ItemPriceType.PriceOwn;
+//
+//			if(sis.GetItemPrice().getClass().equals(PriceUnique.class)) priceType = ItemPriceType.PriceUnique;
+//
+//			//ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
+//			ps.setString(i++, priceType.toString());
+//			ps.setInt(i++, max_amount);
+//			ps.setInt(i++, fill_amount);
+//			ps.setInt(i++, fill_delay);
+//			ps.setInt(i++, sellTimeStart);
+//			ps.setInt(i++, sellTimeEnd);
+//			
+//			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
+//			ps.setString(i++, ImusAPI._metods.EncodeItemStack(sis.GetRealItem()));			
+//			ps.executeUpdate();
+//			
+//
+//			if(priceType == ItemPriceType.PriceOwn) SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice(), false);
+//			if(priceType == ItemPriceType.PriceCustom) SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()), false);
+//			
+//			if(sis instanceof ShopItemStockable)
+//			{
+//
+//				PreparedStatement ps2;
+//				if(modData._permissions != null)
+//				{
+//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_permissions.toString()+" "
+//							+ "(uuid, name) VALUES (?,?)");
+//					for(String permission : modData._permissions)
+//					{
+//						
+//						ps2.setString(1, sis.GetUUID().toString());
+//						ps2.setString(2, permission);
+//						ps2.addBatch();
+//					}
+//					ps2.executeBatch();
+//				}
+//				
+////				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
+////				ps2.executeUpdate();
+//				if(modData._worldNames != null)
+//				{
+//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_worlds.toString()+" "
+//							+ "(uuid, name) VALUES (?,?)");
+//					for(String worldName : modData._worldNames)
+//					{
+//						
+//						ps2.setString(1, sis.GetUUID().toString());
+//						ps2.setString(2, worldName);
+//						ps2.addBatch();
+//					}
+//					ps2.executeBatch();
+//				}
+//				
+////				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
+////				ps2.executeUpdate();			
+//				if(modData._locations != null)
+//				{
+//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_locations.toString()+" "
+//							+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES (?,?,?,?,?,?)");
+//					for(Tuple<Integer, Location> disLoc : modData._locations)
+//					{
+//						int l = 1;
+//						
+//						Location loc = disLoc.GetValue();
+//						ps2.setString(l++, sis.GetUUID().toString());					
+//						ps2.setInt(l++, disLoc.GetKey());
+//						ps2.setString(l++, loc.getWorld().getName());
+//						ps2.setInt(l++, loc.getBlockX());
+//						ps2.setInt(l++, loc.getBlockY());
+//						ps2.setInt(l++, loc.getBlockZ());
+//						ps2.addBatch();
+//					}
+//					ps2.executeBatch();
+//				}
+//				
+//				if(!sis.GetTags().isEmpty())
+//				{
+//					_main.GetTagManager().SaveTagsAsync(sis);
+//						
+//				}
+//				
+//			}
+//			
+//			
+//			
+//			con.close();
+//		} 
+//		catch (Exception e) 
+//		{
+//			e.printStackTrace();
+//			Bukkit.getLogger().info("ShopManagerSQL:SaveShopItem:Saving shopitem: Couldnt add item");
+//		}
+//		
+//	}
 
 	BukkitTask SaveUniqueItemAsync(ShopItemUnique siu)
 	{
@@ -1065,13 +1294,13 @@ public class ShopManagerSQL
 		
 	}
 	
-	private PriceUnique GetUniquePrice(UUID uuid)
+	private PriceUnique GetUniquePrice(UUID uuid, boolean closeConnection)
 	{
 		PriceUnique priceUnique  = new PriceUnique();
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM uniques WHERE uuid='"+uuid.toString()+"';");)
+		try
 		{
-			//_main.getLogger().info("getting unique price");
-			
+			Connection con = _main.GetSQL().GetConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM uniques WHERE uuid='"+uuid.toString()+"';");
 			ResultSet rs = ps.executeQuery();
 			if(rs.isBeforeFirst())
 			{
@@ -1080,6 +1309,15 @@ public class ShopManagerSQL
 				double price = (double)rs.getFloat(3);
 				priceUnique.SetPrice(price);
 			}
+			
+			rs.close();
+			ps.close();
+			
+			if(closeConnection)
+			{
+				con.close();
+			}
+			
 		} 
 		catch (Exception e) 
 		{
@@ -1095,8 +1333,10 @@ public class ShopManagerSQL
 			return;
 		
 		
-		try(PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM uniques");) 
+		try 
 		{		
+			Connection con = _main.GetSQL().GetConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM uniques");
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
@@ -1119,6 +1359,9 @@ public class ShopManagerSQL
 				
 				
 			}
+			rs.close();
+			ps.close();
+			con.close();
 		} catch (SQLException e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:LoadUniques:Loading Unique ERROR");

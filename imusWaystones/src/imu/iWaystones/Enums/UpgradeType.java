@@ -5,5 +5,8 @@ public enum UpgradeType
 	CAST_TIME,
 	XP_USAGE, 
 	DIMENSION,
-	COOLDOWN, BUILD,
+	COOLDOWN, 
+	BUILD, 
+	FOUNDATION, 
+	RENAME,
 }

@@ -18,7 +18,7 @@ public abstract class BaseUpgrade
 	protected String[] _description;
 	public double _tierReduceValue = 0.0;
 	public ItemStack _displayItem;
-	
+	protected boolean _refreshDescWithToolTip = false;
 	public BaseUpgrade()
 	{
 		_id = SetType();
@@ -42,6 +42,11 @@ public abstract class BaseUpgrade
 	
 	public void Tooltip()
 	{
+		if(_refreshDescWithToolTip) 
+		{
+			_description = SetDescription();
+		}
+		
 		ArrayList<String> lores = new ArrayList<>();
 		//lores.add("&e"+_description);
 		for(String descs : _description)
@@ -50,7 +55,7 @@ public abstract class BaseUpgrade
 		}
 		lores.add(" ");
 		lores.add("&b===== &6Tiers &b=====");
-		for(int i = 0; i < _tiers.length+1; ++i)
+		for(int i = 0; i < _tiers.length-1; ++i)
 		{
 			if(i != _currentTier)
 			{
@@ -60,12 +65,7 @@ public abstract class BaseUpgrade
 			
 			lores.add("&e&l=>Tier &6&l"+(i+1));
 			lores.add(" ");
-			if(i >= GetMaxTier())
-			{
-				lores.add("&e== &5MAXED OUT! &e==");
-				break;
-			}
-		
+
 			lores.add("&e== &2NEXT TIER COST &e==");
 			for(ItemStack stack : _tiers[i]._cost)
 			{
@@ -78,8 +78,38 @@ public abstract class BaseUpgrade
 			
 		}
 		
+		if(_currentTier >= GetMaxTier())
+		{
+			lores.add("&e== &5MAXED OUT! &e==");
+		}
+		
 		//System.out.println("lores: "+lores);
 		Metods._ins.SetLores(_displayItem, lores.toArray(String[] :: new), false);
+	}
+	
+	public static BaseUpgrade GetNewUpgrade(UpgradeType type) 
+	{
+		switch(type)
+		{
+		case CAST_TIME:
+			return new UpgradeCastTime();
+		case COOLDOWN:
+			return new UpgradeCooldown();
+		case DIMENSION:
+			return new UpgradeDimension();
+		case XP_USAGE:
+			return new UpgradeXPusage();
+		case FOUNDATION:
+			return new UpgradeFoundation();
+		case RENAME:
+			return new UpgradeNameChange();
+		case BUILD:
+			break;
+		default:
+			break;
+
+		}
+		return null;
 	}
 	
 	public int GetCurrentTier()
@@ -104,15 +134,28 @@ public abstract class BaseUpgrade
 		
 		
 		_currentTier += amount;
-
+		//System.out.println("Current tier: "+_currentTier);
 	}
+	
+	public Tier GetTier()
+	{
+		if(_currentTier >= _tiers.length) return _tiers[_tiers.length-1];
+		
+		return _tiers[_currentTier];
+	}
+	
+	public Tier GetTier(int id)
+	{
+		return _tiers[id];
+	}
+	
 	public boolean IsMaxTier()
 	{
-		return _tiers.length == _currentTier;
+		return _tiers.length-1 == _currentTier;
 	}
 	public int GetMaxTier()
 	{
-		return _tiers.length;
+		return _tiers.length-1;
 	}
 	
 	public ItemStack[] GetCost()

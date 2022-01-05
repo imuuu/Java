@@ -3,10 +3,12 @@ package imu.iWaystones.Other;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Interfaces.IModDataInv;
 import imu.iWaystone.Interfaces.IModDataValues;
+import imu.iWaystones.Main.ImusWaystones;
 
 public class ConvUpgrade extends StringPrompt
 {
@@ -23,8 +25,16 @@ public class ConvUpgrade extends StringPrompt
 	@Override
 	public Prompt acceptInput(ConversationContext con, String anwser) 
 	{
-		_inv.SetModData(_value, anwser);
-		_inv.openThis();
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				_inv.SetModData(_value, anwser);
+				_inv.openThis();
+			}
+		}.runTask(ImusWaystones._instance);
+		
 		return null;
 	}
 

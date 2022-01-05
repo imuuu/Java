@@ -9,10 +9,12 @@ public enum SQL_TABLES
 	shopitem_locations,
 	shopitem_permissions,
 	shopitem_worlds,
+	shopitem_moddata,
 	shops,
 	tags_shopitems,
 	tags_material,
 	uniques,
 	custom_price,
 	log_transaction
+	
 }

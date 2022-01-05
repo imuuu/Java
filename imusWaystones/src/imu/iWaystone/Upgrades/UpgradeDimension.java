@@ -13,16 +13,17 @@ public class UpgradeDimension extends BaseUpgrade
 	@Override
 	Tier[] SetTiers() 
 	{
-		Tier[] tiers = new Tier[2];
+		Tier[] tiers = new Tier[3];
 		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,10)});
 		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,16)});
+		tiers[2] = new Tier(null);
 		return tiers;
 	}
 
 	@Override
 	public String[] SetDescription() {
 
-		return new String[]{"&eUprade makes posible to see Waystones from other dimension"," ","&3Tier 2: &bNether-dimension","&3Tier 3: &bEnd-dimension"};
+		return new String[]{"&eUprade makes posible to see Waystones from other dimension","&3Tier 1: &bNormal-dimension","&3Tier 2: &bNether-dimension","&3Tier 3: &bEnd-dimension"};
 	}
 
 	@Override

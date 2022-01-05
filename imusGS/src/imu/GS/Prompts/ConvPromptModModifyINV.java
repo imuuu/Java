@@ -7,7 +7,7 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
 import imu.GS.ENUMs.ModDataShopStockable;
-import imu.GS.Invs.ShopModModifyINV;
+import imu.GS.Invs.ShopStocableModifyINV;
 import imu.GS.ShopUtl.ShopItemModData;
 
 public class ConvPromptModModifyINV extends StringPrompt
@@ -18,11 +18,11 @@ public class ConvPromptModModifyINV extends StringPrompt
 	int _ans_id;
 
 	String _question;
-	ShopModModifyINV _smmi;
+	ShopStocableModifyINV _smmi;
 	ShopItemModData _modData;
 	ModDataShopStockable _dataName;
 		
-	public ConvPromptModModifyINV(Player p, ModDataShopStockable dataName, ShopModModifyINV smmi ,ShopItemModData modData, String question)
+	public ConvPromptModModifyINV(Player p, ModDataShopStockable dataName, ShopStocableModifyINV smmi ,ShopItemModData modData, String question)
 	{
 		_player = p;
 		_modData = modData;

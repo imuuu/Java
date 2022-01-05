@@ -1,6 +1,8 @@
 package imu.GS.Invs;
 
 
+import java.util.ArrayList;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -17,6 +19,7 @@ import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
@@ -88,6 +91,7 @@ public class BuyCustomPriceINV extends CustomerInv
 		{
 			runnable.cancel();
 		}
+		SendLogs();
 	}
 	
 	final void MenuToolTip()
@@ -354,7 +358,8 @@ public class BuyCustomPriceINV extends CustomerInv
 				_player.sendMessage(Metods.msgC("&cYou were able to buy only &2"+amount+" &cbecause there weren't enough items in stock!"));
 			}else
 			{
-				_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sib, amount, TransactionAction.BUY);
+				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sib, amount, TransactionAction.BUY);
+				RegisterPurchace(new ShopItemCustomer(_main, _shopBase, _player, sib.GetRealItem().clone(), amount));
 			}
 			
 			if(e.getClick() == ClickType.LEFT) {Back();return;};
@@ -366,6 +371,27 @@ public class BuyCustomPriceINV extends CustomerInv
 
 		}
 		
+	}
+	ArrayList<ShopItemBase> logs = new ArrayList<>();
+	
+	void RegisterPurchace(ShopItemBase sib)
+	{
+		for(ShopItemBase logi : logs)
+		{
+			if(!sib.getClass().equals(logi.getClass())) continue;
+			
+			if(!sib.IsSameKind(logi)) continue;
+			
+			logi.AddAmount(sib.Get_amount());
+			return;
+		}
+		
+		logs.add(sib);
+	}
+	
+	void SendLogs()
+	{
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, logs);		
 	}
 
 }

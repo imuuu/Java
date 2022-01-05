@@ -50,7 +50,9 @@ public abstract class ShopBase
 	private boolean _locked = false;
 	private boolean _intererActlocked = false;
 	private boolean _customers_can_only_buy = false;
+	
 	public boolean _temp_lock = false;
+	public boolean _temp_modifying_lock = false;
 	
 	BukkitTask _saveRunnable = null;
 	
@@ -185,7 +187,7 @@ public abstract class ShopBase
 	public void AddNewCustomer(Player player)
 	{
 		//System.out.println("add customer");
-		if(_temp_lock || _locked) 
+		if(_temp_lock || _locked || _temp_modifying_lock) 
 		{
 			player.sendMessage(Metods.msgC("&9The Shop is temporarily closed! Come back laiter!"));
 			return;
@@ -227,7 +229,7 @@ public abstract class ShopBase
 			{
 				RemoveCustomerALL();
 
-				ArrangeShopItems(true);
+				ArrangeShopItems(true,false);
 				_main.get_shopManager().SaveShop(GetUUID(), false);
 
 			}
@@ -243,7 +245,16 @@ public abstract class ShopBase
 		_hCustomers.clear();
 	}
 	
-	public void ArrangeShopItems(boolean removeEmpties)
+	public void ClearCrap()
+	{
+		RemoveCustomerALL();
+		_temp_lock = true;
+		ArrangeShopItems(true, true);
+		
+		_temp_lock = false;
+	}
+	
+	public void ArrangeShopItems(boolean removeEmpties, boolean removeCrap)
 	{
 		//System.out.println("arrange shop");
 		SetLockToInteract(true);
@@ -262,6 +273,11 @@ public abstract class ShopBase
 				if(removeEmpties && sib != null && sib.Get_amount() <= 0 && !(sib instanceof ShopItemStockable))
 				{
 					//_main.GetShopManagerSQL().DeleteShopItem(sib);
+					continue;
+				}
+				
+				if(sib != null && removeCrap && sib.getClass().equals(ShopItemSeller.class))
+				{
 					continue;
 				}
 				
@@ -332,11 +348,16 @@ public abstract class ShopBase
 		_items.get(page)[idx] = null;
 		RemoveCustomerALL();
 		
-		ArrangeShopItems(false);
+		ArrangeShopItems(false,false);
 		
 		new BukkitRunnable() {		
 			@Override
-			public void run() {_main.GetShopManagerSQL().DeleteShopItem(sib);			}
+			public void run() 
+			{
+				ArrayList<ShopItemBase> ar = new ArrayList<ShopItemBase>();
+				ar.add(sib);
+				_main.GetShopManagerSQL().DeleteShopItem(ar, true);			
+			}
 		}.runTaskAsynchronously(_main);
 		
 	}
@@ -370,7 +391,7 @@ public abstract class ShopBase
 
 	public void AddNewItem(ShopItemSeller sis, boolean setAmount)
 	{
-		int page = 0;
+		
 		
 		//SetPrice(sis);
 		
@@ -381,6 +402,7 @@ public abstract class ShopBase
 		}
 		
 		ITuple<Integer, Integer> firstFree = null;
+		int page = 0;
 		for(; page < get_items().size(); ++page)
 		{
 			for(int i = 0; i < get_items().get(page).length; ++i)
@@ -417,7 +439,7 @@ public abstract class ShopBase
 			get_items().add(new ShopItemSeller[shopHolderSize]);
 			get_items().get(get_items().size()-1)[0] =  sis.SetPageAndSlot(get_items().size()-1, 0);
 			
-			SaveNewItemAsync(get_items().get(get_items().size()-1)[0]);
+			//SaveNewItemAsync(get_items().get(get_items().size()-1)[0]);
 			
 			RegisterAndLoadNewItemsClients();
 			return;
@@ -425,9 +447,34 @@ public abstract class ShopBase
 		//System.out.println("Shop: Adding to free slot");
 		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = sis.SetPageAndSlot(firstFree.GetKey(), firstFree.GetValue());
 		//UpdateClients(firstFree.GetKey(), firstFree.GetValue());
-		SaveNewItemAsync(get_items().get(firstFree.GetKey())[firstFree.GetValue()]);
+		
+		//SaveNewItemAsync(get_items().get(firstFree.GetKey())[firstFree.GetValue()]);
+		
 		RegisterAndLoadNewItemsClients();
 		return;
+	}
+	
+	public void RefreshPrices()
+	{
+		int page = 0;
+		for(; page < get_items().size(); ++page)
+		{
+			for(int i = 0; i < get_items().get(page).length; ++i)
+			{
+				ShopItemBase sib = get_items().get(page)[i];
+				if(sib == null)
+				{
+					continue;
+				}
+								
+				if(sib.GetItemPrice() instanceof PriceMoney)
+				{
+					double price = ((PriceMoney)sib.GetItemPrice()).GetPrice();
+					((PriceMoney)sib.GetItemPrice()).SetCustomerPrice(price * _sellM);
+				}
+				
+			}
+		}
 	}
 	
 	void SaveNewItemAsync(ShopItemSeller sis)
@@ -437,7 +484,7 @@ public abstract class ShopBase
 			@Override
 			public void run() 
 			{
-				_main.GetShopManagerSQL().SaveShopItem(sis, sis.GetPage(), sis.GetSlot());
+				_main.GetShopManagerSQL().SaveShopItem(sis,true);
 			}
 		}.runTaskAsynchronously(_main);
 	}
@@ -450,7 +497,8 @@ public abstract class ShopBase
 		return _sellM;
 	}
 
-	public void set_sellM(double _sellM) {
+	public void set_sellM(double _sellM) 
+	{
 		this._sellM = _sellM;
 	}
 

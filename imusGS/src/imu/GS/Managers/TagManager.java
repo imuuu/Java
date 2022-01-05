@@ -121,32 +121,37 @@ public class TagManager
 		
 	}
 	
+	public void LoadMaterialTags()
+	{
+		try {
+			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_material);
+			ResultSet rs = ps.executeQuery();
+			if(rs.isBeforeFirst())
+			{
+				while(rs.next())
+				{
+					Material mat = Material.getMaterial(rs.getString(2));
+					String tagName = rs.getString(3).toLowerCase();
+					if(!_tags_material.containsKey(mat)) _tags_material.put(mat, new HashSet<>());
+					_tags_material.get(mat).add(tagName);
+					//System.out.println("adding tag "+tagName+" to material: "+mat);
+				}
+			}
+			
+			UpdateMaterialTabList();
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public BukkitTask LoadMaterialTagsAsync()
 	{
 		return new BukkitRunnable() {			
 			@Override
 			public void run() 
 			{
-				try {
-					PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_material);
-					ResultSet rs = ps.executeQuery();
-					if(rs.isBeforeFirst())
-					{
-						while(rs.next())
-						{
-							Material mat = Material.getMaterial(rs.getString(2));
-							String tagName = rs.getString(3).toLowerCase();
-							if(!_tags_material.containsKey(mat)) _tags_material.put(mat, new HashSet<>());
-							_tags_material.get(mat).add(tagName);
-							//System.out.println("adding tag "+tagName+" to material: "+mat);
-						}
-					}
-					
-					UpdateMaterialTabList();
-				} 
-				catch (SQLException e) {
-					e.printStackTrace();
-				}
+				LoadMaterialTags();
 			}
 		}.runTaskAsynchronously(_main);
 		

@@ -2,8 +2,10 @@ package imus.iWaystones.Events;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -88,13 +90,16 @@ public class WaystoneEvents implements Listener
 	
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void OnBreakPlace(BlockBreakEvent e)
 	{
+		if(e.isCancelled()) return;
+		
 		if(!_waystoneManager.IsWaystone(e.getBlock())) return;
 		
 		Waystone ws =_waystoneManager.GetWaystone(e.getBlock());
 		ws.SendMessageToOwner("&3Someone has &cDestroyed &3your &ewaystone &3named as "+ws.GetName());
+		Bukkit.getLogger().info("WS: "+e.getPlayer().getName() +" broke "+ws.GetOwnerName()+"'s waystone named "+ws.GetName());
 		_waystoneManager.RemoveWaystone(ws);
 		e.getPlayer().sendMessage(Metods.msgC("&3Waystone has been &cDestroyed"));
 		e.getPlayer().playSound(ws.GetLoc(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 0.1f, 0.1f);

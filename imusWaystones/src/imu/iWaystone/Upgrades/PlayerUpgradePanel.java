@@ -7,20 +7,20 @@ import imu.iWaystones.Main.ImusWaystones;
 
 public class PlayerUpgradePanel 
 {
-	private UpgradeCastTime _castTime;
-	private UpgradeCooldown _cooldown;
-	private UpgradeDimension _dimension;
-	private UpgradeXPusage _xpUsage;
+	private UpgradeCastTime _castTime = new UpgradeCastTime();
+	private UpgradeCooldown _cooldown = new UpgradeCooldown();
+	private UpgradeDimension _dimension = new UpgradeDimension();
+	private UpgradeXPusage _xpUsage = new UpgradeXPusage();
+	private UpgradeFoundation _foundation = new UpgradeFoundation();
+	private UpgradeNameChange _nameChange = new UpgradeNameChange();
 	private UUID _uuid_ws;
-	public PlayerUpgradePanel(UUID uuid_ws,UpgradeCastTime castime, UpgradeCooldown cooldown, UpgradeDimension dimension, UpgradeXPusage xpUsage)
+	
+	public PlayerUpgradePanel(UUID uuid_ws)
 	{
-		_castTime = castime;
-		_cooldown = cooldown;
-		_dimension = dimension;
-		_xpUsage = xpUsage;
 		_uuid_ws = uuid_ws;
-	}
 
+	}
+		
 	public UpgradeCooldown get_cooldown() {
 		return _cooldown;
 	}
@@ -37,14 +37,27 @@ public class PlayerUpgradePanel
 		return _xpUsage;
 	}
 	
+	public UpgradeFoundation get_foundation() {
+		return _foundation;
+	}
+
+	public UpgradeNameChange get_nameChange() {
+		return _nameChange;
+	}
+	
 	public BaseUpgrade[] GetUpgrades()
 	{
-		return new BaseUpgrade[] {_castTime,_cooldown, _dimension, _xpUsage};	
+		return new BaseUpgrade[] {_castTime,_cooldown, _dimension, _xpUsage, _foundation, _nameChange};	
 	}
 	
 	public void LoadToolTips()
 	{
 		for(BaseUpgrade upgrade : GetUpgrades()) {upgrade.Tooltip();}
+	}
+	
+	public int GetCooldown()
+	{
+		return (int)_cooldown.GetCombinedValue(_foundation.GetTier()._value);
 	}
 	
 	public void SetUpgrade(BaseUpgrade upgrade)
@@ -72,6 +85,18 @@ public class PlayerUpgradePanel
 			_dimension = (UpgradeDimension)upgrade;
 			return;
 		}
+		
+		if(upgrade instanceof UpgradeFoundation)
+		{
+			_foundation = (UpgradeFoundation)upgrade;
+			return;
+		}
+		
+		if(upgrade instanceof UpgradeNameChange)
+		{
+			_nameChange =(UpgradeNameChange)upgrade;
+			return;
+		}
 	}
 	public BaseUpgrade GetUpgrade(UpgradeType type)
 	{
@@ -87,11 +112,17 @@ public class PlayerUpgradePanel
 			return get_xpUsage();
 		case BUILD:
 			return ImusWaystones._instance.GetWaystoneManager().GetWaystone(_uuid_ws).GetUpgradeBottomUpgrade();
+		case FOUNDATION:
+			return get_foundation();
+		case RENAME:
+			return get_nameChange();
 
 
 			
 		}
 		return null;
 	}
+
+	
 	
 }

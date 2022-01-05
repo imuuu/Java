@@ -32,7 +32,7 @@ import imu.iAPI.Other.CustomInvLayout;
 public class CreateCustomPriceInv extends CustomInvLayout
 {
 	ShopItemStockable _sis;
-	ShopModModifyINV _smmi;
+	ShopStocableModifyINV _smmi;
 	ShopItemModData _modData;
 	Boolean[] _slotLock;
 	CPriceItem[] _priceItems;
@@ -43,7 +43,7 @@ public class CreateCustomPriceInv extends CustomInvLayout
 	
 	int _uniqueSlots[] = {_moneyPos, _itemPos};
 	
-	public CreateCustomPriceInv(Plugin main, Player player, ShopModModifyINV smmi, ShopItemStockable sis, ShopItemModData modData) 
+	public CreateCustomPriceInv(Plugin main, Player player, ShopStocableModifyINV smmi, ShopItemStockable sis, ShopItemModData modData) 
 	{
 		super(main, player, "&9=== &6Create Custom Price &9===", 9*6);
 		_main = (Main)main;

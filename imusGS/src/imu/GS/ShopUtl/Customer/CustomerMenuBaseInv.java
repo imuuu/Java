@@ -2,7 +2,7 @@ package imu.GS.ShopUtl.Customer;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -66,6 +66,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 	BukkitTask _task_loadPlayerInv;
 	
 	Cooldowns _cd = new Cooldowns();
+	
+	ArrayList<ShopItemBase> logs = new ArrayList<>();
 	
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
@@ -180,11 +182,13 @@ public class CustomerMenuBaseInv extends CustomerInv
 		_shopBase.RemoveCustomer(_player.getUniqueId(), false);
 		if(!_shopBase.HasCustomers()) 
 		{
-			_shopBase.ArrangeShopItems(true);
+			_shopBase.ArrangeShopItems(true, false);
 			_shopBase.SaveIfPossible();
 		}
 			
 		if(_task_loadPlayerInv != null) _task_loadPlayerInv.cancel();
+		
+		SendLogs();
 	}
 
 	public void onClickInsideInv(InventoryClickEvent e) 
@@ -410,6 +414,29 @@ public class CustomerMenuBaseInv extends CustomerInv
 		}.runTaskAsynchronously(_main);
 	}
 	
+	
+	void RegisterPurchace(ShopItemBase sib)
+	{
+		for(ShopItemBase logi : logs)
+		{
+			if(!sib.getClass().equals(logi.getClass())) continue;
+			
+			if(!sib.IsSameKind(logi)) continue;
+			
+			logi.AddAmount(sib.Get_amount());
+			return;
+		}
+		
+		logs.add(sib);
+	}
+	
+	void SendLogs()
+	{
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, logs);
+		
+		
+	}
+	
 	void Buy(ClickInfo cInfo)
 	{
 		new BukkitRunnable() {
@@ -420,11 +447,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 				ShopItemResult[] resultItems = cInfo._shopItemBase.GetTransactionResultItemStack();
 				cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
 				cInfo._shopItemBase.UpdateItem();
-				ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,_player,resultItems[0]._stack, cInfo._click_amount);
+				ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,null,resultItems[0]._stack, cInfo._click_amount);
 				
 				//FindCustomerItem(sic,true);
 				ImusAPI._metods.InventoryAddItemOrDrop(resultItems[0]._stack, _player, cInfo._click_amount);
-				
+				sic.SetItemPrice(cInfo._shopItemBase.GetItemPrice());
+				RegisterPurchace(sic);
 				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sic, cInfo._click_amount, TransactionAction.BUY); // sic have to change in future if resultItem will be null!
 				//_main.get_shopManager().GetShopManagerSQL().ShopItemAddUpdateAsync((ShopItemSeller)cInfo._shopItemBase, cInfo._click_amount * -1);
 				LoadPlayerInv();
@@ -473,7 +501,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 				}
 				
 				_shopBase.AddNewItem(sis,false);
-				
+
+				RegisterPurchace(sis);
 				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, new ShopItemSeller(_main, _shopBase, stack, cInfo._click_amount), amount, TransactionAction.SELL);
 			}
 		}.runTask(_main);
@@ -558,7 +587,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		if(_tab == PlayerTab.BLOCKS && (ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack) || ImusAPI._metods.isShulkerBox(stack))) return false;
 		if(_tab == PlayerTab.ARMOR_TOOLS)
 		{
-			if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) && ImusAPI._metods.getDurabilityProsent(stack) == 1.0) return true;
+			if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) ) return true; //
 			return false;
 		}
 		
@@ -583,7 +612,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 				itemPrice = new PriceMaterial();
 				itemPrice.SetPrice(_uniqueManager.GetPriceItem(stack).GetPrice());
 				//System.out.println("stack is unique: "+itemPrice.GetPrice());
-			}else
+			}
+			else
 			{
 				itemPrice = _main.get_shopManager().GetPriceMaterialAndCheck(stack);
 			}

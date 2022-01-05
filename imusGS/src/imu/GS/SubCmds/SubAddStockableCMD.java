@@ -107,6 +107,8 @@ public class SubAddStockableCMD implements CommandInterface
 			shop.AddNewItem(new ShopItemStockable(_main, shop, clone , amount),true);    		
 			player.sendMessage(Metods.msgC("&9"+ImusAPI._metods.GetItemDisplayName(stack)+" &ahas been added to &3"+shop.GetDisplayName()));
     	}
+		
+		_main.GetShopManagerSQL().SaveShopAsync(shop);
 
 	}
 	

@@ -117,7 +117,7 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 	void Back()
 	{
 		_player.closeInventory();
-		CreateCustomPriceInv ccp = new CreateCustomPriceInv(_main, _player, (ShopModModifyINV)_lastInv, _sis, _modData);
+		CreateCustomPriceInv ccp = new CreateCustomPriceInv(_main, _player, (ShopStocableModifyINV)_lastInv, _sis, _modData);
 		ccp.openThis();
 		ccp.LoadPriceCustom(_lastPriceCustom);
 		
@@ -146,7 +146,7 @@ public class LoaderPriceCustomInv extends CustomInvLayout
 		case PRICE_CUSTOM_ITEM:
 			_player.closeInventory();
 			int idx = _metods.getPersistenData(stack, "idx", PersistentDataType.INTEGER);
-			CreateCustomPriceInv ccp = new CreateCustomPriceInv(_main, _player, (ShopModModifyINV)_lastInv, _sis, _modData);
+			CreateCustomPriceInv ccp = new CreateCustomPriceInv(_main, _player, (ShopStocableModifyINV)_lastInv, _sis, _modData);
 			ccp.openThis();
 			ccp.LoadPriceCustom(_priceCustoms.get(idx).GetValue());
 			

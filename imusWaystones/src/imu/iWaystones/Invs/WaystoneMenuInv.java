@@ -56,9 +56,8 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		{
 			if(uuid_ws.equals(_waystone.GetUUID())) continue;
 			
-			
-			
 			Waystone ws = _wManager.GetWaystone(uuid_ws);
+			if(ws == null) continue;
 			
 			if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
 			{

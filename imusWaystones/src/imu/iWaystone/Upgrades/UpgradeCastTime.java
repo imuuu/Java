@@ -18,12 +18,13 @@ public class UpgradeCastTime extends BaseUpgrade
 	@Override
 	Tier[] SetTiers() 
 	{
-		Tier[] tiers = new Tier[4];
+		Tier[] tiers = new Tier[5];
 		ItemStack stack = new ItemStack(Material.LAPIS_BLOCK,22);
 		tiers[0] = new Tier(new ItemStack[] {stack});
 		tiers[1] = new Tier(new ItemStack[] {stack});
 		tiers[2] = new Tier(new ItemStack[] {stack});
 		tiers[3] = new Tier(new ItemStack[] {stack});
+		tiers[4] = new Tier(new ItemStack[] {stack});
 		return tiers;
 	}
 

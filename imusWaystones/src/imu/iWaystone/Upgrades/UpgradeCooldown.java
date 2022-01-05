@@ -9,11 +9,14 @@ import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeCooldown extends BaseUpgrade
 {
-
+	public  UpgradeCooldown() 
+	{
+		_refreshDescWithToolTip = true;
+	}
 	@Override
 	Tier[] SetTiers() 
 	{
-		Tier[] tiers = new Tier[10];
+		Tier[] tiers = new Tier[11];
 		for(int i = 0; i < tiers.length; i++)
 		{
 			tiers[i] = new Tier(new ItemStack[] {new ItemStack(Material.DIAMOND,10)});
@@ -24,7 +27,11 @@ public class UpgradeCooldown extends BaseUpgrade
 	@Override
 	public String[] SetDescription() 
 	{
-		return new String[]{"&eEvery &6Tier&e reduce cooldown by &25%"};
+		return new String[]{
+				"&eEvery &6Tier&e reduce cooldown by &25%",
+				"&eCurrent bonus: &9"+(GetCurrentTier()*5)+"&2%"
+				
+		};
 	}
 
 	@Override
@@ -36,7 +43,7 @@ public class UpgradeCooldown extends BaseUpgrade
 	@Override
 	public String SetDisplayName() 
 	{
-		return "&5Reduce Teleport Cooldown";
+		return "&5Minor &bTeleport &5Cooldown Reduction";
 	}
 
 	@Override

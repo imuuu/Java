@@ -30,6 +30,7 @@ import imu.iWaystone.Upgrades.BuildUpgradeRare;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeCooldown;
 import imu.iWaystone.Upgrades.UpgradeDimension;
+import imu.iWaystone.Upgrades.UpgradeFoundation;
 import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.UpgradeType;
@@ -134,7 +135,7 @@ public class WaystoneManager
 	
 	public void Init()
 	{
-		ClearHolograms();
+		//ClearHolograms();
 		
 		new BukkitRunnable() {
 			
@@ -189,22 +190,7 @@ public class WaystoneManager
 	}
 	
 
-	public BaseUpgrade GetNewUpgrade(UpgradeType type) 
-	{
-		switch(type)
-		{
-		case CAST_TIME:
-			return new UpgradeCastTime();
-		case COOLDOWN:
-			return new UpgradeCooldown();
-		case DIMENSION:
-			return new UpgradeDimension();
-		case XP_USAGE:
-			return new UpgradeXPusage();
-
-		}
-		return null;
-	}
+	
 	void SetupValidBlocks()
 	{
 		for(Material mat : Material.values())
@@ -221,6 +207,8 @@ public class WaystoneManager
 		}
 		
 		//build upgrades could be own manager;
+		
+		AddValidLow(Material.COPPER_BLOCK);
 		
 		AddValidLow(Material.IRON_BLOCK);
 		BuildUpgrade bUpgrade = new BuildUpgradeCommon();
@@ -337,7 +325,7 @@ public class WaystoneManager
 		_location_of_waystones.remove(waystone.GetLowBlock().getLocation());
 		_location_of_waystones.remove(waystone.GetMidBlock().getLocation());
 		_location_of_waystones.remove(waystone.GetTopBlock().getLocation());
-		waystone.GetHologram().remove();
+		waystone.RemoveHologramAsync();
 		
 		_waystones.remove(uuid);		
 		_waystoneManagersSQL.RemoveWaystoneAsync(waystone);

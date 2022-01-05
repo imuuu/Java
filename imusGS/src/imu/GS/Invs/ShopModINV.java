@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.google.common.base.Strings;
 
@@ -34,6 +36,7 @@ public class ShopModINV extends CustomInvLayout
 	private boolean _isClosed = false;
 	
 	private HashMap<UUID, ShopItemModData> _newModDatas = new HashMap<>();
+	BukkitTask _runnable = null;
 	
 	public ShopModINV(Main main, Player player, ShopBase shop) 
 	{
@@ -56,6 +59,7 @@ public class ShopModINV extends CustomInvLayout
 		OVERRIDE_ALL,
 		MOD_SHOPBASE,
 		RANDOM_ITEM_GEN,
+		CLEAR_NORMAL_ITEMS,
 		
 
 	}
@@ -93,7 +97,7 @@ public class ShopModINV extends CustomInvLayout
 		ItemStack right_button = left_button.clone();
 		
 		ItemStack saveAll_button = new ItemStack(Material.GOLD_INGOT);
-		Metods.setDisplayName(saveAll_button, ChatColor.AQUA + "Save shop items to config!");
+		Metods.setDisplayName(saveAll_button, ChatColor.AQUA + "Save shop data to Database!");
 		_metods.addLore(saveAll_button, ChatColor.BLUE + "Press this after you have edited some items", true);
 		_metods.addLore(saveAll_button, ChatColor.BLUE + "Normally this will be done onDisabled", true);
 		_metods.addLore(saveAll_button, ChatColor.BLUE + "If server crashes the onDisable never initialize(=data lost) ", true);
@@ -108,6 +112,12 @@ public class ShopModINV extends CustomInvLayout
 		Metods.setDisplayName(shopModBase, ChatColor.AQUA + "Change shop data");
 		_metods.addLore(shopModBase, ChatColor.BLUE + "Able to chance ex: name,sellMul..", true);
 		SetButton(shopModBase, BUTTON.MOD_SHOPBASE);
+		
+		ItemStack RemoveCrap = new ItemStack(Material.RED_DYE);
+		Metods.setDisplayName(RemoveCrap, ChatColor.AQUA + "Clear shop from normal items");
+		_metods.addLore(RemoveCrap, ChatColor.BLUE + "Able to chance ex: name,sellMul..", true);
+		SetButton(RemoveCrap, BUTTON.CLEAR_NORMAL_ITEMS);
+		_inv.setItem(_size-15, RemoveCrap);
 		
 		Metods.setDisplayName(left_button, ChatColor.AQUA + "<<");
 		Metods.setDisplayName(right_button, ChatColor.AQUA + ">>");
@@ -135,20 +145,36 @@ public class ShopModINV extends CustomInvLayout
 	{
 		super.openThis();
 		_main.RegisterInv(this);
-		_isClosed = _shop.HasLocked();
-		_shop.SetLocked(true);
+		_shop._temp_modifying_lock = true;
 		_main.get_shopManager().RegisterOpenedInv(_player, this);
 		makeInv();
 		refreshItems();
 	}
 	
-
+	void Runnable()
+	{
+		_runnable = new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run() 
+			{
+				_shop._temp_modifying_lock = true;
+				
+				if(isCancelled())_shop._temp_modifying_lock = false;
+			}
+		}.runTaskTimerAsynchronously(_main, 0, 20);
+	}
 	@Override
 	public void invClosed(InventoryCloseEvent arg0) 
-	{
-		_shop.SetLocked(_isClosed);
+	{		
 		_main.get_shopManager().UnRegisterOpenedInv(_player);
 		_main.UnregisterInv(this);
+		
+		if(_runnable != null) _runnable.cancel();
+		
+		_shop._temp_modifying_lock = false;
+		
 	}
 	
 	BUTTON GetBUTTON(ItemStack stack)
@@ -158,6 +184,7 @@ public class ShopModINV extends CustomInvLayout
 		if(Strings.isNullOrEmpty(bName)) return BUTTON.NONE;
 		return BUTTON.valueOf(bName);
 	}
+	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -171,7 +198,7 @@ public class ShopModINV extends CustomInvLayout
 			break;
 		case SHOP_ITEM:
 			ShopItemStockable item = (ShopItemStockable)_shop.GetItem(current_page, e.getSlot());
-			new ShopModModifyINV(_main, _player, item, item.GetModData()).openThis();
+			new ShopStocableModifyINV(_main, _player, item, item.GetModData()).openThis();
 			break;
 		case GO_LEFT:				
 			chanceCurrentPage(-1);
@@ -198,12 +225,30 @@ public class ShopModINV extends CustomInvLayout
 		case RANDOM_ITEM_GEN:
 			new ShopItemGeneratorInv(_main, _player, _shop).openThis();
 			break;
-		default:
+		case CLEAR_NORMAL_ITEMS:
+			ClearCrap();
 			break;
 		}
 	}
 
 	
+	private void ClearCrap() 
+	{
+		
+		_shop.ClearCrap();
+		_player.closeInventory();
+		_player.sendMessage(Metods.msgC("&3Shop &2cleared &3from crap! Inv opens shortly"));
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				new ShopModINV(_main, _player, _shop).openThis();
+			}
+		}.runTaskLater(_main, 15);
+		
+	}
+
 	void SetTooltip(ItemStack stack, ShopItemModData _modData)
 	{
 		String modifyStr = ChatColor.YELLOW +"== Click to modify ==";
@@ -230,11 +275,11 @@ public class ShopModINV extends CustomInvLayout
 		String color = ChatColor.BLUE+"";
 		String color2 = ChatColor.YELLOW+"";
 		
-		ImusAPI._metods.addLore(stack, color +"Custom amount: "+color2+custom_amount, true);
+		ImusAPI._metods.addLore(stack, color +"Max stock amount: "+color2+custom_amount, true);
 		ImusAPI._metods.addLore(stack, color +"Permission: "+color2+c_permission, true);
 		ImusAPI._metods.addLore(stack, color +"Fill Delay: "+color2+c_fill_delay, true);
 		ImusAPI._metods.addLore(stack, color +"Fill Amount: "+color2+c_fill_amount, true);
-		ImusAPI._metods.addLore(stack, color +"Custom Price: "+color2+c_price, true);
+		ImusAPI._metods.addLore(stack, color +"Price: "+color2+c_price, true);
 		ImusAPI._metods.addLore(stack, color +"World(s): "+color2+c_worlds, true);
 		//ImusAPI._metods.addLore(stack, color +"Can be Sold: "+color2+c_soldBack, true);
 		ImusAPI._metods.addLore(stack, color +"Sold Distance&Loc: "+color2+c_soldDistance, true);

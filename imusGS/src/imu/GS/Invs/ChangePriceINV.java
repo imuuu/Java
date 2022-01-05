@@ -27,9 +27,9 @@ public class ChangePriceINV extends CustomInvLayout
 {
 	Main _main;
 	ShopItemBase _sib;
-	ShopModModifyINV _smmi;
+	ShopStocableModifyINV _smmi;
 	ShopItemModData _modData;
-	public ChangePriceINV(Plugin main, Player player, ShopModModifyINV smmi,ShopItemSeller sib, ShopItemModData modData) 
+	public ChangePriceINV(Plugin main, Player player, ShopStocableModifyINV smmi,ShopItemSeller sib, ShopItemModData modData) 
 	{
 		super(main, player, Metods.msgC("&1Change item price"), 9);
 		_main = (Main)main;

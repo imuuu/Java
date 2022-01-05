@@ -44,7 +44,7 @@ public class ShopManager
 	
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
-	
+	public double _durability_penalty = 0.1; // 0.0 => 0%
 	public ShopManager(Main main)
 	{
 		_main = main;
@@ -64,8 +64,9 @@ public class ShopManager
 				_shopManagerSQL.LoadTables();
 				_shopManagerSQL.LoadMaterialPrices();
 				_shopManagerSQL.LoadUniques();
-				LoadShops();
-				_main.GetTagManager().LoadMaterialTagsAsync();
+				_shopManagerSQL.LoadShops();	
+				_shopManagerSQL.LoadShopItems();
+				_main.GetTagManager().LoadMaterialTags();
 				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
 			}
@@ -92,10 +93,17 @@ public class ShopManager
 		PriceMaterial priceMaterial = new PriceMaterial();
 		priceMaterial.SetPrice(0);
 		if(stack == null || stack.getType() == Material.AIR) return priceMaterial;
-		if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
+		//if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
 		
-	
-		priceMaterial.SetPrice(_material_prices.get(stack.getType()).GetPrice());
+		double price = _material_prices.get(stack.getType()).GetPrice();
+		double durProsent = Metods._ins.getDurabilityProsent(stack);
+		if(durProsent < 1.0)
+		{
+			durProsent = durProsent - _durability_penalty;
+			if(durProsent < 0) durProsent = 0;
+		}
+
+		priceMaterial.SetPrice(price * durProsent);
 	
 		
 		return priceMaterial;
@@ -166,7 +174,7 @@ public class ShopManager
 						CheckShopItems(shop,true);				
 						shop.SetNewExpire();
 						
-						shop.ArrangeShopItems(shop.HasCustomers() ? false : true); // => interact fill be false
+						shop.ArrangeShopItems(shop.HasCustomers() ? false : true, false); // => interact fill be false
 												
 						//shop.SetLockToInteract(false);
 					}
@@ -348,10 +356,7 @@ public class ShopManager
 		_shopManagerSQL.SaveShopAsync(sBase);
 	}
 	
-	public void LoadShops()
-	{
-		_shopManagerSQL.LoadShops();	
-	}
+
 	
 	
 	public void UpdateTabCompliters()

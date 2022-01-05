@@ -12,11 +12,12 @@ public class UpgradeXPusage extends BaseUpgrade
 	@Override
 	Tier[] SetTiers() 
 	{
-		Tier[] tiers = new Tier[4];
+		Tier[] tiers = new Tier[5];
 		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,5)});
 		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,3),new ItemStack(Material.GOLD_BLOCK,5)});
 		tiers[2] = new Tier(new ItemStack[] {new ItemStack(Material.IRON_BLOCK,1),new ItemStack(Material.GOLD_BLOCK,3),new ItemStack(Material.DIAMOND_BLOCK,5)});
 		tiers[3] = new Tier(new ItemStack[] {new ItemStack(Material.GOLD_BLOCK,1),new ItemStack(Material.DIAMOND_BLOCK,3),new ItemStack(Material.NETHERITE_BLOCK,1)});
+		tiers[4] = new Tier(new ItemStack[] {null});
 		return tiers;
 	}
 

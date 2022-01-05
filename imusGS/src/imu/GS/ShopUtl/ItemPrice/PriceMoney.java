@@ -10,7 +10,7 @@ public class PriceMoney extends ItemPrice
 	@Override
 	public String GetShowPriceOfAmountStr(int amount) 
 	{
-		return String.valueOf((_showPrice*amount));
+		return String.valueOf((Metods.Round(_showPrice*amount)))+" &2$";
 	}
 	
 	@Override

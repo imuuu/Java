@@ -165,7 +165,7 @@ public class ShopBaseModify extends CustomInvLayout
 		shop.SetLocked(_shopModData._lock);
 		shop.SetAbsolutePosBool(_shopModData._absoluteItemPosition);
 		shop.SetCustomersCanOnlyBuy(_shopModData._customersCanOnlyBuy);
-
+		shop.RefreshPrices();
 		if(!shop.GetDisplayName().equalsIgnoreCase(_shopModData._displayName)) 
 		{
 			String oldName = shop.GetName();

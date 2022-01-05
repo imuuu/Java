@@ -82,6 +82,7 @@ public class ShopModData implements IModData
 			break;
 		
 		}
+		if(str.equalsIgnoreCase("false")) str = "&c"+str;
 		
 		return trueFrontText+str+trueBackText;
 	}
