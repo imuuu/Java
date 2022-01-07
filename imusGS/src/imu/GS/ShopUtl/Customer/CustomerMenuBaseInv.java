@@ -2,9 +2,10 @@ package imu.GS.ShopUtl.Customer;
 
 
 import java.util.ArrayList;
-
+import java.util.LinkedList;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -16,7 +17,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Invs.BuyCustomPriceINV;
 import imu.GS.Invs.CustomerInv;
 import imu.GS.Main.Main;
@@ -32,8 +32,8 @@ import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.GS.ShopUtl.ShopItems.ShopItemCustomerShulkerBox;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.iAPI.Interfaces.IButton;
-import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 
 public class CustomerMenuBaseInv extends CustomerInv
@@ -47,7 +47,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	final int _shop_slot_start = 0;
 	
 	//PLAYER_INV_STATE p_state = PLAYER_INV_STATE.NORMAL;
-	final double _cdButtonClick = 0.3;
+	final double _cdButtonClick = 0.2;
 	int _playerInvPage = 0;
 	int _shopInvPage = 0;
 	ShopBase _shopBase;
@@ -67,7 +67,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	Cooldowns _cd = new Cooldowns();
 	
-	ArrayList<ShopItemBase> logs = new ArrayList<>();
+	LinkedList<ShopItemBase> logs = new LinkedList<>();
 	
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
@@ -170,7 +170,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 		{
 			if(((Player)e.getEntity()).getUniqueId().equals(_player.getUniqueId()))
 			{
-				LoadPlayerInv();
+				e.setCancelled(true);
+				//LoadPlayerInv();
 			}		
 		}
 	}
@@ -193,6 +194,9 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
+
+		
+
 		if(_shopBase.HasInteractLock())
 		{
 			System.out.println("interact lock!");
@@ -210,6 +214,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 		{
 			return;
 		}
+		
+		if(!_cd.isCooldownReady("buttonPress")) return;
+		
+		_cd.setCooldownInSeconds("buttonPress", _cdButtonClick);
+		
+		
 		ItemStack stack = e.getCurrentItem();
 		if(stack == null)
 			return;
@@ -297,7 +307,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 		
 				
 		}
-		if(!_cd.isCooldownReady("buttonPress")) return;
 		
 		switch (cInfo._button) 
 		{
@@ -329,7 +338,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 			break;
 		}
 		
-		_cd.setCooldownInSeconds("buttonPress", _cdButtonClick);
 	
 	}
 	
@@ -368,6 +376,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				
 				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
 				{
+					_transaction_inprogress = true;
 					Buy(cInfo);
 				}
 			}
@@ -404,6 +413,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				
 				if(_shopBase.SellConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
 				{
+					_transaction_inprogress = true;
 					Sell(cInfo);
 				}
 				else
@@ -423,7 +433,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 			
 			if(!sib.IsSameKind(logi)) continue;
 			
-			logi.AddAmount(sib.Get_amount());
+			logi.Set_amount(logi.Get_amount()+sib.Get_amount());
 			return;
 		}
 		
@@ -433,8 +443,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	void SendLogs()
 	{
 		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, logs);
-		
-		
+
 	}
 	
 	void Buy(ClickInfo cInfo)
@@ -449,13 +458,13 @@ public class CustomerMenuBaseInv extends CustomerInv
 				cInfo._shopItemBase.UpdateItem();
 				ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,null,resultItems[0]._stack, cInfo._click_amount);
 				
-				//FindCustomerItem(sic,true);
 				ImusAPI._metods.InventoryAddItemOrDrop(resultItems[0]._stack, _player, cInfo._click_amount);
+
 				sic.SetItemPrice(cInfo._shopItemBase.GetItemPrice());
 				RegisterPurchace(sic);
-				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sic, cInfo._click_amount, TransactionAction.BUY); // sic have to change in future if resultItem will be null!
-				//_main.get_shopManager().GetShopManagerSQL().ShopItemAddUpdateAsync((ShopItemSeller)cInfo._shopItemBase, cInfo._click_amount * -1);
+
 				LoadPlayerInv();
+				_transaction_inprogress = false;
 			}
 		}.runTask(_main);
 			
@@ -470,6 +479,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 			{
 				ShopItemResult[] resultItems = cInfo._shopItemBase.GetTransactionResultItemStack();
 				((ShopItemCustomer)cInfo._shopItemBase).AddAmountToPlayer(cInfo._click_amount * -1);
+				
+				
 				if(!ImusAPI._metods.isShulkerBox(cInfo._shopItemBase.GetRealItem()))
 				{
 					AddItem(resultItems[0]._stack, cInfo._click_amount);		
@@ -485,12 +496,13 @@ public class CustomerMenuBaseInv extends CustomerInv
 				}
 				
 				cInfo._shopItemBase.UpdateItem();
-							
+					
+				_transaction_inprogress = false;
 			}
 			
 			void AddItem(ItemStack stack, int amount)
 			{
-				ShopItemSeller sis;
+				ShopItemSeller sis,log;
 				sis = new ShopItemSeller(_main, _shopBase, stack, amount);
 				if(_uniqueManager.IsUnique(stack))
 				{
@@ -500,10 +512,23 @@ public class CustomerMenuBaseInv extends CustomerInv
 					sis.SetItemPrice(_main.get_shopManager().GetPriceMaterialAndCheck(stack));
 				}
 				
+				if(sis.GetItemPrice().GetPrice() > 0 && 
+						stack.getType() == Material.WATER_BUCKET || 
+						stack.getType() == Material.LAVA_BUCKET ||
+						stack.getType() == Material.MILK_BUCKET)
+				{
+					Metods._ins.InventoryAddItemOrDrop(new ItemStack(Material.BUCKET), _player, amount);
+				
+					//LoadPlayerInv();
+				}
+				
+				log = new ShopItemSeller(_main, _shopBase, stack, amount);
+				log.SetItemPrice(sis.GetItemPrice());
+				
 				_shopBase.AddNewItem(sis,false);
-
-				RegisterPurchace(sis);
-				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, new ShopItemSeller(_main, _shopBase, stack, cInfo._click_amount), amount, TransactionAction.SELL);
+				
+				RegisterPurchace(log); //BUGI
+				
 			}
 		}.runTask(_main);
 		
@@ -610,7 +635,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 			if(_uniqueManager.IsUnique(stack))
 			{
 				itemPrice = new PriceMaterial();
-				itemPrice.SetPrice(_uniqueManager.GetPriceItem(stack).GetPrice());
+				itemPrice.SetPrice(_uniqueManager.GetPriceItem(stack).GetPrice() * _main.get_shopManager().GetDurabilityReduction(stack));
 				//System.out.println("stack is unique: "+itemPrice.GetPrice());
 			}
 			else

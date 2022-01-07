@@ -56,7 +56,7 @@ public class SubCreateUniqueCMD implements CommandInterface
 		
 		ShopItemUnique siu = new ShopItemUnique(_main, null, stack.clone(), 1);
 		siu.SetItemPrice(new PriceUnique().SetPrice(price));
-		_main.get_shopManager().GetUniqueManager().AddUniqueItem(siu);
+		_main.get_shopManager().GetUniqueManager().AddUniqueItem(siu, true);
 		stack.setAmount(0);
 		
 		

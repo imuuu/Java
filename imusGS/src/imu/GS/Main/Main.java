@@ -17,6 +17,7 @@ import imu.GS.CMDs.Cmd;
 import imu.GS.CMDs.Cmd2;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.ENUMs.TagSubCmds;
+import imu.GS.Managers.ShopEnchantManager;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.ShopManagerSQL;
 import imu.GS.Managers.TagManager;
@@ -26,6 +27,7 @@ import imu.GS.SubCmds.SubAddStockableCMD;
 import imu.GS.SubCmds.SubAssingToNpcCMD;
 import imu.GS.SubCmds.SubCreateUniqueCMD;
 import imu.GS.SubCmds.SubGetPlayerPriceCMD;
+import imu.GS.SubCmds.SubModifyEnchantmetsCMD;
 import imu.GS.SubCmds.SubModifyShopCMD;
 import imu.GS.SubCmds.SubModifyUniqueCMD;
 import imu.GS.SubCmds.SubSetMaterialPriceCMD;
@@ -41,6 +43,7 @@ import net.milkbowl.vault.economy.Economy;
 public class Main extends JavaPlugin
 {
 	private ShopManager _shopManager;
+	private ShopEnchantManager _shopEnchantManager;
 	private TagManager _tagManager;
 	private DenizenScriptCreator _denizenScriptCreator;
 	
@@ -51,7 +54,7 @@ public class Main extends JavaPlugin
 	private ImusTabCompleter _tab_cmd1;
 	
 	private HashMap<UUID, CustomInvLayout> _opendInvs = new HashMap<>();
-	
+	public final String _pluginNamePrefix = "&4[&b"+getName()+"&4]&r";
 	@Override
 	public void onEnable() 
 	{
@@ -67,6 +70,7 @@ public class Main extends JavaPlugin
 		_denizenScriptCreator = new DenizenScriptCreator(this);
 		
 		_tagManager = new TagManager(this);
+		_shopEnchantManager = new ShopEnchantManager(this);
 		//_shopManager.loadShopsAsync();
 		 
 	
@@ -170,7 +174,11 @@ public class Main extends JavaPlugin
 	    handler.registerSubCmd(cmd1, cmd1_sub10, new SubTagMaterialCMD(this, _cmdHelper.getCmdData(full_sub10)));
 	    handler.setPermissionOnLastCmd("gs.tag");
 	    
-	    
+	    String cmd1_sub11="modify enchantments";
+	    String full_sub11=cmd1+" "+cmd1_sub11;
+	    _cmdHelper.setCmd(full_sub11, "Modify Enchants", cmd1_sub11);
+	    handler.registerSubCmd(cmd1, cmd1_sub11, new SubModifyEnchantmetsCMD(this, _cmdHelper.getCmdData(full_sub11)));
+	    handler.setPermissionOnLastCmd("gs.modify.enchants");
 	    
 	    String[] one_hotbar_inv = new String[] {Cmd_add_options.inventory.toString(),Cmd_add_options.hotbar.toString(),Cmd_add_options.hand.toString()};
 	    
@@ -182,7 +190,7 @@ public class Main extends JavaPlugin
 	    cmd1AndArguments.put("add", one_hotbar_inv);
 	    
 	    cmd1AndArguments.put("setprice", one_hotbar_inv);
-	    cmd1AndArguments.put("modify", new String[] {"shop", "uniques"});
+	    cmd1AndArguments.put("modify", new String[] {"uniques","enchantments","shop"});
 	
 	    
 	    getCommand(cmd1).setExecutor(handler);
@@ -264,6 +272,11 @@ public class Main extends JavaPlugin
 	}
 	public ShopManager get_shopManager() {
 		return _shopManager;
+	}
+	
+	public ShopEnchantManager GetShopEnchantManager()
+	{
+		return _shopEnchantManager;
 	}
 	
 	public ShopManagerSQL GetShopManagerSQL()

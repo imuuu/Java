@@ -21,19 +21,12 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iWaystone.Upgrades.BaseUpgrade;
 import imu.iWaystone.Upgrades.BuildUpgrade;
 import imu.iWaystone.Upgrades.BuildUpgradeCommon;
 import imu.iWaystone.Upgrades.BuildUpgradeEpic;
 import imu.iWaystone.Upgrades.BuildUpgradeLegendary;
 import imu.iWaystone.Upgrades.BuildUpgradeRare;
-import imu.iWaystone.Upgrades.UpgradeCastTime;
-import imu.iWaystone.Upgrades.UpgradeCooldown;
-import imu.iWaystone.Upgrades.UpgradeDimension;
-import imu.iWaystone.Upgrades.UpgradeFoundation;
-import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystone.Waystones.Waystone;
-import imu.iWaystones.Enums.UpgradeType;
 import imu.iWaystones.Invs.WaystoneMenuInv;
 import imu.iWaystones.Main.ImusWaystones;
 

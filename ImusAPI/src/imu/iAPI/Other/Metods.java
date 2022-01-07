@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -35,6 +36,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -273,18 +275,21 @@ public class Metods
 		return lores;
 	}
 	
-	public ArrayList<Enchantment> getEnchantsWithoutLvl(ItemStack stack)
+	public Set<Enchantment> GetEnchants(ItemStack stack)
 	{
-		ArrayList<Enchantment> enchs = new ArrayList<Enchantment>();
-		if(stack != null && stack.getType() != Material.AIR)
-    	{
-			ItemMeta meta = stack.getItemMeta();
-    		for(Map.Entry<Enchantment, Integer> entry : meta.getEnchants().entrySet())
-    		{
-    			enchs.add(entry.getKey());
-    		}
-    	}
-		return enchs;
+		if(stack.getType() == Material.ENCHANTED_BOOK) return ((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchants().keySet();
+
+		return stack.getEnchantments().keySet();
+	}
+	
+	public HashMap<Enchantment, Integer> GetEnchantsWithLevels(ItemStack stack)
+	{
+		HashMap<Enchantment, Integer> map = new HashMap<>();
+		for(Enchantment ench : GetEnchants(stack))
+		{
+			map.put(ench, stack.getType() == Material.ENCHANTED_BOOK ? ((EnchantmentStorageMeta)stack.getItemMeta()).getEnchantLevel(ench) : stack.getEnchantmentLevel(ench));
+		}
+		return map;
 	}
 	
 	public ItemStack removeLore(ItemStack stack, String lore)
@@ -771,11 +776,24 @@ public class Metods
 		{
 			ItemStack clone = stack.clone();
 			int rolls = 1;
-			if(stack.getMaxStackSize() == 1)
+			int extra = 0;
+//			System.out.println("max stack: "+stack.getMaxStackSize());
+//			System.out.println("amount "+amount);
+//			System.out.println("extra "+(amount % stack.getMaxStackSize()));
+//			System.out.println("rolls "+((amount - extra)/stack.getMaxStackSize() + (extra > 0 ? 1 : 0)));
+//			
+			if(amount > stack.getMaxStackSize())
 			{
-				rolls = amount;
-				clone.setAmount(1);
+				extra = (amount % stack.getMaxStackSize());
+				rolls = (amount - extra)/stack.getMaxStackSize() + (extra > 0 ? 1 : 0);
+				clone.setAmount(stack.getMaxStackSize());
 			}
+			
+//			if(stack.getMaxStackSize() == 1)
+//			{
+//				rolls = amount;
+//				clone.setAmount(1);
+//			}
 			else
 			{
 				clone.setAmount(amount);
@@ -783,6 +801,10 @@ public class Metods
 
 			for(int i = 0; i < rolls; i++)
 			{
+				if(extra > 0 && i == rolls-1)
+				{
+					clone.setAmount(extra);
+				}
 				int invSlot = inv.firstEmpty();
 				if(invSlot < 0)
 				{

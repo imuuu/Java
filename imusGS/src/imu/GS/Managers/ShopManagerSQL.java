@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -31,7 +32,6 @@ import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
-import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ItemPrice.PriceUnique;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -241,7 +241,7 @@ public class ShopManagerSQL
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
-	public BukkitTask LogPurchaseAsync(Player player, ArrayList<ShopItemBase> sibs)
+	public BukkitTask LogPurchaseAsync(Player player, List<ShopItemBase> sibs)
 	{
 		//_main.getLogger().info("Loging..");
 		return new BukkitRunnable() 
@@ -890,7 +890,7 @@ public class ShopManagerSQL
 		//boolean lock = shop.HasLocked();
 		//shop.SetLocked(true);
 		
-		return new BukkitRunnable() {
+		return new BukkitRunnable() { //ERROR ??
 			
 			@Override
 			public void run() 
@@ -929,7 +929,6 @@ public class ShopManagerSQL
 					//e.printStackTrace();
 				}
 				
-				int page = 0;
 				for (ShopItemSeller[] siss : shop.get_items()) 
 				{
 					for(int slot = 0; slot < siss.length; ++slot)
@@ -944,7 +943,6 @@ public class ShopManagerSQL
 						SaveShopItem(sis, false);
 						
 					}
-					page++;
 				}
 				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
@@ -1355,7 +1353,7 @@ public class ShopManagerSQL
 				ShopItemUnique unique = new ShopItemUnique(_main, null, stack, 1);
 				unique.SetUUID(uuid);
 				unique.GetItemPrice().SetPrice(price);
-				_shopManager.GetUniqueManager()._uniques.put(unique.GetUUID(),unique);
+				_shopManager.GetUniqueManager().AddUniqueItem(unique,false);
 				
 				
 			}

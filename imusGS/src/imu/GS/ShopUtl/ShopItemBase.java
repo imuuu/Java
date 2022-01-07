@@ -2,21 +2,27 @@ package imu.GS.ShopUtl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import com.google.common.collect.Multiset.Entry;
 import com.google.gson.JsonObject;
 
 import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Invs.CustomerInv;
 import imu.GS.Main.Main;
+import imu.GS.Other.EnchantINFO;
 import imu.GS.ShopUtl.Customer.CustomerMenuBaseInv;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -169,8 +175,10 @@ public abstract class ShopItemBase
 		}
 		else
 		{
+			
 			SetShowPrice(price);	
 		}
+		
 		_price = price;
 		toolTip();
 	}

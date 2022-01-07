@@ -3,9 +3,11 @@ package imu.GS.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -13,6 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.Main.Main;
+import imu.GS.Other.EnchantINFO;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopNormal;
@@ -66,6 +69,8 @@ public class ShopManager
 				_shopManagerSQL.LoadUniques();
 				_shopManagerSQL.LoadShops();	
 				_shopManagerSQL.LoadShopItems();
+				_main.GetShopEnchantManager().CreateTables();
+				_main.GetShopEnchantManager().LoadEnchantInfos();
 				_main.GetTagManager().LoadMaterialTags();
 				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
@@ -88,6 +93,20 @@ public class ShopManager
 		return _material_prices.get(mat);
 	}
 	
+	public double GetDurabilityReduction(ItemStack stack)
+	{
+		double durProsent = Metods._ins.getDurabilityProsent(stack);
+		if(durProsent < 1.0)
+		{
+			durProsent = durProsent - _durability_penalty;
+			
+		}
+		if(durProsent < 0) durProsent = 0;
+		if(durProsent > 1.0) durProsent = 1;
+		
+		return durProsent;
+	}
+	
 	public PriceMaterial GetPriceMaterialAndCheck(ItemStack stack)
 	{
 		PriceMaterial priceMaterial = new PriceMaterial();
@@ -96,14 +115,20 @@ public class ShopManager
 		//if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
 		
 		double price = _material_prices.get(stack.getType()).GetPrice();
-		double durProsent = Metods._ins.getDurabilityProsent(stack);
-		if(durProsent < 1.0)
-		{
-			durProsent = durProsent - _durability_penalty;
-			if(durProsent < 0) durProsent = 0;
+		
+		
+		double addedEnchantPrice = 0;
+		for(Map.Entry<Enchantment, Integer> entry  : Metods._ins.GetEnchantsWithLevels(stack).entrySet())
+		{			
+			Enchantment ench = entry.getKey();
+			int level = entry.getValue();
+			EnchantINFO eInfo = _main.GetShopEnchantManager().GetInfo(ench);
+			double priceValue = eInfo.GetPrice(level).GetPrice();
+			addedEnchantPrice += stack.getType() == Material.ENCHANTED_BOOK ? (priceValue * eInfo.Get_rawMultiplier()) : priceValue;
 		}
-
-		priceMaterial.SetPrice(price * durProsent);
+		
+		//price.SetPrice(price.GetPrice()+addedEnchantPrice);
+		priceMaterial.SetPrice((price +addedEnchantPrice) * GetDurabilityReduction(stack));
 	
 		
 		return priceMaterial;

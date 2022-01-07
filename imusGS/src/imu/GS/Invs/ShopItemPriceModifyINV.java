@@ -198,7 +198,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 			_edited = true;
 			_player.sendMessage(ChatColor.YELLOW + "Unique item has been chanced!");
 			_sib.GetItemPrice().SetPrice(_price[0]);
-			_uniqueManager.AddUniqueItem((ShopItemUnique)_sib);
+			_uniqueManager.AddUniqueItem((ShopItemUnique)_sib, true);
 			//_shopManager.addUniqueItem(_orginalStack, _prices.clone(), false);
 			
 			GoBack();
@@ -213,7 +213,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 			GoBack();
 			return;
 		case REMOVE:
-			_uniqueManager.RemoveShopItemUnique(_sib);			
+			_uniqueManager.RemoveUnique(_sib.GetRealItem());			
 			ImusAPI._metods.InventoryAddItemOrDrop(_sib.GetRealItem().clone(), _player);
 			GoBack();
 			return;

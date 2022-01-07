@@ -175,7 +175,7 @@ public class UniquesINV extends CustomInvLayout
 	
 	boolean addNewItem(ItemStack stack)
 	{
-		if(_uniqueManager.IsSavedUnique(stack))
+		if(_uniqueManager.IsUnique(stack))
 		{
 			return false;
 		}
@@ -186,7 +186,7 @@ public class UniquesINV extends CustomInvLayout
 		//_shopManager.checkAndRemoveEliteMobSouldBound(newItem);
 	
 		ShopItemUnique siu = new ShopItemUnique(_main, null, stack, 1);
-		_main.get_shopManager().GetUniqueManager().AddUniqueItem(siu);
+		_main.get_shopManager().GetUniqueManager().AddUniqueItem(siu, true);
 		
 		setInModify(newItem);
 		

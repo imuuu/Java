@@ -31,7 +31,7 @@ public class ShopItemUnique extends ShopItemBase
 	public void SetUUID(UUID uuid) 
 	{
 		_uuid = uuid;
-		_main.get_shopManager().GetUniqueManager().PutPDuuid(_real_stack, uuid);
+		//_main.get_shopManager().GetUniqueManager().PutPDuuid(_real_stack, uuid);
 		//System.out.println("UUID set to real: "+uuid);
 	}
 		

@@ -115,7 +115,7 @@ public class ShopModINV extends CustomInvLayout
 		
 		ItemStack RemoveCrap = new ItemStack(Material.RED_DYE);
 		Metods.setDisplayName(RemoveCrap, ChatColor.AQUA + "Clear shop from normal items");
-		_metods.addLore(RemoveCrap, ChatColor.BLUE + "Able to chance ex: name,sellMul..", true);
+		_metods.addLore(RemoveCrap, "&9Removes all items except &estockable &9items!", true);
 		SetButton(RemoveCrap, BUTTON.CLEAR_NORMAL_ITEMS);
 		_inv.setItem(_size-15, RemoveCrap);
 		
