@@ -6,12 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -212,6 +215,7 @@ public class ShopManagerSQL
 					+ "cal_total_price FLOAT(20), "
 					+ "custom_price_view VARCHAR(10000), "
 					+ "itemstack_displayname VARCHAR(100), "
+					+ "itemstack_enchants VARCHAR(1000), "
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(id));");
 			ps.executeUpdate();
@@ -249,12 +253,24 @@ public class ShopManagerSQL
 			@Override
 			public void run() 
 			{
+				String[] ench_str = new String[sibs.size()];
+				for(int i = 0; i < sibs.size(); ++i)
+				{
+					LinkedList<String> enchants = new LinkedList<>();
+					for(Map.Entry<Enchantment, Integer> entry : Metods._ins.GetEnchantsWithLevels(sibs.get(i).GetRealItem()).entrySet())
+					{
+						enchants.add(entry.getKey().getKey().getKey().toUpperCase()+":"+entry.getValue());
+					}
+					;
+					ench_str[i] = enchants.isEmpty() ? " " : Metods._ins.CombineArrayToOneString(enchants, ";");
+				}
 				try
 				{
 					Connection con = _main.GetSQL().GetConnection();
 					PreparedStatement ps = con.prepareStatement("INSERT INTO "+SQL_TABLES.log_transaction.toString()+" "
-							+ "(player_uuid, player_name, action, shop_uuid, shopname, shopitem_uuid, amount, price, cal_total_price,custom_price_view, itemstack_displayname, itemstack) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+							+ "(player_uuid, player_name, action, shop_uuid, shopname, shopitem_uuid, amount, price, cal_total_price,custom_price_view, itemstack_displayname, itemstack_enchants,itemstack) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 					
+					int count = 0;
 					for(ShopItemBase sib : sibs)
 					{
 						int i = 1;
@@ -269,7 +285,9 @@ public class ShopManagerSQL
 						ps.setFloat(i++, (float) Metods.Round((sib.Get_amount() *sib.GetItemPrice().GetPrice()) * (sib instanceof ShopItemSeller ? 1 : -1)));
 						ps.setString(i++, sib.GetItemPrice() instanceof PriceCustom ? ((PriceCustom)sib.GetItemPrice()).GetViewStringOfItems(sib.Get_amount()) : "");
 						ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sib.GetRealItem()));
+						ps.setString(i++, ench_str[count]);
 						ps.setString(i++, ImusAPI._metods.EncodeItemStack(sib.GetRealItem()));
+						count++;
 						ps.addBatch();
 					}
 					
@@ -555,7 +573,7 @@ public class ShopManagerSQL
 			{
 				int i = 1;
 				UUID uuid = UUID.fromString(rs2.getString(i++));			
-				i++;//String shopName = rs2.getString(i++);
+				String shopName = rs2.getString(i++);
 				ShopItemType siType = ShopItemType.valueOf(rs2.getString(i++));				
 				i++;//String displayName = rs2.getString(i++);
 				int amount = rs2.getInt(i++);
@@ -566,6 +584,12 @@ public class ShopManagerSQL
 
 				String typeData = rs2.getString(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs2.getString(i++));					
+				
+				if(stack == null)
+				{
+					System.out.println("Couldnt load item named: "+uuid+ " from shop: "+shopName);
+					continue;
+				}
 				ShopItemSeller sis = null;
 				switch (siType) 
 				{
@@ -1349,7 +1373,7 @@ public class ShopManagerSQL
 				i++;
 				double price = (double)rs.getFloat(i++);
 				ItemStack stack = ImusAPI._metods.DecodeItemStack(rs.getString(i++));
-				_main.getLogger().info("Unique loaded: "+price);
+				//_main.getLogger().info("Unique loaded: "+price);
 				ShopItemUnique unique = new ShopItemUnique(_main, null, stack, 1);
 				unique.SetUUID(uuid);
 				unique.GetItemPrice().SetPrice(price);

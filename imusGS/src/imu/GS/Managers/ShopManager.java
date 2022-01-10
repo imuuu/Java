@@ -69,8 +69,7 @@ public class ShopManager
 				_shopManagerSQL.LoadUniques();
 				_shopManagerSQL.LoadShops();	
 				_shopManagerSQL.LoadShopItems();
-				_main.GetShopEnchantManager().CreateTables();
-				_main.GetShopEnchantManager().LoadEnchantInfos();
+				_main.GetShopEnchantManager().INIT();
 				_main.GetTagManager().LoadMaterialTags();
 				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
@@ -117,18 +116,15 @@ public class ShopManager
 		double price = _material_prices.get(stack.getType()).GetPrice();
 		
 		
-		double addedEnchantPrice = 0;
-		for(Map.Entry<Enchantment, Integer> entry  : Metods._ins.GetEnchantsWithLevels(stack).entrySet())
-		{			
-			Enchantment ench = entry.getKey();
-			int level = entry.getValue();
-			EnchantINFO eInfo = _main.GetShopEnchantManager().GetInfo(ench);
-			double priceValue = eInfo.GetPrice(level).GetPrice();
-			addedEnchantPrice += stack.getType() == Material.ENCHANTED_BOOK ? (priceValue * eInfo.Get_rawMultiplier()) : priceValue;
-		}
+		double addedEnchantPrice = _main.GetShopEnchantManager().CalculateEnchantPrice(stack);
+		//System.out.println("added price: "+addedEnchantPrice);
 		
 		//price.SetPrice(price.GetPrice()+addedEnchantPrice);
-		priceMaterial.SetPrice((price +addedEnchantPrice) * GetDurabilityReduction(stack));
+		double newPrice = price + addedEnchantPrice;
+
+		if(newPrice < 0.0) newPrice = 0.0;
+		
+		priceMaterial.SetPrice(newPrice * GetDurabilityReduction(stack));
 	
 		
 		return priceMaterial;

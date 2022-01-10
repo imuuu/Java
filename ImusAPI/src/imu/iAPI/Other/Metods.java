@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -277,17 +279,44 @@ public class Metods
 	
 	public Set<Enchantment> GetEnchants(ItemStack stack)
 	{
-		if(stack.getType() == Material.ENCHANTED_BOOK) return ((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchants().keySet();
+		//if(stack.getType() == Material.ENCHANTED_BOOK) return ((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchants().keySet();
+		if(stack.getType() != Material.ENCHANTED_BOOK) return stack.getEnchantments().keySet();
+		
+		Set<Enchantment> enchs = new HashSet<>();
+		enchs.addAll(stack.getEnchantments().keySet());
+		enchs.addAll(((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchants().keySet());
+		
 
-		return stack.getEnchantments().keySet();
+		return enchs;
 	}
 	
+	@SuppressWarnings("unused")
 	public HashMap<Enchantment, Integer> GetEnchantsWithLevels(ItemStack stack)
 	{
 		HashMap<Enchantment, Integer> map = new HashMap<>();
 		for(Enchantment ench : GetEnchants(stack))
 		{
-			map.put(ench, stack.getType() == Material.ENCHANTED_BOOK ? ((EnchantmentStorageMeta)stack.getItemMeta()).getEnchantLevel(ench) : stack.getEnchantmentLevel(ench));
+			
+			if(stack.getType() != Material.ENCHANTED_BOOK)
+			{
+				map.put(ench, stack.getEnchantmentLevel(ench));
+				continue;
+			}
+			
+			Integer bookLvl = ((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchantLevel(ench);
+			Integer stackLvl = stack.getEnchantmentLevel(ench);
+			if(bookLvl == null) 
+				bookLvl = 0;
+			if(stackLvl == null) 
+				stackLvl = 0;
+			
+			if(bookLvl > stackLvl)
+			{
+				map.put(ench, bookLvl);
+				continue;
+			}
+			map.put(ench, stackLvl);
+				
 		}
 		return map;
 	}
@@ -1274,6 +1303,18 @@ public class Metods
 		{
 			str += array[i];
 			if(i < array.length-1)
+				str += seperator;
+		}
+		return str;
+	}
+	
+	public <T> String CombineArrayToOneString(List<T> array, String seperator)
+	{
+		String str = "";
+		for(int i = 0; i < array.size(); i++)
+		{
+			str += array.get(i);
+			if(i < array.size()-1)
 				str += seperator;
 		}
 		return str;

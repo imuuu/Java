@@ -23,7 +23,7 @@ public class ShopItemSeller extends ShopItemBase
 	int _slot = -1;
 	public ShopItemSeller(Main main, ShopBase shopBase, ItemStack real, int amount) {
 		super(main,shopBase, real, amount);
-
+		SetItemPrice(_main.get_shopManager().GetPriceMaterialAndCheck(real));
 	}
 	
 	public ShopItemSeller SetPageAndSlot(int page, int slot)

@@ -16,6 +16,6 @@ public enum SQL_TABLES
 	uniques,
 	custom_price,
 	log_transaction, 
-	enchants, enchant_price_money
+	enchants, enchant_price_money, enchant_gear_values, enchant_other_values
 	
 }

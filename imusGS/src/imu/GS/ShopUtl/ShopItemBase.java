@@ -67,7 +67,7 @@ public abstract class ShopItemBase
 			
 		_amount = amount;
 		LoadLores();
-		_price = _main.get_shopManager().GetPriceMaterialAndCheck(real);
+		//_price = _main.get_shopManager().GetPriceMaterialAndCheck(real);
 		
 		
 	}

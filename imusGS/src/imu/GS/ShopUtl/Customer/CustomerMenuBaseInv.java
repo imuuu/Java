@@ -288,8 +288,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		
 	}
 	
-	
-	@SuppressWarnings("incomplete-switch")
+
 	public void ClickSorter(ClickInfo cInfo)
 	{
 		//cInfo.Print();
@@ -304,12 +303,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 			//Buy(cInfo);
 			PrepareBuy(cInfo);
 			return;
-		
-				
-		}
-		
-		switch (cInfo._button) 
-		{
 		case STATE_PLAYER_INV:
 			SwitchTab();
 			LoadPlayerInv();
@@ -349,17 +342,20 @@ public class CustomerMenuBaseInv extends CustomerInv
 			public void run() 
 			{
 				_transaction_inprogress = true;
-				Transaction();
-				_transaction_inprogress = false;
+				if(!Transaction())
+				{
+					_transaction_inprogress = false;
+				}
+				
 			}
 			
-			void Transaction()
+			boolean Transaction()
 			{
-				if(cInfo._shopItemBase == null) return;
+				if(cInfo._shopItemBase == null) return false;
 				
 				//System.out.println("==> buy 11");
 				if(cInfo._shopItemBase.Get_amount() <= 0)
-					return;
+					return false;
 				
 				if(cInfo._shopItemBase.GetItemPrice() instanceof PriceCustom)
 				{
@@ -371,14 +367,15 @@ public class CustomerMenuBaseInv extends CustomerInv
 							new BuyCustomPriceINV(_main, _player, _shopBase, (ShopItemSeller)cInfo._shopItemBase).openThis();
 						}
 					}.runTask(_main);
-					return;
+					return true;
 				}
 				
 				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
 				{
-					_transaction_inprogress = true;
 					Buy(cInfo);
+					return true;
 				}
+				return false;
 			}
 		}.runTaskAsynchronously(_main);
 	}
@@ -391,16 +388,19 @@ public class CustomerMenuBaseInv extends CustomerInv
 			public void run() 
 			{
 				_transaction_inprogress = true;
-				Transaction();
-				_transaction_inprogress = false;
+				if(!Transaction())
+				{
+					_transaction_inprogress = false;
+				}
+				
 			}
 			
-			void Transaction()
+			boolean Transaction()
 			{
-				if(cInfo._shopItemBase == null) return;
+				if(cInfo._shopItemBase == null) return false;
 				
 				if(cInfo._shopItemBase.Get_amount() <= 0)
-					return;
+					return false;
 				
 				if(!((ShopItemCustomer)cInfo._shopItemBase).EnoughItems(cInfo._click_amount)) //!ConfirmPlayerHasEnoughItems(_player, cInfo._shopItemBase, cInfo._click_amount)
 				{
@@ -408,18 +408,19 @@ public class CustomerMenuBaseInv extends CustomerInv
 					_player.sendMessage(Metods.msgC("&cSomething went wrong with transaction. Please try again. If this message shows up. Inform it for admin!")); 
 					// if this happens player doesnt have enough items in inventory
 					LoadPlayerInv();
-					return;
+					return false;
 				}
 				
 				if(_shopBase.SellConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
 				{
-					_transaction_inprogress = true;
 					Sell(cInfo);
+					return true;
 				}
 				else
 				{
 					System.out.println("sell isnt confirmed");
 				}
+				return false;
 			}
 		}.runTaskAsynchronously(_main);
 	}
@@ -507,7 +508,8 @@ public class CustomerMenuBaseInv extends CustomerInv
 				if(_uniqueManager.IsUnique(stack))
 				{
 					sis.SetItemPrice(new PriceUnique().SetPrice(_main.get_shopManager().GetUniqueManager().GetPriceItem(stack).GetPrice()));
-				}else
+				}
+				else
 				{
 					sis.SetItemPrice(_main.get_shopManager().GetPriceMaterialAndCheck(stack));
 				}
@@ -836,6 +838,9 @@ public class CustomerMenuBaseInv extends CustomerInv
 			//_inv.setItem(slot, SetButton(_shopBase.get_items().get(_shopInvPage)[slot].GetDisplayItem(), BUTTON.SHOP_ITEM));
 			SetShopSlot(sis, _shopInvPage, slot);
 		}
+		
+		if(_shopBase.GetCustomersCanOnlyBuy()) return;
+		
 		if(slot >= _player_slots_start && slot < _size)
 		{
 			if(_shopItemCustomer.get(_playerInvPage)[slot-_player_slots_start] == null)

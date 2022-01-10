@@ -71,6 +71,7 @@ public class Main extends JavaPlugin
 		
 		_tagManager = new TagManager(this);
 		_shopEnchantManager = new ShopEnchantManager(this);
+		_shopEnchantManager.CreateGearTypesAsync();
 		//_shopManager.loadShopsAsync();
 		 
 	
