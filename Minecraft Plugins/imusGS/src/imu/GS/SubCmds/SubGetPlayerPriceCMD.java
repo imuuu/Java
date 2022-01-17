@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
@@ -31,7 +32,7 @@ public class SubGetPlayerPriceCMD implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length != 2)
+    	if(args.length != 1)
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
@@ -43,7 +44,7 @@ public class SubGetPlayerPriceCMD implements CommandInterface
 		} 
     	catch (Exception e) 
     	{
-			return false;
+    		option = Cmd_add_options.hand;
 		}
     	
     	ItemStack[] stacks = null;
@@ -77,8 +78,9 @@ public class SubGetPlayerPriceCMD implements CommandInterface
 				for(ItemStack stack : stacks)
 				{
 					if(stack == null) continue;
-					double lastprice =_main.get_shopManager().GetPriceMaterial(stack.getType()).GetPrice();
-					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice is: &2 "+lastprice));
+					PriceMaterial pm =_main.GetMaterialManager().GetPriceMaterial(stack.getType());
+					double lastprice = pm.GetPrice();
+					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice is: &2"+lastprice +"&2$ &r"+ (pm.HasOverflow() ? "&b&k# &4Price drops after: &2"+pm.GetOverflow().get_softCap()+" &9items":"")));
 				}				
 			}
 		}.runTaskAsynchronously(_main);

@@ -23,14 +23,14 @@ import imu.GS.Other.EnchantINFO;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.iAPI.Other.Metods;
 
-public class ShopEnchantManager 
+public class ShopEnchantManager extends Manager
 {
+	
 	
 	private double _def_rawMultiplier = 0.3f;
 	HashMap<Enchantment, EnchantINFO> _enchantInfos = new HashMap<>();
 		
-	Main _main;
-	
+
 	private double _gear_netherite_mult = 1.40;
 	private double _gear_diamond_mult = 1;
 	private double _gear_gold_mult = 0.5;
@@ -41,13 +41,12 @@ public class ShopEnchantManager
 	private double _enchant_count_percent = 0.05; //%
 	
 	HashMap<Material, GearValues> _gearValues = new HashMap<>();
-	
-	public ShopEnchantManager(Main main) 
-	{
-		_main = main;
+	public ShopEnchantManager(Main main) {
+		super(main);
 	}
-	
-	void INIT()
+
+	@Override
+	public void INIT()
 	{
 		//this is async
 		CreateTables();
@@ -68,14 +67,7 @@ public class ShopEnchantManager
 		return _enchantInfos.get(ench);
 		
 	}
-	void PrintINFO(String metodName, String info)
-	{
-		Bukkit.getLogger().info(Metods.msgC(_main._pluginNamePrefix+":&6"+getClass().getSimpleName()+":&5"+metodName+": &2" +info));
-	}
-	void PrintERROR(String metodName, String info)
-	{
-		Bukkit.getLogger().info(Metods.msgC(_main._pluginNamePrefix+":&6"+getClass().getSimpleName()+":&5"+metodName+": &c" +info));
-	}
+
 	public void CreateTables()
 	{
 		LinkedList<String> statements = new LinkedList<>();
@@ -107,7 +99,7 @@ public class ShopEnchantManager
 				+"multiplier FLOAT(20),"
 				+"PRIMARY KEY(name));";
 		statements.add(strS);
-		if(ExecuteStatements(statements, "CreateTables")) PrintINFO("CreateTables", "Loaded!");
+		if(_main.GetSQL().ExecuteStatements(statements)) PrintINFO("CreateTables", "Loaded!");
 				
 	}
 	
@@ -145,32 +137,7 @@ public class ShopEnchantManager
 		}.runTaskAsynchronously(_main);
 	}
 	
-	boolean ExecuteStatements(List<String> statements, String metodName)
-	{
-		try 
-		{
-			Connection con = _main.GetSQL().GetConnection();
-			Statement stmt = con.createStatement();
-			for(String sm : statements)
-			{
-				//System.out.println("quarry: "+sm);
-				stmt.addBatch(sm);
-			}
-			stmt.executeBatch();
-			
-			stmt.close();
-			con.close();
-
-			return true;
-		} 
-		catch (Exception e) 
-		{
-			PrintERROR(metodName, "SQL ERROR");
-			e.printStackTrace();
-			return false;
-			
-		}
-	}
+	
 	
 	public void LoadEnchantInfos()
 	{
@@ -214,21 +181,16 @@ public class ShopEnchantManager
 		}
 	}
 	
-	public void SaveEnchantOtherValues(ENCHANT_OTHER_VALUES value, double d)
+	public void SaveEnchantOtherValuesAsync(ENCHANT_OTHER_VALUES value, double d)
 	{
 		LinkedList<String> statements = new LinkedList<>();
 		statements.add("REPLACE INTO "+SQL_TABLES.enchant_other_values + " (name, multiplier) VALUES("
 				+ "'"+value.toString()+"',"
 				+ d
 				+ ");");
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				ExecuteStatements(statements, "SaveEnchantOtherValues");
-			}
-		}.runTaskAsynchronously(_main);
+		
+		
+		_main.GetSQL().ExecuteStatementsAsync(statements);
 	}
 	
 	public void LoadEnchantOtherValues()
@@ -295,15 +257,15 @@ public class ShopEnchantManager
 					+ ");");
 		}
 		
-		
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				ExecuteStatements(statements, "SaveEnchantInfoAsync");
-			}
-		}.runTaskAsynchronously(_main);
+		_main.GetSQL().ExecuteStatementsAsync(statements);
+//		new BukkitRunnable() {
+//			
+//			@Override
+//			public void run() 
+//			{
+//				ExecuteStatements(statements, "SaveEnchantInfoAsync");
+//			}
+//		}.runTaskAsynchronously(_main);
 	}
 	
 	public void SaveEnchantGearMultiAsync(GearValues value, double multiplier)
@@ -313,14 +275,15 @@ public class ShopEnchantManager
 				+ "'"+value.toString()+"',"
 				+ multiplier
 				+ ");");
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				ExecuteStatements(statements, "SaveEnchantGearMultiAsync");
-			}
-		}.runTaskAsynchronously(_main);
+//		new BukkitRunnable() {
+//			
+//			@Override
+//			public void run() 
+//			{
+//				ExecuteStatements(statements, "SaveEnchantGearMultiAsync");
+//			}
+//		}.runTaskAsynchronously(_main);
+		_main.GetSQL().ExecuteStatementsAsync(statements);
 	}
 	
 	public void LoadEnchantGearMultipliers()

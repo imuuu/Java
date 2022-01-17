@@ -1,5 +1,8 @@
 package imu.GS.SubCmds;
 
+import java.util.LinkedList;
+
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,7 +34,7 @@ public class SubSetMaterialPriceCMD implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length != 3)
+    	if(args.length != 5)
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
@@ -39,7 +42,7 @@ public class SubSetMaterialPriceCMD implements CommandInterface
     	Cmd_add_options option;
     	try 
     	{
-			option = Cmd_add_options.valueOf(args[1].toLowerCase());
+			option = Cmd_add_options.valueOf(args[3].toLowerCase());
 		} 
     	catch (Exception e) 
     	{
@@ -61,9 +64,9 @@ public class SubSetMaterialPriceCMD implements CommandInterface
 		
 		}
     	
-    	if(!ImusAPI._metods.isDigit(args[2])) return false;
+    	if(!ImusAPI._metods.isDigit(args[4])) return false;
     	
-    	double price = Double.parseDouble(args[2]);
+    	double price = Double.parseDouble(args[4]);
     	SendMaterialDataAsync(stacks, price,player);
     	
     	
@@ -77,13 +80,15 @@ public class SubSetMaterialPriceCMD implements CommandInterface
 			@Override
 			public void run() 
 			{
+				LinkedList<Material> mats = new LinkedList<>();
 				for(ItemStack stack : stacks)
 				{
 					if(stack == null) continue;
-					double lastprice =_main.get_shopManager().GetPriceMaterial(stack.getType()).GetPrice();
-					_main.get_shopManager().SaveMaterialPrice(stack.getType(), price);
+					double lastprice =_main.GetMaterialManager().GetPriceMaterial(stack.getType()).GetPrice();
+					mats.add(stack.getType());
 					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice set to: &2 "+price+" &7From "+lastprice));
 				}
+				_main.GetMaterialManager().SaveMaterialPrice(mats, price);
 				
 				
 			}

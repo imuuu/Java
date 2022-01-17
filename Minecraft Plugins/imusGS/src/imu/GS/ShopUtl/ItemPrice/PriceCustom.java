@@ -17,7 +17,7 @@ public class PriceCustom extends ItemPrice
 	}
 	
 	@Override
-	public double GetCustomerPrice() 
+	public double GetCustomerPrice(int amount) 
 	{
 		return -1;
 	}
@@ -30,7 +30,7 @@ public class PriceCustom extends ItemPrice
 	}
 
 	@Override
-	public String GetShowPriceOfAmountStr(int amount) 
+	public String GetCustomerPriceStr(int amount) 
 	{
 		return "Custom price";
 	}
@@ -61,6 +61,20 @@ public class PriceCustom extends ItemPrice
 			str += "; "+ImusAPI._metods.GetItemDisplayName(data._stack)+ ":"+(data._amount*buyAmount);
 		}
 		return str;
+	}
+
+	@Override
+	public ItemPrice clone() 
+	{
+		PriceCustom custom = new PriceCustom();
+		CustomPriceData[] newItems = new CustomPriceData[_items.length];
+		for(int i = 0; i < newItems.length; i++)
+		{
+			CustomPriceData data = new CustomPriceData(_items[i]._stack.clone(), _items[i]._amount);
+			newItems[i] = data;
+		}
+		custom.SetItemsAndPrice(newItems, _customMoney, _minimumStackAmount);
+		return custom;
 	}
 
 	

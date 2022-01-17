@@ -34,7 +34,6 @@ public class ShopManager
 	
 	private ArrayList<ShopBase> _shops;
 	
-	private HashMap<Material, PriceMaterial> _material_prices = new HashMap<>();
 	
 	private BukkitTask RunnableAsyncTask;
 	private ShopManagerSQL _shopManagerSQL;
@@ -52,12 +51,13 @@ public class ShopManager
 	{
 		_main = main;
 		_shops = new ArrayList<>();
+		_shopManagerSQL = new ShopManagerSQL(_main, this);
+		_uniqueManager = new UniqueManager(_main, this, _shopManagerSQL);
 	}
 	
 	public void Init()
 	{
-		_shopManagerSQL = new ShopManagerSQL(_main, this);
-		_uniqueManager = new UniqueManager(_main, this, _shopManagerSQL);
+		
 		
 		new BukkitRunnable() 
 		{			
@@ -65,14 +65,16 @@ public class ShopManager
 			public void run() 
 			{
 				_shopManagerSQL.LoadTables();
-				_shopManagerSQL.LoadMaterialPrices();
+				_main.GetMaterialManager().CreateTables();
+				_main.GetMaterialManager().LoadMaterialPrices();
+				_main.GetMaterialManager().LoadMaterialOverflows();
 				_shopManagerSQL.LoadUniques();
 				_shopManagerSQL.LoadShops();	
 				_shopManagerSQL.LoadShopItems();
 				_main.GetShopEnchantManager().INIT();
-				_main.GetTagManager().LoadMaterialTags();
-				
+				_main.GetTagManager().LoadMaterialTags();				
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
+				
 			}
 		}.runTaskAsynchronously(_main);
 		
@@ -80,17 +82,7 @@ public class ShopManager
 		RunnableAsync();
 	}
 	
-	void PutMaterialPrice(Material mat, double price)
-	{		
-		PriceMaterial pm = new PriceMaterial();
-		pm.SetPrice(price);
-		_material_prices.put(mat, pm);
-	}
 	
-	public PriceMaterial GetPriceMaterial(Material mat)
-	{
-		return _material_prices.get(mat);
-	}
 	
 	public double GetDurabilityReduction(ItemStack stack)
 	{
@@ -106,29 +98,7 @@ public class ShopManager
 		return durProsent;
 	}
 	
-	public PriceMaterial GetPriceMaterialAndCheck(ItemStack stack)
-	{
-		PriceMaterial priceMaterial = new PriceMaterial();
-		priceMaterial.SetPrice(0);
-		if(stack == null || stack.getType() == Material.AIR) return priceMaterial;
-		//if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
-		
-		double price = _material_prices.get(stack.getType()).GetPrice();
-		
-		
-		double addedEnchantPrice = _main.GetShopEnchantManager().CalculateEnchantPrice(stack);
-		//System.out.println("added price: "+addedEnchantPrice);
-		
-		//price.SetPrice(price.GetPrice()+addedEnchantPrice);
-		double newPrice = price + addedEnchantPrice;
-
-		if(newPrice < 0.0) newPrice = 0.0;
-		
-		priceMaterial.SetPrice(newPrice * GetDurabilityReduction(stack));
 	
-		
-		return priceMaterial;
-	}
 	
 	public ShopManagerSQL GetShopManagerSQL()
 	{
@@ -243,48 +213,7 @@ public class ShopManager
 		}
 	}
 
-	public void SaveMaterialPrice(Material mat, double price)
-	{
-		if(price < 0) 
-		{
-			price = 0;
-		}else
-		{
-			price = Math.round(price * 100.00) / 100.00;
-		}
-		
-		PutMaterialPrice(mat, price);
-		
-		final double pricee = price;
-		
-
-		for(ShopBase shop : _shops)
-		{
-			boolean removeCustomers = false;
-			for(ShopItemBase[] pages : shop.get_items())
-			{
-				for(ShopItemBase sib : pages)
-				{
-					if(sib == null) continue;
-					
-					if(sib.GetItemPrice() instanceof PriceMaterial && sib.GetRealItem().getType() == mat)
-					{
-						sib.SetItemPrice(GetPriceMaterial(mat));
-						removeCustomers = true;
-					}
-				}
-			}
-			if(removeCustomers) shop.RemoveCustomerALL();
-		}
-		new BukkitRunnable() 
-    	{
-			@Override
-			public void run() 
-			{				
-				_shopManagerSQL.SaveMaterialPrice(mat, pricee);
-			}
-		}.runTaskAsynchronously(_main);	
-	}
+	
 	
 	
 	public boolean OpenShop(Player p,String name)

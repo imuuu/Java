@@ -78,7 +78,7 @@ public class ShopManagerSQL
 					+ "absolutePositions INT(1), PRIMARY KEY(uuid));");
 			ps.executeUpdate();
 			
-			_main.getLogger().info("==> shops");
+			//_main.getLogger().info("==> shops");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitems.toString()+" (" 
 					+ "uuid CHAR(36), "	
@@ -90,20 +90,13 @@ public class ShopManagerSQL
 					+ "slot INT(27),"
 					
 					+ "price_type 		VARCHAR(20),"
-//					+ "max_amount 		INT(20),"
-//					+ "fill_amount 		INT(20),"
-//					+ "fill_delay 		INT(20),"
-//					
-//					+ "selltime_start 	INT(20),"
-//					+ "selltime_end		INT(20),"
-					
 					+ "type_data TEXT(16000),"
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(uuid));");
 
 			ps.executeUpdate();
 			
-			_main.getLogger().info("===> shopItems");
+			//_main.getLogger().info("===> shopItems");
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_permissions.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
 					+ "uuid CHAR(36), "					
@@ -111,7 +104,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> shopItems => permissions");
+			//_main.getLogger().info("===> shopItems => permissions");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_worlds.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -120,7 +113,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> shopItems => worldNames");
+			//_main.getLogger().info("===> shopItems => worldNames");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_locations.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -134,7 +127,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> shopItems => locations");
+			//_main.getLogger().info("===> shopItems => locations");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_customs.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -144,7 +137,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> price type => custom");
+			//_main.getLogger().info("===> price type => custom");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_values.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -155,7 +148,7 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(id));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> price type => priceValues");
+			//_main.getLogger().info("===> price type => priceValues");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.custom_price.toString()+" ("
 					+ "uuid CHAR(36), "				
@@ -163,18 +156,11 @@ public class ShopManagerSQL
 					+ "PRIMARY KEY(uuid));");
 
 			ps.executeUpdate();
-			_main.getLogger().info("===> CustomPrice");
+			//_main.getLogger().info("===> CustomPrice");
 			
 			
 			
-			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_materials.toString()+" ("
-					+ "material VARCHAR(50), "
-					+ "price FLOAT(20), "
-					+ "PRIMARY KEY(material)"
-					+ ");");
-			ps.executeUpdate();
 			
-			_main.getLogger().info("====> material_prices");	
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_material.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -182,7 +168,7 @@ public class ShopManagerSQL
 					+ "tag_name VARCHAR(30),"
 					+ "PRIMARY KEY(id));");
 			ps.executeUpdate();
-			_main.getLogger().info("=====> tags_materials");
+			//_main.getLogger().info("=====> tags_materials");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.tags_shopitems.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -190,7 +176,7 @@ public class ShopManagerSQL
 					+ "tag_name VARCHAR(30),"
 					+ "PRIMARY KEY(id));");
 			ps.executeUpdate();
-			_main.getLogger().info("=====> tags_shopitems");
+			//_main.getLogger().info("=====> tags_shopitems");
 
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.uniques.toString()+" ("
 					+ "uuid CHAR(36), "	
@@ -199,7 +185,7 @@ public class ShopManagerSQL
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(uuid));");
 			ps.executeUpdate();
-			_main.getLogger().info("=====> uniques");
+			//_main.getLogger().info("=====> uniques");
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.log_transaction.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "	
@@ -219,7 +205,7 @@ public class ShopManagerSQL
 					+ "itemstack TEXT(16000),"
 					+ "PRIMARY KEY(id));");
 			ps.executeUpdate();
-			_main.getLogger().info("=====> log");
+			//_main.getLogger().info("=====> log");
 						
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.shopitem_moddata.toString()+" ("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -232,7 +218,7 @@ public class ShopManagerSQL
 					+ "selltime_end		INT(20),"
 					+ "PRIMARY KEY(id));");
 			
-			_main.getLogger().info("=====> modData");
+			//_main.getLogger().info("=====> modData");
 			ps.executeUpdate();
 			
 			
@@ -240,6 +226,7 @@ public class ShopManagerSQL
 			con.close();
 		} catch (Exception e) 
 		{
+			_main.getLogger().info("Couldnt load tables correctly");
 			e.printStackTrace();
 		}
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
@@ -300,7 +287,7 @@ public class ShopManagerSQL
 				catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:LogPurchaseAsync ERROR");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		}.runTaskAsynchronously(_main);
@@ -365,7 +352,7 @@ public class ShopManagerSQL
 		} catch (SQLException e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:LoadShops: ERROR");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 		
@@ -393,58 +380,7 @@ public class ShopManagerSQL
 		_shopManager.UpdateTabCompliters();
 	}
 	
-	void LoadMaterialPrices()
-	{
-		
-		
-		try 
-		{
-			Connection con = _main.GetSQL().GetConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.price_materials.toString()+";");
-			ResultSet rs = ps.executeQuery();
-			int i = 1;
-			if(!rs.isBeforeFirst())
-			{
-				//empty!
-				PreparedStatement ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");
-				for(Material mat : Material.values())
-				{
-					i = 1;
-
-					ps2.setString(i++, mat.name());
-					ps2.setFloat(i++, 0.0f);
-					ps2.addBatch();
-					_shopManager.PutMaterialPrice(mat, 0.0);
-				}
-				
-				ps2.executeBatch();
-				ps2.close();
-			}
-			else
-			{
-				while(rs.next())
-				{
-					i = 1;
-					String mat_name = rs.getString(i++);
-					_shopManager.PutMaterialPrice(Material.getMaterial(mat_name), (double)rs.getFloat(i++));
-				}
-				_main.getLogger().info("Material prices loaded");
-			}
-			
-			
-			rs.close();
-			ps.close();
-			con.close();
-		}
-		catch (SQLException e) 
-		{
-			//_main.getLogger().info("Couldnt add materials!");
-			Bukkit.getLogger().info("ShopManagerSQL:LoadMaterialPrices: ERROR");
-
-		}
-		
-		
-	}
+	
 	
 	void LoadModDataForShopItems(ShopBase shopBase)
 	{
@@ -463,7 +399,7 @@ public class ShopManagerSQL
 					
 					PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitem_moddata.toString()+" WHERE uuid='"+uuid.toString()+"';");
 					ResultSet rs = ps.executeQuery();
-					ShopItemModData modData = new ShopItemModData();
+					ShopItemModData modData = ((ShopItemStockable)sib).GetModData();
 					
 					if(rs.isBeforeFirst())
 					{
@@ -538,24 +474,29 @@ public class ShopManagerSQL
 		catch (Exception e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:LoadShopItemModData: ERROR");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
-	void SaveMaterialPrice(Material mat, double price)
+	void SaveMaterialPrice(List<Material> mats, double price)
 	{
 		;
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");)
 		{
 			//_main.getLogger().info("try to save to data base material "+mat+ " and price: "+price);
+			for(Material mat : mats)
+			{
+				ps.setString(1, mat.name());
+				ps.setFloat(2, (float)price);
+				ps.addBatch();
+			}
 			
-			ps.setString(1, mat.name());
-			ps.setFloat(2, (float)price);
-			ps.executeUpdate();
+			ps.executeBatch();
 		} 
 		catch (Exception e) 
 		{
-			Bukkit.getLogger().info("ShopManagerSQL:SavematerialPrice:Couldnt Save Material ( "+mat.toString()+" ) to database");
+			Bukkit.getLogger().info("ShopManagerSQL:SavematerialPrice:Couldnt Save Material total of ( "+mats.size()+" )  to database");
+			e.printStackTrace();
 		}
 		
 	}
@@ -611,7 +552,7 @@ public class ShopManagerSQL
 					
 				switch (priceType) {
 				case None:
-					sis.SetItemPrice( _main.get_shopManager().GetPriceMaterialAndCheck(stack));
+					sis.SetItemPrice( _main.GetMaterialManager().GetPriceMaterialAndCheck(stack));
 					break;
 				case PriceCustom:
 					sis.SetItemPrice( GetPriceCustom(uuid, false));
@@ -806,7 +747,7 @@ public class ShopManagerSQL
 				} catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:DeleteShopAsync:TRY TO DELETE SHOP NAMED "+shop.GetName()+".. something went wrong!");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 				
 				
@@ -950,7 +891,7 @@ public class ShopManagerSQL
 				} catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:SaveShopAsync:Couldnt save shop data, probably SQL's shops table is missing");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 				
 				for (ShopItemSeller[] siss : shop.get_items()) 
@@ -1009,7 +950,7 @@ public class ShopManagerSQL
 			{
 				String permis ="INSERT INTO "+SQL_TABLES.shopitem_permissions.toString() +"(uuid, name) VALUES("
 						+  "'"+sis.GetUUID().toString()+"',"
-						+ "'"+permission+"'"
+						+ "\""+permission+"\""
 						+ ");";
 				array.add(permis);
 			}
@@ -1022,7 +963,7 @@ public class ShopManagerSQL
 				String world = "INSERT INTO "+SQL_TABLES.shopitem_worlds.toString()+" "
 						+ "(uuid, name) VALUES ("
 						+ "'"+sis.GetUUID().toString()+"',"
-						+ "'"+worldName+"',"
+						+ "\""+worldName+"\","
 						+ ");";
 				array.add(world);
 			}
@@ -1037,7 +978,7 @@ public class ShopManagerSQL
 						+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES ("
 						+  "'"+sis.GetUUID().toString()+"',"
 						+ disLoc.GetKey()+","
-						+ "'"+loc.getWorld().getName()+"',"
+						+ "\""+loc.getWorld().getName()+"\","
 						+ loc.getBlockX()+","
 						+ loc.getBlockY()+","
 						+ loc.getBlockZ()+""
@@ -1058,16 +999,16 @@ public class ShopManagerSQL
 				+"'"+sib.GetUUID().toString()+"',"
 				+"'"+sib.GetShop().GetUUID().toString()+"',"
 				+"'"+sib.GetItemType().toString()+"',"
-				+"'"+ImusAPI._metods.GetItemDisplayName(sib.GetRealItem())+"',"
+				+"\""+ImusAPI._metods.GetItemDisplayName(sib.GetRealItem())+"\","
 				+sib.Get_amount()+","
 				+sib.GetPage()+","
 				+sib.GetSlot()+","
 				+"'"+GetPriceType(sib).toString()+"',"
-				+"'"+new Gson().toJson(sib.GetJsonData())+"',"
+				+"\""+new Gson().toJson(sib.GetJsonData())+"\","
 				+"'"+ImusAPI._metods.EncodeItemStack(sib.GetRealItem())+"'"
 				+");";
 		
-		
+
 		statements.add(shopItem);
 		if(sib instanceof ShopItemStockable) statements.addAll(GetINSERTModDataStatement((ShopItemStockable)sib));
 		
@@ -1114,7 +1055,7 @@ public class ShopManagerSQL
 		catch (Exception e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:SaveShopItem:Saving shopitem: Couldnt add item NEW");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 	}
@@ -1288,7 +1229,7 @@ public class ShopManagerSQL
 				catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:SaveUniqueItemAsync:Couldnt save unique");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}	
 			}
 		}.runTaskAsynchronously(_main);
@@ -1309,7 +1250,7 @@ public class ShopManagerSQL
 				catch (Exception e) 
 				{
 					Bukkit.getLogger().info("ShopManagerSQL:DeleteUniqueItemAsync:Couldnt save unique");
-					//e.printStackTrace();
+					e.printStackTrace();
 				}	
 			}
 		}.runTaskAsynchronously(_main);
@@ -1344,7 +1285,7 @@ public class ShopManagerSQL
 		catch (Exception e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:GetUniquePrice:Couldnt get unique price");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}	
 		return priceUnique;
 	}
@@ -1387,7 +1328,7 @@ public class ShopManagerSQL
 		} catch (SQLException e) 
 		{
 			Bukkit.getLogger().info("ShopManagerSQL:LoadUniques:Loading Unique ERROR");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 }

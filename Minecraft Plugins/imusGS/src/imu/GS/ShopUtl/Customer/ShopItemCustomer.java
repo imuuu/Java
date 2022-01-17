@@ -1,6 +1,7 @@
 package imu.GS.ShopUtl.Customer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,10 +26,31 @@ public class ShopItemCustomer extends ShopItemBase
 	{
 		super(main,shopBase,real, amount);
 		_player = player;
+
 		
-		//AddPlayerItemStackRef("constuctiopn",real);
-		//System.out.println("ShopItemCustomer created");
-		
+	}
+	public Player GetOwner()
+	{
+		return _player;
+	}
+	
+	@Override
+	public void SetTargetShopitem(ShopItemBase sib) 
+	{
+		_customerShopitemTargets.put(_player.getUniqueId(), sib);
+	}
+	
+	public void RefreshAmount()
+	{
+		int count = 0;
+		for(ItemStack stack : _player_itemstack_refs)
+		{
+			if(stack != null && stack.isSimilar(_real_stack))
+			{
+				count += stack.getAmount();
+			}
+		}
+		Set_amount(count);
 	}
 	
 	@Override
@@ -41,6 +63,36 @@ public class ShopItemCustomer extends ShopItemBase
 			return;
 		}
 		
+	}
+	
+	@Override
+	protected LinkedList<String> GetLores()
+	{
+		LinkedList<String> lores = super.GetLores();
+		
+		if(_player != null  && GetItemPrice() instanceof PriceMaterial)
+		{
+			PriceMaterial pm =(PriceMaterial)GetItemPrice(); 
+			if(pm.HasOverflow())
+			{
+				int amount_in_shop = pm.HasShopitem() ? GetTargetShopitem(_player.getUniqueId()).Get_amount() : 0;
+				int priceDropsIn = pm.GetOverflow().get_softCap()-amount_in_shop;
+				lores.add(" ");
+				if(priceDropsIn <= 0)
+				{
+					
+					lores.add("&b&k# &e&nThe Price Drops&b&k #");
+				}
+				else
+				{
+					lores.add("&e&nThe Price Drops in:&2&l "+ (priceDropsIn));
+				}
+				
+			}
+			
+		}
+		
+		return lores;
 	}
 	
 	public void AddPlayerItemStackRef(ItemStack stack)
@@ -211,6 +263,7 @@ public class ShopItemCustomer extends ShopItemBase
 		
 		return new ShopItemResult[] {new ShopItemResult(GetRealItem(), GetRealItem().getAmount())};
 	}
+	
 
 	
 	

@@ -17,6 +17,7 @@ import imu.GS.CMDs.Cmd;
 import imu.GS.CMDs.Cmd2;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.ENUMs.TagSubCmds;
+import imu.GS.Managers.MaterialManager;
 import imu.GS.Managers.ShopEnchantManager;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.ShopManagerSQL;
@@ -30,10 +31,12 @@ import imu.GS.SubCmds.SubGetPlayerPriceCMD;
 import imu.GS.SubCmds.SubModifyEnchantmetsCMD;
 import imu.GS.SubCmds.SubModifyShopCMD;
 import imu.GS.SubCmds.SubModifyUniqueCMD;
+import imu.GS.SubCmds.SubSetMaterialOverflowCMD;
 import imu.GS.SubCmds.SubSetMaterialPriceCMD;
 import imu.GS.SubCmds.SubShopCreateCMD;
 import imu.GS.SubCmds.SubShopOpenCMD;
 import imu.GS.SubCmds.SubTagMaterialCMD;
+import imu.GS.SubCmds.SubUnSetMaterialOverflowCMD;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
@@ -45,6 +48,7 @@ public class Main extends JavaPlugin
 	private ShopManager _shopManager;
 	private ShopEnchantManager _shopEnchantManager;
 	private TagManager _tagManager;
+	private MaterialManager _materialManager;
 	private DenizenScriptCreator _denizenScriptCreator;
 	
 
@@ -65,8 +69,11 @@ public class Main extends JavaPlugin
 		_cmdHelper = new CmdHelper(this);
 		
 		// MANAGERS
-		_shopManager = new ShopManager(this);
+		_shopManager = new ShopManager(this);		
+		_materialManager = new MaterialManager(this);
+		
 		_shopManager.Init();
+		
 		_denizenScriptCreator = new DenizenScriptCreator(this);
 		
 		_tagManager = new TagManager(this);
@@ -163,11 +170,11 @@ public class Main extends JavaPlugin
 	    handler.registerSubCmd(cmd1, cmd1_sub8, new SubAssingToNpcCMD(this, _cmdHelper.getCmdData(full_sub8)));
 	    handler.setPermissionOnLastCmd("gs.assing");
 	    
-	    String cmd1_sub9="setprice";
+	    String cmd1_sub9="set material price";
 	    String full_sub9=cmd1+" "+cmd1_sub9;
 	    _cmdHelper.setCmd(full_sub9, "Setting material price", cmd1_sub9);
 	    handler.registerSubCmd(cmd1, cmd1_sub9, new SubSetMaterialPriceCMD(this, _cmdHelper.getCmdData(full_sub9)));
-	    handler.setPermissionOnLastCmd("gs.setprice");
+	    handler.setPermissionOnLastCmd("gs.set.material.price");
 	    
 	    String cmd1_sub10="tag";
 	    String full_sub10=cmd1+" "+cmd1_sub10;
@@ -181,16 +188,29 @@ public class Main extends JavaPlugin
 	    handler.registerSubCmd(cmd1, cmd1_sub11, new SubModifyEnchantmetsCMD(this, _cmdHelper.getCmdData(full_sub11)));
 	    handler.setPermissionOnLastCmd("gs.modify.enchants");
 	    
+	    String cmd1_sub12="set material overflow";
+	    String full_sub12=cmd1+" "+cmd1_sub12;
+	    _cmdHelper.setCmd(full_sub12, "Setting material overflow", cmd1_sub12);
+	    handler.registerSubCmd(cmd1, cmd1_sub12, new SubSetMaterialOverflowCMD(this, _cmdHelper.getCmdData(full_sub12)));
+	    handler.setPermissionOnLastCmd("gs.set.material.overflow");
+	    
+	    String cmd1_sub13="unset material overflow";
+	    String full_sub13=cmd1+" "+cmd1_sub13;
+	    _cmdHelper.setCmd(full_sub13, "Unsetting material overflow", cmd1_sub13);
+	    handler.registerSubCmd(cmd1, cmd1_sub13, new SubUnSetMaterialOverflowCMD(this, _cmdHelper.getCmdData(full_sub13)));
+	    handler.setPermissionOnLastCmd("gs.unset.material.overflow");
+	    
 	    String[] one_hotbar_inv = new String[] {Cmd_add_options.inventory.toString(),Cmd_add_options.hotbar.toString(),Cmd_add_options.hand.toString()};
 	    
-	    cmd1AndArguments.put(cmd1, new String[] {"create","open","tag", "modify","assign","setprice","add"});
+	    cmd1AndArguments.put(cmd1, new String[] {"create","open","tag", "modify","assign","set","unset","add"});
 	    cmd1AndArguments.put("open", new String[] {"shop"});
 	    //cmd1AndArguments.put("delete", new String[] {"shop"});
 	    cmd1AndArguments.put("create", new String[] {"shop","unique"});
 	    cmd1AndArguments.put("tag", new String[] {"materials","shopitems"}); //new String[] {"add","remove","remove_all_tags","set_price","increase_price"}
 	    cmd1AndArguments.put("add", one_hotbar_inv);
 	    
-	    cmd1AndArguments.put("setprice", one_hotbar_inv);
+	    cmd1AndArguments.put("set", new String[] {"material"});
+	    cmd1AndArguments.put("unset", new String[] {"material"});
 	    cmd1AndArguments.put("modify", new String[] {"uniques","enchantments","shop"});
 	
 	    
@@ -208,7 +228,12 @@ public class Main extends JavaPlugin
 	    _tab_cmd1.SetRule("/gs tag materials remove_all_tags", 4, Arrays.asList(one_hotbar_inv));
 	    
 	    _tab_cmd1.SetRule("/gs tag shopitems", 3, Arrays.asList(new String[] {TagSubCmds.set_price.toString(),TagSubCmds.increase_price.toString()}));
-	    //
+	    
+	    _tab_cmd1.SetRule("/gs set material", 3, Arrays.asList(new String[] {"price","overflow"}));
+	    _tab_cmd1.SetRule("/gs set material", 4, Arrays.asList(one_hotbar_inv));
+	    
+	    _tab_cmd1.SetRule("/gs unset material", 3, Arrays.asList(new String[] {"overflow"}));
+	    _tab_cmd1.SetRule("/gs unset material", 4, Arrays.asList(one_hotbar_inv));
 	    
 	    
 	    HashMap<String, String[]> cmd2AndArguments = new HashMap<>();
@@ -273,6 +298,11 @@ public class Main extends JavaPlugin
 	}
 	public ShopManager get_shopManager() {
 		return _shopManager;
+	}
+	
+	public MaterialManager GetMaterialManager()
+	{
+		return _materialManager;
 	}
 	
 	public ShopEnchantManager GetShopEnchantManager()

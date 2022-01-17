@@ -123,7 +123,7 @@ public class ShopBaseModify extends CustomInvLayout
 		_inv.setItem(12, SetButton(stack, BUTTON.SHOP_EXPIRE_COOLDOWN));
 		
 		stack = new ItemStack(Material.IRON_BARS);
-		Metods.setDisplayName(stack, "&6Customers Can Only Sell");
+		Metods.setDisplayName(stack, "&6Block Customer Sell");
 		_metods.addLore(stack, setTo +_shopModData.GetValueStr(ModDataShop.CUSTOMERS_CAN_ONLY_BUY, "&2", "", "NONE"), false);_metods.addLore(stack, m1m2, false);	
 		_inv.setItem(14, SetButton(stack, BUTTON.CUSTOMERS_CAN_ONLY_BUY));
 		

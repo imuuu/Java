@@ -120,7 +120,7 @@ public class EnchantmentModifyINV extends CustomInvLayout implements IModDataInv
 			if(!Metods._ins.isDigit(anwser)) return false;
 			double number = Double.parseDouble(anwser) / 100.0;
 			_eManager.Set_enchant_count_percent(number);
-			_eManager.SaveEnchantOtherValues(ENCHANT_OTHER_VALUES.ENCHANT_COUNT_PERCENT, number);
+			_eManager.SaveEnchantOtherValuesAsync(ENCHANT_OTHER_VALUES.ENCHANT_COUNT_PERCENT, number);
 			_player.sendMessage(Metods.msgC("&bEnchant Count Buff Percent&3 data has been saved"));
 			openThis();
 			return true;

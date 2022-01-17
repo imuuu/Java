@@ -47,7 +47,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 				if(stack == null) continue;
 				//System.out.println("shulker content: "+stack);
 				//_shulkerContent[count++] = stack.clone();
-				price += _main.get_shopManager().GetPriceMaterialAndCheck(stack).GetPrice() * stack.getAmount();
+				price += _main.GetMaterialManager().GetPriceMaterialAndCheck(stack).GetPrice() * stack.getAmount();
 			}
 		}
 		if(price <= 0) price = 0;	
@@ -100,7 +100,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 		
 		String[] lores = {
 				_lores[0]+Get_amount()+" &9____",
-				"&9Sell Content with &5"+ GetItemPrice().GetShowPriceOfAmountStr(1),
+				"&9Sell Content with &5"+ GetItemPrice().GetCustomerPriceStr(1),
 				"",
 
 				

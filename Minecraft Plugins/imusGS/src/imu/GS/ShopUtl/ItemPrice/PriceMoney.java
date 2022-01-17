@@ -5,35 +5,37 @@ import imu.iAPI.Other.Metods;
 public class PriceMoney extends ItemPrice
 {
 	double _price = 0;
-	double _showPrice = 0;
+	protected double _showPrice = 0;
 	
 	@Override
-	public String GetShowPriceOfAmountStr(int amount) 
+	public double GetCustomerPrice(int amount) 
 	{
-		return String.valueOf((Metods.Round(_showPrice*amount)))+" &2$";
-	}
-	
-	@Override
-	public double GetCustomerPrice() 
-	{
-		return _showPrice;
+		return _showPrice * amount;
 	}
 	
 	public ItemPrice SetPrice(double price)
 	{
 		_price = Metods.Round(price);
-		//System.out.println("info:"+info+ "price has been set: "+price);
 		return this;
 	}
 	
 	public void SetCustomerPrice(double showPrice)
 	{
-		_showPrice = Metods.Round(showPrice);
+		_showPrice = showPrice;
 	}
 	
 	@Override
 	public double GetPrice()
 	{
 		return _price;
+	}
+	
+	@Override
+	public ItemPrice clone()
+	{
+		PriceMoney priceMoney = (PriceMoney)super.clone();
+		priceMoney.SetPrice(_price);
+		priceMoney.SetCustomerPrice(_showPrice);
+		return priceMoney;
 	}
 }

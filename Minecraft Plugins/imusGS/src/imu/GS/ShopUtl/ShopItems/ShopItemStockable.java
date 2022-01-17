@@ -24,19 +24,26 @@ public class ShopItemStockable extends ShopItemSeller
 	{
 		super(main, shopBase, real, amount);
 		_type = ShopItemType.STOCKABLE;
-		_modData = new ShopItemModData();
-		_modData._maxAmount = amount;
+		GetModData()._maxAmount = amount;
 		
 	}
 		
 	public ShopItemModData GetModData()
 	{
+		if(_modData == null) _modData = new ShopItemModData();
 		return _modData;
+	}
+	
+	@Override
+	public void SetItemPrice(ItemPrice price) 
+	{
+		super.SetItemPrice(price);
+		GetModData()._itemPrice = price;
 	}
 	
 	public void SetModData(ShopItemModData modData)
 	{
-		_modData = modData;
+		_modData = modData.clone();
 		SetMaxAmount(_modData._maxAmount);
 		SetFillAmount(_modData._fillAmount);
 		SetFillDelayMinutes(_modData._fillDelayMinutes);
@@ -51,7 +58,6 @@ public class ShopItemStockable extends ShopItemSeller
 		
 		if(_modData._itemPrice instanceof ItemPrice)//if(_modData._ownPrice != -1)
 		{
-			//System.out.println("price set to: "+_modData._itemPrice);
 			SetItemPrice(_modData._itemPrice);
 		}
 	}

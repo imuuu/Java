@@ -26,11 +26,11 @@ public class Cmd implements CommandInterface
 
     	Player player = (Player) sender;
     	
-    	if(ImusAPI._metods.doesStrArrayCointainStr(args, "kamat"))
+    	if(player.isOp() && ImusAPI._metods.doesStrArrayCointainStr(args, "kamat"))
     	{
     		for(int i = 0; i < player.getInventory().getContents().length-6; ++i)
     		{
-    			player.getInventory().setItem(i, new ItemStack(Material.values()[i]));
+    			player.getInventory().setItem(i, new ItemStack(Material.values()[i],64));
     		}
     	}
     	

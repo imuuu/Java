@@ -324,14 +324,7 @@ public class ShopModINV extends CustomInvLayout
 			ShopItemStockable sis = (ShopItemStockable) sib;
 			
 			copy = sis.GetRealItem().clone();
-			ShopItemModData modData;
-			if(!_newModDatas.containsKey(sis.GetUUID()))
-			{
-				_newModDatas.put(sis.GetUUID(),(ShopItemModData)sis.GetModData().clone());
-			}
-			modData = _newModDatas.get(sis.GetUUID());
-				
-			SetTooltip(copy, modData);
+			SetTooltip(copy, sis.GetModData());
 			_inv.setItem(slot, SetButton(copy, BUTTON.SHOP_ITEM));
 			
 		}

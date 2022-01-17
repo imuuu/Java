@@ -28,6 +28,12 @@ public class ShopItemUnique extends ShopItemBase
 	}
 	
 	@Override
+	public void SetTargetShopitem(ShopItemBase sib) 
+	{
+		//Not implemented
+	}
+	
+	@Override
 	public void SetUUID(UUID uuid) 
 	{
 		_uuid = uuid;
@@ -63,4 +69,6 @@ public class ShopItemUnique extends ShopItemBase
 	public ShopItemResult[] GetTransactionResultItemStack() {
 		return null;
 	}
+
+	
 }

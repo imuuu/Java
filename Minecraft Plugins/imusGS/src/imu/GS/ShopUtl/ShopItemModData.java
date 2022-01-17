@@ -1,6 +1,7 @@
 package imu.GS.ShopUtl;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,15 +27,14 @@ public class ShopItemModData implements Cloneable, IModData
 	public int _sellTimeStart = -1;
 	public int _sellTimeEnd = -1;
 	
-	public ArrayList<Tuple<Integer,Location>> _locations;
+	public LinkedList<Tuple<Integer,Location>> _locations;
 	
-	public ArrayList<String> _permissions;
-	public ArrayList<String> _worldNames;
-	public ArrayList<String> _tags;
+	public LinkedList<String> _permissions;
+	public LinkedList<String> _worldNames;
+	public LinkedList<String> _tags;
 	
 	public ItemPrice _itemPrice;
 	
-	public int _roll = 0;
 	public String GetValueStr(IModDataValues v, String trueFrontText, String trueBackText,String falseStr)
 	{
 		ModDataShopStockable value = (ModDataShopStockable)v;
@@ -110,6 +110,7 @@ public class ShopItemModData implements Cloneable, IModData
 		case CUSTOM_PRICE:
 			if(!ImusAPI._metods.isDigit(str)) return false;
 			_itemPrice = new PriceOwn().SetPrice(Double.parseDouble(str));
+			System.out.println("itemprice set: "+_itemPrice);
 			break;
 		case MAX_AMOUNT:
 			if(!ImusAPI._metods.isDigit(str)) return false;
@@ -151,7 +152,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public void AddLocation(int distance, Location loc)
 	{
-		if(_locations == null) _locations = new ArrayList<>();
+		if(_locations == null) _locations = new LinkedList<>();
 		_locations.add(new Tuple<Integer, Location>(distance, loc));
 	}
 	
@@ -164,7 +165,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public void AddTag(String tagName)
 	{
-		if(_tags == null) _tags = new ArrayList<>();
+		if(_tags == null) _tags = new LinkedList<>();
 		_tags.add(tagName.toLowerCase());
 	}
 	
@@ -188,7 +189,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public void AddPermission(String permission)
 	{
-		if(_permissions == null) _permissions = new ArrayList<>();
+		if(_permissions == null) _permissions = new LinkedList<>();
 		_permissions.add(permission);
 	}
 	
@@ -199,7 +200,7 @@ public class ShopItemModData implements Cloneable, IModData
 	
 	public void AddWorldName(String worldName)
 	{
-		if(_worldNames == null) _worldNames = new ArrayList<>();
+		if(_worldNames == null) _worldNames = new LinkedList<>();
 		_worldNames.add(worldName);
 		
 	}
@@ -209,16 +210,49 @@ public class ShopItemModData implements Cloneable, IModData
 		_worldNames = null;
 	}
 	
-	public Object clone()
+	public ShopItemModData clone()
 	{
-		try {
-			return super.clone();	
-		} 
-		catch 
-		(Exception e) 
-		{
-		}
-		return null;
+		ShopItemModData modData = new ShopItemModData();
+		modData._maxAmount = _maxAmount;
+		modData._sellTimeEnd = _sellTimeEnd;
+		modData._sellTimeStart = _sellTimeStart;
+		modData._fillAmount = _fillAmount;
+		modData._fillDelayMinutes = _fillDelayMinutes;
+		modData._itemPrice = _itemPrice != null ? _itemPrice.clone() : null;
 		
+		if(_locations != null)			
+		{
+			for(Tuple<Integer,Location> locs : _locations)
+			{
+				modData.AddLocation(locs.GetKey(), locs.GetValue());
+			}
+		}
+		
+		if(_permissions != null)
+		{
+			for(String permission : _permissions)
+			{
+				modData.AddPermission(permission);
+			}
+		}
+		
+		if(_worldNames != null)
+		{
+			for(String worldName : _worldNames)
+			{
+				modData.AddWorldName(worldName);
+			}
+		}
+		
+		if(_tags != null)
+		{
+			for(String tagName : _tags)
+			{
+				modData.AddTag(tagName);
+			}
+		}
+		
+			
+		return modData;
 	}
 }

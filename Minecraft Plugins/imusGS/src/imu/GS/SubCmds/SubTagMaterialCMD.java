@@ -1,5 +1,9 @@
 package imu.GS.SubCmds;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -143,12 +147,7 @@ public class SubTagMaterialCMD implements CommandInterface
 			@Override
 			public void run() 
 			{
-				for(Material mat : _main.GetTagManager().GetAllMaterialsWithTag(tag))
-				{
-					//double price = _main.get_shopManager().GetPriceMaterial(mat).GetPrice();
-					_main.get_shopManager().SaveMaterialPrice(mat, price);
-				}
-				
+				_main.GetMaterialManager().SaveMaterialPrice(_main.GetTagManager().GetAllMaterialsWithTag(tag), price);
 				player.sendMessage(Metods.msgC("&2All materials with tag '&b"+tag.toLowerCase()+"&2' the price is set to: &a"+price));
 				
 				
@@ -238,8 +237,8 @@ public class SubTagMaterialCMD implements CommandInterface
 			{
 				for(Material mat : _main.GetTagManager().GetAllMaterialsWithTag(tag))
 				{
-					double price = _main.get_shopManager().GetPriceMaterial(mat).GetPrice();
-					_main.get_shopManager().SaveMaterialPrice(mat, price * multiplier);
+					double price = _main.GetMaterialManager().GetPriceMaterial(mat).GetPrice();
+					_main.GetMaterialManager().SaveMaterialPrice(new ArrayList<Material>(Arrays.asList(mat)), price * multiplier);
 				}
 				
 				player.sendMessage(Metods.msgC("&2All materials with tag '&b"+tag.toLowerCase()+"&2' the price is increased by: &b"+multiplier));

@@ -144,6 +144,31 @@ public class Metods
     	return stack;
 	}
 	
+	public ItemStack addLore(ItemStack stack, Iterable<String> lores)
+	{
+    	if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+    		ArrayList<String> read_lores = new ArrayList<String>();
+    		if(meta.hasLore())
+    		{
+    			read_lores.addAll(meta.getLore());
+    		}
+    		
+    		int idx = 0;
+			for(String l : lores)
+			{
+				read_lores.add(idx++, msgC(l));
+			}
+    		
+    		meta.setLore(read_lores);
+    		stack.setItemMeta(meta);
+
+			
+    	}
+    	return stack;
+	}
+	
 	public ItemStack SetLores(ItemStack stack, String[] lores, boolean removeEmpty)
 	{
 

@@ -10,8 +10,8 @@ import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
+import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
-import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.GS.ShopUtl.ItemPrice.PriceMoney;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Main.ImusAPI;
@@ -21,10 +21,20 @@ public class ShopItemSeller extends ShopItemBase
 {
 	int _shopPage = -1;
 	int _slot = -1;
+	
+	
+	
 	public ShopItemSeller(Main main, ShopBase shopBase, ItemStack real, int amount) {
 		super(main,shopBase, real, amount);
-		SetItemPrice(_main.get_shopManager().GetPriceMaterialAndCheck(real));
+		SetItemPrice(_main.GetMaterialManager().GetPriceMaterialAndCheck(real));
 	}
+	
+	public void SetTargetShopitem(ShopItemBase sib)
+	{
+		ShopItemCustomer sic = (ShopItemCustomer) sib;
+		_customerShopitemTargets.put(sic.GetOwner().getUniqueId(), sic);
+	}
+	
 	
 	public ShopItemSeller SetPageAndSlot(int page, int slot)
 	{
@@ -64,16 +74,16 @@ public class ShopItemSeller extends ShopItemBase
 	{
 
 		if(_shopBase == null)
+		{
 			return;
-		
+		}
+					
 		if(price instanceof PriceMoney && !(price instanceof PriceOwn))
 		{
 			double p = price.GetPrice();
-			((PriceMoney)price).SetCustomerPrice(p * _shopBase.get_sellM());			
+			((PriceMoney)price).SetCustomerPrice(p * _shopBase.get_sellM());	
 		}
-		
-		
-		
+	
 	}
 
 

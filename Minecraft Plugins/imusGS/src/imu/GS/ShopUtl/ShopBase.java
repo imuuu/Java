@@ -160,7 +160,8 @@ public abstract class ShopBase
 		if(_main.get_econ() == null ) {
 			return false;
 		}
-		double price = sib.GetItemPrice().GetCustomerPrice() * amount;
+		double price = sib.GetItemPrice().GetCustomerPrice(amount);
+
 		if(_main.get_econ().getBalance(player) >= price)
 		{
 			_main.get_econ().withdrawPlayer(player, price);
@@ -176,7 +177,7 @@ public abstract class ShopBase
 		if(_main.get_econ() == null ) {
 			return false;
 		}
-		double price = sib.GetItemPrice().GetCustomerPrice() * amount;
+		double price = sib.GetItemPrice().GetCustomerPrice(amount) ;
 
 		_main.get_econ().depositPlayer(player, price );
 		
@@ -190,23 +191,42 @@ public abstract class ShopBase
 		if(_temp_lock || _locked || _temp_modifying_lock) 
 		{
 			player.sendMessage(Metods.msgC("&9The Shop is temporarily closed! Come back laiter!"));
-			return;
+			if(!player.isOp()) return;
 		}
 		
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
 	}
 	
-	public void RemoveCustomer(UUID uuid, boolean closeInv)
+	public void RemoveCustomer(UUID uuid_player, boolean closeInv)
 	{
-		if(!_hCustomers.containsKey(uuid))
+		if(!_hCustomers.containsKey(uuid_player))
 			return;
 		
-		Customer customer = _hCustomers.get(uuid);
+		
+		Customer customer = _hCustomers.get(uuid_player);
+		
+		for(ShopItemBase[] page : get_items())
+		{
+			for(ShopItemBase sib : page)
+			{
+				if(sib == null) continue;
+				
+				sib.ClearShopitemTarget(uuid_player);
+			}
+		}
+		
 		
 		if(closeInv)
 			customer.Close();
 		
-		_hCustomers.remove(uuid);
+		_hCustomers.remove(uuid_player);
+		
+		if(!HasCustomers()) 
+		{
+			ArrangeShopItems(true, false);
+			SaveIfPossible();
+		}
+		
 	}
 
 	
@@ -300,10 +320,7 @@ public abstract class ShopBase
 					}					
 					isEmpty = false;
 				}
-//				if(sib != null && sib.Get_amount() <= 0)
-//				{
-//					_main.GetShopManagerSQL().DeleteShopItem(sib);
-//				}
+
 			}
 			
 			if(isEmpty && page != 0)
@@ -378,12 +395,10 @@ public abstract class ShopBase
 	
 	void RegisterAndLoadNewItemsClients()
 	{
-		//System.out.println("LOAD all clients shop inv!");
+		System.out.println("LOAD all clients shop inv!");
 		for(Customer customer : _hCustomers.values())
 		{
-			//_items.get(page)[index].RegisterSlot(customer._shopInv.GetInv(), customer._shopInv, page, index, true);
 			customer._shopInv.LoadShopInv();
-			//System.out.println("====>" + customer._player.getName());
 		}
 		
 	}
@@ -392,9 +407,7 @@ public abstract class ShopBase
 	public void AddNewItem(ShopItemSeller sis, boolean setAmount)
 	{
 		
-		
-		//SetPrice(sis);
-		
+		//System.out.println("new item: "+sis.GetRealItem().getType());
 		if(sis.GetItemPrice() instanceof PriceMoney)
 		{
 			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
@@ -444,12 +457,9 @@ public abstract class ShopBase
 			RegisterAndLoadNewItemsClients();
 			return;
 		}
-		//System.out.println("Shop: Adding to free slot");
+
 		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = sis.SetPageAndSlot(firstFree.GetKey(), firstFree.GetValue());
-		//UpdateClients(firstFree.GetKey(), firstFree.GetValue());
-		
-		//SaveNewItemAsync(get_items().get(firstFree.GetKey())[firstFree.GetValue()]);
-		
+
 		RegisterAndLoadNewItemsClients();
 		return;
 	}

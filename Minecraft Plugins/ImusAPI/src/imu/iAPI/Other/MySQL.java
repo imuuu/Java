@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class MySQL 
 {
@@ -94,6 +96,43 @@ public class MySQL
 		}
 		//System.out.println("sending new connection: "+_connection);
 		return _connection;
+	}
+	
+	public boolean ExecuteStatements(Iterable<String> statements)
+	{
+		try 
+		{
+			Connection con = GetConnection();
+			Statement stmt = con.createStatement();
+			for(String sm : statements)
+			{
+				stmt.addBatch(sm);
+			}
+			stmt.executeBatch();
+			
+			stmt.close();
+			con.close();
+
+			return true;
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			return false;
+			
+		}
+	}
+	
+	public void  ExecuteStatementsAsync(Iterable<String> statements)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() 
+			{
+				ExecuteStatements(statements);				
+			}
+		}.runTaskAsynchronously(_plugin);
 	}
 	
 	void LoadConfig()
