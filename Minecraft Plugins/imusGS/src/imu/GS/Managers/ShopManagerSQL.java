@@ -488,6 +488,7 @@ public class ShopManagerSQL
 			{
 				ps.setString(1, mat.name());
 				ps.setFloat(2, (float)price);
+				if(MaterialManager._ins.GetPriceMaterial(mat).HasSmartData()) ps.setFloat(3, (float)MaterialManager._ins.GetPriceMaterial(mat).GetSmartData().GetMultiplier());
 				ps.addBatch();
 			}
 			

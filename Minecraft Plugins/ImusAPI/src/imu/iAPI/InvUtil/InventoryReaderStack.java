@@ -7,11 +7,10 @@ import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import imu.iAPI.Other.Metods;
 
 public class InventoryReaderStack 
 {
-	class ItemInfo
+	public class ItemInfo
 	{
 		public int _totalCount = 0;
 		public ArrayList<ItemStack> _refs = new ArrayList<>();
@@ -83,6 +82,11 @@ public class InventoryReaderStack
 		test.setAmount(1);
 		//System.out.println("asking: "+test +" AND : "+_info.get(test)._totalCount+" ");
 		return  _info.get(test);
+	}
+	
+	public HashMap<ItemStack, ItemInfo> GetAllData()
+	{
+		return _info;
 	}
 	
 	public boolean HasStack(ItemStack stack)

@@ -22,4 +22,10 @@ public class Tuple <T,V> implements ITuple<T, V>
 	public V GetValue() {
 		return _val;
 	}
+	
+	@Override
+	public String toString() 
+	{
+		return "key:"+_key + " val: "+_val;
+	}
 }

@@ -15,12 +15,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.GS.ENUMs.SQL_TABLES;
 import imu.GS.Main.Main;
 import imu.GS.Other.MaterialOverflow;
+import imu.GS.Other.MaterialSmartData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 
 public class MaterialManager extends Manager
 {
+	public static MaterialManager _ins;
 	ShopManagerSQL _shopManagerSQL;
 	ShopManager _shopManager;
 	private HashMap<Material, PriceMaterial> _material_prices = new HashMap<>();
@@ -28,7 +30,7 @@ public class MaterialManager extends Manager
 	public MaterialManager(Main main)
 	{
 		super(main);
-		
+		_ins = this;
 		_shopManager = main.get_shopManager();
 		_shopManagerSQL = main.GetShopManagerSQL();
 	}
@@ -48,9 +50,11 @@ public class MaterialManager extends Manager
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_materials.toString()+" ("
 					+ "material VARCHAR(50), "
 					+ "price FLOAT(20), "
+					+ "smart_multiplier FLOAT(20), "				
 					+ "PRIMARY KEY(material)"
 					+ ");");
 			ps.executeUpdate();
+			
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.material_overflow.toString()+" ("
 					+ "material VARCHAR(50), "
@@ -62,6 +66,10 @@ public class MaterialManager extends Manager
 					+ ");");
 			ps.executeUpdate();
 			
+			
+//			ps = con.prepareStatement("ALTER TABLE "+SQL_TABLES.price_materials.toString()+" ADD COLUMN IF NOT EXISTS smart_multiplier FLOAT(20) DEFAULT -1.0;");
+//			ps.executeUpdate();
+//			
 			//_main.getLogger().info("====> material_prices");
 			
 			ps.close();
@@ -112,6 +120,11 @@ public class MaterialManager extends Manager
 	{		
 		PriceMaterial pm = new PriceMaterial();
 		pm.SetPrice(price);
+		_material_prices.put(mat, pm);
+	}
+	
+	void PutMaterialPrice(Material mat, PriceMaterial pm)
+	{		
 		_material_prices.put(mat, pm);
 	}
 	
@@ -218,6 +231,33 @@ public class MaterialManager extends Manager
 		
 	}
 	
+	public void SaveMaterialSmartDataAsync(Iterable<Material> mats, double multi)
+	{
+		LinkedList<String> statements = new LinkedList<>();
+		
+		for(Material mat : mats)
+		{
+//			statements.add("REPLACE INTO " + SQL_TABLES.price_materials+" (material, price, smart_multiplier) VALUES("
+//					+ "\""+mat.name()+"\","
+//					+ _material_prices.get(mat).GetPrice()+","
+//					+ multi
+//					+ ");");
+			
+			statements.add("UPDATE " + SQL_TABLES.price_materials+" SET smart_multiplier =" +multi+" WHERE material=\""+mat.name()+"\";");
+			
+			if(multi < 0)
+			{
+				_material_prices.get(mat).SetSmartData(null);
+				continue;
+			}
+			MaterialSmartData data = new MaterialSmartData(mat, multi);
+			data.Calculate();
+			_material_prices.get(mat).SetSmartData(data);
+		}
+		
+		_main.GetSQL().ExecuteStatementsAsync(statements);
+	}
+	
 	public void RemoveMaterialOverflow(Iterable<Material> mats)
 	{
 		LinkedList<String> statements = new LinkedList<>();
@@ -259,17 +299,33 @@ public class MaterialManager extends Manager
 				while(rs.next())
 				{
 					i = 1;
-					String mat_name = rs.getString(i++);
-					PutMaterialPrice(Material.getMaterial(mat_name), (double)rs.getFloat(i++));
+					PriceMaterial pm = new PriceMaterial();				
+					Material mat = Material.getMaterial(rs.getString(i++));
+					pm.SetPrice(rs.getFloat(i++));
+					double smart_multiplier = rs.getFloat(i++);
+					
+					if(smart_multiplier > -1) 
+					{
+						pm.SetSmartData(new MaterialSmartData(mat, smart_multiplier));
+					}
+					PutMaterialPrice(mat, pm);
 				}
 
-				PrintINFO("LoadMaterialPrices", "Material prices loaded");
+				
 			}
 			
 			
 			rs.close();
 			ps.close();
 			con.close();
+			
+			for(PriceMaterial pm : _material_prices.values())
+			{
+				if(!pm.HasSmartData()) continue;			
+				pm.GetSmartData().Calculate();
+			}
+			
+			PrintINFO("LoadMaterialPrices", "Material prices loaded");
 		}
 		catch (SQLException e) 
 		{

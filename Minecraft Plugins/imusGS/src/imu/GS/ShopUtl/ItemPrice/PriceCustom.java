@@ -19,7 +19,7 @@ public class PriceCustom extends ItemPrice
 	@Override
 	public double GetCustomerPrice(int amount) 
 	{
-		return -1;
+		return _customMoney * amount;
 	}
 	
 	@Override

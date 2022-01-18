@@ -155,7 +155,7 @@ public abstract class ShopBase
 		return _intererActlocked;
 	}
 	
-	public boolean BuyConfirmation(Player player, ShopItemBase sib, int amount)
+	public boolean BuyConfirmation(Player player, ShopItemBase sib, int amount, boolean withdraw)
 	{
 		if(_main.get_econ() == null ) {
 			return false;
@@ -164,10 +164,15 @@ public abstract class ShopBase
 
 		if(_main.get_econ().getBalance(player) >= price)
 		{
+			if(!withdraw) return true;
+			
 			_main.get_econ().withdrawPlayer(player, price);
 			player.sendMessage(Metods.msgC("&4Buy &9confirmed! Purchase value: &e "+Metods.Round(price)+" &2$&9. &9Balance: &e"+Metods.Round(_main.get_econ().getBalance(player))+"&2$&9."));
 			return true;
 		}
+		
+		if(!withdraw) return false;
+		
 		player.sendMessage(Metods.msgC("&4Buy &cCanceled! &9Balance isn't enough! Purchase value: &e "+Metods.Round(price)+" &2$&9. &9Balance: &e"+Metods.Round(_main.get_econ().getBalance(player))+"&2$&9."));
 		return false;
 	}
@@ -191,10 +196,26 @@ public abstract class ShopBase
 		if(_temp_lock || _locked || _temp_modifying_lock) 
 		{
 			player.sendMessage(Metods.msgC("&9The Shop is temporarily closed! Come back laiter!"));
-			if(!player.isOp()) return;
+			if(!player.hasPermission("gs.bypass.lock"))
+			{
+				return;
+			}
 		}
 		
 		_hCustomers.put(player.getUniqueId(), new Customer(_main, player,this).Open());
+	}
+	
+	public void ClearShopItemsFromTarget(UUID uuid_player)
+	{
+		for(ShopItemBase[] page : get_items())
+		{
+			for(ShopItemBase sib : page)
+			{
+				if(sib == null) continue;
+				
+				sib.ClearShopitemTarget(uuid_player);
+			}
+		}
 	}
 	
 	public void RemoveCustomer(UUID uuid_player, boolean closeInv)
@@ -205,15 +226,7 @@ public abstract class ShopBase
 		
 		Customer customer = _hCustomers.get(uuid_player);
 		
-		for(ShopItemBase[] page : get_items())
-		{
-			for(ShopItemBase sib : page)
-			{
-				if(sib == null) continue;
-				
-				sib.ClearShopitemTarget(uuid_player);
-			}
-		}
+		ClearShopItemsFromTarget(uuid_player);
 		
 		
 		if(closeInv)
@@ -395,7 +408,7 @@ public abstract class ShopBase
 	
 	void RegisterAndLoadNewItemsClients()
 	{
-		System.out.println("LOAD all clients shop inv!");
+		//System.out.println("LOAD all clients shop inv!");
 		for(Customer customer : _hCustomers.values())
 		{
 			customer._shopInv.LoadShopInv();

@@ -218,7 +218,7 @@ public class BuyCustomPriceINV extends CustomerInv
 				{
 					stack = new ItemStack(Material.PAPER);
 					Metods.setDisplayName(stack, "&6Extra values");
-					_metods.addLore(stack, new String[] {"&9Money&6: &a"+((PriceCustom)_sis.GetItemPrice()).GetPrice()});
+					_metods.addLore(stack, new String[] {"&9Money&6: &a"+((PriceCustom)_sis.GetItemPrice()).GetPrice()+ "&2$","&eYour have: &a"+_main.get_econ().getBalance(_player)+" &2$"});
 					_inv.setItem(i, _metods.AddGlow(stack));
 				}
 			}
@@ -232,6 +232,13 @@ public class BuyCustomPriceINV extends CustomerInv
 		//double moneyNeeded = ((PriceCustom)_sis.GetItemPrice()).GetPrice();
 		
 		//if(moneyNeeded < money)
+		
+		
+		if(!_shopBase.BuyConfirmation(_player, _sis, 1, false))
+		{			
+			return false;
+		}
+
 		PriceCustom pc = (PriceCustom)_sis.GetItemPrice();
 		CustomPriceData[] items = pc.GetItems();
 		CustomPriceData[] datas = new CustomPriceData[items.length];
@@ -272,6 +279,9 @@ public class BuyCustomPriceINV extends CustomerInv
 		//System.out.println("setting data!");
 		if(removeItemsFromPlayerrInv)
 			_player.getInventory().setContents(newStacks);
+		
+
+		_shopBase.BuyConfirmation(_player, _sis, 1, removeItemsFromPlayerrInv);	
 		return true;
 	}
 	
@@ -342,14 +352,17 @@ public class BuyCustomPriceINV extends CustomerInv
 			int amount = _selected_amount;// * ((PriceCustom)sib.GetItemPrice()).GetMinimumStackAmount();
 			if(sib.Get_amount() < amount)
 			{
-				amount = sib.Get_amount();
-				
+				amount = sib.Get_amount();				
 			}
 			
 			if(amount < ((PriceCustom)sib.GetItemPrice()).GetMinimumStackAmount()) return;
 			
 			if(!CheckIfPlayerHasItems(amount, true)) return;
+			
+			
 			ImusAPI._metods.InventoryAddItemOrDrop(sib.GetRealItem().clone(), _player, amount);
+			
+			
 			sib.AddAmount(amount*-1);
 			sib.UpdateItem();
 			

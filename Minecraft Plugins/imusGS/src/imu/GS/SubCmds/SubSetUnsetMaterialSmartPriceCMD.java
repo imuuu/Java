@@ -1,7 +1,9 @@
 package imu.GS.SubCmds;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,30 +13,36 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
-import imu.GS.Other.MaterialOverflow;
+import imu.GS.Other.MaterialSmartData;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
-public class SubSetMaterialOverflowCMD implements CommandInterface
+public class SubSetUnsetMaterialSmartPriceCMD implements CommandInterface
 {
 	Main _main = null;
 
 	CmdData _data;
 	//HashMap<UUID, List<String>> _chosenValues;
-	public SubSetMaterialOverflowCMD(Main main, CmdData data) 
+	boolean _set;
+	public SubSetUnsetMaterialSmartPriceCMD(Main main, CmdData data, boolean set) 
 	{
 		_main = main;
 		_data = data;
+		_set = set;
 		//_chosenValues = new HashMap<>();
-		_data.set_syntaxText("/"+_data.get_cmd_name() + " {hand/hotbar/inv} {softcap} {minPrice} {dropPercent} ");
+		if(_set)
+		{
+			_data.set_syntaxText("/"+_data.get_cmd_name() + " {hand/hotbar/inv} {multiplier}");
+		}
+		
 	}
 	
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length != 7)
+    	if((args.length != 5 && _set) || (args.length != 4 && !_set))
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
@@ -63,36 +71,55 @@ public class SubSetMaterialOverflowCMD implements CommandInterface
 			break;
 		
 		}
+    	if(_set)
+    	{
+    		if(!ImusAPI._metods.isDigit(args[4])) return false;
+        	
+        	double multiplier = Double.parseDouble(args[4]);
+        	
+        	SendMaterialDataAsync(stacks, multiplier, player);
+    	}
+    	else
+    	{
+    		SendMaterialDataAsync(stacks, -1.0, player);
+    	}
     	
-    	if(!ImusAPI._metods.isDigit(args[4]) || !ImusAPI._metods.isDigit(args[5]) || !ImusAPI._metods.isDigit(args[6])) return false;
-    	
-    	int softcap = (int)Double.parseDouble(args[4]);
-    	double minprice = Double.parseDouble(args[5]);
-    	double dropPercent = 1.0 - Double.parseDouble(args[6]) / 100.00;
-    	
-
-    	SendMaterialDataAsync(stacks, softcap, dropPercent, minprice, player);
     	
         return false;
     }
     
-    void SendMaterialDataAsync(ItemStack[] stacks, int softcap, double dropPercent, double minPrice, Player player)
+    void SendMaterialDataAsync(ItemStack[] stacks, double multiplier, Player player)
     {
     	new BukkitRunnable() 
     	{
 			@Override
 			public void run() 
 			{
-				LinkedList<MaterialOverflow> overflows = new LinkedList<>();
+				HashSet<Material> mats = new HashSet<>();
 				for(ItemStack stack : stacks)
 				{
 					if(stack == null) continue;
 					
-					overflows.add(new MaterialOverflow(stack.getType(), softcap, dropPercent, 1, minPrice));
+					MaterialSmartData data = new MaterialSmartData(stack.getType(), multiplier);
+					
+					if(!data.Calculate())
+					{
+						player.sendMessage(Metods.msgC("&b"+"Material "+stack.getType()+" &4didn't had recipe"));
+						continue;
+					}
+					
+					mats.add(stack.getType());
 				}
 				
-				_main.GetMaterialManager().SaveMaterialOverflowAsync(overflows);
-				player.sendMessage(Metods.msgC("&b"+"Material overflow set to &2"+overflows.size()+" &ecap: "+softcap +  " &cminprice: "+minPrice+" &3drop percent each sell: "+(Metods.Round((1.0-dropPercent) * 100.00))));
+				_main.GetMaterialManager().SaveMaterialSmartDataAsync(mats, multiplier);
+				if(_set)
+				{
+					player.sendMessage(Metods.msgC("&b"+"Smart price calculation set to &2"+mats.size()+" &9materials"));
+				}else
+				{
+					player.sendMessage(Metods.msgC("&b"+"Smart price has been &cremoved &bfrom &2"+mats.size()+" &9materials"));
+				}
+				
 				
 			}
 		}.runTaskAsynchronously(_main);

@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
+import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
@@ -84,9 +85,18 @@ public class SubSetMaterialPriceCMD implements CommandInterface
 				for(ItemStack stack : stacks)
 				{
 					if(stack == null) continue;
-					double lastprice =_main.GetMaterialManager().GetPriceMaterial(stack.getType()).GetPrice();
+					PriceMaterial pm = _main.GetMaterialManager().GetPriceMaterial(stack.getType());
+					if(pm.HasSmartData())
+					{
+						player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &4Price didnt set because of smart price enabled! If you wanna set price remove smart price via cmd"));
+						continue;
+					}
+					
+					double lastprice = pm.GetPrice();
 					mats.add(stack.getType());
-					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice set to: &2 "+price+" &7From "+lastprice));
+					
+					double increase = Metods.Round((1.0-lastprice/price)*100.00);
+					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice set to: &2 "+price+" &7From "+lastprice+ " &9( "+(lastprice <= price ?  "&2" : "&c")+increase+"&e%&9 )"));
 				}
 				_main.GetMaterialManager().SaveMaterialPrice(mats, price);
 				

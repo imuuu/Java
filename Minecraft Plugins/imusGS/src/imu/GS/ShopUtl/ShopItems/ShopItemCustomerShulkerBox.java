@@ -2,6 +2,7 @@ package imu.GS.ShopUtl.ShopItems;
 
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -11,11 +12,12 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 
 import imu.GS.Main.Main;
 import imu.GS.ShopUtl.ShopBase;
-import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
+import imu.iAPI.InvUtil.InventoryReaderStack;
+import imu.iAPI.InvUtil.InventoryReaderStack.ItemInfo;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
@@ -42,13 +44,37 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 		{
 			ShulkerBox shulker = (ShulkerBox)bsm.getBlockState();
 			Cal(shulker.getInventory().getContents());
-			for(ItemStack stack : shulker.getInventory().getContents())
-			{
-				if(stack == null) continue;
-				//System.out.println("shulker content: "+stack);
-				//_shulkerContent[count++] = stack.clone();
-				price += _main.GetMaterialManager().GetPriceMaterialAndCheck(stack).GetPrice() * stack.getAmount();
+			InventoryReaderStack invReader = new InventoryReaderStack(shulker.getInventory());
+			for(Entry<ItemStack, ItemInfo> info : invReader.GetAllData().entrySet())
+			{				
+				PriceMaterial pm =  _main.GetMaterialManager().GetPriceMaterialAndCheck(info.getKey());
+				pm.SetCustomerPrice(pm.GetPrice() * _shopBase.get_buyM());
+				
+				for(ShopItemSeller[] sibs : _shopBase.get_items())
+				{
+					for(ShopItemSeller sib : sibs)
+					{
+						if(sib == null) continue;
+						if(sib.IsSameKind(info.getKey()))
+						{
+							pm.SetShopItem(sib);
+							break;
+						}
+						
+					}
+					if(pm.HasShopitem()) break;
+				}
+				
+				double pricee = pm.GetCustomerPrice(info.getValue()._totalCount);
+				price +=  pricee;
 			}
+			
+//			for(ItemStack stack : shulker.getInventory().getContents())
+//			{
+//				if(stack == null) continue;
+//
+//				price += _main.GetMaterialManager().GetPriceMaterialAndCheck(info.getKey()).GetPrice() * info.getValue()._totalCount;
+//			}
 		}
 		if(price <= 0) price = 0;	
 		

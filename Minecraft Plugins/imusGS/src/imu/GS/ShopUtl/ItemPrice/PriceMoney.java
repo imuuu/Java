@@ -38,4 +38,10 @@ public class PriceMoney extends ItemPrice
 		priceMoney.SetCustomerPrice(_showPrice);
 		return priceMoney;
 	}
+	
+	@Override
+	public String toString() 
+	{
+		return "price: "+_price + " showPrice: "+_showPrice;
+	}
 }

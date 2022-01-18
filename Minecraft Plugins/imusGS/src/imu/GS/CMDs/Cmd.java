@@ -9,8 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import imu.GS.Main.Main;
+import imu.GS.Other.MaterialSmartData;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.Tuple;
  
 public class Cmd implements CommandInterface
 {
@@ -32,6 +35,13 @@ public class Cmd implements CommandInterface
     		{
     			player.getInventory().setItem(i, new ItemStack(Material.values()[i],64));
     		}
+    	}
+    	
+    	if(player.isOp() && ImusAPI._metods.doesStrArrayCointainStr(args, "smart"))
+    	{
+    		MaterialSmartData data = new MaterialSmartData(player.getInventory().getItemInMainHand().getType(), 1);
+    		data.Calculate();
+    		System.out.println("getprice: "+data.GetPrice());
     	}
     	
     	if(args.length > 0)

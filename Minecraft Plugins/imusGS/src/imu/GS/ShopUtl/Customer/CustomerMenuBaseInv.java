@@ -195,13 +195,13 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 		if(_shopBase.HasInteractLock())
 		{
-			System.out.println("interact lock!");
+			//System.out.println("interact lock!");
 			return;		
 		}
 		
 		if(_transaction_inprogress) 
 		{
-			System.out.println("trans action in progress");
+			//System.out.println("trans action in progress");
 			return;
 		}
 		
@@ -366,7 +366,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 					return true;
 				}
 				
-				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
+				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount, true))
 				{
 					Buy(cInfo);
 					return true;
@@ -458,11 +458,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 				ShopItemCustomer sic = (ShopItemCustomer) cInfo._shopItemBase.GetTargetShopitem(_player.getUniqueId());				
 				if(sic != null)
 				{		
-					
+					System.out.println("sic found");
 					sic.AddAmount(cInfo._click_amount);
-					//sic.RefreshAmount();
 					sic.UpdateItem();
-					//System.out.println("Updated found item");
+
 				}
 				else
 				{					
@@ -501,21 +500,24 @@ public class CustomerMenuBaseInv extends CustomerInv
 				//System.out.println("sic has target: "+ sic.HasTargetShopitem(_player.getUniqueId()));
 				
 				ShopItemSeller sis = (ShopItemSeller)sic.GetTargetShopitem(_player.getUniqueId());
-				
 				if(!ImusAPI._metods.isShulkerBox(cInfo._shopItemBase.GetRealItem()))
 				{
-					AddItem(sis,resultItems[0]._stack, cInfo._click_amount);		
+					AddItem(sis,resultItems[0]._stack, cInfo._click_amount);
+					cInfo._shopItemBase.UpdateItem();
 				}
 				else
 				{
 					for(ShopItemResult result : resultItems)
 					{
-						System.out.println("adding item to shop");
+						//System.out.println("adding item to shop");
 						AddItem(sis,result._stack, result._amount);
 					}
+					
+					LoadPlayerInv();
 				}
 				
-				cInfo._shopItemBase.UpdateItem();
+		
+				
 					
 				_transaction_inprogress = false;
 			}
@@ -544,12 +546,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 					log.SetItemPrice(sis.GetItemPrice());
 					
 					_shopBase.AddNewItem(sis,false);
-					System.out.println("SIC WAS NULL");
+					//System.out.println("SIC WAS NULL");
 					
 					return;
 				}
 				CheckBucket(sis,stack,amount);
-				System.out.println("item found, update it");
+				//System.out.println("item found, update it");
 				sis.AddAmount(amount);
 				sis.UpdateItem();
 								
@@ -708,13 +710,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 			ShopItemSeller sis = (ShopItemSeller)FindSimilarShopFromShop(sic);
 			if( sis != null)
 			{
-				System.out.println("Similar shopitem found => make connection");
+				//System.out.println("Similar shopitem found => make connection");
 				ConnectShopItems(sic, sis);		
 			}
-			
-			
-			
+
 			_shopItemCustomer.get(page)[slot] = sic;
+			
 			return;
 		}
 		
@@ -723,7 +724,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		sic.RegisterSlot(_inv, this, page, slot, false);
 		itemPrice = ((ShopItemCustomerShulkerBox)sic).GetCalculatedPriceFromContent();
 		
-		if(itemPrice.GetPrice() <= 0) return;
+		if(itemPrice.GetPrice() <= 0) sic.Set_amount(0);
 		
 		((ShopItemCustomerShulkerBox)sic).SetItemPrice(itemPrice);
 		
@@ -733,7 +734,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	public void LoadPlayerInv()
 	{
-		//System.out.println("load player inv");
 		if(_shopBase.GetCustomersCanOnlyBuy()) return;
 		_lock_player_sell = true;
 		if(_task_loadPlayerInv != null) _task_loadPlayerInv.cancel();
@@ -744,6 +744,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 			public void run() 
 			{
 				ResetPlayerShopItemList();
+				_shopBase.ClearShopItemsFromTarget(_player.getUniqueId());
 				ItemStack itemStack;
 				for (int invSlot = 0; invSlot <  _player.getInventory().getContents().length ; invSlot++) 
 				{
@@ -863,7 +864,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		sis.SetTargetShopitem(sic);
 		if(sic.GetItemPrice() instanceof PriceMaterial)
 		{
-			System.out.println("Setting shopitem: ");
+			//System.out.println("Setting shopitem: ");
 			((PriceMaterial)sic.GetItemPrice()).SetShopItem(sis);
 		}
 	}
@@ -881,8 +882,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				_inv.setItem(i, null);
 				continue;
 			}
-			//if( sis.HasTargetShopitem(_player.getUniqueId())) continue;
-			
+
 			if(!sis.CanShowToPlayer(_player) || !_shopBase.IsAbsoluteItemPositions()) // => tollon näkyy ettei available//if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
 			{
 				idx--;
@@ -894,11 +894,9 @@ public class CustomerMenuBaseInv extends CustomerInv
 			ShopItemCustomer sic = (ShopItemCustomer)FindSimilarShopFromCustomer(sis);
 			if( sic != null)
 			{
-				System.out.println("Similar shopitem found => make connection 2: "+_player.getName());
 				ConnectShopItems(sic, sis);		
 			}
-			
-			
+						
 			sis.UpdateItem();
 
 		}

@@ -1,34 +1,40 @@
 package imu.GS.ShopUtl.ItemPrice;
 
 import imu.GS.Other.MaterialOverflow;
+import imu.GS.Other.MaterialSmartData;
 import imu.GS.ShopUtl.ShopItemBase;
 
 public class PriceMaterial extends PriceMoney
 {
 	
 	MaterialOverflow _overflow;
+	MaterialSmartData _smartData;
 	ShopItemBase _sib;
-
-	double defautlPrice = 1;
-	public double GetPrice(int askAmount, int softcap, double batch_size, double dropPercent, double minprice)
+	
+	@Override
+	public double GetPrice() 
 	{
-		return defautlPrice;
+		double price = super.GetPrice();
+		
+		if(HasSmartData()) price = _smartData.GetPrice();
+		
+		return price;
 	}
 	
 	@Override
 	public double GetCustomerPrice(int amount) 
 	{
-		//System.out.println("getting customer price and amount: "+amount);
-		if(_overflow == null || _sib == null ) 
+		if(_overflow == null) 
 		{
 			return _showPrice * amount;
 		}
+		int shopAmount = _sib != null ? _sib.Get_amount() : 0;
 		double price = 0;
 		int over = 0;
 		
-		if(_overflow.get_softCap() < (_sib.Get_amount()+amount) ) 
+		if(_overflow.get_softCap() < (shopAmount+amount) ) 
 		{
-			over = _sib.Get_amount()-_overflow.get_softCap()+amount;
+			over = shopAmount-_overflow.get_softCap()+amount;
 		}
 
 		int amountOver = amount-over;
@@ -60,11 +66,10 @@ public class PriceMaterial extends PriceMoney
 		{
 			newPrice = _overflow.Get_minPrice();
 		}
-				
+		//System.out.println("rolls: "+rolls);	
 		int extraLefties = 0;
 		for(int i = 0; i < rolls; ++i)
-		{			
-		
+		{				
 			price += _overflow.Get_batchSize() * newPrice;
 				
 			newPrice = _showPrice * Math.pow(_overflow.get_dropProsent(), i+overFromCap);
@@ -83,6 +88,21 @@ public class PriceMaterial extends PriceMoney
 		
 		return price;
 		
+	}
+	
+	public void SetSmartData(MaterialSmartData data)
+	{
+		_smartData = data;
+	}
+	
+	public MaterialSmartData GetSmartData()
+	{
+		return _smartData;
+	}
+	
+	public boolean HasSmartData()
+	{
+		return _smartData != null ? true : false;
 	}
 	
 	public void SetShopItem(ShopItemBase sib)
@@ -118,6 +138,7 @@ public class PriceMaterial extends PriceMoney
 		money.SetCustomerPrice(_showPrice);
 		money.SetOverflow(_overflow);
 		money.SetShopItem(_sib);
+		money.SetSmartData(_smartData);
 		return money;
 	}
 }

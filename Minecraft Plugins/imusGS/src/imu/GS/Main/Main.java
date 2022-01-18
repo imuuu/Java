@@ -33,6 +33,7 @@ import imu.GS.SubCmds.SubModifyShopCMD;
 import imu.GS.SubCmds.SubModifyUniqueCMD;
 import imu.GS.SubCmds.SubSetMaterialOverflowCMD;
 import imu.GS.SubCmds.SubSetMaterialPriceCMD;
+import imu.GS.SubCmds.SubSetUnsetMaterialSmartPriceCMD;
 import imu.GS.SubCmds.SubShopCreateCMD;
 import imu.GS.SubCmds.SubShopOpenCMD;
 import imu.GS.SubCmds.SubTagMaterialCMD;
@@ -200,6 +201,18 @@ public class Main extends JavaPlugin
 	    handler.registerSubCmd(cmd1, cmd1_sub13, new SubUnSetMaterialOverflowCMD(this, _cmdHelper.getCmdData(full_sub13)));
 	    handler.setPermissionOnLastCmd("gs.unset.material.overflow");
 	    
+	    String cmd1_sub14="set material smart_price";
+	    String full_sub14=cmd1+" "+cmd1_sub14;
+	    _cmdHelper.setCmd(full_sub14, "Setting material smart price", cmd1_sub14);
+	    handler.registerSubCmd(cmd1, cmd1_sub14, new SubSetUnsetMaterialSmartPriceCMD(this, _cmdHelper.getCmdData(full_sub14), true));
+	    handler.setPermissionOnLastCmd("gs.set.material.smart_price");
+	    
+	    String cmd1_sub15="unset material smart_price";
+	    String full_sub15=cmd1+" "+cmd1_sub15;
+	    _cmdHelper.setCmd(full_sub15, "Unsetting material smart price", cmd1_sub15);
+	    handler.registerSubCmd(cmd1, cmd1_sub15, new SubSetUnsetMaterialSmartPriceCMD(this, _cmdHelper.getCmdData(full_sub15), false));
+	    handler.setPermissionOnLastCmd("gs.unset.material.smart_price");
+	    
 	    String[] one_hotbar_inv = new String[] {Cmd_add_options.inventory.toString(),Cmd_add_options.hotbar.toString(),Cmd_add_options.hand.toString()};
 	    
 	    cmd1AndArguments.put(cmd1, new String[] {"create","open","tag", "modify","assign","set","unset","add"});
@@ -229,10 +242,10 @@ public class Main extends JavaPlugin
 	    
 	    _tab_cmd1.SetRule("/gs tag shopitems", 3, Arrays.asList(new String[] {TagSubCmds.set_price.toString(),TagSubCmds.increase_price.toString()}));
 	    
-	    _tab_cmd1.SetRule("/gs set material", 3, Arrays.asList(new String[] {"price","overflow"}));
+	    _tab_cmd1.SetRule("/gs set material", 3, Arrays.asList(new String[] {"price","overflow","smart_price"}));
 	    _tab_cmd1.SetRule("/gs set material", 4, Arrays.asList(one_hotbar_inv));
 	    
-	    _tab_cmd1.SetRule("/gs unset material", 3, Arrays.asList(new String[] {"overflow"}));
+	    _tab_cmd1.SetRule("/gs unset material", 3, Arrays.asList(new String[] {"overflow","smart_price"}));
 	    _tab_cmd1.SetRule("/gs unset material", 4, Arrays.asList(one_hotbar_inv));
 	    
 	    

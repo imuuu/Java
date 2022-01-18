@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,6 +37,9 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -1538,6 +1542,46 @@ public class Metods
 		hologram.setCustomName(msgC(str));
 		hologram.setGravity(false);
 		return hologram;
+	}
+	
+	/**
+	 * 
+	 * @param stack
+	 * @return Linkedlist with stacks and their ratio in recipe
+	 */
+	public LinkedList<Tuple<ItemStack,Double>> GetRecipe(ItemStack stack)
+	{
+		LinkedList<Tuple<ItemStack,Double>> list = new LinkedList<>();
+		Iterable<ItemStack> ingredients = null;
+		Recipe re = null;
+		for(Recipe recipe : Bukkit.getServer().getRecipesFor(stack))
+		{
+			re = recipe;
+			if(recipe instanceof ShapedRecipe)
+			{
+				ShapedRecipe shapedRescipe = (ShapedRecipe)recipe;
+				ingredients = shapedRescipe.getIngredientMap().values();
+				break;
+			}
+			
+			if(recipe instanceof ShapedRecipe)
+			{
+				ShapelessRecipe shapedRescipe = (ShapelessRecipe)recipe;
+				ingredients = shapedRescipe.getIngredientList();	
+				break;
+			}	
+		}
+		if(ingredients != null)
+		{
+			for(ItemStack ingredient : ingredients)
+			{
+				if(ingredient == null) continue;
+				
+				list.add(new Tuple<ItemStack, Double>(ingredient, 1.0/re.getResult().getAmount()));
+			}
+		}
+		
+		return list;
 	}
 	
 	

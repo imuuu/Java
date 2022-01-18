@@ -32,7 +32,7 @@ public class SubGetPlayerPriceCMD implements CommandInterface
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
     {
     	Player player = (Player) sender;
-    	if(args.length != 1)
+    	if(args.length < 1)
     	{
     		player.sendMessage(_data.get_syntaxText());
     		return false;
