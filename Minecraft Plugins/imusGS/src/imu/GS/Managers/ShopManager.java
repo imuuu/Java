@@ -3,6 +3,7 @@ package imu.GS.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
@@ -12,7 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.Main.Main;
+import imu.GS.Other.LogData;
 import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -140,6 +143,29 @@ public class ShopManager
 	public ArrayList<ShopBase> GetShops()
 	{
 		return _shops;
+	}
+	
+	public void LogRegisterPurchace(List<LogData> logDatas, LogData data)
+	{
+		for(LogData logi : logDatas)
+		{
+			ShopItemBase sib = logi.Get_shopitem();
+			if(!sib.getClass().equals(data.Get_shopitem().getClass())) continue;
+			
+			if(!sib.IsSameKind(data.Get_shopitem())) continue;
+			
+			if(data.Get_price() != logi.Get_price()) continue;
+			
+			logi.AddAmount(data.Get_amount());
+			return;
+		}
+		
+		logDatas.add(data);
+	}
+	
+	public void SendLogs(Player player,List<LogData> logDatas)
+	{
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(player, logDatas);
 	}
 	
 	void RunnableAsync()

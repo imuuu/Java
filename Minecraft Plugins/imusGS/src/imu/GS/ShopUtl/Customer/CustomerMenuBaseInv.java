@@ -3,9 +3,9 @@ package imu.GS.ShopUtl.Customer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -22,7 +22,7 @@ import imu.GS.Invs.CustomerInv;
 import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.UniqueManager;
-import imu.GS.Prompts.ConvPromptModModifyINV;
+import imu.GS.Other.LogData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
@@ -68,7 +68,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	Cooldowns _cd = new Cooldowns();
 	
-	LinkedList<ShopItemBase> logs = new LinkedList<>();
+	LinkedList<LogData> logs = new LinkedList<>();
 	
 	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
@@ -185,7 +185,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 			
 		if(_task_loadPlayerInv != null) _task_loadPlayerInv.cancel();
 		
-		SendLogs();
+		_main.get_shopManager().SendLogs(_player, logs);
 	}
 
 	public void onClickInsideInv(InventoryClickEvent e) 
@@ -254,6 +254,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 		if(si != null && amount > si.Get_amount())
 			amount = si.Get_amount();
 		
+		if(amount <= 0) return;
 		
 		ClickSorter(new ClickInfo(button,e.getSlot(),amount ,c_type, si));
 	}
@@ -365,10 +366,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 					}.runTask(_main);
 					return true;
 				}
-				
-				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount, true))
+				double price = cInfo._shopItemBase.GetItemPrice().GetCustomerPrice(cInfo._click_amount);
+				if(_shopBase.BuyConfirmation(_player, cInfo._shopItemBase, price,cInfo._click_amount, true))
 				{
-					Buy(cInfo);
+					Buy(cInfo, price);
 					return true;
 				}
 				return false;
@@ -406,10 +407,10 @@ public class CustomerMenuBaseInv extends CustomerInv
 					LoadPlayerInv();
 					return false;
 				}
-				
-				if(_shopBase.SellConfirmation(_player, cInfo._shopItemBase, cInfo._click_amount))
+				double price =  cInfo._shopItemBase.GetItemPrice().GetCustomerPrice(cInfo._click_amount);
+				if(_shopBase.SellConfirmation(_player, cInfo._shopItemBase, price,cInfo._click_amount))
 				{
-					Sell(cInfo);
+					Sell(cInfo, price);					
 					return true;
 				}
 				else
@@ -422,27 +423,9 @@ public class CustomerMenuBaseInv extends CustomerInv
 	}
 	
 	
-	void LogRegisterPurchace(ShopItemBase sib)
-	{
-		for(ShopItemBase logi : logs)
-		{
-			if(!sib.getClass().equals(logi.getClass())) continue;
-			
-			if(!sib.IsSameKind(logi)) continue;
-			
-			logi.Set_amount(logi.Get_amount()+sib.Get_amount());
-			return;
-		}
-		
-		logs.add(sib);
-	}
 	
-	void SendLogs()
-	{
-		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, logs);
-	}
 	
-	void Buy(ClickInfo cInfo)
+	void Buy(ClickInfo cInfo, double price)
 	{
 		new BukkitRunnable() {
 			
@@ -450,34 +433,38 @@ public class CustomerMenuBaseInv extends CustomerInv
 			public void run() 
 			{
 				ShopItemResult[] resultItems = cInfo._shopItemBase.GetTransactionResultItemStack();
+
 				cInfo._shopItemBase.AddAmount(cInfo._click_amount * -1);
 				cInfo._shopItemBase.UpdateItem();
-				
+
 				ImusAPI._metods.InventoryAddItemOrDrop(resultItems[0]._stack, _player, cInfo._click_amount);
 
-				ShopItemCustomer sic = (ShopItemCustomer) cInfo._shopItemBase.GetTargetShopitem(_player.getUniqueId());				
-				if(sic != null)
-				{		
-					System.out.println("sic found");
-					sic.AddAmount(cInfo._click_amount);
-					sic.UpdateItem();
-
-				}
-				else
-				{					
-					LoadPlayerInv();
-				}
-				
-				sic = new ShopItemCustomer(_main,_shopBase ,null,resultItems[0]._stack, cInfo._click_amount);
+//				ShopItemCustomer sic = (ShopItemCustomer) cInfo._shopItemBase.GetTargetShopitem(_player.getUniqueId());				
+//				if(sic != null)
+//				{		
+//					//System.out.println("sic found");
+//					sic.AddAmount(cInfo._click_amount);
+//					sic.UpdateItem();
+//					
+//					//sic.RefreshAmount();
+////					if(cInfo._shopItemBase.Get_amount() <= 0)
+////					{
+////						System.out.println("clear:");
+////						cInfo._shopItemBase.ClearShopitemTarget(_player.getUniqueId());
+////					}
+//
+//				}
+//				else
+//				{					
+//					LoadPlayerInv();
+//				}
+				LoadPlayerInv();
+				ShopItemCustomer sic = new ShopItemCustomer(_main,_shopBase ,null,resultItems[0]._stack, cInfo._click_amount);
 
 				sic.SetItemPrice(cInfo._shopItemBase.GetItemPrice().clone());
 				
-				LogRegisterPurchace(sic);
 				
-
-				
-				
-
+				_main.get_shopManager().LogRegisterPurchace(logs, new LogData(sic, price, cInfo._click_amount));
 				
 				_transaction_inprogress = false;
 			}
@@ -485,7 +472,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 			
 	}
 	
-	void Sell(ClickInfo cInfo)
+	void Sell(ClickInfo cInfo, double price)
 	{
 		new BukkitRunnable() {
 			
@@ -500,10 +487,19 @@ public class CustomerMenuBaseInv extends CustomerInv
 				//System.out.println("sic has target: "+ sic.HasTargetShopitem(_player.getUniqueId()));
 				
 				ShopItemSeller sis = (ShopItemSeller)sic.GetTargetShopitem(_player.getUniqueId());
-				if(!ImusAPI._metods.isShulkerBox(cInfo._shopItemBase.GetRealItem()))
+				
+				//if(sic.Get_amount() <= 0) sic.ClearShopitemTarget(_player.getUniqueId());
+				
+				if(!ImusAPI._metods.isShulkerBox(cInfo._shopItemBase.GetRealItem()) && _tab != PlayerTab.SHULKER_BOXES)
 				{
 					AddItem(sis,resultItems[0]._stack, cInfo._click_amount);
 					cInfo._shopItemBase.UpdateItem();
+					
+					if(_tab == PlayerTab.ARMOR_TOOLS)
+					{
+						RefreshPlayerDisplayPageSlots();
+					}
+
 				}
 				else
 				{
@@ -513,12 +509,15 @@ public class CustomerMenuBaseInv extends CustomerInv
 						AddItem(sis,result._stack, result._amount);
 					}
 					
-					LoadPlayerInv();
-				}
-				
-		
-				
+					for(LogData data : ((ShopItemCustomerShulkerBox)sic).GetLogData())
+					{
+						_main.get_shopManager().LogRegisterPurchace(logs,data); 
+					}
 					
+					LoadPlayerInv();
+					
+				}
+						
 				_transaction_inprogress = false;
 			}
 			
@@ -526,7 +525,12 @@ public class CustomerMenuBaseInv extends CustomerInv
 			{
 				ShopItemSeller log;
 				log = new ShopItemSeller(_main, _shopBase, stack, amount);
-				LogRegisterPurchace(log); 
+				if(_tab != PlayerTab.SHULKER_BOXES)
+				{
+					_main.get_shopManager().LogRegisterPurchace(logs,new LogData(log, price, amount)); 
+				}
+				
+				
 				if(sis == null) 
 				{
 					sis = new ShopItemSeller(_main, _shopBase, stack, amount);
@@ -535,11 +539,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 					{
 						sis.SetItemPrice(new PriceUnique().SetPrice(_main.get_shopManager().GetUniqueManager().GetPriceItem(stack).GetPrice()));
 					}
-					else
-					{
-						//sis.SetItemPrice(_main.GetMaterialManager().GetPriceMaterialAndCheck(stack));
-					}
-					
+
 					CheckBucket(sis,stack,amount);
 					
 					
@@ -554,6 +554,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				//System.out.println("item found, update it");
 				sis.AddAmount(amount);
 				sis.UpdateItem();
+				//_shopBase.UpdateShopItemEvent(sis.GetPage(), sis.GetSlot(), amount);
 								
 			}
 			
@@ -696,13 +697,14 @@ public class CustomerMenuBaseInv extends CustomerInv
 
 			if(_uniqueManager.IsUnique(stack))
 			{
-				itemPrice = new PriceMaterial();
+				itemPrice = new PriceMaterial(stack.getType());
 				itemPrice.SetPrice(_uniqueManager.GetPriceItem(stack).GetPrice() * _main.get_shopManager().GetDurabilityReduction(stack));
-				//System.out.println("stack is unique: "+itemPrice.GetPrice());
+
 			}
 			else
 			{
 				itemPrice = _main.GetMaterialManager().GetPriceMaterialAndCheck(stack);
+				((PriceMaterial)itemPrice).SetShopBase(_shopBase);
 								
 			}
 			sic.SetItemPrice(itemPrice);
@@ -710,7 +712,6 @@ public class CustomerMenuBaseInv extends CustomerInv
 			ShopItemSeller sis = (ShopItemSeller)FindSimilarShopFromShop(sic);
 			if( sis != null)
 			{
-				//System.out.println("Similar shopitem found => make connection");
 				ConnectShopItems(sic, sis);		
 			}
 

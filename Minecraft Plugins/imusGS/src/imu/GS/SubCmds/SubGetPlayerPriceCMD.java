@@ -11,7 +11,6 @@ import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 import imu.iAPI.Interfaces.CommandInterface;
-import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
 public class SubGetPlayerPriceCMD implements CommandInterface
@@ -63,8 +62,7 @@ public class SubGetPlayerPriceCMD implements CommandInterface
 		}
 
     	GetMaterialDataPrice(stacks, player);
-    	
-    	
+    	    	
         return false;
     }
     
@@ -78,8 +76,8 @@ public class SubGetPlayerPriceCMD implements CommandInterface
 				for(ItemStack stack : stacks)
 				{
 					if(stack == null) continue;
-					PriceMaterial pm =_main.GetMaterialManager().GetPriceMaterial(stack.getType());
-					double lastprice = pm.GetPrice();
+					PriceMaterial pm =_main.GetMaterialManager().GetPriceMaterialAndCheck(stack);
+					double lastprice = Metods.Round(pm.GetPrice());
 					player.sendMessage(Metods.msgC("&b"+stack.getType().name()+" &eprice is: &2"+lastprice +"&2$ &r"+ (pm.HasOverflow() ? "&b&k# &4Price drops after: &2"+pm.GetOverflow().get_softCap()+" &9items":"")));
 				}				
 			}

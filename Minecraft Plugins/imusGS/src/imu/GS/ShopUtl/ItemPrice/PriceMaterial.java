@@ -1,26 +1,39 @@
 package imu.GS.ShopUtl.ItemPrice;
 
+import org.bukkit.Material;
+
 import imu.GS.Other.MaterialOverflow;
 import imu.GS.Other.MaterialSmartData;
+import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 
 public class PriceMaterial extends PriceMoney
 {
-	
 	MaterialOverflow _overflow;
 	MaterialSmartData _smartData;
 	ShopItemBase _sib;
-	
-	@Override
-	public double GetPrice() 
+	ShopBase _shopBase;
+	Material _mat;
+	public PriceMaterial(Material mat)
 	{
-		double price = super.GetPrice();
-		
-		if(HasSmartData()) price = _smartData.GetPrice();
-		
-		return price;
+		_mat = mat;
 	}
 	
+	
+	public int GetAmountInShop()
+	{
+		int shopAmount = 0;
+		
+		if(_overflow.Is_checkMaterialCount() && _shopBase != null)
+		{
+			shopAmount = _shopBase.GetMaterialCount(_mat);
+		}else
+		{
+			if(_sib != null) shopAmount = _sib.Get_amount();
+		}
+		return shopAmount;
+	}
+		
 	@Override
 	public double GetCustomerPrice(int amount) 
 	{
@@ -28,11 +41,13 @@ public class PriceMaterial extends PriceMoney
 		{
 			return _showPrice * amount;
 		}
-		int shopAmount = _sib != null ? _sib.Get_amount() : 0;
+		
+		int shopAmount = GetAmountInShop();
+		
 		double price = 0;
 		int over = 0;
 		
-		if(_overflow.get_softCap() < (shopAmount+amount) ) 
+		if(_overflow.get_softCap() <= (shopAmount+amount) )  // < 
 		{
 			over = shopAmount-_overflow.get_softCap()+amount;
 		}
@@ -90,6 +105,11 @@ public class PriceMaterial extends PriceMoney
 		
 	}
 	
+	public void SetShopBase(ShopBase sBase)
+	{
+		_shopBase =sBase;
+	}
+	
 	public void SetSmartData(MaterialSmartData data)
 	{
 		_smartData = data;
@@ -133,7 +153,7 @@ public class PriceMaterial extends PriceMoney
 	@Override
 	public ItemPrice clone() 
 	{
-		PriceMaterial money = new PriceMaterial();
+		PriceMaterial money = new PriceMaterial(_mat);
 		money.SetPrice(_price);
 		money.SetCustomerPrice(_showPrice);
 		money.SetOverflow(_overflow);

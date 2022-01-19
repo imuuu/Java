@@ -41,7 +41,8 @@ public final class UniqueManager
 		
 		_uniques.put(GetTestStack(siu.GetRealItem()), siu);
 
-		_shopManagerSQL.SaveUniqueItemAsync(siu);
+		
+		if(saveDatabase) _shopManagerSQL.SaveUniqueItemAsync(siu);
 	}
 	ItemStack GetTestStack(ItemStack stack)
 	{

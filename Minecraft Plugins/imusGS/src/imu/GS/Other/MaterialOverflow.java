@@ -1,6 +1,9 @@
 package imu.GS.Other;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import imu.iAPI.Other.Metods;
 
 public class MaterialOverflow 
 {
@@ -9,6 +12,7 @@ public class MaterialOverflow
 	private double _dropProsent;
 	private int _batchSize;
 	private double _minPrice;
+	private boolean _checkMaterialCount = false;
 	public MaterialOverflow(Material _mat, int _softCap, double _dropProsent, int _batchSize, double minPrice) {
 
 		this._mat = _mat;
@@ -16,6 +20,8 @@ public class MaterialOverflow
 		this._dropProsent = _dropProsent;
 		this._batchSize = _batchSize;
 		this._minPrice = minPrice;
+
+		if(Metods._ins.hasDurability(new ItemStack(_mat))) _checkMaterialCount = true;
 	}
 	public Material get_mat() {
 		return _mat;
@@ -47,6 +53,12 @@ public class MaterialOverflow
 	public void Set_minPrice(double _minPrice) {
 		this._minPrice = _minPrice;
 	}
+	public boolean Is_checkMaterialCount() {
+		return _checkMaterialCount;
+	}
+//	public void Set_checkMaterialCount(boolean _checkMaterialCount) {
+//		this._checkMaterialCount = _checkMaterialCount;
+//	}
 	
 	
 }

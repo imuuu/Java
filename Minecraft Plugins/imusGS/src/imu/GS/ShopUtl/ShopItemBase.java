@@ -298,7 +298,6 @@ public abstract class ShopItemBase
 	
 	public void UpdateItem()
 	{
-
 		for(SlotInfo sInfo : _slotPositions.values())
 		{
 			if(!sInfo._shopItem)

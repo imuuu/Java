@@ -12,9 +12,14 @@ public class InventoryReaderStack
 {
 	public class ItemInfo
 	{
+		public ItemStack _clonedStack;
 		public int _totalCount = 0;
 		public ArrayList<ItemStack> _refs = new ArrayList<>();
 		
+		public ItemInfo(ItemStack stack)
+		{
+			_clonedStack = stack.clone();
+		}
 		public ItemInfo Add(ItemStack stack)
 		{
 			_refs.add(stack);
@@ -116,7 +121,7 @@ public class InventoryReaderStack
 		test.setAmount(1);
 		if(!_info.containsKey(test))
 		{
-			_info.put(test, new ItemInfo());
+			_info.put(test, new ItemInfo(stack));
 		}
 		_info.get(test).Add(stack);
 	}

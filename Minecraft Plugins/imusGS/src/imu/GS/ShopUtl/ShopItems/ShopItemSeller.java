@@ -54,6 +54,13 @@ public class ShopItemSeller extends ShopItemBase
 		return _display_stack;
 	}
 	
+	@Override
+	public void AddAmount(int amount) 
+	{
+		super.AddAmount(amount);
+		_shopBase.AddMaterialCount(GetRealItem().getType(), amount);
+	}
+	
 	public int GetPage()
 	{
 		return _shopPage;
@@ -97,7 +104,6 @@ public class ShopItemSeller extends ShopItemBase
 	@Override
 	public void ParseJsonData(JsonObject data) 
 	{
-		// TODO Auto-generated method stub
 		
 	}
 

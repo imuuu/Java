@@ -25,9 +25,7 @@ public class ShopItemCustomer extends ShopItemBase
 	public ShopItemCustomer(Main main, ShopBase shopBase,Player player,ItemStack real, int amount) 
 	{
 		super(main,shopBase,real, amount);
-		_player = player;
-
-		
+		_player = player;	
 	}
 	public Player GetOwner()
 	{
@@ -51,6 +49,7 @@ public class ShopItemCustomer extends ShopItemBase
 			}
 		}
 		Set_amount(count);
+		toolTip();
 	}
 	
 	@Override
@@ -72,10 +71,12 @@ public class ShopItemCustomer extends ShopItemBase
 		
 		if(_player != null  && GetItemPrice() instanceof PriceMaterial)
 		{
-			PriceMaterial pm =(PriceMaterial)GetItemPrice(); 
+			PriceMaterial pm = (PriceMaterial)GetItemPrice(); 
+			
+			
 			if(pm.HasOverflow())
 			{
-				int amount_in_shop = pm.HasShopitem() ? GetTargetShopitem(_player.getUniqueId()).Get_amount() : 0;
+				int amount_in_shop = pm.GetAmountInShop();//pm.HasShopitem() ? GetTargetShopitem(_player.getUniqueId()).Get_amount() : 0;
 				int priceDropsIn = pm.GetOverflow().get_softCap()-amount_in_shop;
 				lores.add(" ");
 				if(priceDropsIn <= 0)

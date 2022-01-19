@@ -86,22 +86,19 @@ public class MaterialManager extends Manager
 	public PriceMaterial GetPriceMaterialAndCheck(ItemStack stack)
 	{
 		//System.err.println("Checking mat price: "+stack.getType());
-		PriceMaterial priceMaterial = new PriceMaterial();
+		PriceMaterial priceMaterial = new PriceMaterial(stack.getType());
 		priceMaterial.SetPrice(0);
 		if(stack == null || stack.getType() == Material.AIR) return priceMaterial;
-		//if((ImusAPI._metods.isArmor(stack) || ImusAPI._metods.isTool(stack)) &&  ImusAPI._metods.getDurabilityProsent(stack) != 1.0) return priceMaterial; // if material has eny durability lost it will be 0
-		
-		//double price = _material_prices.get(stack.getType()).GetPrice();
+
 		priceMaterial = (PriceMaterial)_material_prices.get(stack.getType()).clone();
 		
 		double addedEnchantPrice = _main.GetShopEnchantManager().CalculateEnchantPrice(stack);
-
-		double newPrice = priceMaterial.GetPrice() + addedEnchantPrice;
-
+		
+		double newPrice = (priceMaterial.HasSmartData() ? priceMaterial.GetSmartData().GetPrice() : priceMaterial.GetPrice()) + addedEnchantPrice;
+		
 		if(newPrice < 0.0) newPrice = 0.0;
 		
 		priceMaterial.SetPrice(newPrice * _shopManager.GetDurabilityReduction(stack));
-	
 		
 		return priceMaterial;
 	}
@@ -118,7 +115,7 @@ public class MaterialManager extends Manager
 	
 	void PutMaterialPrice(Material mat, double price)
 	{		
-		PriceMaterial pm = new PriceMaterial();
+		PriceMaterial pm = new PriceMaterial(mat);
 		pm.SetPrice(price);
 		_material_prices.put(mat, pm);
 	}
@@ -299,8 +296,9 @@ public class MaterialManager extends Manager
 				while(rs.next())
 				{
 					i = 1;
-					PriceMaterial pm = new PriceMaterial();				
+							
 					Material mat = Material.getMaterial(rs.getString(i++));
+					PriceMaterial pm = new PriceMaterial(mat);		
 					pm.SetPrice(rs.getFloat(i++));
 					double smart_multiplier = rs.getFloat(i++);
 					

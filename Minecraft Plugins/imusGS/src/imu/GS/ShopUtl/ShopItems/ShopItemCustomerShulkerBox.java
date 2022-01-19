@@ -1,7 +1,8 @@
 package imu.GS.ShopUtl.ShopItems;
 
 
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import imu.GS.Main.Main;
+import imu.GS.Other.LogData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
@@ -25,6 +27,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 {
 	//ItemStack[] _shulkerContent = new ItemStack[27];
 	ShopItemResult[] _shulkerContentSis;
+	LinkedList<LogData> _logDatas = new LinkedList<>();
 	public ShopItemCustomerShulkerBox(Main main, ShopBase shopBase, Player player, ItemStack real, int amount) 
 	{
 		super(main, shopBase, player, real, amount);
@@ -34,7 +37,10 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 		//CalculateContent();
 	}
 	
-	
+	public List<LogData> GetLogData()
+	{
+		return _logDatas;
+	}
 	
 	public ItemPrice GetCalculatedPriceFromContent()
 	{
@@ -45,9 +51,10 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 			ShulkerBox shulker = (ShulkerBox)bsm.getBlockState();
 			Cal(shulker.getInventory().getContents());
 			InventoryReaderStack invReader = new InventoryReaderStack(shulker.getInventory());
-			for(Entry<ItemStack, ItemInfo> info : invReader.GetAllData().entrySet())
-			{				
-				PriceMaterial pm =  _main.GetMaterialManager().GetPriceMaterialAndCheck(info.getKey());
+			for(ItemInfo info : invReader.GetAllData().values())
+			{			
+				ItemStack clonedStack = info._clonedStack;
+				PriceMaterial pm =  _main.GetMaterialManager().GetPriceMaterialAndCheck(clonedStack);
 				pm.SetCustomerPrice(pm.GetPrice() * _shopBase.get_buyM());
 				
 				for(ShopItemSeller[] sibs : _shopBase.get_items())
@@ -55,7 +62,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 					for(ShopItemSeller sib : sibs)
 					{
 						if(sib == null) continue;
-						if(sib.IsSameKind(info.getKey()))
+						if(sib.IsSameKind(clonedStack))
 						{
 							pm.SetShopItem(sib);
 							break;
@@ -64,21 +71,18 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 					}
 					if(pm.HasShopitem()) break;
 				}
+
+				double pricee = pm.GetCustomerPrice(info._totalCount);
+				ShopItemSeller logItem = new ShopItemSeller(_main,_shopBase,clonedStack.clone(),info._totalCount);
+				_logDatas.add(new LogData(logItem, pricee, info._totalCount));
 				
-				double pricee = pm.GetCustomerPrice(info.getValue()._totalCount);
 				price +=  pricee;
 			}
-			
-//			for(ItemStack stack : shulker.getInventory().getContents())
-//			{
-//				if(stack == null) continue;
-//
-//				price += _main.GetMaterialManager().GetPriceMaterialAndCheck(info.getKey()).GetPrice() * info.getValue()._totalCount;
-//			}
+
 		}
 		if(price <= 0) price = 0;	
 		
-		PriceMaterial priceItem = new PriceMaterial();
+		PriceMaterial priceItem = new PriceMaterial(null);
 		priceItem.SetPrice(price);
 
 		return priceItem;
@@ -86,7 +90,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 	
 	void Cal(ItemStack[] content)
 	{
-		ArrayList<ShopItemResult> items = new ArrayList<>();
+		LinkedList<ShopItemResult> items = new LinkedList<>();
 		for(ItemStack stack : content)
 		{
 			if(stack == null) continue;

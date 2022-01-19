@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,7 +34,7 @@ public abstract class ShopBase
 	private  int shopHolderSize = 27;
 	
 	private ArrayList<ShopItemSeller[]> _items = new ArrayList<ShopItemSeller[]>();
-	
+	private HashMap<Material, Integer> _materialCount = new HashMap<>();
 	
 	private double _sellM = 5.0;
 	private double _buyM  = 1.0;
@@ -155,12 +156,12 @@ public abstract class ShopBase
 		return _intererActlocked;
 	}
 	
-	public boolean BuyConfirmation(Player player, ShopItemBase sib, int amount, boolean withdraw)
+	public boolean BuyConfirmation(Player player, ShopItemBase sib, double price,int amount, boolean withdraw)
 	{
 		if(_main.get_econ() == null ) {
 			return false;
 		}
-		double price = sib.GetItemPrice().GetCustomerPrice(amount);
+		//double price = sib.GetItemPrice().GetCustomerPrice(amount);
 
 		if(_main.get_econ().getBalance(player) >= price)
 		{
@@ -177,12 +178,12 @@ public abstract class ShopBase
 		return false;
 	}
 	
-	public boolean SellConfirmation(Player player, ShopItemBase sib, int amount)
+	public boolean SellConfirmation(Player player, ShopItemBase sib, double price, int amount)
 	{
 		if(_main.get_econ() == null ) {
 			return false;
 		}
-		double price = sib.GetItemPrice().GetCustomerPrice(amount) ;
+		//double price = sib.GetItemPrice().GetCustomerPrice(amount) ;
 
 		_main.get_econ().depositPlayer(player, price );
 		
@@ -286,10 +287,52 @@ public abstract class ShopBase
 		
 		_temp_lock = false;
 	}
+//	public void UpdateShopItemEvent(ShopItemSeller sis, int amount)
+//	{
+//		AddMaterialCount(sis.GetRealItem().getType(), amount);
+//	}
+//	
+	public void AddMaterialCount(Material mat, int amount)
+	{
+		
+		if(!_materialCount.containsKey(mat)) _materialCount.put(mat, 0);
+		int amountNow = _materialCount.get(mat)+amount;
+		//System.out.println("mat: "+mat.name() + " amount: "+amount+ "amountNow: "+amountNow);
+		_materialCount.put(mat, amountNow);
+		
+		if(_materialCount.get(mat) <= 0)_materialCount.remove(mat);
+	}
+	
+	public int GetMaterialCount(Material mat)
+	{
+		return _materialCount.get(mat) != null ? _materialCount.get(mat) : 0;
+	}
+	
+//	public void SetMaterialCount(Material mat, int count)
+//	{
+//		System.out.println("set mat: "+mat.name() + " count: "+count);
+//		_materialCount.put(mat, count);
+//
+//	}
+	
+	void LoadMaterialCount()
+	{
+		_materialCount.clear();
+		for(int page = 0; page < get_items().size(); ++page)
+		{
+			for(int i = 0; i < get_items().get(page).length; ++i)
+			{
+				ShopItemBase sib = _items.get(page)[i];
+				if(sib == null) continue;
+				AddMaterialCount(sib.GetRealItem().getType(), sib.Get_amount());
+			}
+		}
+	}
 	
 	public void ArrangeShopItems(boolean removeEmpties, boolean removeCrap)
 	{
 		//System.out.println("arrange shop");
+		_materialCount.clear();
 		SetLockToInteract(true);
 		for(int page = _items.size()-1; page >= 0 ; page--)
 		{
@@ -297,15 +340,15 @@ public abstract class ShopBase
 
 			ShopItemSeller[] items = new ShopItemSeller[shopHolderSize];
 			int idx = 0;
-			//int[] stockSlots = new int[shopHolderSize];
 			Set<Integer> stockSlots = new HashSet<>();
+			
+			
 			for(int slot = 0;  slot < _items.get(page).length; ++slot)
 			{
 				ShopItemBase sib = _items.get(page)[slot];
 				
 				if(removeEmpties && sib != null && sib.Get_amount() <= 0 && !(sib instanceof ShopItemStockable))
 				{
-					//_main.GetShopManagerSQL().DeleteShopItem(sib);
 					continue;
 				}
 				
@@ -322,13 +365,16 @@ public abstract class ShopBase
 						//System.out.println("stocable");
 						stockSlots.add(slot);
 						items[slot]=_items.get(page)[slot];
+						AddMaterialCount(items[slot].GetRealItem().getType(), items[slot].Get_amount());
 						
-					}else
+					}
+					else
 					{
 						if(stockSlots.contains(idx)) while(stockSlots.contains(++idx));
 						
 						
 						items[idx] =_items.get(page)[slot].SetPageAndSlot(page, idx);
+						AddMaterialCount(items[idx].GetRealItem().getType(), items[idx].Get_amount());
 						idx++;
 					}					
 					isEmpty = false;
@@ -349,6 +395,9 @@ public abstract class ShopBase
 		if(HasCustomers())
 			LoadCustomerInvs(true, false);
 		
+		
+		//Metods._ins.printHashMap(_materialCount);
+		
 		SetLockToInteract(false);
 	}
 	
@@ -360,6 +409,8 @@ public abstract class ShopBase
 			for(int i = 0 ; i < pagesNeeded; ++i) {_items.add(new ShopItemSeller[shopHolderSize]);}
 		}
 		get_items().get(page)[slot] = sis.SetPageAndSlot(page, slot);
+		
+		//AddMaterialCount(sis.GetRealItem().getType(), sis.Get_amount());
 	}
 	
 	public ShopItemBase GetItem(int page, int index)
@@ -423,9 +474,10 @@ public abstract class ShopBase
 		//System.out.println("new item: "+sis.GetRealItem().getType());
 		if(sis.GetItemPrice() instanceof PriceMoney)
 		{
-			double price = ((PriceMoney)sis.GetItemPrice()).GetPrice();
-			((PriceMoney)sis.GetItemPrice()).SetCustomerPrice(price * _sellM);
+			((PriceMoney)sis.GetItemPrice()).SetCustomerPrice(sis.GetItemPrice().GetPrice() * _sellM);
 		}
+		
+		
 		
 		ITuple<Integer, Integer> firstFree = null;
 		int page = 0;
@@ -446,19 +498,23 @@ public abstract class ShopBase
 					if(setAmount)
 					{
 						sib.Set_amount(sis.Get_amount());
-					}else
+						
+					}
+					else
 					{
 						sib.AddAmount(sis.Get_amount());
 					}
 					
 
 					sib.UpdateItem();
-
+					
+					LoadMaterialCount();
 					return;
 				}
 			}
 		}
 		
+
 		if(firstFree == null)
 		{
 			//System.out.println("Shop: Not free space found, make new page!");
@@ -466,13 +522,14 @@ public abstract class ShopBase
 			get_items().get(get_items().size()-1)[0] =  sis.SetPageAndSlot(get_items().size()-1, 0);
 			
 			//SaveNewItemAsync(get_items().get(get_items().size()-1)[0]);
-			
+			LoadMaterialCount();
 			RegisterAndLoadNewItemsClients();
+			
 			return;
 		}
 
 		get_items().get(firstFree.GetKey())[firstFree.GetValue()] = sis.SetPageAndSlot(firstFree.GetKey(), firstFree.GetValue());
-
+		LoadMaterialCount();
 		RegisterAndLoadNewItemsClients();
 		return;
 	}

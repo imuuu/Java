@@ -30,6 +30,7 @@ import imu.GS.ENUMs.ShopItemType;
 import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
+import imu.GS.Other.LogData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
@@ -232,7 +233,7 @@ public class ShopManagerSQL
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
-	public BukkitTask LogPurchaseAsync(Player player, List<ShopItemBase> sibs)
+	public BukkitTask LogPurchaseAsync(Player player, List<LogData> logs)
 	{
 		//_main.getLogger().info("Loging..");
 		return new BukkitRunnable() 
@@ -240,11 +241,11 @@ public class ShopManagerSQL
 			@Override
 			public void run() 
 			{
-				String[] ench_str = new String[sibs.size()];
-				for(int i = 0; i < sibs.size(); ++i)
+				String[] ench_str = new String[logs.size()];
+				for(int i = 0; i < logs.size(); ++i)
 				{
 					LinkedList<String> enchants = new LinkedList<>();
-					for(Map.Entry<Enchantment, Integer> entry : Metods._ins.GetEnchantsWithLevels(sibs.get(i).GetRealItem()).entrySet())
+					for(Map.Entry<Enchantment, Integer> entry : Metods._ins.GetEnchantsWithLevels(logs.get(i).Get_shopitem().GetRealItem()).entrySet())
 					{
 						enchants.add(entry.getKey().getKey().getKey().toUpperCase()+":"+entry.getValue());
 					}
@@ -258,19 +259,20 @@ public class ShopManagerSQL
 							+ "(player_uuid, player_name, action, shop_uuid, shopname, shopitem_uuid, amount, price, cal_total_price,custom_price_view, itemstack_displayname, itemstack_enchants,itemstack) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 					
 					int count = 0;
-					for(ShopItemBase sib : sibs)
+					for(LogData data : logs)
 					{
 						int i = 1;
+						ShopItemBase sib = data.Get_shopitem();
 						ps.setString(i++, player.getUniqueId().toString());
 						ps.setString(i++, player.getName());
 						ps.setString(i++, sib instanceof ShopItemSeller ? TransactionAction.SELL.toString() : TransactionAction.BUY.toString() );
 						ps.setString(i++, sib.GetShop().GetUUID().toString());
 						ps.setString(i++, sib.GetShop().GetName());
 						ps.setString(i++, sib.GetUUID().toString());
-						ps.setInt(i++, sib.Get_amount());
+						ps.setInt(i++, data.Get_amount());
 						ps.setFloat(i++, (float)sib.GetItemPrice().GetPrice());
-						ps.setFloat(i++, (float) Metods.Round((sib.Get_amount() *sib.GetItemPrice().GetPrice()) * (sib instanceof ShopItemSeller ? 1 : -1)));
-						ps.setString(i++, sib.GetItemPrice() instanceof PriceCustom ? ((PriceCustom)sib.GetItemPrice()).GetViewStringOfItems(sib.Get_amount()) : "");
+						ps.setFloat(i++, (float) Metods.Round((data.Get_price() * (sib instanceof ShopItemSeller ? 1 : -1))));
+						ps.setString(i++, sib.GetItemPrice() instanceof PriceCustom ? ((PriceCustom)sib.GetItemPrice()).GetViewStringOfItems(data.Get_amount()) : "");
 						ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sib.GetRealItem()));
 						ps.setString(i++, ench_str[count]);
 						ps.setString(i++, ImusAPI._metods.EncodeItemStack(sib.GetRealItem()));

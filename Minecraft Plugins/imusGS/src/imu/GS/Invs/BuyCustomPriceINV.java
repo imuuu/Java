@@ -2,6 +2,7 @@ package imu.GS.Invs;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
+import imu.GS.Other.LogData;
 import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
@@ -57,6 +59,8 @@ public class BuyCustomPriceINV extends CustomerInv
 			new ItemStack(Material.BROWN_WOOL),
 			new ItemStack(Material.BLACK_WOOL)};
 	
+	LinkedList<LogData> logs = new LinkedList<>();
+	
 	public BuyCustomPriceINV(Plugin main, Player player, ShopBase shopBase, ShopItemSeller sis) {
 		super(main, player, "Buying "+ImusAPI._metods.GetItemDisplayName(sis.GetDisplayItem()), 6*9);
 		_main=(Main)main;
@@ -91,7 +95,8 @@ public class BuyCustomPriceINV extends CustomerInv
 		{
 			runnable.cancel();
 		}
-		SendLogs();
+		_main.get_shopManager().SendLogs(_player, logs);
+		
 	}
 	
 	final void MenuToolTip()
@@ -234,7 +239,7 @@ public class BuyCustomPriceINV extends CustomerInv
 		//if(moneyNeeded < money)
 		
 		
-		if(!_shopBase.BuyConfirmation(_player, _sis, 1, false))
+		if(!_shopBase.BuyConfirmation(_player, _sis,_sis.GetItemPrice().GetCustomerPrice(1) ,1, false))
 		{			
 			return false;
 		}
@@ -281,7 +286,7 @@ public class BuyCustomPriceINV extends CustomerInv
 			_player.getInventory().setContents(newStacks);
 		
 
-		_shopBase.BuyConfirmation(_player, _sis, 1, removeItemsFromPlayerrInv);	
+		_shopBase.BuyConfirmation(_player, _sis, _sis.GetItemPrice().GetCustomerPrice(1),1, removeItemsFromPlayerrInv);	
 		return true;
 	}
 	
@@ -357,6 +362,14 @@ public class BuyCustomPriceINV extends CustomerInv
 			
 			if(amount < ((PriceCustom)sib.GetItemPrice()).GetMinimumStackAmount()) return;
 			
+			
+			if(amount != _selected_amount)
+			{
+				_player.sendMessage(Metods.msgC("&cYou were able to buy only &2"+amount+" &cbecause there weren't enough items in stock!"));
+				return;
+			}
+			
+			
 			if(!CheckIfPlayerHasItems(amount, true)) return;
 			
 			
@@ -366,14 +379,8 @@ public class BuyCustomPriceINV extends CustomerInv
 			sib.AddAmount(amount*-1);
 			sib.UpdateItem();
 			
-			if(amount != _selected_amount)
-			{
-				_player.sendMessage(Metods.msgC("&cYou were able to buy only &2"+amount+" &cbecause there weren't enough items in stock!"));
-			}else
-			{
-				//_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, sib, amount, TransactionAction.BUY);
-				RegisterPurchace(new ShopItemCustomer(_main, _shopBase, _player, sib.GetRealItem().clone(), amount));
-			}
+			ShopItemCustomer sic = new ShopItemCustomer(_main, _shopBase, _player, sib.GetRealItem().clone(), amount);
+			_main.get_shopManager().LogRegisterPurchace(logs, new LogData(sic, sic.GetItemPrice().GetCustomerPrice(1), amount));
 			
 			if(e.getClick() == ClickType.LEFT) {Back();return;};
 			
@@ -385,26 +392,8 @@ public class BuyCustomPriceINV extends CustomerInv
 		}
 		
 	}
-	ArrayList<ShopItemBase> logs = new ArrayList<>();
 	
-	void RegisterPurchace(ShopItemBase sib)
-	{
-		for(ShopItemBase logi : logs)
-		{
-			if(!sib.getClass().equals(logi.getClass())) continue;
-			
-			if(!sib.IsSameKind(logi)) continue;
-			
-			logi.AddAmount(sib.Get_amount());
-			return;
-		}
-		
-		logs.add(sib);
-	}
 	
-	void SendLogs()
-	{
-		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(_player, logs);		
-	}
+	
 
 }
