@@ -1515,7 +1515,16 @@ public class Metods
 		return null;
 	}
 	
-	
+	public int GetItemStackEnchantCount(ItemStack stack, Enchantment searchEnch)
+	{
+		if(stack == null) return 0;
+		
+		for(Entry<Enchantment, Integer> ench : stack.getEnchantments().entrySet())
+		{
+			if(ench.getKey().equals(searchEnch)) return ench.getValue();
+		}
+		return 0;
+	}
 	public int GetArmorSlotEnchantCount(Player player, Enchantment searchEnch)
 	{
 		int value = 0;
@@ -1525,10 +1534,7 @@ public class Metods
 			ItemStack stack = player.getInventory().getContents()[i];
 			if(stack == null || stack.getType() == Material.AIR) continue;
 			
-			for(Entry<Enchantment, Integer> ench : stack.getEnchantments().entrySet())
-			{
-				if(ench.getKey().equals(searchEnch)) value += ench.getValue();
-			}
+			value += GetItemStackEnchantCount(stack, searchEnch);
 		}
 		
 		return value;
