@@ -176,7 +176,7 @@ public class BuyCustomPriceINV extends CustomerInv
 	
 	void SetUnableBuyButton(int slot, int amount, String reason)
 	{
-		ItemStack unable =Metods.setDisplayName(new ItemStack(Material.BARRIER), "&cUnable to Buy: &4"+amount);
+		ItemStack unable = Metods.setDisplayName(new ItemStack(Material.BARRIER), "&cUnable to Buy: &4"+amount);
 		ImusAPI._metods.addLore(unable, reason, false);
 		_inv.setItem(slot, SetButton(unable, BUTTON.NONE));
 	}
@@ -223,7 +223,9 @@ public class BuyCustomPriceINV extends CustomerInv
 				{
 					stack = new ItemStack(Material.PAPER);
 					Metods.setDisplayName(stack, "&6Extra values");
-					_metods.addLore(stack, new String[] {"&9Money&6: &a"+((PriceCustom)_sis.GetItemPrice()).GetPrice()+ "&2$","&eYour have: &a"+_main.get_econ().getBalance(_player)+" &2$"});
+					double player_balance = _main.get_econ().getBalance(_player);
+					double itemPrice = ((PriceCustom)_sis.GetItemPrice()).GetPrice();
+					_metods.addLore(stack, new String[] {"&9Money&6: &a"+Metods.Round(itemPrice)+ "&2$","&eYour have: "+(player_balance > itemPrice ? "&a":"&c")+Metods.Round(player_balance)+" &2$"});
 					_inv.setItem(i, _metods.AddGlow(stack));
 				}
 			}

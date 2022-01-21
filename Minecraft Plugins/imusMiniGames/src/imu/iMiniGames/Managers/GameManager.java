@@ -10,10 +10,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Interfaces.IGameManager;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.PlanerDataCard;
 
 public abstract class GameManager implements IGameManager

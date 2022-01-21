@@ -11,6 +11,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Commands.ImgCreateCmd;
 import imu.iMiniGames.Commands.ImgMgCmd;
 import imu.iMiniGames.Handlers.CombatGameHandler;
@@ -20,8 +22,6 @@ import imu.iMiniGames.Leaderbords.LeaderboardUUIDData;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.ConfigMaker;
-import imu.iMiniGames.Other.ItemMetods;
 import imu.iMiniGames.SubCommands.SubLeaderBoardsCmd;
 import imu.iMiniGames.SubCommands.subAcceptCmd;
 import imu.iMiniGames.SubCommands.subBlockMECmd;
@@ -52,7 +52,7 @@ public class Main extends JavaPlugin
 	
 	PlanerManager _planerManager;
 	
-	ItemMetods _itemM;
+	Metods _itemM;
 	
 	boolean _enable_broadcast_spleef = true;
 	
@@ -62,7 +62,7 @@ public class Main extends JavaPlugin
 	public void onEnable() 
 	{
 		setupEconomy();
-		_itemM = new ItemMetods(this);
+		_itemM = Metods._ins;
 		_leaderboardUUIDData = new LeaderboardUUIDData(this);
 		_spleefManager = new SpleefManager(this);
 		_combatManager = new CombatManager(this);
@@ -268,7 +268,7 @@ public class Main extends JavaPlugin
 		return _planerManager;
 	}
 
-	public ItemMetods get_itemM() 
+	public Metods get_itemM() 
 	{
 		return _itemM;
 	}

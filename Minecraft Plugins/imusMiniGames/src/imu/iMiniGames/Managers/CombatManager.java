@@ -10,12 +10,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.ArenaKit;
-import imu.iMiniGames.Other.ConfigMaker;
 
 public class CombatManager extends GameManager
 {

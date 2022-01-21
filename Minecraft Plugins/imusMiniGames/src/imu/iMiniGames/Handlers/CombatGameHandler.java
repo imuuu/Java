@@ -9,12 +9,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Other.CombatDataCard;
 import imu.iMiniGames.Other.CombatGameCard;
-import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameCombat;
 
@@ -30,12 +30,12 @@ public class CombatGameHandler extends GameHandeler
 
 
 		};
-
 	public CombatGameHandler(Main main)
 	{
 		super(main,"Combat");		
 		_leaderBoard = _main.get_combatManager().getLeaderBoard();
-		_main.getServer().getPluginManager().registerEvents(this, _main);
+		_main.getServer().getPluginManager().registerEvents(this, _main);//hmm
+		
 	}
 
 	@Override

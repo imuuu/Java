@@ -10,8 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.ConfigMaker;
 
 public class LeaderboardUUIDData implements Listener
 {

@@ -3,8 +3,8 @@ author: imukuppikorva
 version: 1.0
 main: imu.iMiniGames.Main.Main
 description: imusMiniGames
-api-version: 1.16
-softdepend: [Vault]
+api-version: 1.18
+softdepend: [imusAPI,Vault]
 commands:
    img:
      description: Create arenas

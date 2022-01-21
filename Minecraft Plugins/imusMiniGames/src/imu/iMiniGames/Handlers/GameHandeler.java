@@ -1,5 +1,6 @@
 package imu.iMiniGames.Handlers;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,31 +18,28 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.PlayerDataCard;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Interfaces.IGameHandeler;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
-import imu.iMiniGames.Other.Cooldowns;
-import imu.iMiniGames.Other.ItemMetods;
 import imu.iMiniGames.Other.MiniGame;
-import imu.iMiniGames.Other.PlayerDataCard;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import imu.iMiniGames.Other.PlayerGameDataCard;
 import net.milkbowl.vault.economy.Economy;
 
 public abstract class GameHandeler implements IGameHandeler, Listener
 {
-	Main _main;
-	ItemMetods _itemM;
+	protected Main _main;
+	Metods _itemM;
 	CombatManager _combatManager;
 	Economy _econ;
 	Cooldowns _cd;
 		
 	HashMap<UUID,String> _request_arenas = new HashMap<>();
 	HashMap<UUID,Boolean> _hasAccepted = new HashMap<>();
-	HashMap<UUID,PlayerDataCard> _player_datas = new HashMap<>();	
+	HashMap<UUID,PlayerGameDataCard> _player_datas = new HashMap<>();	
 
 	HashMap<UUID, GameCard> _player_gameCards = new HashMap<>();
 	
@@ -60,12 +58,14 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 	public GameHandeler(Main main,String dataFolderName) 
 	{
 		_main = main;
-		_itemM = main.get_itemM();
+		
+		_itemM = Metods._ins;
 		_combatManager = main.get_combatManager();
 		_cd = new Cooldowns();
 		_econ = main.get_econ();
 		_playerDataFolderName = dataFolderName;
 		_games = new HashMap<String,GameCard>();
+		
 
 	}
 	
@@ -137,7 +137,7 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 		
 		p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
 		p.sendMessage(ChatColor.AQUA+"Would you like to join Combat?");		
-		_main.get_itemM().sendYesNoConfirm(p, "/"+card.get_cmdString()+" accept confirm:yes", "/"+card.get_cmdString()+" accept confirm:no"); //TODO COMMAND
+		Metods._ins.sendYesNoConfirm(p, "/"+card.get_cmdString()+" accept confirm:yes", "/"+card.get_cmdString()+" accept confirm:no"); 
 		//p.sendMessage(ChatColor.LIGHT_PURPLE + "================================");
 		///mg combat accept
 	}
@@ -327,6 +327,7 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 			Player p = Bukkit.getPlayer(uuid);
 			if(isPlayerInArena(p))
 			{
+				System.out.println("p: "+p);
 				card.get_maker().sendMessage(ChatColor.RED + "Somebody is in already in game! Invitations canceled");
 				card.get_maker().sendMessage(ChatColor.DARK_AQUA + "Your plan has been saved!");
 				return false;
@@ -365,8 +366,8 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 
 		if(_player_datas.containsKey(p.getUniqueId()))
 		{
-			PlayerDataCard pData = _player_datas.get(p.getUniqueId());
-			pData.setDataToPLAYER(card,p);
+			PlayerGameDataCard pData = _player_datas.get(p.getUniqueId());
+			pData.setDataToPLAYER(card, p);
 			pData.removeDataFile();	
 		}
 
@@ -491,10 +492,12 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 				p.sendMessage(ChatColor.YELLOW + "Winner gets: "+ChatColor.GREEN+card.get_total_bet());
 			}
 
-			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&b=== &dSTART SPECTATING &l&a(Click) &b==="));
-			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate "+card._tagName.toLowerCase()+" "+card.get_arena().get_name()));
-			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
-			p.spigot().sendMessage(msg);
+//			TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&b=== &dSTART SPECTATING &l&a(Click) &b==="));
+//			msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/mg spectate "+card._tagName.toLowerCase()+" "+card.get_arena().get_name()));
+//			msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click teleport to Spectate!")));
+//			p.spigot().sendMessage(msg);
+			
+			//spectate thing
 		}
 		
 	}
@@ -536,14 +539,14 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 			Player p = Bukkit.getPlayer(uuid);
 			_hasAccepted.remove(uuid);
 
-			PlayerDataCard pData=new PlayerDataCard(_main, p,_playerDataFolderName);
+			PlayerGameDataCard pData=new PlayerGameDataCard(_main, p,_playerDataFolderName);
 			pData.saveDataToFile(false);			
 			_player_datas.put(p.getUniqueId(), pData);
 
 			PlayerDataCard pDataBackup= new PlayerDataCard(_main, p,_playerDataFolderName+"Backups/"+p.getName()+"_"+p.getUniqueId());
 			pDataBackup.saveDataToFile(true);
 
-			String title_str = ChatColor.BLUE + gameCard._tagName;//TODO
+			String title_str = ChatColor.BLUE + gameCard._tagName; //TODO
 			String bet_str = ChatColor.GOLD +"Winner takes: "+ChatColor.DARK_GREEN +gameCard.get_total_bet();
 			if(_econ != null && gameCard.get_bet() > 0)
 			{
@@ -627,7 +630,6 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 					PlayerDataCard pData = new PlayerDataCard(_main, event.getPlayer(),_playerDataFolderName);
 					if(pData.isFile())
 					{
-						//TODO here too
 						System.out.println("imusMiniGames: Restoring player data");
 						pData.loadDataFileAndSetData();
 						pData.setDataToPLAYER(event.getPlayer());

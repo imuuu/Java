@@ -20,6 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.PlanerManager;
@@ -35,10 +36,11 @@ public class SpleefGamePlaner extends GamePlaner
 	
 	ArrayList<Integer> wrongs = new ArrayList<>();
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
+
 	public SpleefGamePlaner(Main main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.BLUE + ""+ChatColor.BOLD + "Spleef Planer");
-		
+
 		_card = card;
 		_pm = main.get_planerManager();
 		_card.set_bestOfMax(_main.get_spleefManager().get_maximum_best_of());
@@ -61,19 +63,21 @@ public class SpleefGamePlaner extends GamePlaner
 			{
 				for(Player p : _main.getServer().getOnlinePlayers())
 				{
-					_playerHeads.put(p.getUniqueId(),_itemM.getPlayerHead(p));
+					//_playerHeads.put(p.getUniqueId(),Metods._ins.getPlayerHead(p));
+					_playerHeads.put(p.getUniqueId(),new ItemStack(Material.PLAYER_HEAD));
 				}
 				
 			}
 		}.runTaskAsynchronously(_main);
 	}
 	
-	void setupButtons() 
+	@Override
+	public void setupButtons() 
 	{
 		ItemStack mod;
 		setupButton(BUTTON.EXIT, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "EXIT", _size-9);
 		mod = setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "CONFIRM", _size-1);
-		_itemM.addLore(mod, ChatColor.YELLOW + "Confirm your game plan and start sending invites..", true);
+		Metods._ins.addLore(mod, ChatColor.YELLOW + "Confirm your game plan and start sending invites..", true);
 		
 		setupButton(BUTTON.RESET, Material.LAVA_BUCKET, ChatColor.RED +""+ChatColor.BOLD+ "RESET", 8);
 		
@@ -82,49 +86,49 @@ public class SpleefGamePlaner extends GamePlaner
 		_card.putDataValue(0, arenaName);
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_BET,Material.GOLD_INGOT, ChatColor.AQUA + "Place Bet", 2));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "How much every player pays", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "How much every player pays", true);
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_PLAYERS, Material.WITHER_SKELETON_SKULL, ChatColor.AQUA + "Add Players", 4));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
 		 _card.get_invitePlayers().remove(_player);
 		 if(!_card.get_invitePlayers().isEmpty())
 		 {
 			 int count = 1;
-			 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added players! ==", true);
+			 Metods._ins.addLore(mod, ChatColor.BLUE + "== Bellow has added players! ==", true);
 			 for(Entry<Player, Boolean> entry : _card.get_invitePlayers().entrySet())
 			 {
 				 Player p = entry.getKey();
 				 if(p != null)
 				 {
-					 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&',"&2"+count+ ": &5"+p.getName()) ,true);
+					 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&',"&2"+count+ ": &5"+p.getName()) ,true);
 					 count++;
 				 }
 			 }
 		 }
 		 
 		 mod = addLoreSetRemove(setupButton(BUTTON.POTION_EFFECTS, Material.EXPERIENCE_BOTTLE, ChatColor.AQUA + "Add Potion Effects", 6));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add Potion effects to your match!", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add Potion effects to your match!", true);
 		 
 		 if(!_card.get_invPotionEffects().isEmpty())
 		 {
-			 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added effects! ==", true);
+			 Metods._ins.addLore(mod, ChatColor.BLUE + "== Bellow has added effects! ==", true);
 			 for(Entry<PotionEffectType, PotionEffect> entry : _card.get_invPotionEffects().entrySet())
 			 {
 				 PotionEffect ef = entry.getValue();
-				 _itemM.addLore(mod, ChatColor.DARK_PURPLE + ef.getType().getName() + " "+ef.getAmplifier(),true);
+				 Metods._ins.addLore(mod, ChatColor.DARK_PURPLE + ef.getType().getName() + " "+ef.getAmplifier(),true);
 			 }
 		 }
 		 
 		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Best of (amount)", 10);
-		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);	
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add how many wins person needs to win the small tournament!", true);
-		 _itemM.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);	
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add how many wins person needs to win the small tournament!", true);
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
 		 
 	}
 	
 	ItemStack addLoreSetRemove(ItemStack stack)
 	{
-		return _itemM.addLore(stack, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Remove", false);		
+		return Metods._ins.addLore(stack, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Remove", false);		
 	}
 	
 	void setPDvalue(ItemStack stack, String value)
@@ -132,8 +136,8 @@ public class SpleefGamePlaner extends GamePlaner
 		_pm.setPDvalue(stack,value);
 		String str = "Set to: ";
 		
-		_itemM.removeLore(stack, str);
-		_itemM.addLore(stack, ChatColor.AQUA + str +ChatColor.DARK_GREEN + value, true);
+		Metods._ins.removeLore(stack, str);
+		Metods._ins.addLore(stack, ChatColor.AQUA + str +ChatColor.DARK_GREEN + value, true);
 		
 	}
 	void removePDvalue(ItemStack stack)
@@ -144,7 +148,7 @@ public class SpleefGamePlaner extends GamePlaner
 		_pm.removePDvalue(stack);
 		String str = "Set to: ";
 		
-		_itemM.removeLore(stack, str);
+		Metods._ins.removeLore(stack, str);
 		
 	}
 	
@@ -247,7 +251,7 @@ public class SpleefGamePlaner extends GamePlaner
 					if(value == null)
 						continue;
 					
-					if(_itemM.isDigit(value))
+					if(Metods._ins.isDigit(value))
 					{
 						double bet =Double.parseDouble(value);
 						if(bet > 0)
@@ -347,133 +351,120 @@ public class SpleefGamePlaner extends GamePlaner
 	{
 		_main.get_spleefManager().savePlayerDataCard(_player, _card);
 	}
-	@EventHandler
-	public void onClick(InventoryClickEvent e)
-	{
-		int rawSlot = e.getRawSlot();
+	
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e) {
 		int slot = e.getSlot();
+		ItemStack stack = e.getCurrentItem();
+		System.out.println("stack: "+stack);
 		
-		if(isThisInv(e) && (rawSlot == slot))
-		{			
-			e.setCancelled(true);
-			ItemStack stack = e.getCurrentItem();
-			
-			ConversationFactory cf = null;
-			String question = null;
-			Conversation conv = null;
-			
-			BUTTON button = getButton(stack);
-			
-			if(e.getClick() == ClickType.LEFT)
-			{
-				switch (button) {
-				
-				case NONE:				
-					break;
-				
-				case EXIT:
-					_player.closeInventory();
-					break;
-				case CONFIRM:
-					SpleefGameCard gameCard = confirm();
-					if(gameCard != null)
-					{	
-						_main.get_spleefGameHandler().savePlayerGameCard(_player, gameCard);						
-						_main.get_spleefGameHandler().repearStartGame(_player, gameCard);
-						//saveDataCard();
-						_player.closeInventory();
-						
-					}
-					else
-					{
-						//System.out.println("Card null");
-						checkAnwsers();
-					}
-					break;
-				case ADD_BET:
-					cf = new ConversationFactory(_main);
-					question = ChatColor.DARK_PURPLE + "Give your bet";
-					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
-					conv.begin();
-					_player.closeInventory();
-					break;
-				case ADD_PLAYERS:
-//					cf = new ConversationFactory(_main);
-//					question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
-//					conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
-//					conv.begin();
-//					_player.closeInventory();
-					new SpleefGamePlanerChoosePlayerINV(_main, _player, _card,_playerHeads);
-					break;
-				case RESET:
-					_card = new SpleefDataCard(_player);
-					reset();
-					break;
-					
-				case SET_ARENA:
-					new SpleefGamePlanerChooseArenaINV(_main, _player, _card);
-					break;
-				case POTION_EFFECTS:
-					new SpleefGamePlanerPotionEffectsINV(_main, _player, _card);
-					break;
-				case ADD_BEST_OF_AMOUNT:
-					_card.addBestOfAmount(1);
-					setupButtons();
-					checkAnwsers();
-					break;
-				default:
-					break;
-				}
-			}
-			else if(e.getClick() == ClickType.RIGHT)
-			{
-				switch (button) 
-				{
-				case ADD_BET:
-					_card.removeDataValue(slot);
-					if(wrongs.contains(slot))
-						wrongs.remove(slot);
-					//setupButtons();
-					checkAnwsers();
-					break;
-				case ADD_PLAYERS:
-					_card.clearInvitePlayers();
-					setupButtons();
-					break;
-
-				case SET_ARENA:
-					_card.set_arena(null);
-					reset();
-					break;
-				case POTION_EFFECTS:
-					_card.get_invPotionEffects().clear();
-					reset();
-					break;
-				case ADD_BEST_OF_AMOUNT:
-					_card.addBestOfAmount(-1);
-					setupButtons();
-					checkAnwsers();
-					break;
-				default:
-					break;
-				
-				
-				
-				}
-			}
-			
-			
-		}
-	
-	}
-	
-	@EventHandler
-	public void invClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
+		ConversationFactory cf = null;
+		String question = null;
+		Conversation conv = null;
+		
+		BUTTON button = getButton(stack);
+		
+		if(e.getClick() == ClickType.LEFT)
 		{
-			saveDataCard();
-			e.getPlayer().sendMessage(ChatColor.GOLD + "Spleef plan has saved!");
+			switch (button) {
+			
+			case NONE:				
+				break;
+			
+			case EXIT:
+				_player.closeInventory();
+				break;
+			case CONFIRM:
+				SpleefGameCard gameCard = confirm();
+				if(gameCard != null)
+				{	
+					_main.get_spleefGameHandler().savePlayerGameCard(_player, gameCard);						
+					_main.get_spleefGameHandler().repearStartGame(_player, gameCard);
+					//saveDataCard();
+					_player.closeInventory();
+					
+				}
+				else
+				{
+					//System.out.println("Card null");
+					checkAnwsers();
+				}
+				break;
+			case ADD_BET:
+				cf = new ConversationFactory(_main);
+				question = ChatColor.DARK_PURPLE + "Give your bet";
+				conv = cf.withFirstPrompt(new ConvPromptSpleefGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
+				conv.begin();
+				_player.closeInventory();
+				break;
+			case ADD_PLAYERS:
+
+				new SpleefGamePlanerChoosePlayerINV(_main, _player, _card);
+				break;
+			case RESET:
+				_card = new SpleefDataCard(_player);
+				reset();
+				break;
+				
+			case SET_ARENA:
+				new SpleefGamePlanerChooseArenaINV(_main, _player, _card);
+				break;
+			case POTION_EFFECTS:
+				new SpleefGamePlanerPotionEffectsINV(_main, _player, _card);
+				break;
+			case ADD_BEST_OF_AMOUNT:
+				_card.addBestOfAmount(1);
+				setupButtons();
+				checkAnwsers();
+				break;
+			default:
+				break;
+			}
 		}
+		else if(e.getClick() == ClickType.RIGHT)
+		{
+			switch (button) 
+			{
+			case ADD_BET:
+				_card.removeDataValue(slot);
+				if(wrongs.contains(slot))
+					wrongs.remove(slot);
+				//setupButtons();
+				checkAnwsers();
+				break;
+			case ADD_PLAYERS:
+				_card.clearInvitePlayers();
+				setupButtons();
+				break;
+
+			case SET_ARENA:
+				_card.set_arena(null);
+				reset();
+				break;
+			case POTION_EFFECTS:
+				_card.get_invPotionEffects().clear();
+				reset();
+				break;
+			case ADD_BEST_OF_AMOUNT:
+				_card.addBestOfAmount(-1);
+				setupButtons();
+				checkAnwsers();
+				break;
+			default:
+				break;
+			
+			
+			
+			}
+		}
+		
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent e) 
+	{
+		super.invClosed(e);
+		saveDataCard();
+		e.getPlayer().sendMessage(ChatColor.GOLD + "Spleef plan has saved!");
 	}
 }

@@ -9,19 +9,19 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
-import imu.iMiniGames.Other.CustomInvLayout;
 import net.md_5.bungee.api.ChatColor;
 
-public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements Listener
+public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout
 {
 	CombatManager _combatManager;
 	
@@ -33,11 +33,11 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	int _current_page = 0;
 	CombatDataCard _card;
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
+	Main _main;
 	public CombatGamePlanerChoosePlayerINV(Main main, Player player, CombatDataCard card, HashMap<UUID, ItemStack> playerHeads) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Players =====", 3*9);
-		
-		_main.getServer().getPluginManager().registerEvents(this,_main);
+		_main = main;
 		_combatManager = main.get_combatManager();
 		_playerHeads =playerHeads;
 		_tooltip_starts = _size-9;
@@ -59,7 +59,7 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
 		
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -79,19 +79,19 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 				Player p = players.get(idx);
 				if(p != null)
 				{
-					ItemStack head = _playerHeads.containsKey(p.getUniqueId()) ? _playerHeads.get(p.getUniqueId()) : _itemM.getPlayerHead(p);
+					ItemStack head = new ItemStack(Material.PLAYER_HEAD);//_playerHeads.containsKey(p.getUniqueId()) ? _playerHeads.get(p.getUniqueId()) : Metods._ins.getPlayerHead(p);
 					
-					_itemM.setDisplayName(head, ChatColor.translateAlternateColorCodes('&', "&6&l"+p.getName()));					
+					Metods.setDisplayName(head, ChatColor.translateAlternateColorCodes('&', "&6&l"+p.getName()));					
 					
 					ItemStack optionItem = new ItemStack(Material.BLACK_CONCRETE);
-					_itemM.setDisplayName(optionItem, ChatColor.DARK_RED + "Not wanna be invited!");
+					Metods.setDisplayName(optionItem, ChatColor.DARK_RED + "Not wanna be invited!");
 					if(!_main.isPlayerBlocked(p))
 					{
 						optionItem.setType(Material.RED_CONCRETE);
-						_itemM.setDisplayName(optionItem, ChatColor.RED + "Not selected");
+						Metods.setDisplayName(optionItem, ChatColor.RED + "Not selected");
 						if(_card.isInvitePlayer(p) && _card.getInvitePlayer(p))
 						{
-							_itemM.setDisplayName(optionItem, ChatColor.GREEN + "SELECTED");
+							Metods.setDisplayName(optionItem, ChatColor.GREEN + "SELECTED");
 							optionItem.setType(Material.GREEN_CONCRETE);
 						}
 						
@@ -99,8 +99,8 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 						setButton(head,BUTTON.PLAYER_HEAD);
 						setButton(optionItem,BUTTON.PLAYER_HEAD);
 						
-						_itemM.setPersistenData(head, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
-						_itemM.setPersistenData(optionItem, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
+						Metods._ins.setPersistenData(head, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
+						Metods._ins.setPersistenData(optionItem, pd_uuid, PersistentDataType.STRING, p.getUniqueId().toString());
 						
 						
 					}else
@@ -112,8 +112,8 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 					continue;
 				}
 			}
-			_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
-			_inv.setItem(i+9, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+			_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+			_inv.setItem(i+9, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 		}
 		
 		setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, ChatColor.AQUA + "<<", _tooltip_starts+3);
@@ -145,12 +145,12 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -160,72 +160,66 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout implements 
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
 	}
 	
 	
-	@EventHandler
-	public void onInvClickEvent(InventoryClickEvent e) 
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e) 
 	{
-		int rawSlot = e.getRawSlot();
-		int slot = e.getSlot();
+		ItemStack stack = e.getCurrentItem();
 		
-		if(isThisInv(e) && (rawSlot == slot))
-		{			
-			e.setCancelled(true);
-			ItemStack stack = e.getCurrentItem();
-			
-			BUTTON button = getButton(stack);
-			//int item_id = (_current_page * _tooltip_starts)+slot;
-			switch (button) 
-			{
-			case NONE:
-				
-				break;
-			case GO_LEFT:
-				chanceCurrentPage(-1);
-				refresh();
-				break;
-			case GO_RIGHT:
-				chanceCurrentPage(1);
-				refresh();
-				break;
-				
-			case BACK:
-				new CombatGamePlaner(_main, _player, _card);
-				break;
-			case PLAYER_HEAD:
-				UUID uuid  = UUID.fromString(_itemM.getPersistenData(stack, pd_uuid, PersistentDataType.STRING));
-				Player p = Bukkit.getPlayer(uuid);
-				if(p != null)
-				{
-					if(_card.isInvitePlayer(p) && _card.getInvitePlayer(p))
-					{
-						_card.removeInvitePlayer(p);
-					}else
-					{
-						_card.addInvitePlayer(p, true);
-					}
-				}
-				refresh();
-				break;
-			default:
-				break;
-			}
-			
-		}	
-	}
-	
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
+		BUTTON button = getButton(stack);
+		//int item_id = (_current_page * _tooltip_starts)+slot;
+		switch (button) 
 		{
-			HandlerList.unregisterAll(this);
+		case NONE:
+			
+			break;
+		case GO_LEFT:
+			chanceCurrentPage(-1);
+			refresh();
+			break;
+		case GO_RIGHT:
+			chanceCurrentPage(1);
+			refresh();
+			break;
+			
+		case BACK:
+			new CombatGamePlaner(_main, _player, _card);
+			break;
+		case PLAYER_HEAD:
+			UUID uuid  = UUID.fromString(Metods._ins.getPersistenData(stack, pd_uuid, PersistentDataType.STRING));
+			Player p = Bukkit.getPlayer(uuid);
+			if(p != null)
+			{
+				if(_card.isInvitePlayer(p) && _card.getInvitePlayer(p))
+				{
+					_card.removeInvitePlayer(p);
+				}else
+				{
+					_card.addInvitePlayer(p, true);
+				}
+			}
+			refresh();
+			break;
+		default:
+			break;
 		}
+	}
+
+	@Override
+	public void setupButtons() 
+	{
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) 
+	{
+		
 	}
 
 }

@@ -20,6 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.PlanerManager;
@@ -41,11 +42,14 @@ public class CombatGamePlaner extends GamePlaner
 		super(main, player, ChatColor.DARK_AQUA + ""+ChatColor.BOLD + "Combat Planer");
 		
 		_card = card;
+		System.out.println("card: "+_card);
 		_pm = main.get_planerManager();
 		_card.set_bestOfMax(_main.get_combatManager().get_maximum_best_of());
 		
 		loadPlayerHeads();
 		reset();
+		
+		LoadButtons();
 	}
 	
 	void reset()
@@ -63,21 +67,22 @@ public class CombatGamePlaner extends GamePlaner
 			{
 				for(Player p : _main.getServer().getOnlinePlayers())
 				{
-					_playerHeads.put(p.getUniqueId(),_itemM.getPlayerHead(p));
+					//_playerHeads.put(p.getUniqueId(),Metods._ins.getPlayerHead(p));
+					_playerHeads.put(p.getUniqueId(),new ItemStack(Material.PLAYER_HEAD));
 				}
 				
 			}
 		}.runTaskAsynchronously(_main);
 	}
 	
-	void setupButtons() 
+	void LoadButtons() 
 	{
 		ItemStack mod;
 		String lore;
 		setupButton(BUTTON.EXIT, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "EXIT", _size-9);
 		mod = setupButton(BUTTON.CONFIRM, Material.GREEN_STAINED_GLASS_PANE, ChatColor.GREEN + "CONFIRM", _size-1);
-		_itemM.addLore(mod, ChatColor.YELLOW + "Confirm your game plan", true);
-		_itemM.addLore(mod, ChatColor.YELLOW + "and start sending invites..", true);
+		Metods._ins.addLore(mod, ChatColor.YELLOW + "Confirm your game plan", true);
+		Metods._ins.addLore(mod, ChatColor.YELLOW + "and start sending invites..", true);
 		
 		setupButton(BUTTON.RESET, Material.LAVA_BUCKET, ChatColor.RED +""+ChatColor.BOLD+ "RESET", 8);
 		
@@ -86,50 +91,50 @@ public class CombatGamePlaner extends GamePlaner
 		_card.putDataValue(0, arenaName);
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_BET,Material.GOLD_INGOT, ChatColor.AQUA + "Place Bet", 2));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "How much every player pays", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "How much every player pays", true);
 		
 		 mod = addLoreSetRemove(setupButton(BUTTON.ADD_PLAYERS, Material.WITHER_SKELETON_SKULL, ChatColor.AQUA + "Add Players", 4));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add your friends with you!", true);
 		 _card.get_invitePlayers().remove(_player);
 		 if(!_card.get_invitePlayers().isEmpty())
 		 {
 			 int count = 1;
-			 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added players! ==", true);
+			 Metods._ins.addLore(mod, ChatColor.BLUE + "== Bellow has added players! ==", true);
 			 for(Entry<Player, Boolean> entry : _card.get_invitePlayers().entrySet())
 			 {
 				 Player p = entry.getKey();
 				 if(p != null)
 				 {
-					 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&',"&2"+count+ ": &5"+p.getName()) ,true);
+					 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&',"&2"+count+ ": &5"+p.getName()) ,true);
 					 count++;
 				 }
 			 }
 		 }
 		 
 		 mod = addLoreSetRemove(setupButton(BUTTON.POTION_EFFECTS, Material.EXPERIENCE_BOTTLE, ChatColor.AQUA + "Add Potion Effects", 6));
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add Potion effects to your match!", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add Potion effects to your match!", true);
 		 
 		 if(!_card.get_invPotionEffects().isEmpty())
 		 {
-			 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added effects! ==", true);
+			 Metods._ins.addLore(mod, ChatColor.BLUE + "== Bellow has added effects! ==", true);
 			 for(Entry<PotionEffectType, PotionEffect> entry : _card.get_invPotionEffects().entrySet())
 			 {
 				 PotionEffect ef = entry.getValue();
-				 _itemM.addLore(mod, ChatColor.DARK_PURPLE + ef.getType().getName() + " "+ef.getAmplifier(),true);
+				 Metods._ins.addLore(mod, ChatColor.DARK_PURPLE + ef.getType().getName() + " "+ef.getAmplifier(),true);
 			 }
 		 }
 		 
 		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Needed wins", 10);
-		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);
-		 _itemM.addLore(mod, ChatColor.YELLOW + "Add how many wins ", true);
-		 _itemM.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
-		 _itemM.addLore(mod, ChatColor.AQUA + "Person needs " + ChatColor.DARK_GREEN + ChatColor.BOLD+ _card.get_bestOfAmount()+ChatColor.AQUA+" win(s)", true);
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add how many wins ", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "Person needs " + ChatColor.DARK_GREEN + ChatColor.BOLD+ _card.get_bestOfAmount()+ChatColor.AQUA+" win(s)", true);
 		 
 		 mod = setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12);
-		 _itemM.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bM3:&9 &k# &5Own Gear&9 &k#"),false);
-		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all"), true);
-		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eplayers use in combat"), true);
-		 _itemM.hideAttributes(mod);
+		 Metods._ins.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bM3:&9 &k# &5Own Gear&9 &k#"),false);
+		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all"), true);
+		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eplayers use in combat"), true);
+		 Metods._ins.hideAttributes(mod);
 		 lore ="&bSelected Kit: &aRandom";
 		 if(_card.isRandomKit())
 			 _card.set_kit(null);
@@ -138,22 +143,22 @@ public class CombatGamePlaner extends GamePlaner
 		 {
 			 lore ="&bSelected Kit: "+_card.get_kit().get_kitName();
 		 }
-		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', lore), true);
+		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', lore), true);
 
 		 mod = setupButton(BUTTON.ADD_ATTRIBUTES, Material.BOOKSHELF, ChatColor.AQUA + "Add Attributes", 14);
-		 _itemM.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set values"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Default values", false);
-		 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eEnable or Disable some attributes"), true);
-		 _itemM.addLore(mod, ChatColor.BLUE + "== Bellow has added attributes! ==", true);
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set values"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Default values", false);
+		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eEnable or Disable some attributes"), true);
+		 Metods._ins.addLore(mod, ChatColor.BLUE + "== Bellow has added attributes! ==", true);
 		 for(Entry<String,Integer> att : _card.get_attributes().entrySet())
 		 {
 			 String name = att.getKey().replace("_", " ");
-			 _itemM.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&5"+name+" : "+ (att.getValue() == 0 ? "&cfalse" : "&atrue")), true);
+			 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&5"+name+" : "+ (att.getValue() == 0 ? "&cfalse" : "&atrue")), true);
 		 }
 	}
 	
 	ItemStack addLoreSetRemove(ItemStack stack)
 	{
-		return _itemM.addLore(stack, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Remove", false);		
+		return Metods._ins.addLore(stack, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Set"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Remove", false);		
 	}
 	
 	void setPDvalue(ItemStack stack, String value)
@@ -161,8 +166,8 @@ public class CombatGamePlaner extends GamePlaner
 		_pm.setPDvalue(stack,value);
 		String str = "Set to: ";
 		
-		_itemM.removeLore(stack, str);
-		_itemM.addLore(stack, ChatColor.AQUA + str +ChatColor.DARK_GREEN + value, true);
+		Metods._ins.removeLore(stack, str);
+		Metods._ins.addLore(stack, ChatColor.AQUA + str +ChatColor.DARK_GREEN + value, true);
 		
 	}
 	void removePDvalue(ItemStack stack)
@@ -173,7 +178,7 @@ public class CombatGamePlaner extends GamePlaner
 		_pm.removePDvalue(stack);
 		String str = "Set to: ";
 		
-		_itemM.removeLore(stack, str);
+		Metods._ins.removeLore(stack, str);
 		
 	}
 	
@@ -276,7 +281,7 @@ public class CombatGamePlaner extends GamePlaner
 					if(value == null)
 						continue;
 					
-					if(_itemM.isDigit(value))
+					if(Metods._ins.isDigit(value))
 					{
 						double bet =Double.parseDouble(value);
 						if(bet > 0)
@@ -395,168 +400,162 @@ public class CombatGamePlaner extends GamePlaner
 		_main.get_combatManager().savePlayerDataCard(_player, _card);
 	}
 	
-	@EventHandler
-	public void onClick(InventoryClickEvent e)
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e) 
 	{
-		int rawSlot = e.getRawSlot();
-		int slot = e.getSlot();
+		ItemStack stack = e.getCurrentItem();
 		
-		if(isThisInv(e) && (rawSlot == slot))
-		{			
-			e.setCancelled(true);
-			ItemStack stack = e.getCurrentItem();
-			
-			ConversationFactory cf = null;
-			String question = null;
-			Conversation conv = null;
-			
-			BUTTON button = getButton(stack);
-			
-			if(e.getClick() == ClickType.LEFT)
-			{
-				switch (button) {
-				
-				case NONE:				
-					break;
-				
-				case EXIT:
-					_player.closeInventory();
-					break;
-				case CONFIRM:
-					CombatGameCard gameCard = confirm();
-					if(gameCard != null)
-					{	
-						_main.get_combatGameHandler().savePlayerGameCard(_player, gameCard);						
-						_main.get_combatGameHandler().repearStartGame(_player, gameCard);
-						//saveDataCard();
-						_player.closeInventory();
-						
-					}
-					else
-					{
-						//System.out.println("Card null");
-						checkAnwsers();
-					}
-					break;
-				case ADD_BET:
-					cf = new ConversationFactory(_main);
-					question = ChatColor.DARK_PURPLE + "Give your bet";
-					conv = cf.withFirstPrompt(new ConvPromptCombatGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
-					conv.begin();
-					_player.closeInventory();
-					break;
-				case ADD_PLAYERS:
-//					cf = new ConversationFactory(_main);
-//					question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
-//					conv = cf.withFirstPrompt(new ConvPromptCombatGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
-//					conv.begin();
-//					_player.closeInventory();
-					new CombatGamePlanerChoosePlayerINV(_main, _player, _card,_playerHeads);
-					break;
-				case RESET:
-					_card = new CombatDataCard(_player);
-					reset();
-					break;
-					
-				case SET_ARENA:
-					new CombatGamePlanerChooseArenaINV(_main, _player, _card);
-					break;
-				case POTION_EFFECTS:
-					new CombatGamePlanerPotionEffectsINV(_main, _player, _card);
-					break;
-				case ADD_BEST_OF_AMOUNT:
-					_card.addBestOfAmount(1);
-					setupButtons();
-					checkAnwsers();
-					break;
-				case SET_KIT:
-					new CombatGamePlanerChooseKitINV(_main, _player, _card);
-					break;
-				case ADD_ATTRIBUTES:
-					new CombatGamePlanerChooseAttributesINV(_main, _player, _card);
-					break;
-				default:
-					break;
-				}
-			}
-			else if(e.getClick() == ClickType.RIGHT)
-			{
-				switch (button) 
-				{
-				case ADD_BET:
-					_card.removeDataValue(slot);
-					if(wrongs.contains(slot))
-						wrongs.remove(slot);
-					//setupButtons();
-					checkAnwsers();
-					break;
-				case ADD_PLAYERS:
-//					_card.removeDataValue(slot);
-//					if(wrongs.contains(slot))
-//						wrongs.remove(slot);
-//					//setupButtons();
-					_card.clearInvitePlayers();
-					setupButtons();
-					
-					break;
-
-				case SET_ARENA:
-					_card.set_arena(null);
-					reset();
-					break;
-				case POTION_EFFECTS:
-					_card.get_invPotionEffects().clear();
-					reset();
-					break;
-				case ADD_BEST_OF_AMOUNT:
-					_card.addBestOfAmount(-1);
-					setupButtons();
-					checkAnwsers();
-					break;
-				case SET_KIT:
-					_card.set_kit(null);
-					_card.setOwnGearKit(false);
-					_card.setRandomKit(true);
-					setupButtons();
-					break;
-				case ADD_ATTRIBUTES:
-					_card.resetAttributes();
-					setupButtons();
-					break;
-				default:
-					break;
-				
-				
-				
-				}
-			}else if(e.getClick()== ClickType.MIDDLE)
-			{
-				switch(button)
-				{
-				case SET_KIT:
-					_card.set_kit(new ArenaKit("&9 &k# &5OWN GEAR &9 &k#", new ItemStack[] {}));
-					_card.setRandomKit(false);
-					_card.setOwnGearKit(true);
-					setupButtons();
-					break;
-				default:
-					break;
-				
-				}
-			}
-			
-			
-		}
-	
-	}
-	
-	@EventHandler
-	public void invClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
+		ConversationFactory cf = null;
+		String question = null;
+		Conversation conv = null;
+		
+		BUTTON button = getButton(stack);
+		int slot = e.getSlot();
+		if(e.getClick() == ClickType.LEFT)
 		{
-			saveDataCard();
-			e.getPlayer().sendMessage(ChatColor.GOLD + "Combat plan has saved!");
+			switch (button) {
+			
+			case NONE:				
+				break;
+			
+			case EXIT:
+				_player.closeInventory();
+				break;
+			case CONFIRM:
+				CombatGameCard gameCard = confirm();
+				if(gameCard != null)
+				{	
+					_main.get_combatGameHandler().savePlayerGameCard(_player, gameCard);						
+					_main.get_combatGameHandler().repearStartGame(_player, gameCard);
+					//saveDataCard();
+					_player.closeInventory();
+					
+				}
+				else
+				{
+					//System.out.println("Card null");
+					checkAnwsers();
+				}
+				break;
+			case ADD_BET:
+				
+				cf = new ConversationFactory(_main);
+				question = ChatColor.DARK_PURPLE + "Give your bet";
+				conv = cf.withFirstPrompt(new ConvPromptCombatGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
+				conv.begin();
+				_player.closeInventory();
+				break;
+			case ADD_PLAYERS:
+//				cf = new ConversationFactory(_main);
+//				question = ChatColor.DARK_PURPLE + "Give players seprate with space!(ex: imu joksu789";
+//				conv = cf.withFirstPrompt(new ConvPromptCombatGamePlaner(_main, _player, slot, question)).withLocalEcho(true).buildConversation(_player);
+//				conv.begin();
+//				_player.closeInventory();
+				new CombatGamePlanerChoosePlayerINV(_main, _player, _card,_playerHeads);
+				break;
+			case RESET:
+				_card = new CombatDataCard(_player);
+				reset();
+				break;
+				
+			case SET_ARENA:
+				new CombatGamePlanerChooseArenaINV(_main, _player, _card);
+				break;
+			case POTION_EFFECTS:
+				new CombatGamePlanerPotionEffectsINV(_main, _player, _card);
+				break;
+			case ADD_BEST_OF_AMOUNT:
+				_card.addBestOfAmount(1);
+				setupButtons();
+				checkAnwsers();
+				break;
+			case SET_KIT:
+				new CombatGamePlanerChooseKitINV(_main, _player, _card);
+				break;
+			case ADD_ATTRIBUTES:
+				new CombatGamePlanerChooseAttributesINV(_main, _player, _card);
+				break;
+			default:
+				break;
+			}
 		}
+		else if(e.getClick() == ClickType.RIGHT)
+		{
+			switch (button) 
+			{
+			case ADD_BET:
+				_card.removeDataValue(slot);
+				if(wrongs.contains(slot))
+					wrongs.remove(slot);
+				//setupButtons();
+				checkAnwsers();
+				break;
+			case ADD_PLAYERS:
+//				_card.removeDataValue(slot);
+//				if(wrongs.contains(slot))
+//					wrongs.remove(slot);
+//				//setupButtons();
+				_card.clearInvitePlayers();
+				setupButtons();
+				
+				break;
+
+			case SET_ARENA:
+				_card.set_arena(null);
+				reset();
+				break;
+			case POTION_EFFECTS:
+				_card.get_invPotionEffects().clear();
+				reset();
+				break;
+			case ADD_BEST_OF_AMOUNT:
+				_card.addBestOfAmount(-1);
+				setupButtons();
+				checkAnwsers();
+				break;
+			case SET_KIT:
+				_card.set_kit(null);
+				_card.setOwnGearKit(false);
+				_card.setRandomKit(true);
+				setupButtons();
+				break;
+			case ADD_ATTRIBUTES:
+				_card.resetAttributes();
+				setupButtons();
+				break;
+			default:
+				break;
+			
+			
+			
+			}
+		}else if(e.getClick()== ClickType.MIDDLE)
+		{
+			switch(button)
+			{
+			case SET_KIT:
+				_card.set_kit(new ArenaKit("&9 &k# &5OWN GEAR &9 &k#", new ItemStack[] {}));
+				_card.setRandomKit(false);
+				_card.setOwnGearKit(true);
+				setupButtons();
+				break;
+			default:
+				break;
+			
+			}
+		}
+		
+		
 	}
+	
+	
+	@Override
+	public void invClosed(InventoryCloseEvent e) 
+	{
+		saveDataCard();
+		e.getPlayer().sendMessage(ChatColor.GOLD + "Combat plan has saved!");
+	}
+
+	
+	
 }

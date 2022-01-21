@@ -10,11 +10,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Enums.COMBAT_ATTRIBUTE;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
-import imu.iMiniGames.Other.CustomInvLayout;
 import net.md_5.bungee.api.ChatColor;
 
 public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout implements Listener
@@ -28,11 +29,11 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	CombatDataCard _card;
 	
 	ItemStack[] _displays = new ItemStack[2];
+	protected Main _main;
 	public CombatGamePlanerChooseAttributesINV(Main main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Attributes =====", 3*9);
-		
-		_main.getServer().getPluginManager().registerEvents(this,_main);
+		_main = main;
 		_combatManager = main.get_combatManager();
 		_tooltip_starts = _size-9;
 		_card = card;
@@ -52,22 +53,22 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	void setAtts()
 	{		
 		ItemStack att = new ItemStack(Material.ARROW);
-		_itemM.setDisplayName(att, ChatColor.YELLOW+"Arrow Spread");
-		_itemM.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5Should be enabled to fair play!"), true);
-		_itemM.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5No Random Spread!"), true);
+		Metods.setDisplayName(att, ChatColor.YELLOW+"Arrow Spread");
+		Metods._ins.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5Should be enabled to fair play!"), true);
+		Metods._ins.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5No Random Spread!"), true);
 		setButton(att, BUTTON.ATTRIBUTE);
-		_itemM.setPersistenData(att, "type", PersistentDataType.STRING, COMBAT_ATTRIBUTE.NO_ARROW_SPREAD.toString());
-		_itemM.setPersistenData(att, "slot", PersistentDataType.INTEGER, 0);
-		_itemM.setPersistenData(att, COMBAT_ATTRIBUTE.NO_ARROW_SPREAD.toString(), PersistentDataType.INTEGER, _card.getAttribute(COMBAT_ATTRIBUTE.NO_ARROW_SPREAD));
+		Metods._ins.setPersistenData(att, "type", PersistentDataType.STRING, COMBAT_ATTRIBUTE.NO_ARROW_SPREAD.toString());
+		Metods._ins.setPersistenData(att, "slot", PersistentDataType.INTEGER, 0);
+		Metods._ins.setPersistenData(att, COMBAT_ATTRIBUTE.NO_ARROW_SPREAD.toString(), PersistentDataType.INTEGER, _card.getAttribute(COMBAT_ATTRIBUTE.NO_ARROW_SPREAD));
 		_displays[0] = att;
 		
 		att = new ItemStack(Material.RED_DYE);
-		_itemM.setDisplayName(att, ChatColor.YELLOW+"Show Damage");
-		_itemM.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5Display dmg to you and opponent!"), true);
+		Metods.setDisplayName(att, ChatColor.YELLOW+"Show Damage");
+		Metods._ins.addLore(att, ChatColor.translateAlternateColorCodes('&', "&5Display dmg to you and opponent!"), true);
 		setButton(att, BUTTON.ATTRIBUTE);
-		_itemM.setPersistenData(att, "type", PersistentDataType.STRING, COMBAT_ATTRIBUTE.SHOW_DMG.toString());
-		_itemM.setPersistenData(att, COMBAT_ATTRIBUTE.SHOW_DMG.toString(), PersistentDataType.INTEGER, _card.getAttribute(COMBAT_ATTRIBUTE.SHOW_DMG));
-		_itemM.setPersistenData(att, "slot", PersistentDataType.INTEGER, 1);
+		Metods._ins.setPersistenData(att, "type", PersistentDataType.STRING, COMBAT_ATTRIBUTE.SHOW_DMG.toString());
+		Metods._ins.setPersistenData(att, COMBAT_ATTRIBUTE.SHOW_DMG.toString(), PersistentDataType.INTEGER, _card.getAttribute(COMBAT_ATTRIBUTE.SHOW_DMG));
+		Metods._ins.setPersistenData(att, "slot", PersistentDataType.INTEGER, 1);
 		_displays[1] = att;
 
 	}
@@ -75,7 +76,7 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
 		
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -92,28 +93,28 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 			if(idx < _displays.length)
 			{
 				ItemStack s =_displays[idx];
-				String type =  _itemM.getPersistenData(s, "type", PersistentDataType.STRING);
-				int value = _itemM.getPersistenData(s,type, PersistentDataType.INTEGER);
+				String type =  Metods._ins.getPersistenData(s, "type", PersistentDataType.STRING);
+				int value = Metods._ins.getPersistenData(s,type, PersistentDataType.INTEGER);
 				_card.setAttribute(COMBAT_ATTRIBUTE.valueOf(type), value);
 				_inv.setItem(i, s);
 				ItemStack clone = s.clone();
 				if(value > 0)
 				{
 					clone.setType(Material.GREEN_STAINED_GLASS_PANE);
-					_inv.setItem(i+9, _itemM.setDisplayName(clone, ChatColor.GREEN + "Enabled"));
+					_inv.setItem(i+9, Metods.setDisplayName(clone, ChatColor.GREEN + "Enabled"));
 				}
 				else
 				{
 					clone.setType(Material.RED_STAINED_GLASS_PANE);
-					_inv.setItem(i+9, _itemM.setDisplayName(clone, ChatColor.RED +"Disabled"));
+					_inv.setItem(i+9, Metods.setDisplayName(clone, ChatColor.RED +"Disabled"));
 				}
 				
 				
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
-				_inv.setItem(i+9, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i+9, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 			
 			
@@ -148,12 +149,12 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -163,7 +164,7 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -202,14 +203,14 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 				break;
 			case ATTRIBUTE:
 				//otetaan väärästä, pitäs ottaa se sieltä arraysta
-				String type = _itemM.getPersistenData(stack, "type", PersistentDataType.STRING);
-				int value = _itemM.getPersistenData(stack, type, PersistentDataType.INTEGER);
+				String type = Metods._ins.getPersistenData(stack, "type", PersistentDataType.STRING);
+				int value = Metods._ins.getPersistenData(stack, type, PersistentDataType.INTEGER);
 				if(value > 0)
 				{
-					_itemM.setPersistenData(_displays[_itemM.getPersistenData(stack, "slot", PersistentDataType.INTEGER)], type, PersistentDataType.INTEGER, 0);
+					Metods._ins.setPersistenData(_displays[Metods._ins.getPersistenData(stack, "slot", PersistentDataType.INTEGER)], type, PersistentDataType.INTEGER, 0);
 				}else
 				{
-					_itemM.setPersistenData(_displays[_itemM.getPersistenData(stack, "slot", PersistentDataType.INTEGER)], type, PersistentDataType.INTEGER, 1);
+					Metods._ins.setPersistenData(_displays[Metods._ins.getPersistenData(stack, "slot", PersistentDataType.INTEGER)], type, PersistentDataType.INTEGER, 1);
 				}				
 				refresh();
 				break;
@@ -227,6 +228,21 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setupButtons() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

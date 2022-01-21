@@ -7,22 +7,25 @@ import java.util.Comparator;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
 import imu.iMiniGames.Leaderbords.PlayerBoard;
 import imu.iMiniGames.Leaderbords.PlayerVsPlayerBoard;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.CustomInvLayout;
 import net.md_5.bungee.api.ChatColor;
 
-public class CombatLeaderBoardStats extends CustomInvLayout implements Listener {
+public class CombatLeaderBoardStats extends CustomInvLayout  
+{
 	String pd_buttonType = "img.buttonType";
 	CombatLeaderBoard _leaderboards;
 	CombatPlayerBoard _board;
@@ -40,8 +43,13 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 	
 	boolean _ascending = false; //ascending
 	boolean _weekly = false;
+	
+	Main _main;
+	Cooldowns _cds = new Cooldowns();
 	public CombatLeaderBoardStats(Main main, Player player) {
 		super(main, player, ChatColor.BLACK + "" + ChatColor.BOLD + "====== Leaderboards ======", 9 * 3);
+		
+		_main = main;
 		_leaderboards = main.get_combatManager().getLeaderBoard();
 		_board = (CombatPlayerBoard) _leaderboards.getPlayerBoard(player);
 		_pvp_boards = new ArrayList<>(_board.get_pvp_target_board().values());
@@ -55,7 +63,6 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 		}
 		
 		
-		_main.getServer().getPluginManager().registerEvents(this, _main);
 		openThis();
 		refreshMainMenu();
 
@@ -97,11 +104,11 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 	}
 
 	void setButton(ItemStack stack, BUTTON b) {
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 
 	BUTTON getButton(ItemStack stack) {
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if (button != null)
 			return BUTTON.valueOf(button);
 
@@ -110,7 +117,7 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 
 	ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot) {
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -134,7 +141,7 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 
 	void setOptionPanel() {
 		ItemStack none_item = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(none_item, " ");
+		Metods.setDisplayName(none_item, " ");
 		setupButton(BUTTON.BACK, Material.RED_WOOL, ChatColor.AQUA + "BACK", 18);
 		setupButton(BUTTON.BACK, Material.RED_WOOL, ChatColor.AQUA + "BACK", _size - 1);
 		setupButton(BUTTON.PAGE_RIGHT, Material.BIRCH_SIGN, ChatColor.AQUA + ">>>", 23);
@@ -149,20 +156,20 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 	void setSortPanel()
 	{
 		ItemStack s = new ItemStack(Material.BOOK);
-		_itemM.setDisplayName(s, ChatColor.AQUA + "SORT BY..");
-		_itemM.addLore(s, _itemM.msgC("&5MODE: "+ (!_ascending ? "&cDescending " : "&2Ascending ") + "&e(&bChance by Middle Click!&e)"), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.GAMES ? "&e&l" : "")+"GAMES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.GAMES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.WINS ? "&e&l" : "")+"WINS "				+(!(!_sortConfirm && _sortType == SORT_TYPE.WINS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.LOSES ? "&e&l" : "")+"LOSES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.LOSES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.WIN_RATIO ? "&e&l" : "")+"WIN RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.WIN_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.KILLS ? "&e&l" : "")+"KILLS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.KILLS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DEATHS ? "&e&l" : "")+"DEATHS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.DEATHS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.KD_RATIO ? "&e&l" : "")+"KD RATIO "		+(!(!_sortConfirm && _sortType == SORT_TYPE.KD_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_WON ? "&e&l" : "")+"BET WON "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_WON) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_LOST ? "&e&l" : "")+"BET LOST "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_LOST) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_RATIO ? "&e&l" : "")+"BET RATIO"		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_DONE ? "&e&l" : "")+"DMG DONE "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_DONE) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_TAKEN ? "&e&l" : "")+"DMG TAKEN "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_TAKEN) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods.setDisplayName(s, ChatColor.AQUA + "SORT BY..");
+		Metods._ins.addLore(s, Metods.msgC("&5MODE: "+ (!_ascending ? "&cDescending " : "&2Ascending ") + "&e(&bChance by Middle Click!&e)"), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.GAMES ? "&e&l" : "")+"GAMES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.GAMES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.WINS ? "&e&l" : "")+"WINS "				+(!(!_sortConfirm && _sortType == SORT_TYPE.WINS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.LOSES ? "&e&l" : "")+"LOSES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.LOSES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.WIN_RATIO ? "&e&l" : "")+"WIN RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.WIN_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.KILLS ? "&e&l" : "")+"KILLS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.KILLS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.DEATHS ? "&e&l" : "")+"DEATHS " 			+(!(!_sortConfirm && _sortType == SORT_TYPE.DEATHS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.KD_RATIO ? "&e&l" : "")+"KD RATIO "		+(!(!_sortConfirm && _sortType == SORT_TYPE.KD_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_WON ? "&e&l" : "")+"BET WON "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_WON) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_LOST ? "&e&l" : "")+"BET LOST "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_LOST) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_RATIO ? "&e&l" : "")+"BET RATIO"		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_DONE ? "&e&l" : "")+"DMG DONE "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_DONE) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.DAMAGE_TAKEN ? "&e&l" : "")+"DMG TAKEN "	+(!(!_sortConfirm && _sortType == SORT_TYPE.DAMAGE_TAKEN) ? "":"&e(&5Confirm by Right Click!&e)")), true);
 		
 		setButton(s, BUTTON.CHANGE_SORT);
 		_inv.setItem(22, s);
@@ -173,15 +180,15 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 	void setSortPanelPVP()
 	{
 		ItemStack s = new ItemStack(Material.BOOK);
-		_itemM.setDisplayName(s, ChatColor.AQUA + "SORT BY..");
-		_itemM.addLore(s, _itemM.msgC("&5MODE: "+ (!_ascending ? "&cDescending " : "&2Ascending ") + "&e(&bChance by Middle Click!&e)"), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.GAMES ? "&e&l" : "")+"GAMES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.GAMES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.WINS ? "&e&l" : "")+"WINS "				+(!(!_sortConfirm && _sortType == SORT_TYPE.WINS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.LOSES ? "&e&l" : "")+"LOSES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.LOSES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.WIN_RATIO ? "&e&l" : "")+"WIN RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.WIN_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_WON ? "&e&l" : "")+"BET WON "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_WON) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_LOST ? "&e&l" : "")+"BET LOST "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_LOST) ? "":"&e(&5Confirm by Right Click!&e)")), true);
-		_itemM.addLore(s, _itemM.msgC("&9"+(_sortType == SORT_TYPE.BET_RATIO ? "&e&l" : "")+"BET RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods.setDisplayName(s, ChatColor.AQUA + "SORT BY..");
+		Metods._ins.addLore(s, Metods.msgC("&5MODE: "+ (!_ascending ? "&cDescending " : "&2Ascending ") + "&e(&bChance by Middle Click!&e)"), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.GAMES ? "&e&l" : "")+"GAMES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.GAMES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.WINS ? "&e&l" : "")+"WINS "				+(!(!_sortConfirm && _sortType == SORT_TYPE.WINS) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.LOSES ? "&e&l" : "")+"LOSES "			+(!(!_sortConfirm && _sortType == SORT_TYPE.LOSES) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.WIN_RATIO ? "&e&l" : "")+"WIN RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.WIN_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_WON ? "&e&l" : "")+"BET WON "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_WON) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_LOST ? "&e&l" : "")+"BET LOST "		+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_LOST) ? "":"&e(&5Confirm by Right Click!&e)")), true);
+		Metods._ins.addLore(s, Metods.msgC("&9"+(_sortType == SORT_TYPE.BET_RATIO ? "&e&l" : "")+"BET RATIO "	+(!(!_sortConfirm && _sortType == SORT_TYPE.BET_RATIO) ? "":"&e(&5Confirm by Right Click!&e)")), true);
 		
 		setButton(s, BUTTON.CHANGE_SORT);
 		_inv.setItem(22, s);
@@ -295,22 +302,22 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 
 			CombatPlayerBoard cp = (CombatPlayerBoard) boards.get(count++);
 			stats_item = (cp.get_uuid().equals(_player.getUniqueId()) ? new ItemStack(Material.SKELETON_SKULL):new ItemStack(Material.WITHER_SKELETON_SKULL));
-			_itemM.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + cp.get_pName()));
+			Metods.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + cp.get_pName()));
 
-			_itemM.addLore(stats_item, _itemM.msgC("&5Games played: &b" + (cp.get_Wins() + cp.get_Loses())), true);
-			_itemM.addLore(stats_item, _itemM.msgC(""), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&aWins&7/&cLoses&7/&eRatio: &a" + cp.get_Wins() + "&7/&c"
+			Metods._ins.addLore(stats_item, Metods.msgC("&5Games played: &b" + (cp.get_Wins() + cp.get_Loses())), true);
+			Metods._ins.addLore(stats_item, Metods.msgC(""), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&aWins&7/&cLoses&7/&eRatio: &a" + cp.get_Wins() + "&7/&c"
 					+ cp.get_Loses() + "&7/&e" + (cp.get_Wins() / (cp.get_Loses() == 0 ? 1 : cp.get_Loses()))), true);
-			_itemM.addLore(stats_item,
-					_itemM.msgC("&aKills&7/&cDeaths&7/&eRatio: &a" + cp.get_total_kills() + "&7/&c"
+			Metods._ins.addLore(stats_item,
+					Metods.msgC("&aKills&7/&cDeaths&7/&eRatio: &a" + cp.get_total_kills() + "&7/&c"
 							+ cp.get_total_deaths() + "&7/&e"
 							+twoDesimals(((double)cp.get_total_kills() / (cp.get_total_deaths() == 0.0 ? 1.0 : (double)cp.get_total_deaths())))),
 					true);
-			_itemM.addLore(stats_item, _itemM.msgC("&6Bets won: &9" + cp.get_total_bet_wins_amount()), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&6Bets lost: &9" + cp.get_total_bet_lost_amount()), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&eBets ratio: &9" + twoDesimals(cp.get_total_bet_wins_amount() / (cp.get_total_bet_lost_amount() == 0 ? 1.0 : (double)cp.get_total_bet_lost_amount()))), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&3Damage done: &9" + twoDesimals(cp.get_total_dmg_done()/2)), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&3Damage taken: &9" + twoDesimals(cp.get_total_dmg_taken()/2)), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&6Bets won: &9" + cp.get_total_bet_wins_amount()), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&6Bets lost: &9" + cp.get_total_bet_lost_amount()), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&eBets ratio: &9" + twoDesimals(cp.get_total_bet_wins_amount() / (cp.get_total_bet_lost_amount() == 0 ? 1.0 : (double)cp.get_total_bet_lost_amount()))), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&3Damage done: &9" + twoDesimals(cp.get_total_dmg_done()/2)), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&3Damage taken: &9" + twoDesimals(cp.get_total_dmg_taken()/2)), true);
 			_inv.setItem(i, stats_item);
 
 		}
@@ -333,6 +340,8 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 		setSortPanelPVP();
 
 		int count = _page * (_size - 9);
+		
+		if(_pvp_boards == null) return;
 		
 		if(!_sorted)
 		{
@@ -396,22 +405,23 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 
 			PlayerVsPlayerBoard pvp_board = _pvp_boards.get(count++);
 			stats_item = new ItemStack(Material.WITHER_SKELETON_SKULL);
-			_itemM.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + _main.get_leaderboardUUIDData().getName(pvp_board.get_uuid())));
+			Metods.setDisplayName(stats_item, ChatColor.translateAlternateColorCodes('&', "&6&l" + _main.get_leaderboardUUIDData().getName(pvp_board.get_uuid())));
 
-			_itemM.addLore(stats_item, _itemM.msgC("&5Games played with him/her: &b" + (pvp_board.get_wins() + pvp_board.get_lost())), true);
-			_itemM.addLore(stats_item, _itemM.msgC(""), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&aYou have won agains him/her: &9"+pvp_board.get_wins()),true);
-			_itemM.addLore(stats_item, _itemM.msgC("&cYou have lost agains him/her: &9"+pvp_board.get_lost()),true);
-			_itemM.addLore(stats_item, _itemM.msgC("&eWin/Lost ratio: &9"+twoDesimals((pvp_board.get_wins() / (pvp_board.get_lost() == 0 ? 1.0 : (double)pvp_board.get_lost())))),true);
-			_itemM.addLore(stats_item, _itemM.msgC("&6Bets &2won&6 from him/her: &9" + pvp_board.get_total_bet_wons_amount()), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&6Bets &clost&6 to him/her: &9" + pvp_board.get_total_bet_lost_amount()), true);
-			_itemM.addLore(stats_item, _itemM.msgC("&eBets ratio: &9" + twoDesimals(pvp_board.get_total_bet_wons_amount() / (pvp_board.get_total_bet_lost_amount() == 0 ? 1.0 : (double)pvp_board.get_total_bet_lost_amount()))), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&5Games played with him/her: &b" + (pvp_board.get_wins() + pvp_board.get_lost())), true);
+			Metods._ins.addLore(stats_item, Metods.msgC(""), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&aYou have won agains him/her: &9"+pvp_board.get_wins()),true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&cYou have lost agains him/her: &9"+pvp_board.get_lost()),true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&eWin/Lost ratio: &9"+twoDesimals((pvp_board.get_wins() / (pvp_board.get_lost() == 0 ? 1.0 : (double)pvp_board.get_lost())))),true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&6Bets &2won&6 from him/her: &9" + pvp_board.get_total_bet_wons_amount()), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&6Bets &clost&6 to him/her: &9" + pvp_board.get_total_bet_lost_amount()), true);
+			Metods._ins.addLore(stats_item, Metods.msgC("&eBets ratio: &9" + twoDesimals(pvp_board.get_total_bet_wons_amount() / (pvp_board.get_total_bet_lost_amount() == 0 ? 1.0 : (double)pvp_board.get_total_bet_lost_amount()))), true);
 
 			_inv.setItem(i, stats_item);
 
 		}
 	}
-	void pressButton(BUTTON button, ClickType cType) {
+	void pressButton(BUTTON button, ClickType cType) 
+	{
 		if (_state != button)
 			_page = 0;
 
@@ -566,27 +576,35 @@ public class CombatLeaderBoardStats extends CustomInvLayout implements Listener 
 		}
 	}
 
-	@EventHandler
-	public void onInvClickEvent(InventoryClickEvent e) {
-		int rawSlot = e.getRawSlot();
-		int slot = e.getSlot();
+	
 
-		if (isThisInv(e) && (rawSlot == slot)) {
-			e.setCancelled(true);
-			ItemStack stack = e.getCurrentItem();
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+		
+	}
 
-			BUTTON button = getButton(stack);
-			// int item_id = (_current_page * _tooltip_starts)+slot;
-			new BukkitRunnable() {
-				
-				@Override
-				public void run() 
-				{
-					pressButton(button, e.getClick());
-				}
-			}.runTaskAsynchronously(_main);
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e) 
+	{
+//		if(!_cds.isCooldownReady("press")) return;
+//		
+//		_cds.setCooldownInSeconds("press", 0.2);
+		ItemStack stack = e.getCurrentItem();
+
+		BUTTON button = getButton(stack);
+		new BukkitRunnable() {
 			
+			@Override
+			public void run() 
+			{
+				pressButton(button, e.getClick());
+			}
+		}.runTaskAsynchronously(_main);
+		
+	}
 
-		}
+	@Override
+	public void setupButtons() {
+		
 	}
 }

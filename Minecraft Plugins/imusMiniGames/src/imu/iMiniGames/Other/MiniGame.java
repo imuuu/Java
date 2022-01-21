@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.PlayerDataCard;
 import imu.iMiniGames.Interfaces.IMiniGame;
 import imu.iMiniGames.Main.Main;
 import net.md_5.bungee.api.ChatColor;
@@ -14,7 +16,7 @@ import net.md_5.bungee.api.ChatColor;
 public abstract class MiniGame implements IMiniGame
 {
 	protected Main _main;
-	protected ItemMetods _itemM;
+	protected Metods _itemM;
 	String _miniGameName;
 	
 	int _roundTime = 0;

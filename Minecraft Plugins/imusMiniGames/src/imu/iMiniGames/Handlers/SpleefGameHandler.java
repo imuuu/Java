@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.ConfigMaker;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameSpleef;
 import imu.iMiniGames.Other.SpleefGameCard;

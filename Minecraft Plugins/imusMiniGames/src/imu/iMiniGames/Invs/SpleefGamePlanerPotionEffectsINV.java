@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -18,13 +17,14 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.CustomInvLayout;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
-public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements Listener
+public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 {
 	SpleefManager _spleefManager;
 	
@@ -41,11 +41,11 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 	
 	int _powerMax = 5;
 	int _powerMin = 0;
-	
+	Main _main;
 	public SpleefGamePlanerPotionEffectsINV(Main main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Effects =====", 4*9);
-		
+		_main = main;
 		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
 		addEffects();
@@ -82,17 +82,17 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 	void refresh_item(int slot, int increaseAmount)
 	{
 		ItemStack stack = _inv.getItem(slot);
-		Integer power = _itemM.getPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER);
+		Integer power = Metods._ins.getPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER);
 		power += increaseAmount;
-		_itemM.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, power);
+		Metods._ins.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, power);
 		if(power > _powerMax)
 		{
-			_itemM.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, _powerMax);
+			Metods._ins.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, _powerMax);
 			power = _powerMax;
 		}
 		if(power < _powerMin)
 		{
-			_itemM.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, _powerMin);
+			Metods._ins.setPersistenData(stack, pd_potion_power, PersistentDataType.INTEGER, _powerMin);
 			power = _powerMin;
 		}
 		
@@ -101,8 +101,8 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 		{
 			str = ChatColor.AQUA + "Power: "+ChatColor.RED+"None";
 		}
-		_itemM.removeLore(stack, "Power:");
-		_itemM.addLore(stack, str, true);
+		Metods._ins.removeLore(stack, "Power:");
+		Metods._ins.addLore(stack, str, true);
 		
 		PotionMeta meta = (PotionMeta)stack.getItemMeta();
 		
@@ -116,7 +116,7 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -131,9 +131,9 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 				PotionEffectType pType= _potionEffects.get(idx);
 				
 				ItemStack item_arena = setupButton(BUTTON.POTION_EFFECT, Material.POTION,ChatColor.GOLD +pType.getName(),i);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);		
-				_itemM.setPersistenData(item_arena, pd_potion_power, PersistentDataType.INTEGER, 0);
-				_itemM.setPersistenData(item_arena, pd_potion_name, PersistentDataType.STRING, pType.getName());
+				Metods._ins.addLore(item_arena, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);		
+				Metods._ins.setPersistenData(item_arena, pd_potion_power, PersistentDataType.INTEGER, 0);
+				Metods._ins.setPersistenData(item_arena, pd_potion_name, PersistentDataType.STRING, pType.getName());
 				int power = 0;
 				if(_card.get_invPotionEffects().containsKey(pType))
 				{
@@ -146,7 +146,7 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 		}
 		
@@ -181,12 +181,12 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -196,7 +196,7 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -251,8 +251,8 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 					ItemStack pot = _inv.getItem(i);
 					if(pot != null && getButton(pot) == BUTTON.POTION_EFFECT)
 					{
-						String name = _itemM.getPersistenData(pot, pd_potion_name, PersistentDataType.STRING);
-						int power = _itemM.getPersistenData(pot, pd_potion_power, PersistentDataType.INTEGER);
+						String name = Metods._ins.getPersistenData(pot, pd_potion_name, PersistentDataType.STRING);
+						int power = Metods._ins.getPersistenData(pot, pd_potion_power, PersistentDataType.INTEGER);
 						
 						if(power == _powerMin)
 							continue;
@@ -281,6 +281,24 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout implements
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+
+
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+	}
+
+
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0) {
+	}
+
+
+
+	@Override
+	public void setupButtons() {
 	}
 
 }

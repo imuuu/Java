@@ -6,21 +6,21 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.CustomInvLayout;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
-public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements Listener
+public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout
 {
 	SpleefManager _spleefManager;
 	
@@ -33,11 +33,11 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	SpleefDataCard _card;
-	
+	Main _main;
 	public SpleefGamePlanerChooseArenaINV(Main main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
-		
+		_main = main;
 		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
 		for(Arena arena : _spleefManager.getArenas())
@@ -63,7 +63,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -78,14 +78,14 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 				Arena arena = _arenas.get(idx);
 				
 				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.SNOW_BLOCK,arena.get_arenaNameWithColor(),i);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
-				_itemM.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
+				Metods._ins.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
+				Metods._ins.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
 				
-				_itemM.setPersistenData(item_arena, pd_arena_name, PersistentDataType.STRING, arena.get_name());
+				Metods._ins.setPersistenData(item_arena, pd_arena_name, PersistentDataType.STRING, arena.get_name());
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 		}
 		
@@ -118,12 +118,12 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -133,7 +133,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -170,7 +170,7 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 				new SpleefGamePlaner(_main, _player, _card);
 				break;
 			case ARENA:
-				String ar_name = _itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.STRING);
+				String ar_name = Metods._ins.getPersistenData(stack, pd_arena_name, PersistentDataType.STRING);
 				_card.set_arena(_spleefManager.getArena(ar_name));
 				new SpleefGamePlaner(_main, _player, _card);
 				break;
@@ -188,6 +188,21 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+		
+	}
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0) {
+		
+	}
+
+	@Override
+	public void setupButtons() {
+		
 	}
 
 }

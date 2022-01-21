@@ -30,8 +30,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.mojang.datafixers.util.Pair;
-
+import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.Tuple;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Handlers.SpleefGameHandler;
 import imu.iMiniGames.Main.Main;
@@ -54,7 +55,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	
 
 	int _roundEnd_warning = 10;
-	HashMap<Player, Pair<Location, Integer>> _player_anti_stands = new HashMap<>();
+	HashMap<Player, Tuple<Location, Integer>> _player_anti_stands = new HashMap<>();
 	ArrayList<Block> _remove_blocks = new ArrayList<>();
 	
 	int _best_of = 1;
@@ -107,7 +108,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		putPotionEffects(p);
 		
 		ItemStack shovel = new ItemStack(Material.IRON_SHOVEL);
-		_itemM.setDisplayName(shovel, ChatColor.GOLD + "SPLEEF SHOVEL");
+		Metods.setDisplayName(shovel, ChatColor.GOLD + "SPLEEF SHOVEL");
 		shovel.addEnchantment(Enchantment.VANISHING_CURSE, 1);
 		shovel.addEnchantment(Enchantment.DIG_SPEED, 5);
 		shovel.addEnchantment(Enchantment.DURABILITY, 3);
@@ -440,22 +441,22 @@ public class MiniGameSpleef extends MiniGame implements Listener
 					{
 						for(Player p : _players_ingame.keySet())
 						{
-							Pair<Location, Integer> data = _player_anti_stands.get(p);
+							Tuple<Location, Integer> data = _player_anti_stands.get(p);
 							Location p_loc = p.getLocation();
-							Location last_loc = data.getFirst();
+							Location last_loc = data.GetKey();
 
 							if(p_loc.distance(last_loc) < 2)
 							{
-								_player_anti_stands.put(p, new Pair<>(p_loc, data.getSecond()+1));
-								if(data.getSecond() > _anti_stand-1)
+								_player_anti_stands.put(p, new Tuple<>(p_loc, data.GetValue()+1));
+								if(data.GetValue() > _anti_stand-1)
 								{
 									anti_standBlocks(p, Material.RED_STAINED_GLASS);
-									_player_anti_stands.put(p, new Pair<>(p_loc, 0));
+									_player_anti_stands.put(p, new Tuple<>(p_loc, 0));
 								}
 							}
 							else
 							{
-								_player_anti_stands.put(p, new Pair<>(p_loc, 0));
+								_player_anti_stands.put(p, new Tuple<>(p_loc, 0));
 							}
 							
 							
@@ -485,7 +486,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		{
 			setupPlayerForStart(p);
 			p.teleport(_gameCard.get_arena().getSpawnpointLoc(count));
-			_player_anti_stands.put(p, new Pair<Location, Integer>(new Location(p.getWorld(), 0, 0, 0),0));
+			_player_anti_stands.put(p, new Tuple<Location, Integer>(new Location(p.getWorld(), 0, 0, 0),0));
 			count++;
 		}
 		

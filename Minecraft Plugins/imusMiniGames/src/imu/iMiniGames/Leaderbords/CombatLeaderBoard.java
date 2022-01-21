@@ -11,9 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Invs.CombatLeaderBoardStats;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.ConfigMaker;
 
 public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 {

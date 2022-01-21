@@ -5,23 +5,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Main.Main;
-import imu.iMiniGames.Other.CustomInvLayout;
 
-public class GamePlaner extends CustomInvLayout implements Listener
+public class GamePlaner extends CustomInvLayout
 {
 	String pd_buttonType = "sGP.buttonType";
-
+	protected Main _main;
 	public GamePlaner(Main main, Player player, String name) 
 	{
 		super(main, player, name, 9*3);
-		
-		main.getServer().getPluginManager().registerEvents(this, _main);
-		
+		_main = main;
 		openThis();
 
 	}
@@ -42,24 +42,15 @@ public class GamePlaner extends CustomInvLayout implements Listener
 		ADD_ATTRIBUTES;
 	}
 	
-
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
-		{
-			HandlerList.unregisterAll(this);
-		}
-	}
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	public BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -69,10 +60,27 @@ public class GamePlaner extends CustomInvLayout implements Listener
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
 	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+		
+	}
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0) {
+		
+	}
+
+	@Override
+	public void setupButtons() {
+		
+	}
+
+	
 
 }

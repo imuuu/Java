@@ -12,11 +12,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Main.Main;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.ArenaKit;
 import imu.iMiniGames.Other.CombatDataCard;
-import imu.iMiniGames.Other.CustomInvLayout;
 import net.md_5.bungee.api.ChatColor;
 
 public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Listener
@@ -32,12 +33,11 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	CombatDataCard _card;
-	
+	protected Main _main;
 	public CombatGamePlanerChooseKitINV(Main main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Kits =====", 2*9);
-		
-		_main.getServer().getPluginManager().registerEvents(this,_main);
+		_main = main;
 		_combatManager = main.get_combatManager();
 		_kits = _combatManager.getArena_kits();
 		
@@ -59,7 +59,7 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -74,14 +74,14 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 				ArenaKit kit = _kits.get(idx);
 				
 				ItemStack item_arena = setupButton(BUTTON.KIT, Material.DIAMOND_SWORD,kit.get_kitNameWithColor(),i);
-				_itemM.hideAttributes(item_arena);
+				Metods._ins.hideAttributes(item_arena);
 				
 				
-				_itemM.setPersistenData(item_arena, pd_arena_name, PersistentDataType.INTEGER, idx);
+				Metods._ins.setPersistenData(item_arena, pd_arena_name, PersistentDataType.INTEGER, idx);
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 		}
 		
@@ -114,12 +114,12 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 	
 	void setButton(ItemStack stack, BUTTON b)
 	{
-		_itemM.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
+		Metods._ins.setPersistenData(stack, pd_buttonType, PersistentDataType.STRING, b.toString());
 	}
 	
 	BUTTON getButton(ItemStack stack)
 	{
-		String button = _itemM.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
+		String button = Metods._ins.getPersistenData(stack, pd_buttonType, PersistentDataType.STRING);
 		if(button != null)
 			return BUTTON.valueOf(button);
 		
@@ -129,7 +129,7 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -166,7 +166,7 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 				new CombatGamePlaner(_main, _player, _card);
 				break;
 			case KIT:
-				ArenaKit kit = _kits.get(_itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.INTEGER));
+				ArenaKit kit = _kits.get(Metods._ins.getPersistenData(stack, pd_arena_name, PersistentDataType.INTEGER));
 				_card.set_kit(kit);
 				_card.setRandomKit(false);
 				new CombatGamePlaner(_main, _player, _card);
@@ -185,6 +185,24 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setupButtons() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

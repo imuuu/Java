@@ -36,6 +36,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import imu.iAPI.Other.Cooldowns;
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Enums.COMBAT_ATTRIBUTE;
 import imu.iMiniGames.Handlers.CombatGameHandler;
