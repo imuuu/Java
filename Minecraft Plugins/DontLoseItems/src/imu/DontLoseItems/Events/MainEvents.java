@@ -1,6 +1,7 @@
 package imu.DontLoseItems.Events;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -23,9 +24,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +37,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.DateParser;
 import imu.iAPI.Other.Metods;
+
 
 
 public class MainEvents implements Listener
@@ -53,9 +56,9 @@ public class MainEvents implements Listener
 	boolean saveTools = false;
 	boolean saveWeapons = false;
 	
-	double durability_penalty_pve = 0.1;
-	double durability_penalty_pvp = 0.2;
-	double durability_penalty_mob = 0.05;
+	double durability_penalty_pve = 0.25;
+	double durability_penalty_pvp = 0.6;
+	double durability_penalty_mob = 0.1;
 	double _mendNerf = 0.4f;  // => 60%
 	Plugin _plugin;
 	Metods _itemM = null;
@@ -67,13 +70,34 @@ public class MainEvents implements Listener
 	HashMap<Player, ArrayList<EntityType>> _player_combat_with = new HashMap<>();
 	HashMap<UUID, Double> _player_combat_penalty_join = new HashMap<>();
 	
+
+	
+	private Date _netherOpenDate;
+	private Date _endOpenDate;
+	
 	public MainEvents(Plugin plugin)
 	{
+
+		_netherOpenDate = DateParser.ParseDate("10/2/2023");
+		_endOpenDate = DateParser.ParseDate("24/2/2023");
+		
 		_plugin = plugin;
 		_itemM = ImusAPI._metods;
 		getSettings();
 		_cd = new Cooldowns();
 		runnable();
+		
+//		try
+//		{
+//			Date date = DateParser.parseDate(_testDate);
+//			
+//			System.out.println("date: "+date + " is date passed or current"+DateParser.IsDateNowOrPassed(date));
+//		} catch (ParseException e)
+//		{
+//			// TODO Auto-generated catch block
+//			System.out.println("error has happend");
+//			//e.printStackTrace();
+//		}
 	}
 	
 
@@ -114,6 +138,50 @@ public class MainEvents implements Listener
 				player.setHealth(health);
 			}
 		}
+	}
+	
+	@EventHandler
+	public void CancelPortals(PlayerPortalEvent e)
+	{
+		
+		String id = "portal."+e.getPlayer().getUniqueId().toString();
+		final float portalCd = 2f;
+		
+		if(e.getTo().getWorld().getName().matches("world_the_end") && !IsEndAllowed() && !e.getPlayer().isOp())
+		{
+			if(!_cd.isCooldownReady(id)) { e.setCancelled(true); return;}
+			
+			e.getPlayer().sendMessage(ChatColor.RED+"End isn't opened yet!");
+			e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "End opens in "+ DateParser.GetTimeDifference(_endOpenDate));
+			e.setCancelled(true);
+			
+			_cd.addCooldownInSeconds(id, portalCd);
+			return;
+		}
+		
+		if(e.getTo().getWorld().getName().matches("world_nether")  && !IsNetherAllowed()  && !e.getPlayer().isOp())
+		{
+			if(!_cd.isCooldownReady(id)) { e.setCancelled(true); return;}
+			
+			e.getPlayer().sendMessage(ChatColor.RED+"Nether isn't opened yet!");
+			e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "Nether opens in "+ DateParser.GetTimeDifference(_netherOpenDate));
+			e.setCancelled(true);
+			
+			_cd.addCooldownInSeconds(id, portalCd);
+			return;
+		}
+		
+		
+		
+	}
+	
+	public boolean IsNetherAllowed()
+	{
+		return DateParser.IsDateNowOrPassed(_netherOpenDate);
+	}
+	public boolean IsEndAllowed()
+	{
+		return DateParser.IsDateNowOrPassed(_endOpenDate);
 	}
 	
 	@EventHandler
@@ -393,6 +461,12 @@ public class MainEvents implements Listener
 		String dmob_path = "settings.mob_damage_penalty";
 		String dcombat_cd_path = "settings.mob_comabt_cd";
 		
+		String endAllowed_cd_path = "settings.end_allowed";
+		String netherAllowed_cd_path = "settings.nether_allowed";
+		
+		String endOpenDate_path = "settings.end_open_date";
+		String netherOpenDate_path = "settings.nether_open_date";
+		
 		if(!config.contains("settings.")) 
 		{
 			//default values
@@ -405,6 +479,13 @@ public class MainEvents implements Listener
 			config.set(dpve_path,durability_penalty_pve);		
 			config.set(dmob_path,durability_penalty_mob);		
 			config.set(dcombat_cd_path,_cd_in_combat_cooldown);		
+//			
+//			config.set(endAllowed_cd_path,_isEndAllowed);		
+//			config.set(netherAllowed_cd_path,_isNetherAllowed);	
+			
+			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
+			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
+			
 			cm.saveConfig();
 			return;
 		}
@@ -417,6 +498,16 @@ public class MainEvents implements Listener
 		durability_penalty_pve = config.getDouble(dpve_path);
 		durability_penalty_mob = config.getDouble(dmob_path);
 		_cd_in_combat_cooldown = config.getInt(dcombat_cd_path);
+		
+//		_isEndAllowed = config.getBoolean(endAllowed_cd_path);
+//		_isNetherAllowed = config.getBoolean(netherAllowed_cd_path);
+		
+		_endOpenDate = DateParser.ParseDate(config.getString(endOpenDate_path));
+		_netherOpenDate = DateParser.ParseDate(config.getString(netherOpenDate_path));
+		
+		
+		System.out.println("Nether Is date passsed:"+DateParser.IsDateNowOrPassed(_netherOpenDate) + " time dif: "+DateParser.GetTimeDifference(_netherOpenDate));
+		System.out.println("End Is date passsed:"+DateParser.IsDateNowOrPassed(_endOpenDate) + " time dif: "+DateParser.GetTimeDifference(_endOpenDate));
 				
 	}
 	boolean stringEndsWith(String target, String[] array)

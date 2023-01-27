@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Interfaces.IModDataInv;
 import imu.iWaystone.Interfaces.IModDataValues;
+import imu.iWaystones.Enums.ConvUpgradeModData;
 import imu.iWaystones.Main.ImusWaystones;
 
 public class ConvUpgrade extends StringPrompt
@@ -32,6 +33,15 @@ public class ConvUpgrade extends StringPrompt
 			{
 				_inv.SetModData(_value, anwser);
 				_inv.openThis();
+				
+
+				if((ConvUpgradeModData)_value == ConvUpgradeModData.RENAME)
+				{
+					_inv.closeThis(); //only bc rename is not working correcly
+				}
+					
+				
+				
 			}
 		}.runTask(ImusWaystones._instance);
 		

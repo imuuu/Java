@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -23,10 +23,11 @@ public class ImusTabCompleter implements TabCompleter
 			_arguments = arguments;
 		}
 	}
-	HashMap<String, String[]> _cmdAndArguments = new HashMap<>();
-	String _mainCmd;
-	HashMap<Integer, ArrayList<Rule>> _rules = new HashMap<>();
+	private HashMap<String, String[]> _cmdAndArguments = new HashMap<>();
+	private String _mainCmd;
+	private HashMap<Integer, ArrayList<Rule>> _rules = new HashMap<>();
 	private String _permission = null;
+	
 	public ImusTabCompleter(String mainCmd, HashMap<String, String[]> cmdAndArguments, String permission) 
 	{
 		_cmdAndArguments = cmdAndArguments;
@@ -77,10 +78,11 @@ public class ImusTabCompleter implements TabCompleter
 			{
 				//System.out.println("rule found at index: "+args.length);
 				String test_rule = ("/"+label+" "+ImusAPI._metods.CombineArrayToOneString(args, " ")).toLowerCase();
+				
 				for(Rule rule : _rules.get(args.length))
 				{
 					//System.out.println("rule: "+rule._cmd_rule);
-					if(StringUtils.contains(test_rule,rule._cmd_rule)) return rule._arguments;
+					if(StringUtils.contains(test_rule, rule._cmd_rule)) return rule._arguments;
 				}
 			}
 			

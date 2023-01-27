@@ -14,14 +14,13 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.GS.Main.Main;
 import imu.GS.Other.LogData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Main.ImusAPI;
-import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 
@@ -29,14 +28,14 @@ public class ShopManager
 {
 	private Main _main;
 	
-	private ArrayList<ShopBase> _shops;
+	private ArrayList<Shop> _shops;
 	
 	
 	private BukkitTask RunnableAsyncTask;
 	private ShopManagerSQL _shopManagerSQL;
 	private UniqueManager _uniqueManager;
 	
-	private HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
+	//private HashMap<UUID, CustomInvLayout> _opened_invs = new HashMap<>();
 	private HashMap<UUID, ArrayList<Tuple<String, PriceCustom>>> _savedPriceCustoms = new HashMap<>();
 	
 	private int _shopCheckTime_s = 20;
@@ -44,6 +43,7 @@ public class ShopManager
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
 	public double _durability_penalty = 0.1; // 0.0 => 0%
+	
 	public ShopManager(Main main)
 	{
 		_main = main;
@@ -53,9 +53,7 @@ public class ShopManager
 	}
 	
 	public void Init()
-	{
-		
-		
+	{	
 		new BukkitRunnable() 
 		{			
 			@Override
@@ -119,15 +117,15 @@ public class ShopManager
 		return _uniqueManager;
 	}
 	
-	public void RegisterOpenedInv(Player player, CustomInvLayout inv)
-	{
-		_opened_invs.put(player.getUniqueId(), inv);
-	}
-	
-	public void UnRegisterOpenedInv(Player player)
-	{
-		_opened_invs.remove(player.getUniqueId());
-	}
+//	public void RegisterOpenedInv(Player player, CustomInvLayout inv)
+//	{
+//		_opened_invs.put(player.getUniqueId(), inv);
+//	}
+//	
+//	public void UnRegisterOpenedInv(Player player)
+//	{
+//		_opened_invs.remove(player.getUniqueId());
+//	}
 	
 	public void SavePriceCustom(UUID playerUUID, String name,PriceCustom pc)
 	{
@@ -140,9 +138,21 @@ public class ShopManager
 		return (_savedPriceCustoms.containsKey(playerUUID) ? _savedPriceCustoms.get(playerUUID) : new ArrayList<Tuple<String,PriceCustom>>());
 	}
 	
-	public ArrayList<ShopBase> GetShops()
+	public ArrayList<Shop> GetShops()
 	{
 		return _shops;
+	}
+	
+	public ArrayList<ShopNormal> GetNormalShops()
+	{
+		ArrayList<ShopNormal> normalShops = new ArrayList<ShopNormal>();
+		
+		for (Shop shop : _shops)
+		{
+			if(shop instanceof ShopNormal) normalShops.add((ShopNormal)shop);
+		}
+		
+		return normalShops;
 	}
 	
 	public void LogRegisterPurchace(List<LogData> logDatas, LogData data)
@@ -176,8 +186,12 @@ public class ShopManager
 			public void run() 
 			{
 				//System.out.println("Check expires");
-				for(ShopBase shop : _shops)
+				for(Shop s : _shops)
 				{
+					if(!(s instanceof ShopNormal)) continue;
+					
+					ShopNormal shop = (ShopNormal)s;
+					
 					if(shop.HasExpired()) // && 
 					{						
 						//System.out.println("Check shop");
@@ -201,7 +215,7 @@ public class ShopManager
 		
 		
 	}
-	void CheckShopItems(ShopBase sBase, boolean checkExpires)
+	void CheckShopItems(ShopNormal sBase, boolean checkExpires)
 	{
 		for(ShopItemSeller[] siss : sBase.get_items())
 		{
@@ -236,21 +250,21 @@ public class ShopManager
 	
 	
 	
-	public boolean OpenShop(Player p,String name)
-	{
-		ShopBase shop = GetShop(name);
-		if(shop != null)
-		{			
-			if(shop.HasLocked())
-			{
-				p.sendMessage(Metods.msgC("&2Shop has closed. Please come laiter"));
-				return false;
-			}
-			shop.AddNewCustomer(p);
-			return true;
-		}
-		return false;
-	}
+//	public boolean OpenShop(Player p,String name)
+//	{
+//		Shop shop = GetShop(name);
+//		if(shop != null)
+//		{			
+//			if(shop.HasLocked())
+//			{
+//				p.sendMessage(Metods.msgC("&2Shop has closed. Please come laiter"));
+//				return false;
+//			}
+//			shop.AddNewCustomer(p);
+//			return true;
+//		}
+//		return false;
+//	}
 	
 	public void onDisabled()
 	{	
@@ -261,69 +275,86 @@ public class ShopManager
 	
 	void closeShopInvs()
 	{
-		for(ShopBase sb : _shops)
+		for(Shop shop : _shops)
 		{
-			sb.RemoveCustomerALL();
+			shop.RemoveCustomerALL();
 		}
 		
 	}
 	
 	public void CreateNewShop(String name)
 	{
-		ShopBase shop = new ShopNormal(_main, UUID.randomUUID(), name, 1);
+		ShopNormal shop = new ShopNormal(_main, UUID.randomUUID(), name, 1);
 		AddShop(shop);
 	}
 	
-	public void AddShop(ShopBase shopBase)
+	public void AddShop(ShopNormal shopBase)
 	{
 		_shops.add(shopBase);
+		//System.out.println("Shop added: "+shopBase+ " size shops: "+_shops.size());
+		
 		SaveShop(shopBase.GetUUID(), true);
 		UpdateTabCompliters();
 	}
 	
 	public void RemoveShop(UUID uuid)
 	{
-		ShopBase s = GetShop(uuid);
+		Shop s = GetShop(uuid);
 		if(s == null)
 			return;
 		
 		s.RemoveCustomerALL();
 		_shops.remove(s);
 
-		_shopManagerSQL.DeleteShopAsync(s);
+		_shopManagerSQL.DeleteShopAsync((ShopNormal)s);
 	}
 	
-	public ShopBase GetShop(UUID uuid)
+	public Shop GetShop(UUID uuid)
 	{
-		for(ShopBase s : _shops)
+		for(Shop s : _shops)
 		{
 			if(s.GetUUID().equals(uuid)) return s;
 		}
 		return null;
 	}
 	
-	public ShopBase GetShop(String name)
+	public Shop GetShop(String name)
 	{
 		String searchName = ImusAPI._metods.StripColor(name);
-		for(ShopBase s : _shops)
+
+		for(Shop s : _shops)
 		{
 			if(s.GetName().toLowerCase().contains(searchName.toLowerCase()))
+			{
+				System.out.println("Shop found!");
 				return s;
+			}
+				
 		}
+		System.out.println("Shop NOT found by name!"+name);
 		return null;
 	}
 	
 	public void SaveShop(UUID uuid, boolean dontsavedatabase)
 	{
 		if(_main.GetSQL() == null || dontsavedatabase)
+		{
+			System.out.println("Couldnt find SQL => didnt save data");
 			return;
+			
+		}
+			
 		
-		ShopBase sBase = GetShop(uuid);
+		Shop sBase = GetShop(uuid);
 		
 		if(sBase == null)
+		{
+			System.out.println("Coudnt foind shop from list");
 			return;
+		}
+			
 		
-		_shopManagerSQL.SaveShopAsync(sBase);
+		_shopManagerSQL.SaveShopAsync((ShopNormal)sBase);
 	}
 	
 

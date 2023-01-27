@@ -12,8 +12,6 @@ import imu.GS.Main.Main;
 import imu.GS.Other.MaterialSmartData;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
-import imu.iAPI.Other.Metods;
-import imu.iAPI.Other.Tuple;
  
 public class Cmd implements CommandInterface
 {

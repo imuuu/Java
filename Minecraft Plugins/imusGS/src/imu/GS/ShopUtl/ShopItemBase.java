@@ -45,14 +45,14 @@ public abstract class ShopItemBase
 	HashMap<Inventory, SlotInfo> _slotPositions = new HashMap<>();
 	ItemPrice _price;
 	protected Main _main;
-	protected ShopBase _shopBase;
+	protected ShopNormal _shopBase;
 	
 	private Set<String> _tags = new HashSet<>();
 	public boolean AddGlow = false;
 	
 	protected ConcurrentHashMap<UUID, ShopItemBase> _customerShopitemTargets = new ConcurrentHashMap<>();
 	
-	public ShopItemBase(Main main, ShopBase shopBase, ItemStack real, int amount) 
+	public ShopItemBase(Main main, ShopNormal shopBase, ItemStack real, int amount) 
 	{
 		_metods = ImusAPI._metods;
 		_main = main;
@@ -146,7 +146,7 @@ public abstract class ShopItemBase
 		}
 	}
 	
-	public ShopBase GetShop()
+	public ShopNormal GetShop()
 	{
 		return _shopBase;
 	}

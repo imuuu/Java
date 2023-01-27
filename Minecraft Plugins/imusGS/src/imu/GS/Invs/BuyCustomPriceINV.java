@@ -1,7 +1,6 @@
 package imu.GS.Invs;
 
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.bukkit.Material;
@@ -15,12 +14,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.Other.LogData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
@@ -30,7 +29,7 @@ import imu.iAPI.Other.Metods;
 
 public class BuyCustomPriceINV extends CustomerInv
 {
-	ShopBase _shopBase;
+	ShopNormal _shopBase;
 	ShopItemSeller _sis;
 	Main _main;
 	
@@ -61,7 +60,7 @@ public class BuyCustomPriceINV extends CustomerInv
 	
 	LinkedList<LogData> logs = new LinkedList<>();
 	
-	public BuyCustomPriceINV(Plugin main, Player player, ShopBase shopBase, ShopItemSeller sis) {
+	public BuyCustomPriceINV(Plugin main, Player player, ShopNormal shopBase, ShopItemSeller sis) {
 		super(main, player, "Buying "+ImusAPI._metods.GetItemDisplayName(sis.GetDisplayItem()), 6*9);
 		_main=(Main)main;
 		_shopBase = shopBase;
@@ -328,9 +327,9 @@ public class BuyCustomPriceINV extends CustomerInv
 	
 	void Back()
 	{
-		ShopBase shop = _main.get_shopManager().GetShop(_shopBase.GetName());
+		Shop shop = _main.get_shopManager().GetShop(_shopBase.GetName());
 		_player.closeInventory();
-		shop.AddNewCustomer(_player);	
+		shop.Open(_player);	
 	}
 	
 	@Override

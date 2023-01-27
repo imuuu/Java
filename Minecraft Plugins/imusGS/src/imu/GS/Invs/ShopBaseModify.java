@@ -15,8 +15,9 @@ import imu.GS.ENUMs.ModDataShop;
 import imu.GS.Interfaces.IModData;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvShopMod;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopModData;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
@@ -25,13 +26,13 @@ import net.md_5.bungee.api.ChatColor;
 
 public class ShopBaseModify extends CustomInvLayout
 {
-	private ShopBase _shopBase;
+	private ShopNormal _shopBase;
 	private ShopModData _shopModData;
 	private Main _main;
 	
 	BukkitTask _runnable;
 	
-	public ShopBaseModify(Plugin main, Player player, ShopBase shopBase) {
+	public ShopBaseModify(Plugin main, Player player, ShopNormal shopBase) {
 		super(main, player, "&6Modifying Shop: "+shopBase.GetDisplayName(), 9*3);
 		_shopBase = shopBase;
 		_main = (Main)main;		
@@ -143,7 +144,17 @@ public class ShopBaseModify extends CustomInvLayout
 	
 	void Confirm()
 	{		
-		ShopBase shop = _main.get_shopManager().GetShop(_shopBase.GetUUID());
+		Shop s = _main.get_shopManager().GetShop(_shopBase.GetUUID());
+		
+		if(s == null)
+		{
+			_player.sendMessage(ChatColor.RED + "Couldn't find shop named as "+_shopBase.GetName());
+			return;
+		}
+		
+		if(!(s instanceof ShopNormal)) return;
+		
+		ShopNormal shop = (ShopNormal)s;
 		
 		if(_shopModData._removeShop)
 		{
@@ -153,11 +164,7 @@ public class ShopBaseModify extends CustomInvLayout
 			_main.get_shopManager().UpdateTabCompliters();
 			return;
 		}
-		if(shop == null)
-		{
-			_player.sendMessage(ChatColor.RED + "Couldn't find shop named as "+_shopBase.GetName());
-			return;
-		}
+		
 		shop.set_sellM(_shopModData._sellMultiplier);
 		shop.set_buyM(_shopModData._buyMultiplier);
 		shop.set_expire_percent(_shopModData._expire_percent);

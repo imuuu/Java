@@ -14,37 +14,37 @@ public class UpgradeDimension extends BaseUpgrade
 	Tier[] SetTiers() 
 	{
 		Tier[] tiers = new Tier[3];
-		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,10)});
-		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,16)});
+		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,8),new ItemStack(Material.BLAZE_ROD,16), new ItemStack(Material.RED_MUSHROOM,16)});
+		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.ENDER_PEARL,10),new ItemStack(Material.ENDER_EYE,32),new ItemStack(Material.PURPUR_BLOCK,64)});
 		tiers[2] = new Tier(null);
 		return tiers;
 	}
 
 	@Override
-	public String[] SetDescription() {
+	public String[] GetDescription() {
 
 		return new String[]{"&eUprade makes posible to see Waystones from other dimension","&3Tier 1: &bNormal-dimension","&3Tier 2: &bNether-dimension","&3Tier 3: &bEnd-dimension"};
 	}
 
 	@Override
-	public double SetTierReduceValue() 
+	public double GetTierReduceValue() 
 	{
 		return 1;
 	}
 
 	@Override
-	public String SetDisplayName() {
+	public String GetDisplayName() {
 		return "&3Transfer Upgrade";
 	}
 
 	@Override
-	public Material SetMaterial() 
+	public Material GetMaterial() 
 	{
 		return Material.ENDER_PEARL;
 	}
 
 	@Override
-	public UpgradeType SetType() 
+	public UpgradeType GetType() 
 	{
 		return UpgradeType.DIMENSION;
 	}

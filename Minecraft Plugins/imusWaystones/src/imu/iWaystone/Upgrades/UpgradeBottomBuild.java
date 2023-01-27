@@ -26,30 +26,30 @@ public class UpgradeBottomBuild extends BaseUpgrade
 	}
 
 	@Override
-	public String[] SetDescription() 
+	public String[] GetDescription() 
 	{
 		return new String[]{"&eUpgrade waystone bottom block","&eReplaces old block and gives it back","&6This upgrade is &2Global!"};
 	}
 
 	@Override
-	public double SetTierReduceValue() 
+	public double GetTierReduceValue() 
 	{
 		return 0;
 	}
 
 	@Override
-	public String SetDisplayName() {
+	public String GetDisplayName() {
 		return "&5Upgrade Waystone Base Block";
 	}
 
 	@Override
-	public Material SetMaterial() 
+	public Material GetMaterial() 
 	{
 		return Material.STONE;
 	}
 
 	@Override
-	public UpgradeType SetType() 
+	public UpgradeType GetType() 
 	{
 		return UpgradeType.BUILD;
 	}

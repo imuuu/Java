@@ -17,7 +17,7 @@ import imu.GS.Interfaces.IModDataInv;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvModData;
 import imu.GS.Prompts.ConvPromptModModifyINV;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
@@ -35,7 +35,7 @@ public class ShopStocableModifyINV extends CustomInvLayout implements IModDataIn
 	String pd_buttonType = "gs.sModModI.buttonType";
 	String pd_buttonAnswer ="gs.sModModI.buttonAnser";
 
-	ShopBase _shop;
+	ShopNormal _shop;
 	
 	Main _main;
 	ShopItemModData _modData;
@@ -187,7 +187,6 @@ public class ShopStocableModifyINV extends CustomInvLayout implements IModDataIn
 //			RegisterToEvents();
 //		
 		_main.RegisterInv(this);
-		_main.get_shopManager().RegisterOpenedInv(_player, this);
 		_isClosed = _shop.HasLocked();
 		_shop.SetLocked(true);
 	}
@@ -227,7 +226,7 @@ public class ShopStocableModifyINV extends CustomInvLayout implements IModDataIn
 				_main.GetTagManager().SaveTagsAsync(_sis);
 				_main.GetTagManager().LoadAllShopItemTagsNamesAsync();
 				_player.closeInventory();
-				new ShopModINV(_main, _player, _main.get_shopManager().GetShop(_shop.GetUUID())).openThis();
+				new ShopModINV(_main, _player, (ShopNormal)_main.get_shopManager().GetShop(_shop.GetUUID())).openThis();
 				return;
 			case MAX_AMOUNT:				
 				question = ChatColor.DARK_PURPLE + "Give max stock amount?";
@@ -359,7 +358,6 @@ public class ShopStocableModifyINV extends CustomInvLayout implements IModDataIn
 	public void invClosed(InventoryCloseEvent e) 
 	{
 		_shop.SetLocked(_isClosed);
-		_main.get_shopManager().UnRegisterOpenedInv(_player);
 		_main.UnregisterInv(this);
 	}
 

@@ -21,22 +21,22 @@ public abstract class BaseUpgrade
 	protected boolean _refreshDescWithToolTip = false;
 	public BaseUpgrade()
 	{
-		_id = SetType();
+		_id = GetType();
 		_tiers = SetTiers();
-		_description = SetDescription();
-		_tierReduceValue = SetTierReduceValue();
-		_displayItem = new ItemStack(SetMaterial());
-		Metods.setDisplayName(_displayItem, SetDisplayName());
+		_tierReduceValue = GetTierReduceValue();
+		_description = GetDescription();
+		_displayItem = new ItemStack(GetMaterial());
+		Metods.setDisplayName(_displayItem, GetDisplayName());
 		//Tooltip();
 	}
 	
 	abstract Tier[] SetTiers();
 	
-	public abstract String[] SetDescription();
-	public abstract double SetTierReduceValue();
-	public abstract String SetDisplayName();
-	public abstract Material SetMaterial();
-	public abstract UpgradeType SetType();
+	public abstract String[] GetDescription();
+	public abstract double GetTierReduceValue();
+	public abstract String GetDisplayName();
+	public abstract Material GetMaterial();
+	public abstract UpgradeType GetType();
 	public abstract double GetCombinedValue(double value);
 	public abstract void ButtonPressUpgradeTier(Player player, Waystone ws,int tierBeforeUpgrade);
 	
@@ -44,7 +44,7 @@ public abstract class BaseUpgrade
 	{
 		if(_refreshDescWithToolTip) 
 		{
-			_description = SetDescription();
+			_description = GetDescription();
 		}
 		
 		ArrayList<String> lores = new ArrayList<>();

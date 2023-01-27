@@ -19,7 +19,8 @@ import org.bukkit.scheduler.BukkitTask;
 import imu.GS.ENUMs.SQL_TABLES;
 import imu.GS.ENUMs.TagSubCmds;
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
 
 public class TagManager 
@@ -235,9 +236,14 @@ public class TagManager
 //		for(String tag : _tags_shopItems.get(sib.GetUUID())) { if(tag.equalsIgnoreCase(tagName)) {return false;}}
 //		_tags_shopItems.get(sib.GetUUID()).add(tagName);
 		
-		for(ShopBase shop : _main.get_shopManager().GetShops())
+		for(Shop shop : _main.get_shopManager().GetShops())
 		{
-			for(ShopItemBase[] shopItemPages : shop.get_items())
+			
+			if(!(shop instanceof ShopNormal)) continue;
+			
+			ShopNormal ShopNormal = (ShopNormal)shop;
+			
+			for(ShopItemBase[] shopItemPages : ShopNormal.get_items())
 			{
 				for(ShopItemBase shopItem : shopItemPages)
 				{

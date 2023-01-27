@@ -206,6 +206,7 @@ public class WaystoneManagerSQL
 		{
 			ps.executeUpdate();
 			
+			
 		} catch (SQLException e) {
 			
 			_main.getLogger().info("===> REMOVING ERROR: RemoveUpgrade ===");
@@ -224,13 +225,16 @@ public class WaystoneManagerSQL
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
+
 				return waystone;
 			}
 			while(rs.next())
 			{
 				waystone.SetOwner(rs.getString(3), UUID.fromString(rs.getString(2)));
+
 				return waystone;
 			}
+
 			
 		} catch (SQLException e) {
 			
@@ -251,6 +255,8 @@ public class WaystoneManagerSQL
 			ps.setString(i++, player_name);
 			ps.setString(i++, uuid_ws.toString());			
 			ps.executeUpdate();
+			
+
 		} catch (SQLException e) {
 			
 			e.printStackTrace();
@@ -263,6 +269,8 @@ public class WaystoneManagerSQL
 				+ "WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws.toString()+"';");)
 		{			
 			ps.executeUpdate();
+			
+
 			
 		} catch (SQLException e) {
 			
@@ -287,6 +295,8 @@ public class WaystoneManagerSQL
 			ps.executeUpdate();
 			SaveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetOwnerName(), waystone.GetUUID());
 			SaveUpgrades(waystone);
+			
+
 			
 		} catch (SQLException e) {
 			
@@ -325,6 +335,8 @@ public class WaystoneManagerSQL
 			ps.executeUpdate();
 			RemoveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetUUID());
 			RemoveUpgrades(waystone);
+			
+
 		} catch (SQLException e) {
 
 			Bukkit.getLogger().info("Couldnt delete waystone from database! waystone UUID: "+waystone.GetUUID().toString());
@@ -365,6 +377,8 @@ public class WaystoneManagerSQL
 				_waystoneManager.SaveWaystone(newWaystone, false);					
 			}
 			
+
+			
 		} catch (SQLException e) {
 			
 			System.out.println("Couldnt load waystones!");
@@ -388,7 +402,8 @@ public class WaystoneManagerSQL
 		new BukkitRunnable() {
 			
 			@Override
-			public void run() {
+			public void run() 
+			{
 				SaveDiscovered(uuid_player, uuid_ws);
 			}
 		}.runTaskAsynchronously(_main);
@@ -405,6 +420,7 @@ public class WaystoneManagerSQL
 			ps.setString(i++, uuid_ws.toString());			
 			ps.executeUpdate();
 			
+
 		} catch (SQLException e) {
 			
 			e.printStackTrace();
@@ -431,6 +447,7 @@ public class WaystoneManagerSQL
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
+
 				return;
 			}
 			while(rs.next())
@@ -441,6 +458,8 @@ public class WaystoneManagerSQL
 				UUID uuid_ws = UUID.fromString(rs.getString(i++));
 				_waystoneManager.AddDiscovered(uuid_player, uuid_ws, false);
 			}
+			
+
 			
 		} catch (SQLException e) {
 			
@@ -466,6 +485,8 @@ public class WaystoneManagerSQL
 		{
 			
 			ps.executeUpdate();
+			
+			_main.GetSQL().GetConnection();
 		} catch (SQLException e) {
 			//e.printStackTrace();
 			System.out.println("Couldnt remove discover!");
@@ -490,6 +511,7 @@ public class WaystoneManagerSQL
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.discovered.toString()+" WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws+"' ;");)
 		{			
 			ps.executeUpdate();
+
 		} catch (SQLException e) {
 			//e.printStackTrace();
 			System.out.println("Couldnt remove player discover!");

@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 import imu.GS.Other.MaterialOverflow;
 import imu.GS.Other.MaterialSmartData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemBase;
 
 public class PriceMaterial extends PriceMoney
@@ -12,7 +12,7 @@ public class PriceMaterial extends PriceMoney
 	MaterialOverflow _overflow;
 	MaterialSmartData _smartData;
 	ShopItemBase _sib;
-	ShopBase _shopBase;
+	ShopNormal _shopBase;
 	Material _mat;
 	public PriceMaterial(Material mat)
 	{
@@ -105,7 +105,7 @@ public class PriceMaterial extends PriceMoney
 		
 	}
 	
-	public void SetShopBase(ShopBase sBase)
+	public void SetShopBase(ShopNormal sBase)
 	{
 		_shopBase =sBase;
 	}

@@ -4,4 +4,4 @@ version: 1.0
 main: imu.iAPI.Main.ImusAPI
 description: imus own api
 softdepend: [ProtocolLib]
-api-version: 1.18
+api-version: 1.19

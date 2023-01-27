@@ -7,7 +7,7 @@ import org.bukkit.persistence.PersistentDataType;
 import com.google.gson.JsonObject;
 
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
@@ -24,7 +24,7 @@ public class ShopItemSeller extends ShopItemBase
 	
 	
 	
-	public ShopItemSeller(Main main, ShopBase shopBase, ItemStack real, int amount) {
+	public ShopItemSeller(Main main, ShopNormal shopBase, ItemStack real, int amount) {
 		super(main,shopBase, real, amount);
 		SetItemPrice(_main.GetMaterialManager().GetPriceMaterialAndCheck(real));
 	}

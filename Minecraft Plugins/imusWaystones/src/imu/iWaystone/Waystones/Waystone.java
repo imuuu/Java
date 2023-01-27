@@ -48,8 +48,8 @@ public class Waystone
 	private HashMap<UUID, PlayerUpgradePanel> _playerUpgradePanel = new HashMap<>();
 	
 	//private double base_cooldown = 600;
-	private double base_casttime = 21;
-	private double base_xpUsage = 3.0;
+	private double base_casttime = 30;
+	private double base_xpUsage = 10;
 	private ImusWaystones _main = ImusWaystones._instance;
 	
 	private final double _move_telecancel_dis = 0.2;
@@ -285,7 +285,7 @@ public class Waystone
 
 
 	public double getBase_cooldown() {
-		return GetBuildUpgrade().get_value();
+		return GetBuildUpgrade(). get_value();
 	}
 
 	public void ReadBuildUpgrade()

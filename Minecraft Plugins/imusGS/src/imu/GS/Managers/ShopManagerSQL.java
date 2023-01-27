@@ -31,7 +31,7 @@ import imu.GS.ENUMs.TransactionAction;
 import imu.GS.Main.Main;
 import imu.GS.Other.CustomPriceData;
 import imu.GS.Other.LogData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ShopNormal;
@@ -330,7 +330,7 @@ public class ShopManagerSQL
 				boolean locked = (rs.getInt(i++) != 0);
 				boolean customerCanOnlySell = (rs.getInt(i++) != 0);
 				boolean absolutePos = (rs.getInt(i++) != 0);
-				ShopBase shop = new ShopNormal(_main, uuid,_displayName, pages);
+				ShopNormal shop = new ShopNormal(_main, uuid,_displayName, pages);
 				shop.set_sellM(sellM);
 				shop.set_buyM(buyM);
 				shop.set_expire_percent(expirePrercent);
@@ -368,10 +368,13 @@ public class ShopManagerSQL
 	{
 		try 
 		{
-			for(ShopBase sBase : _shopManager.GetShops())
+			for(Shop sBase : _shopManager.GetShops())
 			{
-				LoadShopItems(sBase);
-				LoadModDataForShopItems(sBase);
+				if(!(sBase instanceof ShopNormal)) continue;
+				
+				ShopNormal shop = (ShopNormal)sBase;
+				LoadShopItems(shop);
+				LoadModDataForShopItems(shop);
 			}
 		} 
 		catch (Exception e) 
@@ -384,7 +387,7 @@ public class ShopManagerSQL
 	
 	
 	
-	void LoadModDataForShopItems(ShopBase shopBase)
+	void LoadModDataForShopItems(ShopNormal shopBase)
 	{
 		try 
 		{
@@ -505,7 +508,7 @@ public class ShopManagerSQL
 	}
 	
 	@SuppressWarnings("deprecation")
-	void LoadShopItems(ShopBase shop) throws SQLException
+	void LoadShopItems(ShopNormal shop) throws SQLException
 	{
 		Connection con = _main.GetSQL().GetConnection();
 		PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.shopitems.toString()+" WHERE shop_uuid='"+shop.GetUUID().toString()+"';");
@@ -733,7 +736,7 @@ public class ShopManagerSQL
 		
 	}
 	
-	public BukkitTask DeleteShopAsync(ShopBase shop)
+	public BukkitTask DeleteShopAsync(ShopNormal shop)
 	{
 		if(_main.GetSQL() == null)
 			return null;
@@ -831,7 +834,7 @@ public class ShopManagerSQL
 		
 		
 	}
-	void DeleteAllShopItems(ShopBase shop)
+	void DeleteAllShopItems(ShopNormal shop)
 	{
 		
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.shopitems+" WHERE shop_uuid='"+shop.GetUUID().toString()+"';");) 
@@ -853,7 +856,7 @@ public class ShopManagerSQL
 		
 		DeleteShopItem(sibs, true);
 	}
-	public BukkitTask SaveShopAsync(ShopBase shop)   
+	public BukkitTask SaveShopAsync(ShopNormal shop)   
 	{
 		//boolean lock = shop.HasLocked();
 		//shop.SetLocked(true);

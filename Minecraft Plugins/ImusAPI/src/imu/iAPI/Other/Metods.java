@@ -25,8 +25,9 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.Conversation.ConversationState;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -50,6 +51,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+
 
 import com.google.common.base.Strings;
 
@@ -1446,7 +1448,9 @@ public class Metods
 		Location loc_copy = copyBlock.getLocation();
 		//TileEntity targetEntity = cw1.getHandle().
 		//cw1.getHandle().
-		TileEntity targetEntity = cw1.getHandle().c_(new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ()));
+		//net.minecraft.core.BlockPosition blockPos = new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ());
+		TileEntity targetEntity = cw1.getHandle().c_( new BlockPosition(loc_copy.getBlockX(),loc_copy.getBlockY(),loc_copy.getBlockZ()));
+		//TileEntity targetEntity = cw1.getHandle().c
 		if(targetEntity == null)
 		{
 			return false;
@@ -1462,13 +1466,13 @@ public class Metods
 		NBTTagCompound ntc2 = new NBTTagCompound();
 		targetEntity.a(ntc); //save
 		//targetEntity.a
-		ntc2 = (NBTTagCompound) ntc.g(); //ntc.clone()
+		ntc2 = (NBTTagCompound) ntc.h(); //ntc.clone()
 		ntc2.a("x", loc_set.getBlockX());
 		ntc2.a("y", loc_set.getBlockY()); //setInt
 		ntc2.a("z", loc_set.getBlockZ());
 		copyEntity.a(ntc2); //load  ja targetEntity.Getblock()
 		//copyEntity.
-		copyEntity.aa_(); //update
+		copyEntity.ae_(); //update
 		
 		return true;
 	}

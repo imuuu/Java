@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
@@ -20,7 +20,7 @@ public class ShopItemUnique extends ShopItemBase
 	
 	protected double _uniquePrice = 0;
 
-	public ShopItemUnique(Main main, ShopBase shopBase, ItemStack real, int amount) 
+	public ShopItemUnique(Main main, ShopNormal shopBase, ItemStack real, int amount) 
 	{
 		super(main, shopBase, real, amount);
 		_type = ShopItemType.UNIQUE;

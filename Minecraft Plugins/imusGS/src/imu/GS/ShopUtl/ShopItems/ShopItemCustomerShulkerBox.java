@@ -3,7 +3,6 @@ package imu.GS.ShopUtl.ShopItems;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -13,8 +12,8 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 
 import imu.GS.Main.Main;
 import imu.GS.Other.LogData;
-import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemResult;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.Customer.ShopItemCustomer;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
@@ -28,7 +27,7 @@ public class ShopItemCustomerShulkerBox extends ShopItemCustomer
 	//ItemStack[] _shulkerContent = new ItemStack[27];
 	ShopItemResult[] _shulkerContentSis;
 	LinkedList<LogData> _logDatas = new LinkedList<>();
-	public ShopItemCustomerShulkerBox(Main main, ShopBase shopBase, Player player, ItemStack real, int amount) 
+	public ShopItemCustomerShulkerBox(Main main, ShopNormal shopBase, Player player, ItemStack real, int amount) 
 	{
 		super(main, shopBase, player, real, amount);
 		ItemStack outOfStock = new ItemStack(Material.PURPLE_STAINED_GLASS);

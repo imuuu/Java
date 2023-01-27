@@ -56,16 +56,9 @@ public class UniquesINV extends CustomInvLayout
 	public void openThis() 
 	{
 		super.openThis();
-		if(!HasRegistered())
-			RegisterToEvents();
-		
-		_shopManager.RegisterOpenedInv(_player, this);
-		
+	
 		_unique_items = new ArrayList<ShopItemUnique>(_uniqueManager.GetUniques().values());
-//		for(ShopItemUnique siu : _unique_items)
-//		{
-//			System.out.println("loading inv: "+siu.GetRealItem());
-//		}
+
 		Init();
 		refreshItems();
 	}
@@ -114,16 +107,7 @@ public class UniquesINV extends CustomInvLayout
 			refreshItems();
 		}
 	}
-	
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
-	{
-		if(isThisInv(e))
-		{
-			_shopManager.UnRegisterOpenedInv(_player);
-		}
-	}
-	
+
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{

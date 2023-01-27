@@ -3,7 +3,6 @@ package imu.GS.ShopUtl.Customer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,9 +22,9 @@ import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.UniqueManager;
 import imu.GS.Other.LogData;
-import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
@@ -51,7 +50,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	final double _cdButtonClick = 0.2;
 	int _playerInvPage = 0;
 	int _shopInvPage = 0;
-	ShopBase _shopBase;
+	ShopNormal _shopBase;
 	Main _main;
 	ShopManager _sm;
 	UniqueManager _uniqueManager;
@@ -70,7 +69,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	
 	LinkedList<LogData> logs = new LinkedList<>();
 	
-	public CustomerMenuBaseInv(Plugin main, Player player, ShopBase shopBase) {
+	public CustomerMenuBaseInv(Plugin main, Player player, ShopNormal shopBase) {
 		super(main, player, shopBase.GetNameWithColor(), 6*9);
 		_main = (Main)main;
 		_sm = _main.get_shopManager();
@@ -686,7 +685,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 	void PutCustomerItem(ItemStack stack, int page, int slot)
 	{
 		
-		// lisätä tällä referoivan itemin suoraan
+		// lisï¿½tï¿½ tï¿½llï¿½ referoivan itemin suoraan
 		ShopItemCustomer sic;
 		ItemPrice itemPrice;
 		if(_tab != PlayerTab.SHULKER_BOXES)
@@ -884,7 +883,7 @@ public class CustomerMenuBaseInv extends CustomerInv
 				continue;
 			}
 
-			if(!sis.CanShowToPlayer(_player) || !_shopBase.IsAbsoluteItemPositions()) // => tollon näkyy ettei available//if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
+			if(!sis.CanShowToPlayer(_player) || !_shopBase.IsAbsoluteItemPositions()) // => tollon nï¿½kyy ettei available//if(!sis.CanShowToPlayer(_player) && !_shopBase.IsAbsoluteItemPositions()) 
 			{
 				idx--;
 				continue;

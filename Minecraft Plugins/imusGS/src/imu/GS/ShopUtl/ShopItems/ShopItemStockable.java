@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 
 import imu.GS.ENUMs.ShopItemType;
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
 import imu.GS.ShopUtl.ItemPrice.PriceCustom;
@@ -20,7 +20,7 @@ public class ShopItemStockable extends ShopItemSeller
 	ShopItemModData _modData;
 	
 	protected Cooldowns _cd;
-	public ShopItemStockable(Main main, ShopBase shopBase, ItemStack real, int amount) 
+	public ShopItemStockable(Main main, ShopNormal shopBase, ItemStack real, int amount) 
 	{
 		super(main, shopBase, real, amount);
 		_type = ShopItemType.STOCKABLE;

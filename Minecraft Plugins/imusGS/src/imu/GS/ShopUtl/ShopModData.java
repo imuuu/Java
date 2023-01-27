@@ -24,7 +24,7 @@ public class ShopModData implements IModData
 	
 	public boolean _customersCanOnlyBuy = false;
 	
-	public ShopModData ReadShop(ShopBase shop)
+	public ShopModData ReadShop(ShopNormal shop)
 	{
 		//_name = shop.GetName();
 		_displayName = shop.GetDisplayName();

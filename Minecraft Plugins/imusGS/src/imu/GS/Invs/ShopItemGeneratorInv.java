@@ -24,7 +24,7 @@ import imu.GS.Interfaces.IModDataInv;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvModData;
 import imu.GS.ShopUtl.ItemGenModData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemModData;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
@@ -35,7 +35,7 @@ import imu.iAPI.Other.Metods;
 
 public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 {
-	ShopBase _shopBase;
+	ShopNormal _shopBase;
 	ItemGenModData _modData;
 	Main _main;
 	ArrayList<ItemStack> _modButtons = new ArrayList<>();
@@ -43,7 +43,7 @@ public class ShopItemGeneratorInv extends CustomInvLayout implements IModDataInv
 	ArrayList<Material> _blockedMaterials = new ArrayList<>();
 	
 	GenItem[] _genItems;
-	public ShopItemGeneratorInv(Plugin main, Player player, ShopBase shopBase) 
+	public ShopItemGeneratorInv(Plugin main, Player player, ShopNormal shopBase) 
 	{
 		super(main, player, "&9=== Item Generator ", 6*9);
 		_main = (Main)main;

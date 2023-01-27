@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import com.google.gson.JsonObject;
 
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemResult;
 import imu.GS.ShopUtl.ItemPrice.ItemPrice;
@@ -22,7 +22,7 @@ public class ShopItemCustomer extends ShopItemBase
 	protected ArrayList<ItemStack> _player_itemstack_refs = new ArrayList<>();
 	Player _player;
 	//public int itemSlot = slot;
-	public ShopItemCustomer(Main main, ShopBase shopBase,Player player,ItemStack real, int amount) 
+	public ShopItemCustomer(Main main, ShopNormal shopBase,Player player,ItemStack real, int amount) 
 	{
 		super(main,shopBase,real, amount);
 		_player = player;	

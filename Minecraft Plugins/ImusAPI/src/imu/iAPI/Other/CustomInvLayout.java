@@ -22,7 +22,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
-import chestcleaner.sorting.SortingEvent;
+//import chestcleaner.sorting.SortingEvent;
 import imu.iAPI.Interfaces.CustomInv;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
@@ -82,26 +82,28 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	
 	public BukkitTask RenameWindow(String rename)
 	{
+		
 		return new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
 				
-				ProtocolManager pManager = ImusAPI._instance.GetProtocolManager();
-				PacketContainer packet = pManager.createPacket(PacketType.Play.Server.OPEN_WINDOW);
-				packet.getIntegers().write(0, ImusAPI._instance.GetProtocolLibUtil().GetInventoryID(_player));
-				packet.getIntegers().write(1, ImusAPI._instance.GetProtocolLibUtil().GetInventoryType(_player));
-				packet.getChatComponents().write(0, WrappedChatComponent.fromText(Metods.msgC(rename)));
-				try 
-				{
-					pManager.sendServerPacket(_player, packet);
-				} 
-				catch (Exception e) 
-				{
-					Bukkit.getLogger().info("Couldnt rename window!");
-					//e.printStackTrace();
-				}
+				//TODO need to be fixed in future where packet is more clear. Some reason packet gives only array[1]
+//				ProtocolManager pManager = ImusAPI._instance.GetProtocolManager();
+//				PacketContainer packet = pManager.createPacket(PacketType.Play.Server.OPEN_WINDOW);
+//				packet.getIntegers().write(0, ImusAPI._instance.GetProtocolLibUtil().GetInventoryID(_player));
+//				//packet.getIntegers().write(1, ImusAPI._instance.GetProtocolLibUtil().GetInventoryType(_player));
+//				packet.getChatComponents().write(0, WrappedChatComponent.fromText(Metods.msgC(rename)));
+//				try 
+//				{
+//					pManager.sendServerPacket(_player, packet);
+//				} 
+//				catch (Exception e) 
+//				{
+//					Bukkit.getLogger().info("Couldnt rename window!");
+//					//e.printStackTrace();
+//				}
 				_player.updateInventory();
 			}
 		}.runTaskLater(_plugin, 1);
@@ -155,14 +157,16 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		
 	}
 	
-	@EventHandler
-	public void OnInvSort(SortingEvent e) //ChectCleaner.plugin support
-	{
-		if(isThisInv(e.getInventory()))
-		{
-			e.setCancelled(true);
-		}
-	}
+	
+//	@EventHandler
+//	public void OnInvSort(SortingEvent e) //ChectCleaner.plugin support
+//	{
+//		if(isThisInv(e.getInventory()))
+//		{
+//			e.setCancelled(true);
+//		}
+//	}
+	
 	@EventHandler
 	public void invClose(InventoryCloseEvent e)
 	{

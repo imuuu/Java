@@ -5,7 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.DontLoseItems.Commands.ExampleCmd;
-import imu.DontLoseItems.Events.FishingEvent;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Main.ImusAPI;

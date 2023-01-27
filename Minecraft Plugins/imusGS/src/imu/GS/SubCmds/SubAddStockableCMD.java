@@ -2,7 +2,7 @@ package imu.GS.SubCmds;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,7 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
@@ -41,11 +42,17 @@ public class SubAddStockableCMD implements CommandInterface
     		return false;
     	}
     	String shopName = StringUtils.join(Arrays.copyOfRange(args, 2, args.length)," ");
-    	ShopBase shop = _main.get_shopManager().GetShop(shopName);
+    	Shop shop = _main.get_shopManager().GetShop(shopName);
     	
     	if(shop == null)
     	{
     		player.sendMessage(ChatColor.RED + "Shop not found!");
+			return false;
+    	}
+    	
+    	if(!(shop instanceof ShopNormal))
+    	{
+    		player.sendMessage(ChatColor.RED + "Item can't be added this kind of shop!");
 			return false;
     	}
     	
@@ -73,7 +80,7 @@ public class SubAddStockableCMD implements CommandInterface
 		
 		}
     	
-    	AddToShop(stacks, shop, player);
+    	AddToShop(stacks, (ShopNormal)shop, player);
         return false;
     }
     
@@ -95,7 +102,7 @@ public class SubAddStockableCMD implements CommandInterface
 		return stacks;
 	}
 	
-	void AddToShop(ItemStack[] stacks, ShopBase shop, Player player)
+	void AddToShop(ItemStack[] stacks, ShopNormal shop, Player player)
 	{
 		for(ItemStack stack : stacks)
     	{

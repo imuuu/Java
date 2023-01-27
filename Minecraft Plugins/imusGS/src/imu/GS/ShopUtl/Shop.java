@@ -1,137 +1,130 @@
 package imu.GS.ShopUtl;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
-import imu.GS.ENUMs.ShopType;
-import imu.GS.Invs.ShopUI;
-
 import imu.GS.Main.Main;
-import imu.iAPI.Other.Cooldowns;
+import imu.GS.ShopUtl.Customer.Customer;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
-public class Shop 
+public abstract class Shop
 {
-	Main _main;
-	String _name;
-	
-	ArrayList<ShopItem> _items = new ArrayList<>();
-	
-	int shopHolderSize = 27;
-	double _sellM = 1.0;
-	double _buyM  = 1.0;
-	
-	double _expire_percent = 0.1f;
-	double _expire_cooldown_m = 30;
-	String _cd_expire = "expire";
-	
-	ShopConfigPasser _configPasser;
-	Cooldowns _cds;
-	
-	ShopType _type;
-	
-	HashMap<UUID, ShopUI> _hCustomers = new HashMap<>();
-	
-	public Shop(Main main, String name)
+	protected Main _main;
+	private String _name;
+	private String _displayName;
+	private UUID _uuid;
+	private HashMap<UUID, Customer> _hCustomers = new HashMap<>();
+
+	private boolean _locked = false;
+	public boolean _temp_lock = false;
+	public boolean _temp_modifying_lock = false;
+
+	public Shop(Main main, UUID uuid, String name)
 	{
 		_main = main;
-		_name = name;
-		_configPasser = new ShopConfigPasser(_main,this);
-		_type = ShopType.NORMAL;
-		_cds = new Cooldowns();
-	}
-	
-	public void openUI(Player p)
-	{
-		_hCustomers.put(p.getUniqueId(), new ShopUI(_main, p, this));
-	}
-	
-	public void closeUI(Player p)
-	{
-		_hCustomers.remove(p.getUniqueId());
-	}
-	
-//	public void refresShopUIslotALLcustomers(int slot)
-//	{
-//		for(ShopUI ui : _hCustomers.values())
-//		{
-//			ui.invSetItem(slot, _items.get(slot), BUTTON.SHOP_ITEM);
-//		}
-//	}
-	
-	public int getShopHolderSize() {
-		return shopHolderSize;
+		SetName(name);
+		_uuid = uuid;
 	}
 
-	public void setShopHolderSize(int shopHolderSize) {
-		this.shopHolderSize = shopHolderSize;
-	}
+	public abstract void OpenModify(Player player);
 
-	public void saveShop(boolean async)
+	public void Open(Player player)
 	{
-		if(async)
+		if (_temp_lock || HasLocked() || _temp_modifying_lock)
 		{
-			_configPasser.saveShopAsync();
-			return;
+			player.sendMessage(Metods.msgC("&9The Shop is temporarily closed! Come back laiter!"));
+			if (!player.isOp())
+			{
+				return;
+			}
 		}
-		_configPasser.saveShop();
+		OpenShop(player);
 	}
-	public void loadShopAsync()
+
+	protected abstract void OpenShop(Player player);
+
+	public boolean HasCustomers()
 	{
-		_configPasser.loadShopAsync();
-	}
-	public double get_expire_cooldown_m() {
-		return _expire_cooldown_m;
+		return _hCustomers.size() > 0;
 	}
 
-
-	public void set_expire_cooldown_m(double _expire_cooldown_m) {
-		this._expire_cooldown_m = _expire_cooldown_m;
-	}
-
-	public String getNameWithColor()
+	public Collection<Customer> GetCustomers()
 	{
-		return ChatColor.translateAlternateColorCodes('&', _name);
+		return _hCustomers.values();
+	}
+
+	public void AddCustomer(Player player, CustomInvLayout inv)
+	{
+		//_hCustomers.put(player.getUniqueId(), new Customer(player, inv)).Open(); //not working in jdk19???
+		_hCustomers.put(player.getUniqueId(), new Customer(player, inv));
+		_hCustomers.get(player.getUniqueId()).Open();
 	}
 	
-	public String get_name() {
+	public void RemoveCustomer(UUID uuid_player, boolean closeInv)
+	{
+		if (!_hCustomers.containsKey(uuid_player))
+			return;
+
+		Customer customer = _hCustomers.remove(uuid_player);
+		if (closeInv)
+			customer.Close();
+	}
+
+	public void RemoveCustomerALL()
+	{
+		for (Customer cus : GetCustomers())
+		{
+			cus.Close();
+		}
+		_hCustomers.clear();
+	}
+
+	public UUID GetUUID()
+	{
+		return _uuid;
+	}
+
+	public String GetNameWithColor()
+	{
+		return ChatColor.translateAlternateColorCodes('&', _displayName);
+	}
+
+	public void SetName(String name)
+	{
+		_displayName = name;
+		_name = ImusAPI._metods.StripColor(name);
+	}
+
+	public String GetName()
+	{
 		return _name;
 	}
-	public void set_name(String _name) {
-		this._name = _name;
+
+	public String GetDisplayName()
+	{
+		return _displayName;
 	}
-	public ArrayList<ShopItem> get_items() {
-		return _items;
+
+	public boolean HasLocked()
+	{
+		return _locked;
 	}
-	public void set_items(ArrayList<ShopItem> _items) {
-		this._items = _items;
+
+	public void SetLocked(boolean locked)
+	{
+		_locked = locked;
+		if (_locked && HasCustomers())
+		{
+			for (Customer customer : GetCustomers())
+			{
+				RemoveCustomer(customer._player.getUniqueId(), true);
+			}
+		}
 	}
-	public double get_sellM() {
-		return _sellM;
-	}
-	public void set_sellM(double _sellM) {
-		this._sellM = _sellM;
-	}
-	public double get_buyM() {
-		return _buyM;
-	}
-	public void set_buyM(double _buyM) {
-		this._buyM = _buyM;
-	}
-	public double get_expire_percent() {
-		return _expire_percent;
-	}
-	public void set_expire_percent(double _expire_percent) {
-		this._expire_percent = _expire_percent;
-	}
-	public ShopType get_type() {
-		return _type;
-	}
-	public void set_type(ShopType _type) {
-		this._type = _type;
-	}
-	
 }

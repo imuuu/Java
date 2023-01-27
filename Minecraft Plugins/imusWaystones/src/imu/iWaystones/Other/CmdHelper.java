@@ -5,6 +5,7 @@ import java.util.HashMap;
 import imu.iWaystones.Main.ImusWaystones;
 import net.md_5.bungee.api.ChatColor;
 
+
 public class CmdHelper 
 {
 	HashMap<String, CmdData> _cmds = new HashMap<>();

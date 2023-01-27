@@ -37,9 +37,12 @@ public final class ProtocolLibUtil implements Listener
 			@Override
 			public void onPacketSending(PacketEvent event)
 			{
+				//SOME REASON THIS WILL NOT WORK.. gives error that packet has only 1 spot in array.
 				PacketContainer packet = event.getPacket();
 				int id = packet.getIntegers().read(0);
-				int type = packet.getIntegers().read(1);
+				//int type = packet.getIntegers().read(1);
+				int type = 0;
+				//_windows.put(event.getPlayer().getUniqueId(), new WindowInfo(id, type));
 				_windows.put(event.getPlayer().getUniqueId(), new WindowInfo(id, type));
 			}
 		});

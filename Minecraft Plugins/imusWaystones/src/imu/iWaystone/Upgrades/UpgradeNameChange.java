@@ -25,31 +25,31 @@ public class UpgradeNameChange extends BaseUpgrade
 	}
 
 	@Override
-	public String[] SetDescription() 
+	public String[] GetDescription() 
 	{
 		return new String[] {"&eBy upgrading able to rename waystone &b&lonce&e!","&eTier stays same!"};
 	}
 
 	@Override
-	public double SetTierReduceValue() 
+	public double GetTierReduceValue() 
 	{
 		return 0;
 	}
 
 	@Override
-	public String SetDisplayName() 
+	public String GetDisplayName() 
 	{
 		return "&6Rename Your Waystone!";
 	}
 
 	@Override
-	public Material SetMaterial() 
+	public Material GetMaterial() 
 	{
 		return Material.NAME_TAG;
 	}
 
 	@Override
-	public UpgradeType SetType() 
+	public UpgradeType GetType() 
 	{
 		return UpgradeType.RENAME;
 	}

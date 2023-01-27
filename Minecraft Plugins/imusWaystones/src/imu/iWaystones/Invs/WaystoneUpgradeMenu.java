@@ -113,6 +113,13 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	}
 	
 	@Override
+	public void closeThis() 
+	{
+		_player.closeInventory();
+		
+	}
+	
+	@Override
 	public void onClickInsideInv(InventoryClickEvent e) {
 		BUTTON button = GetButtonPress(e);
 		
@@ -291,6 +298,8 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 			}
 		}.runTaskAsynchronously(_main);
 	}
+
+	
 
 	
 

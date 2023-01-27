@@ -19,13 +19,13 @@ public class UpgradeCooldown extends BaseUpgrade
 		Tier[] tiers = new Tier[11];
 		for(int i = 0; i < tiers.length; i++)
 		{
-			tiers[i] = new Tier(new ItemStack[] {new ItemStack(Material.DIAMOND,10)});
+			tiers[i] = new Tier(new ItemStack[] {new ItemStack(Material.DIAMOND,5*i+1)});
 		}
 		return tiers;
 	}
 
 	@Override
-	public String[] SetDescription() 
+	public String[] GetDescription() 
 	{
 		return new String[]{
 				"&eEvery &6Tier&e reduce cooldown by &25%",
@@ -35,25 +35,25 @@ public class UpgradeCooldown extends BaseUpgrade
 	}
 
 	@Override
-	public double SetTierReduceValue() 
+	public double GetTierReduceValue() 
 	{
 		return 0.05;
 	}
 
 	@Override
-	public String SetDisplayName() 
+	public String GetDisplayName() 
 	{
 		return "&5Minor &bTeleport &5Cooldown Reduction";
 	}
 
 	@Override
-	public Material SetMaterial() 
+	public Material GetMaterial() 
 	{
 		return Material.COMPASS;
 	}
 
 	@Override
-	public UpgradeType SetType() 
+	public UpgradeType GetType() 
 	{
 		return UpgradeType.COOLDOWN;
 	}

@@ -15,7 +15,6 @@ import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
 import imu.GS.Managers.UniqueManager;
 import imu.GS.ShopUtl.ShopItemBase;
-import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemUnique;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
@@ -62,7 +61,6 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		_pd_modify = _uinv.pd_modify;
 		_shopManager = main.get_shopManager();
 		_uniqueManager = _shopManager.GetUniqueManager();
-		_shopManager.RegisterOpenedInv(player, this);
 		_sib = sis;
 		INIT(sis.GetRealItem());
 		
@@ -166,20 +164,7 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		
 		new UniquesINV(_main, _player).openThis();
 	}
-	
-	
-
-	
-	@Override
-	public void invClosed(InventoryCloseEvent e) {
-		if(isThisInv(e))
-		{
-			_shopManager.UnRegisterOpenedInv(_player);
-		}
-	}
-
-	
-	
+		
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -414,7 +399,11 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 
 	@Override
 	public void setupButtons() {
-		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) {
+
 	}
 }

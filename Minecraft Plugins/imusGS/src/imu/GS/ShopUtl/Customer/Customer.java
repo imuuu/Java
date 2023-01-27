@@ -3,29 +3,30 @@ package imu.GS.ShopUtl.Customer;
 import org.bukkit.entity.Player;
 
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
+import imu.iAPI.Other.CustomInvLayout;
 
 public class Customer 
 {
 	Main _main;
 	public Player _player;
-	public double _totalBuy = 0;
-	public ShopBase _shopBase;
-	public CustomerMenuBaseInv _shopInv;
+	private CustomInvLayout _inv;
 	
-	public Customer(Main main, Player player,ShopBase shopBase)
+	public Customer(Player player, CustomInvLayout inv)
 	{
-		_main = main;
 		_player = player;
-		_shopBase = shopBase;
-		_shopInv = new CustomerMenuBaseInv(main,player, _shopBase);
+		_inv = inv ;
 	}
 	
 	public Customer Open()
 	{
 		//System.out.println("opening");
-		_shopInv.openThis();
+		_inv.openThis();
 		return this;
+	}
+	
+	public CustomInvLayout GetInv()
+	{
+		return _inv;
 	}
 	
 	public void Close()

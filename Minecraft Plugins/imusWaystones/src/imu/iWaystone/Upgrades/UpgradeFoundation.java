@@ -40,7 +40,7 @@ public class UpgradeFoundation extends BaseUpgrade
 	}
 
 	@Override
-	public String[] SetDescription() 
+	public String[] GetDescription() 
 	{
 		String[] arr = new String[]
 				{
@@ -54,25 +54,25 @@ public class UpgradeFoundation extends BaseUpgrade
 	}
 
 	@Override
-	public double SetTierReduceValue() 
+	public double GetTierReduceValue() 
 	{
 		return 0;
 	}
 
 	@Override
-	public String SetDisplayName() 
+	public String GetDisplayName() 
 	{
 		return "&5Foundation Upgrade";
 	}
 
 	@Override
-	public Material SetMaterial() 
+	public Material GetMaterial() 
 	{
 		return Material.DIAMOND_BLOCK;
 	}
 
 	@Override
-	public UpgradeType SetType() 
+	public UpgradeType GetType() 
 	{
 		return UpgradeType.FOUNDATION;
 	}

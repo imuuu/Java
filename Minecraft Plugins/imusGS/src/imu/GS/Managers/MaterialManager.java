@@ -16,7 +16,8 @@ import imu.GS.ENUMs.SQL_TABLES;
 import imu.GS.Main.Main;
 import imu.GS.Other.MaterialOverflow;
 import imu.GS.Other.MaterialSmartData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.ShopNormal;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ItemPrice.PriceMaterial;
 
@@ -50,7 +51,7 @@ public class MaterialManager extends Manager
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_TABLES.price_materials.toString()+" ("
 					+ "material VARCHAR(50), "
 					+ "price FLOAT(20), "
-					+ "smart_multiplier FLOAT(20), "				
+					+ "smart_multiplier FLOAT(20) DEFAULT -1.0, "				
 					+ "PRIMARY KEY(material)"
 					+ ");");
 			ps.executeUpdate();
@@ -89,8 +90,12 @@ public class MaterialManager extends Manager
 		PriceMaterial priceMaterial = new PriceMaterial(stack.getType());
 		priceMaterial.SetPrice(0);
 		if(stack == null || stack.getType() == Material.AIR) return priceMaterial;
-
-		priceMaterial = (PriceMaterial)_material_prices.get(stack.getType()).clone();
+		
+		PriceMaterial priceMat = _material_prices.get(stack.getType());
+		
+		//if(priceMat == null) return priceMaterial;
+		
+		priceMaterial = (PriceMaterial)priceMat.clone();
 		
 		double addedEnchantPrice = _main.GetShopEnchantManager().CalculateEnchantPrice(stack);
 		
@@ -158,10 +163,15 @@ public class MaterialManager extends Manager
 				{
 					PutMaterialPrice(mat, price);
 
-					for(ShopBase shop : _shopManager.GetShops())
+					for(Shop shop : _shopManager.GetShops())
 					{
+						if(!(shop instanceof ShopNormal)) continue;
+						
+						ShopNormal normalShop = (ShopNormal) shop;
+						
 						boolean removeCustomers = false;
-						for(ShopItemBase[] pages : shop.get_items())
+						
+						for(ShopItemBase[] pages : normalShop.get_items())
 						{
 							for(ShopItemBase sib : pages)
 							{

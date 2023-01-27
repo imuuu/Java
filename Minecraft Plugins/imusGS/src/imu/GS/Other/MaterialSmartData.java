@@ -14,7 +14,8 @@ public class MaterialSmartData
 {
 	private HashMap<Material, Double> _mat_multies = new HashMap<>();
 	private Material _mat;
-	private double _multiplier;
+	private double _multiplier = -1.0;
+	
 	public MaterialSmartData(Material mat, double multiplier)
 	{
 		_mat = mat;

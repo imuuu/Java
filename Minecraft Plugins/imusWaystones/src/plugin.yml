@@ -2,7 +2,7 @@ name: imusWaystones
 author: imu
 version: 1.0
 main: imu.iWaystones.Main.ImusWaystones
-api-version: 1.18
+api-version: 1.19
 softdepend: [imusAPI]
 commands:
    iw:

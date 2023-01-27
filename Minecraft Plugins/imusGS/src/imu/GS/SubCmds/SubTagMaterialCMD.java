@@ -2,7 +2,6 @@ package imu.GS.SubCmds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -15,8 +14,9 @@ import imu.GS.ENUMs.Cmd_add_options;
 import imu.GS.ENUMs.TagSubCmds;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
-import imu.GS.ShopUtl.ShopBase;
+import imu.GS.ShopUtl.Shop;
 import imu.GS.ShopUtl.ShopItemBase;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ItemPrice.PriceOwn;
 import imu.iAPI.Interfaces.CommandInterface;
 import imu.iAPI.Main.ImusAPI;
@@ -163,8 +163,11 @@ public class SubTagMaterialCMD implements CommandInterface
     		return;
     	}
     	int count = 0;
-    	for(ShopBase shop : _main.get_shopManager().GetShops())
+    	for(Shop s : _main.get_shopManager().GetShops())
     	{
+    		if(!(s instanceof ShopNormal)) continue;
+    		
+    		ShopNormal shop = (ShopNormal)s;
     		boolean closeShop = false;
     		for(ShopItemBase[] pages : shop.get_items())
     		{
@@ -197,8 +200,12 @@ public class SubTagMaterialCMD implements CommandInterface
     		return;
     	}
     	int count = 0;
-    	for(ShopBase shop : _main.get_shopManager().GetShops())
+    	for(Shop s : _main.get_shopManager().GetShops())
     	{
+    		if(!(s instanceof ShopNormal)) continue;
+    		
+    		ShopNormal shop = (ShopNormal)s;
+    		
     		boolean closeShop = false;
     		for(ShopItemBase[] pages : shop.get_items())
     		{

@@ -1,8 +1,5 @@
 package imu.GS.Invs;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -15,9 +12,9 @@ import com.google.common.base.Strings;
 
 import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Main.Main;
-import imu.GS.ShopUtl.ShopBase;
 import imu.GS.ShopUtl.ShopItemBase;
 import imu.GS.ShopUtl.ShopItemModData;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
@@ -31,14 +28,12 @@ public class ShopModINV extends CustomInvLayout
 	private int unique_slots = 0;
 	private int current_page = 0;
 	
-	private ShopBase _shop;
+	private ShopNormal _shop;
 	private Main _main;
-	private boolean _isClosed = false;
-	
-	private HashMap<UUID, ShopItemModData> _newModDatas = new HashMap<>();
+
 	BukkitTask _runnable = null;
 	
-	public ShopModINV(Main main, Player player, ShopBase shop) 
+	public ShopModINV(Main main, Player player, ShopNormal shop) 
 	{
 		super(main, player, "Modding: " + shop.GetNameWithColor(), 9*6);
 		_main = main;
@@ -146,7 +141,6 @@ public class ShopModINV extends CustomInvLayout
 		super.openThis();
 		_main.RegisterInv(this);
 		_shop._temp_modifying_lock = true;
-		_main.get_shopManager().RegisterOpenedInv(_player, this);
 		makeInv();
 		refreshItems();
 	}
@@ -168,9 +162,7 @@ public class ShopModINV extends CustomInvLayout
 	@Override
 	public void invClosed(InventoryCloseEvent arg0) 
 	{		
-		_main.get_shopManager().UnRegisterOpenedInv(_player);
-		_main.UnregisterInv(this);
-		
+
 		if(_runnable != null) _runnable.cancel();
 		
 		_shop._temp_modifying_lock = false;

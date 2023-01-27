@@ -9,7 +9,7 @@ import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeCastTime extends BaseUpgrade
 {
-
+	
 	public UpgradeCastTime() 
 	{
 		super();
@@ -18,40 +18,48 @@ public class UpgradeCastTime extends BaseUpgrade
 	@Override
 	Tier[] SetTiers() 
 	{
-		Tier[] tiers = new Tier[5];
-		ItemStack stack = new ItemStack(Material.LAPIS_BLOCK,22);
-		tiers[0] = new Tier(new ItemStack[] {stack});
-		tiers[1] = new Tier(new ItemStack[] {stack});
-		tiers[2] = new Tier(new ItemStack[] {stack});
-		tiers[3] = new Tier(new ItemStack[] {stack});
-		tiers[4] = new Tier(new ItemStack[] {stack});
+		Tier[] tiers = new Tier[10];
+		//ItemStack lapisBlock = new ItemStack(Material.LAPIS_BLOCK,22);
+		tiers[0] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,10)});
+		tiers[1] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,20)});
+		tiers[2] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,30)});
+		tiers[3] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,33)});
+		tiers[4] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,40)});
+		tiers[5] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,40), new ItemStack(Material.DIAMOND,2)});
+		tiers[6] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,30), new ItemStack(Material.DIAMOND,5)});
+		tiers[7] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,20), new ItemStack(Material.DIAMOND,10)});
+		tiers[8] = new Tier(new ItemStack[] {new ItemStack(Material.LAPIS_BLOCK,10), new ItemStack(Material.DIAMOND,12)});
+		tiers[9] = new Tier(new ItemStack[] {null});
+		
+		
 		return tiers;
 	}
 
 	@Override
-	public String[] SetDescription() 
+	public String[] GetDescription() 
 	{
-		return new String[] {"&eEvery &6&ltier &ereduces cast time &25&es"};
+		return new String[] {"&eEvery &6&ltier &ereduces cast time &2"+_tierReduceValue+"&es"};
 	}
 
 	@Override
-	public double SetTierReduceValue() {
-		return 5.0;
+	public double GetTierReduceValue() 
+	{
+		return 3.0f;
 	}
 
 	@Override
-	public String SetDisplayName() 
+	public String GetDisplayName() 
 	{
 		return  "&2Reduce Cast time";
 	}
 
 	@Override
-	public Material SetMaterial() {
+	public Material GetMaterial() {
 		return Material.CLOCK;
 	}
 
 	@Override
-	public UpgradeType SetType() {
+	public UpgradeType GetType() {
 		return UpgradeType.CAST_TIME;
 	}
 
