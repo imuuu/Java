@@ -1,0 +1,9 @@
+name: imusTNT
+author: imu
+version: 1.0
+main: imu.imusTNT.main.ImusTNT
+description: Imus Tnts
+api-version: 1.19
+depend: [imusAPI]
+commands:
+   it:
