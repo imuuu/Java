@@ -1,22 +1,38 @@
 generalstore_script:
+
     type: assignment
+
+
+
     interact scripts:
 
     - generalstore_open
 
+
+
     actions:
 
-        on assignment: 
+        on assignment:
 
-        - trigger name:damage toggle:true
+        - trigger name:damage state:true
+
+        - trigger name:click state:true
 
 generalstore_open:
-	debug: false
+    debug: false
     type: interact
+
+
 
     steps:
 
         'Opening the store':
+
+            click trigger:
+
+                script:
+
+                - execute as_op 'gs shop'
 
             damage trigger:
 

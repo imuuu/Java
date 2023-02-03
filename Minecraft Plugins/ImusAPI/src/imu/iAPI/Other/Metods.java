@@ -321,6 +321,19 @@ public class Metods
 		return enchs;
 	}
 	
+	public boolean HasEnchant(ItemStack stack, Enchantment ench)
+	{
+		if(stack == null || stack.getType() == Material.AIR) return false;
+		
+		if(!stack.hasItemMeta()) return false;
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(meta.hasEnchant(ench)) return true;
+		
+		return false;
+	}
+	
 	@SuppressWarnings("unused")
 	public HashMap<Enchantment, Integer> GetEnchantsWithLevels(ItemStack stack)
 	{

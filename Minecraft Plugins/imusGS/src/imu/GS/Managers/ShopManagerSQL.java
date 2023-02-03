@@ -641,6 +641,31 @@ public class ShopManagerSQL
 		
 	}
 	
+	public boolean CheckConnection() 
+	{		
+		boolean connected = true;
+		try
+		{
+			Connection con =_main.GetSQL().GetConnection();
+			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM imusGS.shops");
+			ps.executeQuery();
+			
+			con.close();
+			ps.close();
+		} 
+		catch (Exception e)
+		{
+			//System.out.println("[imusGS] Tried to check SQL connection but failed");
+			System.out.println(e);
+			connected = false;
+		}
+		//RemovePriceValue(shopItemSellerUUID);
+		
+		return connected;
+		
+		
+	}
+	
 	PriceCustom GetPriceCustom(UUID uuid, boolean closeConnection) throws SQLException 
 	{
 		Connection con = _main.GetSQL().GetConnection();
@@ -890,9 +915,9 @@ public class ShopManagerSQL
 					ps.setInt	(11, (shop.GetCustomersCanOnlyBuy() ? 1 : 0));		
 					ps.setInt	(12, (shop.GetAbsolutePosBool() ? 1 : 0));		
 					ps.executeUpdate();
-					_main.getLogger().info("===> Data saved database");
+					//_main.getLogger().info("===> Data saved database");
 					
-					_main.getLogger().info("=====> Data saved to shop array");
+					//_main.getLogger().info("=====> Data saved to shop array");
 					
 				} catch (Exception e) 
 				{
@@ -998,10 +1023,10 @@ public class ShopManagerSQL
 		return array;
 	}
 	
-	ArrayList<String> GetINSERTShopItemStatements(ShopItemSeller sib)
+	ArrayList<String> GetREPLACEShopItemStatements(ShopItemSeller sib)
 	{
 		ArrayList<String> statements = new ArrayList<String>();
-		String shopItem = "INSERT INTO "+SQL_TABLES.shopitems.toString()+" (uuid, shop_uuid, type, item_display_name, amount, page, slot, price_type, type_data, itemstack) VALUES("
+		String shopItem = "REPLACE INTO "+SQL_TABLES.shopitems.toString()+" (uuid, shop_uuid, type, item_display_name, amount, page, slot, price_type, type_data, itemstack) VALUES("
 				+"'"+sib.GetUUID().toString()+"',"
 				+"'"+sib.GetShop().GetUUID().toString()+"',"
 				+"'"+sib.GetItemType().toString()+"',"
@@ -1049,8 +1074,10 @@ public class ShopManagerSQL
 			Connection con = _main.GetSQL().GetConnection();
 			
 			if(GetPriceType(sis) == ItemPriceType.PriceCustom) SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()), false);
+			
 			Statement stmt = con.createStatement();			
-			for(String strStatements : GetINSERTShopItemStatements(sis))
+			
+			for(String strStatements : GetREPLACEShopItemStatements(sis))
 			{
 				stmt.addBatch(strStatements);
 			}
@@ -1234,7 +1261,8 @@ public class ShopManagerSQL
 				} 
 				catch (Exception e) 
 				{
-					Bukkit.getLogger().info("ShopManagerSQL:SaveUniqueItemAsync:Couldnt save unique");
+					
+					Bukkit.getLogger().info("ShopManagerSQL:SaveUniqueItemAsync:Couldnt save unique: "+ImusAPI._metods.GetItemDisplayName(siu.GetDisplayItem()));
 					e.printStackTrace();
 				}	
 			}

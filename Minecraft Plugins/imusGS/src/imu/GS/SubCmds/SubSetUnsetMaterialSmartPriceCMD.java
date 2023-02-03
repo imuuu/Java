@@ -101,7 +101,7 @@ public class SubSetUnsetMaterialSmartPriceCMD implements CommandInterface
 					
 					MaterialSmartData data = new MaterialSmartData(stack.getType(), multiplier);
 					
-					if(!data.Calculate())
+					if(!data.Calculate() && _set)
 					{
 						player.sendMessage(Metods.msgC("&b"+"Material "+stack.getType()+" &4didn't had recipe"));
 						continue;

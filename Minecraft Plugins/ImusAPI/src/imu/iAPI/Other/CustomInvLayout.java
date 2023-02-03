@@ -228,10 +228,22 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 			
 			if((e.getRawSlot() == e.getSlot()))
 			{
-				onClickInsideInv(e);				
+				onClickInsideInv(e);
+				return;
+			}
+			
+			if(e.getRawSlot() != e.getSlot())
+			{
+				onClickPlayerInv(e);
+				return;
 			}
 		}
 		
+		
+	}
+	
+	protected void onClickPlayerInv(InventoryClickEvent e)
+	{
 		
 	}
 	
@@ -244,6 +256,11 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 	{
 		SetSlotPD(slot, stack);
 		_inv.setItem(slot, stack);
+	}
+	
+	protected void SetITEM(int slot, Material material)
+	{
+		SetITEM(slot,new ItemStack(material));
 	}
 	
 	protected void SetITEM(ItemStack stack)

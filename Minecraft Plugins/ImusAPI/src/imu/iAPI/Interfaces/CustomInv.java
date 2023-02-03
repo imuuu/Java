@@ -35,6 +35,8 @@ public interface CustomInv
 	 */
 	public void onClickInsideInv(InventoryClickEvent e);
 	
+	
+	
 	@EventHandler
 	public void invClose(InventoryCloseEvent e);
 	

@@ -1,11 +1,14 @@
 package imu.GS.Managers;
 
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -21,6 +24,7 @@ import imu.GS.ShopUtl.ItemPrice.PriceCustom;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 
@@ -43,13 +47,15 @@ public class ShopManager
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
 	public double _durability_penalty = 0.1; // 0.0 => 0%
-	
+	private Cooldowns _cds;
 	public ShopManager(Main main)
 	{
 		_main = main;
+		_cds = new Cooldowns();
 		_shops = new ArrayList<>();
 		_shopManagerSQL = new ShopManagerSQL(_main, this);
 		_uniqueManager = new UniqueManager(_main, this, _shopManagerSQL);
+		
 	}
 	
 	public void Init()
@@ -180,8 +186,18 @@ public class ShopManager
 	
 	void RunnableAsync()
 	{
+		//Instant timeStamp = Instant.now();
+//		Instant oneHourAgo = timeStamp.minus(Duration.ofMinutes(1));
+//		if(timeStamp.isBefore(oneHourAgo))
+//		{
+//			System.out.println("One minute has passed");
+//			timeStamp.i
+//		}
+		
+		
 		RunnableAsyncTask = new BukkitRunnable() 
 		{			
+			
 			@Override
 			public void run() 
 			{
@@ -209,7 +225,21 @@ public class ShopManager
 						CheckShopItems(shop,false);
 						shop.SetLockToInteract(false);
 					}
-				}			
+				}
+				
+				if(_cds.isCooldownReady("SQL_CONNECTION_CHECK"))
+				{
+					_cds.setCooldownInSeconds("SQL_CONNECTION_CHECK", 60*60);
+					
+					if(_shopManagerSQL.CheckConnection())
+					{
+						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its TRUE");
+					}else
+					{
+						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its FALSE");
+					}
+				}
+				
 			}
 		}.runTaskTimerAsynchronously(_main, 20 * _shopCheckTime_s, 20 * _shopCheckTime_s);
 		
@@ -326,12 +356,12 @@ public class ShopManager
 		{
 			if(s.GetName().toLowerCase().contains(searchName.toLowerCase()))
 			{
-				System.out.println("Shop found!");
+				//System.out.println("Shop found!");
 				return s;
 			}
 				
 		}
-		System.out.println("Shop NOT found by name!"+name);
+		//System.out.println("Shop NOT found by name!"+name);
 		return null;
 	}
 	

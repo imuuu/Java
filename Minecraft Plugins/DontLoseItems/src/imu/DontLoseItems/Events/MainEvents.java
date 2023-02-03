@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Shulker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -59,7 +61,7 @@ public class MainEvents implements Listener
 	double durability_penalty_pve = 0.25;
 	double durability_penalty_pvp = 0.6;
 	double durability_penalty_mob = 0.1;
-	double _mendNerf = 0.4f;  // => 60%
+	double _mendNerf = 1.0f;  // => 60%
 	Plugin _plugin;
 	Metods _itemM = null;
 	Cooldowns _cd;
@@ -174,6 +176,17 @@ public class MainEvents implements Listener
 		
 		
 	}
+	
+//	@EventHandler
+//	public void OnBlockPlace(BlockPlaceEvent e)
+//	{
+//		
+//		if(e.getBlock().getType() != Material.SPAWNER) return;
+//		
+//		CreatureSpawner spawner = (CreatureSpawner)e.getBlock().getState();
+//		spawner.setSpawnedType(EntityType.CREEPER);
+//		spawner.update();
+//	}
 	
 	public boolean IsNetherAllowed()
 	{

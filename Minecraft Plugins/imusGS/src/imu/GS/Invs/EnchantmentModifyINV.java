@@ -40,7 +40,9 @@ public class EnchantmentModifyINV extends CustomInvLayout implements IModDataInv
 	
 	private EnchantINFO _enchantInfoOverideALL = new EnchantINFO(null, 0, 0, 0);
 	private final int _overide_all_slot = _size-2;
-	public EnchantmentModifyINV(Plugin main, Player player) {
+	
+	public EnchantmentModifyINV(Plugin main, Player player) 
+	{
 		super(main, player, "&5===>Modifying Enchantment", 6 * 9);
 		_main = (Main)main;
 		_eManager = _main.GetShopEnchantManager();

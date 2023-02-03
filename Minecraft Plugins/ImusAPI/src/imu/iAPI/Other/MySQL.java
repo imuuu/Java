@@ -63,10 +63,21 @@ public class MySQL
 				+ ":"
 				+_port
 				+"/"
-				+dataBase+"?useSSL=false",
+				+dataBase+"?autoReconnect=true",
 				_username,
 				_password);
 	}
+//	void Con(String dataBase) throws ClassNotFoundException, SQLException
+//	{
+//		_connection = DriverManager.getConnection("jdbc:mysql://" 
+//				+ _host 
+//				+ ":"
+//				+_port
+//				+"/"
+//				+dataBase+"?useSSL=false",
+//				_username,
+//				_password);
+//	}
 	public void Disconnect()
 	{
 		if(IsConnected())
@@ -84,11 +95,13 @@ public class MySQL
 	{		
 		try 
 		{
-			if(_connection.isClosed())
+			if(_connection == null || _connection.isClosed())
 			{
 				//System.out.println("IS CLOSED ==> RECONNECT!");
 				Con(_dataBase);
 			}
+			
+			//Con(_dataBase);
 			
 		} catch (Exception e) 
 		{
