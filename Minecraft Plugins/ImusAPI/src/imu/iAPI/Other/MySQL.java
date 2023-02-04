@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class MySQL 
 {
@@ -21,12 +22,18 @@ public class MySQL
 	private String _password ="";
 	
 	private Connection _connection;
+	private Cooldowns _cds;
 	
+	private BukkitTask RunnableAsyncTask;
 	public MySQL(Plugin plugin, String dataBaseName) 
 	{
 		_plugin = plugin;
 		_dataBase = dataBaseName;
+		_cds = new Cooldowns();
 		LoadConfig();
+		
+		RunnableAsync();
+		
 	}
 	
 	public boolean IsConnected()
@@ -148,6 +155,58 @@ public class MySQL
 		}.runTaskAsynchronously(_plugin);
 	}
 	
+	void RunnableAsync()
+	{
+
+		final String syntax = "["+_dataBase+"]";
+		RunnableAsyncTask = new BukkitRunnable() 
+		{			
+			@Override
+			public void run() 
+			{	
+				if(_cds.isCooldownReady("SQL_CONNECTION_CHECK"))
+				{
+					_cds.setCooldownInSeconds("SQL_CONNECTION_CHECK", 60*60);
+					
+					
+					if(CheckConnection())
+					{
+						Bukkit.getLogger().info(syntax+"Checking SQL connection and its TRUE");
+					}else
+					{
+						Bukkit.getLogger().info(syntax+"Checking SQL connection and its FALSE");
+					}
+				}
+				
+			}
+		}.runTaskTimerAsynchronously(_plugin, 20*60,20 * 60 * 5);
+		
+		
+	}
+	public boolean CheckConnection() 
+	{		
+		boolean connected = true;
+		try
+		{
+			Connection con = GetConnection();
+			PreparedStatement ps = con.prepareStatement("SHOW PROCESSLIST");
+			ps.executeQuery();
+			
+			con.close();
+			ps.close();
+		} 
+		catch (Exception e)
+		{
+			//System.out.println("[imusGS] Tried to check SQL connection but failed");
+			//System.out.println(e);
+			connected = false;
+		}
+		//RemovePriceValue(shopItemSellerUUID);
+		
+		return connected;
+		
+		
+	}
 	void LoadConfig()
 	{
 		ConfigMaker cm = new ConfigMaker(_plugin, "DataBaseSettings.yml");

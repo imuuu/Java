@@ -641,31 +641,31 @@ public class ShopManagerSQL
 		
 	}
 	
-	public boolean CheckConnection() 
-	{		
-		boolean connected = true;
-		try
-		{
-			Connection con =_main.GetSQL().GetConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM imusGS.shops");
-			ps.executeQuery();
-			
-			con.close();
-			ps.close();
-		} 
-		catch (Exception e)
-		{
-			//System.out.println("[imusGS] Tried to check SQL connection but failed");
-			System.out.println(e);
-			connected = false;
-		}
-		//RemovePriceValue(shopItemSellerUUID);
-		
-		return connected;
-		
-		
-	}
-	
+//	public boolean CheckConnection() 
+//	{		
+//		boolean connected = true;
+//		try
+//		{
+//			Connection con =_main.GetSQL().GetConnection();
+//			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM imusGS.shops");
+//			ps.executeQuery();
+//			
+//			con.close();
+//			ps.close();
+//		} 
+//		catch (Exception e)
+//		{
+//			//System.out.println("[imusGS] Tried to check SQL connection but failed");
+//			System.out.println(e);
+//			connected = false;
+//		}
+//		//RemovePriceValue(shopItemSellerUUID);
+//		
+//		return connected;
+//		
+//		
+//	}
+//	
 	PriceCustom GetPriceCustom(UUID uuid, boolean closeConnection) throws SQLException 
 	{
 		Connection con = _main.GetSQL().GetConnection();

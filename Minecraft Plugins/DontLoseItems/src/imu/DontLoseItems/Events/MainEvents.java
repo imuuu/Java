@@ -263,7 +263,7 @@ public class MainEvents implements Listener
 		}
 		if(send_smg)
 		{
-			p.sendMessage(ChatColor.RED + "You are in combat with new "+ChatColor.AQUA +"Mob!");				
+			//p.sendMessage(ChatColor.RED + "You are in combat with new "+ChatColor.AQUA +"Mob!");				
 		}
 		if(send_smg2)
 		{
@@ -474,8 +474,7 @@ public class MainEvents implements Listener
 		String dmob_path = "settings.mob_damage_penalty";
 		String dcombat_cd_path = "settings.mob_comabt_cd";
 		
-		String endAllowed_cd_path = "settings.end_allowed";
-		String netherAllowed_cd_path = "settings.nether_allowed";
+		
 		
 		String endOpenDate_path = "settings.end_open_date";
 		String netherOpenDate_path = "settings.nether_open_date";

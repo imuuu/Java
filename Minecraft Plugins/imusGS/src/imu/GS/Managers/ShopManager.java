@@ -1,14 +1,11 @@
 package imu.GS.Managers;
 
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -227,18 +224,18 @@ public class ShopManager
 					}
 				}
 				
-				if(_cds.isCooldownReady("SQL_CONNECTION_CHECK"))
-				{
-					_cds.setCooldownInSeconds("SQL_CONNECTION_CHECK", 60*60);
-					
-					if(_shopManagerSQL.CheckConnection())
-					{
-						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its TRUE");
-					}else
-					{
-						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its FALSE");
-					}
-				}
+//				if(_cds.isCooldownReady("SQL_CONNECTION_CHECK"))
+//				{
+//					_cds.setCooldownInSeconds("SQL_CONNECTION_CHECK", 60*60);
+//					
+//					if(_shopManagerSQL.CheckConnection())
+//					{
+//						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its TRUE");
+//					}else
+//					{
+//						Bukkit.getLogger().info("[imusGS] Checking SQL connection and its FALSE");
+//					}
+//				}
 				
 			}
 		}.runTaskTimerAsynchronously(_main, 20 * _shopCheckTime_s, 20 * _shopCheckTime_s);

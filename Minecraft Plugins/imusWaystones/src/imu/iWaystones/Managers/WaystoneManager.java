@@ -202,6 +202,14 @@ public class WaystoneManager
 		//build upgrades could be own manager;
 		
 		AddValidLow(Material.COPPER_BLOCK);
+		AddValidLow(Material.WAXED_COPPER_BLOCK);
+		AddValidLow(Material.EXPOSED_COPPER);
+		AddValidLow(Material.OXIDIZED_COPPER);
+		AddValidLow(Material.WEATHERED_COPPER);
+		AddValidLow(Material.WAXED_WEATHERED_COPPER);
+		AddValidLow(Material.WAXED_OXIDIZED_COPPER);
+		
+		AddValidLow(Material.EMERALD_BLOCK);
 		
 		AddValidLow(Material.IRON_BLOCK);
 		BuildUpgrade bUpgrade = new BuildUpgradeCommon();
