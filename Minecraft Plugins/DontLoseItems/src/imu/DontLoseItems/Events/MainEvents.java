@@ -473,9 +473,7 @@ public class MainEvents implements Listener
 		String dpve_path = "settings.pve_damage_penalty";
 		String dmob_path = "settings.mob_damage_penalty";
 		String dcombat_cd_path = "settings.mob_comabt_cd";
-		
-		
-		
+				
 		String endOpenDate_path = "settings.end_open_date";
 		String netherOpenDate_path = "settings.nether_open_date";
 		
@@ -492,9 +490,7 @@ public class MainEvents implements Listener
 			config.set(dmob_path,durability_penalty_mob);		
 			config.set(dcombat_cd_path,_cd_in_combat_cooldown);		
 //			
-//			config.set(endAllowed_cd_path,_isEndAllowed);		
-//			config.set(netherAllowed_cd_path,_isNetherAllowed);	
-			
+	
 			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
 			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
 			
@@ -511,16 +507,12 @@ public class MainEvents implements Listener
 		durability_penalty_mob = config.getDouble(dmob_path);
 		_cd_in_combat_cooldown = config.getInt(dcombat_cd_path);
 		
-//		_isEndAllowed = config.getBoolean(endAllowed_cd_path);
-//		_isNetherAllowed = config.getBoolean(netherAllowed_cd_path);
-		
+
 		_endOpenDate = DateParser.ParseDate(config.getString(endOpenDate_path));
 		_netherOpenDate = DateParser.ParseDate(config.getString(netherOpenDate_path));
 		
 		
-		System.out.println("Nether Is date passsed:"+DateParser.IsDateNowOrPassed(_netherOpenDate) + " time dif: "+DateParser.GetTimeDifference(_netherOpenDate));
-		System.out.println("End Is date passsed:"+DateParser.IsDateNowOrPassed(_endOpenDate) + " time dif: "+DateParser.GetTimeDifference(_endOpenDate));
-				
+			
 	}
 	boolean stringEndsWith(String target, String[] array)
 	{

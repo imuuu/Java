@@ -1534,7 +1534,8 @@ public class Metods
 	
 	public int GetItemStackEnchantCount(ItemStack stack, Enchantment searchEnch)
 	{
-		if(stack == null) return 0;
+		
+		if(!HasEnchant(stack, searchEnch)) return 0;
 		
 		for(Entry<Enchantment, Integer> ench : stack.getEnchantments().entrySet())
 		{
@@ -1545,14 +1546,26 @@ public class Metods
 	public int GetArmorSlotEnchantCount(Player player, Enchantment searchEnch)
 	{
 		int value = 0;
+		ItemStack[] armors = player.getInventory().getArmorContents();
 		
-		for(int i = player.getInventory().getContents().length - 6 ; i < player.getInventory().getContents().length; i++)
-		{
-			ItemStack stack = player.getInventory().getContents()[i];
-			if(stack == null || stack.getType() == Material.AIR) continue;
-			
-			value += GetItemStackEnchantCount(stack, searchEnch);
-		}
+		ItemStack helmet = armors[3];
+		ItemStack chestplate = armors[2];
+		ItemStack leggings = armors[1];
+		ItemStack boots = armors[0];
+		
+		value += GetItemStackEnchantCount(helmet, searchEnch);
+		value += GetItemStackEnchantCount(chestplate, searchEnch);
+		value += GetItemStackEnchantCount(leggings, searchEnch);
+		value += GetItemStackEnchantCount(boots, searchEnch);
+		value += GetItemStackEnchantCount(player.getInventory().getItemInOffHand(), searchEnch);
+
+//		for(int i = player.getInventory().getContents().length - 6 ; i < player.getInventory().getContents().length; i++)
+//		{
+//			ItemStack stack = player.getInventory().getContents()[i];
+//			//if(stack == null || stack.getType() == Material.AIR) continue;
+//			
+//			value += GetItemStackEnchantCount(stack, searchEnch);
+//		}
 		
 		return value;
 	}
