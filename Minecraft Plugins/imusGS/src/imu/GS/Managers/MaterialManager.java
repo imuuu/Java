@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -133,6 +134,11 @@ public class MaterialManager extends Manager
 	public PriceMaterial GetPriceMaterial(Material mat)
 	{
 		return _material_prices.get(mat);
+	}
+	
+	public boolean HasPriceMaterial(Material mat)
+	{
+		return _material_prices.containsKey(mat);
 	}
 	
 	public void SaveMaterialPrice(List<Material> mats, double prices)
@@ -284,10 +290,11 @@ public class MaterialManager extends Manager
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.price_materials.toString()+";");
 			ResultSet rs = ps.executeQuery();
 			int i = 1;
+			final String statementINSERT ="INSERT INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);";
 			if(!rs.isBeforeFirst())
 			{
 				//empty!
-				PreparedStatement ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.price_materials.toString()+" (material, price) VALUES(?,?);");
+				PreparedStatement ps2 = con.prepareStatement(statementINSERT);
 				for(Material mat : Material.values())
 				{
 					i = 1;
@@ -321,6 +328,29 @@ public class MaterialManager extends Manager
 
 				
 			}
+			
+			PreparedStatement ps3 = con.prepareStatement(statementINSERT);
+			boolean hasFoundNewMats = false;
+			for(Material mat : Material.values())
+			{
+				if(!HasPriceMaterial(mat))
+				{
+					hasFoundNewMats = true;
+					i = 1;
+					ps3.setString(i++, mat.name());
+					ps3.setFloat(i++, 0.0f);
+					ps3.addBatch();
+					PutMaterialPrice(mat, 0.0);
+					Bukkit.getLogger().info(Main.Instance._pluginNamePrefix+"New Material found:"+mat+" ");
+				}
+			}
+			
+			if(hasFoundNewMats)
+			{
+				ps3.executeBatch();		
+			}
+			ps3.close();
+			
 			
 			
 			rs.close();

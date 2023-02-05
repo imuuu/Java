@@ -45,6 +45,7 @@ import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin
 {
+	public static Main Instance;
 	private ShopManager _shopManager;
 	private ShopEnchantManager _shopEnchantManager;
 	private TagManager _tagManager;
@@ -62,6 +63,7 @@ public class Main extends JavaPlugin
 	@Override
 	public void onEnable() 
 	{
+		Instance = this;
 		ConnectDataBase();
 		
 		//setupImusApi();
