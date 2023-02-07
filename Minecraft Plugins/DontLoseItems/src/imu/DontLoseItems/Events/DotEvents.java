@@ -126,9 +126,9 @@ public class DotEvents implements Listener
 		ItemStack boots = armors[0];
 		
 		if(ImusAPI._metods.giveDamage(helmet, durabilityLost, true) && helmet.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
-		if(ImusAPI._metods.giveDamage(chestplate, durabilityLost, true) && helmet.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
-		if(ImusAPI._metods.giveDamage(leggings, durabilityLost, true) && helmet.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
-		if(ImusAPI._metods.giveDamage(boots, durabilityLost, true) && helmet.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
+		if(ImusAPI._metods.giveDamage(chestplate, durabilityLost, true) && chestplate.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
+		if(ImusAPI._metods.giveDamage(leggings, durabilityLost, true) && leggings.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
+		if(ImusAPI._metods.giveDamage(boots, durabilityLost, true) && boots.getType() == Material.AIR) player.playSound(player, Sound.ENTITY_ITEM_BREAK, 1, 1);
 
 	}
 	

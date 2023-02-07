@@ -24,6 +24,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
@@ -36,6 +37,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import imu.DontLoseItems.other.MinecraftJokes;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;
@@ -72,11 +74,13 @@ public class MainEvents implements Listener
 	HashMap<Player, ArrayList<EntityType>> _player_combat_with = new HashMap<>();
 	HashMap<UUID, Double> _player_combat_penalty_join = new HashMap<>();
 	
-
+	private MinecraftJokes _joker;
+	private int _totemJokeChance = 20;
 	
 	private Date _netherOpenDate;
 	private Date _endOpenDate;
 	
+	private Random _rand;
 	public MainEvents(Plugin plugin)
 	{
 
@@ -89,6 +93,8 @@ public class MainEvents implements Listener
 		_cd = new Cooldowns();
 		runnable();
 		
+		_joker = new MinecraftJokes();
+		_rand = new Random();
 //		try
 //		{
 //			Date date = DateParser.parseDate(_testDate);
@@ -101,8 +107,22 @@ public class MainEvents implements Listener
 //			//e.printStackTrace();
 //		}
 	}
-	
+	@EventHandler
+	public void OnEntityDamage(EntityDamageEvent e)
+	{
 
+		if(!(e.getEntity() instanceof Player)) return;
+		
+		ItemStack stack = ((Player)e.getEntity()).getInventory().getItemInOffHand();
+		
+		if(stack == null || stack.getType() != Material.TOTEM_OF_UNDYING) return;
+		
+
+		if(_rand.nextInt(100) >= _totemJokeChance) return;
+		
+		((Player)e.getEntity()).sendMessage(" ");
+		((Player)e.getEntity()).sendMessage(ChatColor.BLUE+_joker.GetTotemJoke());
+	}
 	@EventHandler
 	public void ProjectileLaunch(ProjectileHitEvent e)
 	{
@@ -286,7 +306,7 @@ public class MainEvents implements Listener
 					Player p = entry.getKey();
 					if(_cd.isCooldownReady(_cd_in_combat_dmg+p.getName()))
 					{
-						p.sendMessage(ChatColor.GREEN +"" +ChatColor.BOLD+"Your combat with mob has ended!");
+						//p.sendMessage(ChatColor.GREEN +"" +ChatColor.BOLD+"Your combat with mob has ended!");
 						removeThesePlayers.add(p);
 					}
 				}
@@ -382,6 +402,11 @@ public class MainEvents implements Listener
 			ItemStack stack = content[l];
 			if(stack != null)
 			{
+				if(Metods._ins.HasEnchant(stack, Enchantment.VANISHING_CURSE))
+				{
+					continue;
+				}
+				
 				ItemStack copy = new ItemStack(stack);
 							
 				if(saveHotBar && l > -1 && l < 9)
@@ -477,6 +502,7 @@ public class MainEvents implements Listener
 		String endOpenDate_path = "settings.end_open_date";
 		String netherOpenDate_path = "settings.nether_open_date";
 		
+		
 		if(!config.contains("settings.")) 
 		{
 			//default values
@@ -494,9 +520,20 @@ public class MainEvents implements Listener
 			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
 			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
 			
+			
+			
 			cm.saveConfig();
 			return;
 		}
+		
+		String jokeTotemChance = "jokes.jokeTotemChance";
+		
+		if(!config.contains("jokes.")) 
+		{
+			config.set(jokeTotemChance, _totemJokeChance);
+			cm.saveConfig();
+		}
+		
 		
 		saveArmor = config.getBoolean(a_path);
 		saveTools = config.getBoolean(t_path);
@@ -511,7 +548,7 @@ public class MainEvents implements Listener
 		_endOpenDate = DateParser.ParseDate(config.getString(endOpenDate_path));
 		_netherOpenDate = DateParser.ParseDate(config.getString(netherOpenDate_path));
 		
-		
+		_totemJokeChance = config.getInt(jokeTotemChance);
 			
 	}
 	boolean stringEndsWith(String target, String[] array)
