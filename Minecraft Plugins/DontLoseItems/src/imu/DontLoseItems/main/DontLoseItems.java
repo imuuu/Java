@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.DontLoseItems.Commands.ExampleCmd;
+import imu.DontLoseItems.Events.ChestLootEvents;
 import imu.DontLoseItems.Events.DotEvents;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.DontLoseItems.Events.NetherEvents;
@@ -39,6 +40,7 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new MainEvents(this), this);
 		getServer().getPluginManager().registerEvents(new DotEvents(), this);
 		getServer().getPluginManager().registerEvents(new NetherEvents(), this);
+		getServer().getPluginManager().registerEvents(new ChestLootEvents(), this);
 		//getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 	}
 	

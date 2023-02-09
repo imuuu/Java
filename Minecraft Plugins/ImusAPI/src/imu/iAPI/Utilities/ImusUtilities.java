@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import imu.iAPI.Main.ImusAPI;
 
@@ -74,6 +75,24 @@ public  class ImusUtilities
 	    }
 	    
 	    return positions;
+	}
+	
+	private static LinkedList<Location> CreateCirclePlatform(Location center, int radius)
+	{
+		LinkedList<Location> positions = new LinkedList<>();
+		int x = center.getBlockX();
+		int y = center.getBlockY();
+		int z = center.getBlockZ();
+		
+		for (int i = x - radius; i <= x + radius; i++)
+		{
+			for (int k = z - radius; k <= z + radius; k++)
+			{
+				positions.add(new Location(center.getWorld(), i, y, k));	
+			}
+		}
+		
+		return positions;
 	}
 	
 	public static void ChangeBlockType(Iterable<Block> list, Material[] mat_list, long delay, int index) {

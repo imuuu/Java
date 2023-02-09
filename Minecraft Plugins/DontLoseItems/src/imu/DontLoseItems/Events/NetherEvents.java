@@ -84,7 +84,7 @@ public class NetherEvents implements Listener
 	private final int _radiusOfGhastBall = 4;
 	private final int _radiusOfBlazeBall = 2;
 	
-	private final String META_OPENED_CHEST = "chestOpened";
+	
 	private final Material[] _ghastBallMaterials = new Material[]
 	{
 		Material.BLACK_TERRACOTTA,
@@ -101,7 +101,7 @@ public class NetherEvents implements Listener
 	
 	private HashSet<EntityType> _validEquipEnteties;
 	
-	private ImusLootTable<ItemStack> _lootTable;
+
 	public NetherEvents()
 	{
 		_rand = new Random();
@@ -113,17 +113,9 @@ public class NetherEvents implements Listener
 		GetSettings();
 		
 		InitEntityTypes();
-		InitLootTable();
-	}
-	private void InitLootTable()
-	{
-		_lootTable = new ImusLootTable<>();
-		
-		_lootTable.Add(new ItemStack(Material.DIAMOND), 1);
-		_lootTable.Add(new ItemStack(Material.GOLD_INGOT), 10);
-		_lootTable.Add(new ItemStack(Material.IRON_INGOT), 20);
 		
 	}
+	
 	private void InitEntityTypes()
 	{
 		_validEquipEnteties = new HashSet<>();
@@ -153,43 +145,7 @@ public class NetherEvents implements Listener
 		return loc.getWorld() == _nether;
 	}
 	
-	@EventHandler
-	public void OnInventoryOpen(InventoryOpenEvent e) 
-	{
-	  if(!(IsNether(e.getInventory().getLocation()))) return;
-	  
-	  if (!(e.getInventory().getHolder() instanceof Chest)) return;
-	  
-	  Chest chest = (Chest) e.getInventory().getHolder();
-	  Inventory chestInventory = chest.getInventory();
-
-	    if (chest.hasMetadata(META_OPENED_CHEST)) return;
-	    
-	   _lootTable.AddLootAsItemStack(chestInventory, 1);
-	    
-	   
-	    chest.setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
-	}
 	
-	@EventHandler
-	public void OnBlockBreak(BlockBreakEvent e) 
-	{
-	  if(!(IsNether(e.getBlock()))) return;
-	  
-	  //if (!(e.getInventory().getHolder() instanceof Chest)) return;
-	  
-	  Block block = e.getBlock();
-	 
-	  if(block == null || block.getType() != Material.CHEST) return;
-	  
-	  if (!block.hasMetadata(META_OPENED_CHEST)) return;
-	  
-	  block.removeMetadata(META_OPENED_CHEST, DontLoseItems.Instance);
-	  System.out.println("Metadata removed");
-	    
-
-
-	}
 
 	
 	@EventHandler
