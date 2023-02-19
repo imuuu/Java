@@ -1,19 +1,27 @@
 package imu.DontLoseItems.Events;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
@@ -25,45 +33,53 @@ import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Hoglin;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.loot.LootContext;
-import org.bukkit.loot.LootTable;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.iAPI.LootTables.ImusLootTable;
+import imu.DontLoseItems.other.Manager_HellArmor;
+import imu.DontLoseItems.other.PlayerFear;
 import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 
 
 public class NetherEvents implements Listener
 {
-
+	public static NetherEvents Instance;
 	private Random _rand;
-	
+	private Cooldowns _cds;
 	private World _nether;
 	
 	private boolean _enableMagmaCube = true;
@@ -73,16 +89,44 @@ public class NetherEvents implements Listener
 	private boolean _enableShieldBlockArrow = true;
 	private boolean _enableWitherSpeed = true;
 	private boolean _enableHoglinSpeed = true;
+	private boolean _enableSpeedZombie = true;
 	private boolean _enableDoubleFireDamage = true;
+	private boolean _enableDisableTotemNether = true;
 	
 	private boolean _enableOnlySmallMagmaCubeLava = true;
 	
-	private long _ghastMaterialDelayTicks = 12;
+	private long _ghastMaterialDelayTicks = 9;
 	
-	private final int _maxWaterBottleUses = 3;
+	private final int _maxWaterBottleUses = 2;
 	private int _chanceEntityHaveShield = 15;
-	private final int _radiusOfGhastBall = 4;
+	private final int _radiusOfGhastBall = 7;
 	private final int _radiusOfBlazeBall = 2;
+	private final boolean _blazeFireStartONfeetOnHit = true;
+	
+	private final double _fearIncrease = 1; // 14
+	private final double _fearDecrease = 10;
+	private final int _fearDecreaseLightLevel = 12; //top of torch is 12
+	private final int _fearIncreaseByHit = 4; //top of torch is 12
+	
+	private final double _fearDamageDelay = 8;
+	private final double _fearIncreaseDelay = 25;
+	private final double _fearDecreaseDelay = 0.8;
+	
+	private final double _torchCheckDelay = 10;
+	private final long _asyncLoopDelay = 2L;
+	
+	//speed zombie settings
+	private final double _fearIncreaseBySpeedZombie = 15;
+	private final double _speedZombieDropChance = 36;
+	private final int _speedZombieRollChances = 5;
+	private final double _speedZombieChanceToSpawn = 5;
+	
+	//pigling
+	private final boolean _enablePiglinArrowKnockBack = true;
+	private HashMap<UUID, PlayerFear> _playerFear;	
+	
+	@SuppressWarnings("unused")
+	private BukkitTask _asyncTask;
 	
 	
 	private final Material[] _ghastBallMaterials = new Material[]
@@ -90,126 +134,608 @@ public class NetherEvents implements Listener
 		Material.BLACK_TERRACOTTA,
 		Material.GRAY_TERRACOTTA,
 		Material.PURPLE_TERRACOTTA,
-		Material.RED_TERRACOTTA,
+		//Material.RED_TERRACOTTA,
 		Material.ORANGE_TERRACOTTA,
 		Material.YELLOW_TERRACOTTA,
 		Material.WHITE_TERRACOTTA,
 		Material.AIR,
 	};
 	
-	private HashSet<Location> _mutationBlock;
+	private Set<Location> _mutationBlock;
 	
 	private HashSet<EntityType> _validEquipEnteties;
 	
-
+	private HashMap<Location, Long> _placedTorches;
+	
+	private HashSet<Material> _airHashSet;
+	//private LinkedList<Location> _torches;
+	
+	private final long TORCH_TIME = 23000;
 	public NetherEvents()
 	{
+		Instance = this;
 		_rand = new Random();
-
+		_playerFear = new HashMap<>();
+		_placedTorches = new HashMap<>();
+		_airHashSet = new HashSet<>();
+		_airHashSet.add(Material.AIR);
+		_cds = new Cooldowns();
 		// GetSettings();
-		_mutationBlock = new HashSet<>();
+		_mutationBlock = Collections.synchronizedSet(new HashSet<>());
 		_nether = Bukkit.getWorld("world_nether");
 		
 		GetSettings();
 		
 		InitEntityTypes();
-		
+		RunnableAsync();
 	}
-	
+	public void OnDisabled()
+	{
+		TorchCheckAsync(true);
+	}
 	private void InitEntityTypes()
 	{
 		_validEquipEnteties = new HashSet<>();
 		_validEquipEnteties.add(EntityType.WITHER_SKELETON);
 		_validEquipEnteties.add(EntityType.PIGLIN);
 		_validEquipEnteties.add(EntityType.ZOMBIFIED_PIGLIN);
-		_validEquipEnteties.add(EntityType.ZOMBIFIED_PIGLIN);
+		_validEquipEnteties.add(EntityType.PIGLIN_BRUTE);
 		_validEquipEnteties.add(EntityType.SKELETON);
 	}
+	
+	void RunnableAsync()
+	{
+		
+		_asyncTask = new BukkitRunnable() 
+		{			
+			
+			@Override
+			public void run() 
+			{
+				for(Player player : Bukkit.getServer().getOnlinePlayers())
+				{
+					if(!IsNether(player)) continue;
+					
+					if(player.getGameMode() != GameMode.SURVIVAL) 
+					{
+						GetFear(player).SetFear(0);
+						continue;
+					}
+					
+					
+					
+					Block block = player.getLocation().getBlock();
+					
+					if(block != null && block.getLightLevel() >= _fearDecreaseLightLevel)
+					{
+						if(_cds.isCooldownReady("fearDecrease")) 
+						{
+							_cds.setCooldownInSeconds("fearDecrease", _fearDecreaseDelay);
+							
+							if(GetFear(player).GetFearLevel() > 0) AddFearToPlayer(player, -_fearDecrease);
+							
+						}	
+					}
+					
+					if(_cds.isCooldownReady("fearIncrease"))
+					{
+						AddFearToPlayer(player, _fearIncrease - GetPlayerFearReduceAmount(player));
+					}
+					
+					if(_cds.isCooldownReady("torchCheck"))
+					{
+						CheckTotem(player);
+					}
+					
+					if(!_cds.isCooldownReady("fearDamage")) continue;
+					
+					
+					PlayerFear fear = GetFear(player);
+					
+					new BukkitRunnable() 
+					{
+			            @Override
+			            public void run() 
+			            {
+			            	fear.TriggerFear(player);
+						   
+			            }
+			        }.runTask(DontLoseItems.Instance); 
+					
+				}
+				
+				if(_cds.isCooldownReady("fearIncrease"))
+				{
+					_cds.setCooldownInSeconds("fearIncrease", _fearIncreaseDelay);
+				
+				}
+				
+				if(_cds.isCooldownReady("fearDamage"))
+				{
+					_cds.setCooldownInSeconds("fearDamage", _fearDamageDelay);
+				}
+				
+				if(_cds.isCooldownReady("torchCheck"))
+				{
+					_cds.setCooldownInSeconds("torchCheck", _torchCheckDelay);
+					
+					TorchCheckAsync(false);
+				}
+
+				
+			}
+		}.runTaskTimerAsynchronously(DontLoseItems.Instance, 0, _asyncLoopDelay);	
+	}
+	
+	private void CheckTotem(Player player)
+	{
+		if(!_enableDisableTotemNether) return;
+		
+		if(player.getGameMode() != GameMode.SURVIVAL) return;
+		
+		ItemStack stack = player.getInventory().getItemInOffHand();
+		
+		
+		if(stack == null || stack.getType() != Material.TOTEM_OF_UNDYING ) return;
+		
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				ItemStack newStack = stack.clone();
+				stack.setAmount(0);
+				
+				Metods._ins.InventoryAddItemOrDrop(newStack, player);
+				
+				player.sendMessage("");
+				player.sendMessage(ChatColor.BLUE+ "Totem of Undying scares nethers darkness!");
+				player.sendMessage("");
+				player.sendMessage(ChatColor.BLUE+ "So it was feeling a little down, "
+						+ "so it went to see a spiritual advisor. "
+						+ "It's hoping to find some inner peace and strength!");
+			}
+		}.runTask(DontLoseItems.Instance);
+		
+	}
+	
+	private void TorchCheckAsync(boolean force)
+	{
+		LinkedList<Location> torches = new LinkedList<>();
+		
+		long currentTime = System.currentTimeMillis();
+		for(var torch : _placedTorches.entrySet())
+		{
+			if(currentTime - torch.getValue() > TORCH_TIME || force)
+			{
+				Location loc = torch.getKey();
+				torches.add(loc);
+			}
+
+		}
+		for(Location loc : torches)
+		{
+			_placedTorches.remove(loc);
+		}
+		
+		if(force)
+		{
+			for(Location loc : torches)
+			{
+				if(loc.getBlock().getType() != Material.TORCH) continue;
+				
+				loc.getBlock().breakNaturally();
+			}
+			torches.clear();
+			return;
+		}
+		new BukkitRunnable() 
+		{
+			@Override
+			public void run()
+			{
+				for(Location loc : torches)
+				{
+					if(loc.getBlock().getType() != Material.TORCH) continue;
+					
+					loc.getBlock().breakNaturally();
+				}
+				torches.clear();
+			}
+		}.runTask(DontLoseItems.Instance);
+	}
+	
+	private PlayerFear GetFear(Player player)
+	{
+		if(!_playerFear.containsKey(player.getUniqueId())) 
+			_playerFear.put(player.getUniqueId(), new PlayerFear(player));
+		
+		return _playerFear.get(player.getUniqueId());
+	}
+	
+	private double GetPlayerFearReduceAmount(Player player)
+	{
+		PlayerInventory inv = player.getInventory();
+		double helmet = Manager_HellArmor.Instance.GetFearReduceAmount(inv.getHelmet());
+		double chest = Manager_HellArmor.Instance.GetFearReduceAmount(inv.getChestplate());
+		double legg = Manager_HellArmor.Instance.GetFearReduceAmount(inv.getLeggings());
+		double feet = Manager_HellArmor.Instance.GetFearReduceAmount(inv.getBoots());
+		
+		return helmet + chest + legg + feet;
+		
+	}
+	private void AddFearToPlayer(Player player, double amount)
+	{
+		//System.out.println("fear: "+amount);
+		PlayerFear fear = GetFear(player);
+		fear.SetPlayer(player);
+		
+		double fearIncrease = amount;
+		
+		BossBar bossBar = fear.GetBossBar() == null ? Bukkit.createBossBar("Fear Level", BarColor.PURPLE, BarStyle.SEGMENTED_10, BarFlag.CREATE_FOG) : fear.GetBossBar();
+        bossBar.addPlayer(player);
+		bossBar.setProgress(fear.GetFearLevel() * 0.01);
+        
+		bossBar.setTitle(ChatColor.BLACK + "| "+ChatColor.DARK_PURPLE+"Fear"+ChatColor.BLACK+" |");//: " +ChatColor.BLUE +(int) fear.GetFearLevel());// + "%");
+		fear.SetBossBar(bossBar);
+		
+		new BukkitRunnable() 
+		{
+            @Override
+            public void run() 
+            {
+            	fear.AddFearLevel(fearIncrease);
+            	bossBar.setProgress(fear.GetFearLevel() * 0.01);
+            }
+        }.runTaskLater(DontLoseItems.Instance, 20L); 
+        
+		new BukkitRunnable() 
+		{
+            @Override
+            public void run() 
+            {
+                bossBar.removeAll();
+            }
+        }.runTaskLater(DontLoseItems.Instance, 200L); 
+        //player.sendMessage(ChatColor.DARK_PURPLE+ " Fear has increased by "+fearIncrease + " total: "+fear.GetFearLevel());
+	}
+	
+
+
 	@SuppressWarnings("unused")
 	private boolean IsNether(World world)
 	{
+		if(world == null) return false;
+		
 		return world == _nether;
 	}
 	private boolean IsNether(Entity entity)
 	{
+		if(entity == null) return false;
+		
 		return entity.getWorld() == _nether;
 	}
 	@SuppressWarnings("unused")
 	private boolean IsNether(Block block)
 	{
+		if(block == null) return false;
+		
 		return block.getWorld() == _nether;
 	}
 	@SuppressWarnings("unused")
 	private boolean IsNether(Location loc)
 	{
+		if(loc == null) return false;
+		
 		return loc.getWorld() == _nether;
 	}
 	
 	
-
+//	@EventHandler(priority = EventPriority.HIGHEST)
+//	  public void onBlockPopulate(BlockPopulator e) 
+//	{
+//		
+//	    if (event.getBlock().getType() == Material.ANCIENT_DEBRIS) {
+//	      event.setCancelled(true);
+//	    }
+//	  }
 	
 	@EventHandler
+	public void CancelPortals(PlayerPortalEvent e)
+	{	
+		if(e.getTo().getWorld().getName().matches("world_nether") )
+		{
+			AddFearToPlayer(e.getPlayer(), -100);
+			return;
+		}
+		
+		
+		
+	}
+	
+	@EventHandler
+	public void OnBlockPlace(BlockPlaceEvent e)
+	{
+		
+		if(!IsNether(e.getPlayer())) return;
+		
+		if(e.getBlock().getType() != Material.TORCH) return;
+		
+		if(e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+		
+		if(Manager_HellArmor.Instance.IsHellTorch(e.getPlayer().getInventory().getItemInMainHand())) 
+		{
+			return;
+		}
+		
+		if(_placedTorches.containsKey(e.getBlock().getLocation()))  return;
+		
+		if(_rand.nextInt(100) < 5)
+		{
+			e.getPlayer().sendMessage(ChatColor.BLUE + "Seemss.. These torches can't stand"+ChatColor.DARK_GRAY+" darkness "+ChatColor.BLUE+" very long..");
+		}
+		
+		_placedTorches.put(e.getBlock().getLocation(), System.currentTimeMillis());
+	}
+
+	private void EquipItemWithChance(LivingEntity entity, ItemStack item, int chance, boolean mainHand)
+	{
+		if (_rand.nextInt(100) >= _chanceEntityHaveShield) return;
+		
+		if(mainHand) entity.getEquipment().setItemInMainHand(item,false);
+		else entity.getEquipment().setItemInOffHand(item,false);
+		
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void OnEntitySpawn(CreatureSpawnEvent e) 
 	{
 		if(!IsNether(e.getEntity())) return;
 		
-		EntityType entityTypo = e.getEntityType();
+		if(e.isCancelled()) return;
+		
+		//System.out.println("Entity type: "+e.getEntityType());
+		
+		if(e.getSpawnReason() != SpawnReason.NATURAL && e.getSpawnReason() != SpawnReason.SPAWNER_EGG) return;
+		
+		if(!(e.getEntity() instanceof LivingEntity)) return;
+		
+		if(!(e.getEntity() instanceof Mob)) return;
+		
+		LivingEntity entity = (LivingEntity)e.getEntity();
+		EntityType entityType = e.getEntityType();
 	    
-		if (entityTypo == EntityType.WITHER_SKELETON && _enableWitherSpeed) 
+		ItemStack mainHand = entity.getEquipment().getItemInMainHand();
+		//ItemStack offHand = entity.getEquipment().getItemInOffHand();
+
+		if((_enableSpeedZombie && _rand.nextInt(100) < _speedZombieChanceToSpawn))
+		{
+			
+			e.setCancelled(true);
+	        Zombie zombie = (Zombie)e.getLocation().getWorld().spawnEntity(e.getLocation(), EntityType.ZOMBIE);
+	        
+	        zombie.setAge(1);
+	        zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2, false, false));
+	        zombie.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 4, false, false));
+	          
+	        ItemStack helmet = new ItemStack(Material.IRON_HELMET);;
+	        helmet.addEnchantment(Enchantment.PROTECTION_PROJECTILE, 2);
+	        //helmet.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+	        entity.getEquipment().setHelmet(helmet,false);
+	        
+	        ItemStack chestplate = new ItemStack(Material.DIAMOND_CHESTPLATE);;
+	        chestplate.addEnchantment(Enchantment.PROTECTION_PROJECTILE, 4);
+	        //chestplate.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+	        zombie.getEquipment().setChestplate(chestplate, false);
+	        
+	        ItemStack legg = new ItemStack(Material.DIAMOND_LEGGINGS);;
+	        legg.addEnchantment(Enchantment.PROTECTION_PROJECTILE, 2);
+	        legg.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+	        zombie.getEquipment().setLeggings(legg, false);
+	        
+	        
+	        ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
+	        boots.addEnchantment(Enchantment.SOUL_SPEED, 3);
+	        boots.addEnchantment(Enchantment.PROTECTION_PROJECTILE, 2);
+	        //boots.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+	        zombie.getEquipment().setBoots(boots,false);
+	        
+	        Metods._ins.setPersistenData(zombie, "SPEED_ZOMBIE", PersistentDataType.INTEGER, 1);
+	        
+	        
+	        return;
+		}
+		
+		
+		if (_enableWitherSpeed && entityType == EntityType.WITHER_SKELETON) 
 	    {
 	        e.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false, false));
 	    }
 		
-		if (entityTypo == EntityType.HOGLIN && _enableHoglinSpeed) 
+		if (_enableHoglinSpeed && entityType == EntityType.HOGLIN) 
 	    {
-	        e.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false, false));
+	        e.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false, false));
 	    }
 	    
 	    if(!_enableShieldBlockArrow) return;
 	    
-	    if(!_validEquipEnteties.contains(entityTypo)) return;
+	    if(!_validEquipEnteties.contains(entityType)) return;
 	    
-	    if (_rand.nextInt(100) < _chanceEntityHaveShield) 
+	    boolean isPiglin = entityType == EntityType.PIGLIN || entityType == EntityType.WITHER_SKELETON;
+	    int multiplier = isPiglin ? 4 : 1;
+	    
+	    if(isPiglin || entityType == EntityType.ZOMBIFIED_PIGLIN)
 	    {
-	    	ItemStack shield = new ItemStack(Material.SHIELD);
+	    	EquipItemWithChance(e.getEntity(), new ItemStack(Material.DIAMOND_SWORD), 5 * multiplier, true);
+	    }
+	    int chance = _chanceEntityHaveShield * multiplier;
+	    //System.out.println("Its piglin: "+isPiglin+ " chance: "+chance);
+	    EquipItemWithChance(e.getEntity(), new ItemStack(Material.SHIELD), chance, false);
+	    
+	    
+	    if(mainHand != null && mainHand.getType() == Material.CROSSBOW)
+	    {
+//	    	System.out.println("he has crossbow");
+//	    	
+//	    	AttributeInstance attributeMap = entity.getAttribute(Attribute.GENERIC_ATTACK_SPEED).set;
+//	    	AttributeModifier  attri = new AttributeModifier("Custom Attack Speed", 0.5, AttributeModifier.Operation.ADD_NUMBER);
+//	    	//AttributeModifier attri = new AttributeModifier("Custom Attack Speed", 0.5, AttributeModifier.Operation.ADD_NUMBER);
+//	    	
+//	    	AttributeInstance attributeInstance = entity.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+//	    	if (attributeInstance == null) {
+//	    	    attributeInstance = new AttributeInstance(Attribute.GENERIC_ATTACK_SPEED);
+//	    	    entity.getAttributeMap().addAttributeInstance(attributeInstance);
+//	    	}
+//	    	attributeInstance.applyPersistentModifier(attri);
+	    	
+	    	ItemStack stack = new ItemStack(Material.DIAMOND_BOOTS);
+		
+			ItemMeta meta = stack.getItemMeta();
+	 
+		
+			meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 0.02,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+			meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.attackSpeed", 10f, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+			//meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", rarityItem.Values[2], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+			//meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", rarityItem.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+			//meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", rarityItem.Values[4], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
 
-	    	e.getEntity().getEquipment().setItemInOffHand(shield);
+			stack.setItemMeta(meta);
 
-        }
+			entity.getEquipment().setBoots(stack);
+	    }
 	}
 	
+	@EventHandler
+	public void OnEntityDamageByEntity(EntityDamageByEntityEvent e) 
+	{
+		if(!IsNether(e.getEntity())) return;
+		
+		if(e.isCancelled()) return;
+		
+		if (!(e.getEntity() instanceof Player)) {
+	        return;
+	    }
+
+	    Player player = (Player) e.getEntity();
+
+	    if (e.getDamager() instanceof Arrow)
+		{
+	    	if(!_enablePiglinArrowKnockBack) return;
+			Arrow arrow = (Arrow) e.getDamager();
+
+		    if (!(arrow.getShooter() instanceof Piglin)) {
+		        return;
+		    }
+		    
+		    if(player.isBlocking()) return;
+		    
+		    // Get the direction the arrow was traveling
+		    Vector arrowDirection = arrow.getVelocity().normalize();
+
+		    player.setVelocity(arrowDirection.multiply(5));
+
+		    return;
+	    }
+
+	    
+		if(!_enableSpeedZombie) return;
+		
+	    if (e.getDamager().getType() != EntityType.ZOMBIE) return;
+	    
+	    //if(!(e.getEntity() instanceof Player)) return;
+	    	    
+	    if(Metods._ins.getPersistenData(e.getDamager(), "SPEED_ZOMBIE", PersistentDataType.INTEGER) == null) return;
+	    
+	    AddFearToPlayer(((Player)e.getEntity()), _fearIncreaseBySpeedZombie);
+	    
+	  }
+	
+	public void SendArrowBack(LivingEntity shooter, Arrow arrow, double velocityMultiplier ,double damageMultiplier)
+	{
+		System.out.println("damage: "+arrow.getDamage());
+        arrow.setDamage(arrow.getDamage() * 2);
+        Vector velocity = arrow.getVelocity();
+        arrow.setBounce(false);
+        arrow.setShooter(shooter);
+//        arrow.setGlowing(true);
+//        arrow.setColor(Color.GREEN);
+//        arrow.setPierceLevel(10);
+//        arrow.setGravity(false);
+        arrow.setVelocity(velocity.multiply(velocityMultiplier));
+        
+        System.out.println("damage: "+arrow.getDamage());
+	}
+	
+	public void SendArrowBackV2(LivingEntity reflecterEntity, Entity target,Arrow arrow, double velocityMultiplier ,double damageMultiplier, boolean addGravity)
+	{
+        arrow.setDamage(arrow.getDamage() * 2);
+        //Vector velocity = arrow.getVelocity();
+        arrow.setBounce(false);
+        arrow.setShooter((LivingEntity)target);
+        arrow.setGlowing(true);
+        arrow.setTicksLived(20 * 55);
+        
+        arrow.setColor(Color.GREEN);
+        arrow.setPierceLevel(10);
+        arrow.setGravity(addGravity);
+        
+        Vector reflecter = reflecterEntity.getLocation().toVector();
+        reflecter.add(new Vector(0, 0.3, 0));
+        Vector direction = reflecter.subtract(target.getLocation().toVector());
+        direction = direction.normalize();
+        
+        arrow.setVelocity(direction.multiply(velocityMultiplier));
+        //System.out.println("damageV2: "+arrow.getDamage()+ " vector: "+arrow.getVelocity());
+	}
 	@EventHandler
 	public void OnBlockingArrow(EntityDamageByEntityEvent e) 
 	{
 		if(!_enableShieldBlockArrow) return;
 		
+		if(e.isCancelled()) return;
+		
+		if(!(e.getEntity() instanceof LivingEntity)) return;
+		
+		LivingEntity entity = (LivingEntity)e.getEntity();
+		
+		if(e.getEntity() instanceof Player)
+		{
+			 //System.out.println("sending back");
+			 
+			 if (e.getDamager().getType() != EntityType.ARROW) return;
+			 
+			 if(!((Player)entity).isBlocking()) return;
+			 
+			 ItemStack shield = entity.getEquipment().getItemInOffHand();
+			 if(!Manager_HellArmor.Instance.IsHellReflectShield(shield)) return;
+			 //System.out.println("==> sending back");
+			 Arrow arrow = (Arrow) e.getDamager();
+			 //SendArrowBackV2(entity, (Entity)arrow.getShooter(), arrow, 10, 2, true);
+			 ITEM_RARITY rarity = Manager_HellArmor.Instance.GetRarity(shield);
+			 Manager_HellArmor.Instance.OnHellShieldReflect(entity, (Entity)arrow.getShooter(), arrow,rarity);
+			 
+			 int durMulti = 6 - rarity.GetIndex();
+			 Metods._ins.giveDamage(shield, Manager_HellArmor.Instance.ReflectShieldDurabilityLost * durMulti, true);
+			 e.setCancelled(true);
+			 
+			 return;
+		}
+		
 		if(!IsNether(e.getEntity())) return;
 		
 		if(!_validEquipEnteties.contains(e.getEntityType())) return;
 		
-		if(e.getEntity() instanceof Player) return;
-		
 	    if (e.getDamager().getType() != EntityType.ARROW) return;
-	    
-	    if(!(e.getEntity() instanceof LivingEntity)) return;
-
-	    
-	    
-	    LivingEntity entity = (LivingEntity)e.getEntity();
 	    
         if (entity.getEquipment().getItemInOffHand().getType() != Material.SHIELD) return;
        
-        
         Arrow arrow = (Arrow) e.getDamager();
-        Vector velocity = arrow.getVelocity();
-        arrow.setBounce(false);
-        arrow.setShooter(entity);
-        arrow.setVelocity(velocity.multiply(10));
+        SendArrowBack(entity, arrow, 10,2);
         e.setCancelled(true);
 	}
 	
 	 @EventHandler
-	  public void onHoglinAttack(EntityDamageByEntityEvent e) 
+	  public void OnHoglinAttack(EntityDamageByEntityEvent e) 
 	 {
 	    if (e.getEntity() instanceof Player && e.getDamager().getType() == EntityType.HOGLIN) 
 	    {
@@ -231,23 +757,35 @@ public class NetherEvents implements Listener
 	{
 		if(!IsNether(e.getEntity())) return;
 		
-		if(!_enableDoubleFireDamage) return;
+		if(e.isCancelled()) return;
 		
 		Entity entity = e.getEntity();
 		
 		if(!(entity instanceof Player)) return;
 		
-		//Player player = (Player) entity;
 		
+          
+		if(_fearIncreaseByHit > 0)
+		{
+			if (e.getCause() != EntityDamageEvent.DamageCause.POISON 
+			&&  e.getCause() != EntityDamageEvent.DamageCause.FIRE 
+			&&  e.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK 
+			&&  e.getCause() != EntityDamageEvent.DamageCause.LAVA)
+			{
+				AddFearToPlayer((Player)e.getEntity(), _fearIncreaseByHit);
+			}
+			
+		}
+		
+		if(!_enableDoubleFireDamage) return;
+		
+
 		DamageCause cause = e.getCause();
 		
 		if(cause == DamageCause.FIRE || cause == DamageCause.FIRE_TICK)
 		{
 			e.setDamage(e.getDamage() * 2);
 		}
-
-		
-		
 
 	}
 	
@@ -260,6 +798,8 @@ public class NetherEvents implements Listener
 		}
 		
 		if(!IsNether(e.getEntity())) return;
+		
+		if(e.isCancelled()) return;
 		
 		Block block = e.getHitBlock();
 		
@@ -289,49 +829,85 @@ public class NetherEvents implements Listener
 		
 		if(fireball.getShooter() instanceof Ghast && _enableGhastFireBall)
 		{
-			
-			LinkedList<Block> blocks = new LinkedList<>();
-			//List<Block> blocks = tnt.GetBlocks(e.getLocation());
-    		
-			for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfGhastBall))
-			{
-				if(loc.getBlock() == null || loc.getBlock().getType() == Material.AIR) continue;
-				
-				 //.setType(Material.STONE);
-				
-				EntityExplodeEvent explodeEvent = new EntityExplodeEvent(fireball, loc, blocks, 0);
-	    		Bukkit.getServer().getPluginManager().callEvent(explodeEvent);
-	    		
-	    		if(explodeEvent.isCancelled()) return;
-	    		
-	    		if(_mutationBlock.contains(loc)) continue;
-	    		
-	    		_mutationBlock.add(loc);
-	    		
-				blocks.add(loc.getBlock());
-			}
-			
-			ChangeBlockType(blocks, _ghastBallMaterials, _ghastMaterialDelayTicks, 0);
+			OnGhastExplotion(fireball,hitLoc);
 			
 			return;
 		}
 		
-		if(fireball.getShooter() instanceof Blaze && _enableBlazeFireBallSpread && !isSearchedBlock)
+		if(fireball.getShooter() instanceof Blaze && _enableBlazeFireBallSpread )// && !isSearchedBlock) //if search block then it takes if hit the player
 		{
-			for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfBlazeBall))
-			{
-				if(loc.getBlock() == null || loc.getBlock().getType() == Material.AIR) continue;
-				
-				Block firePos = loc.add(0, 1, 0).getBlock();
-				
-				if(firePos == null || firePos.getType() != Material.AIR) continue;
-				
-
-				firePos.setType(Material.FIRE);
-			}
+			if(!_blazeFireStartONfeetOnHit) { if(!isSearchedBlock) {return;}}
+			
+			OnBlazeExplotion(hitLoc);
+			
 			return;
 		}
 
+	}
+	
+	private void OnGhastExplotion(Entity entity, Location hitLoc)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				LinkedList<Block> blocks = new LinkedList<>();
+				//List<Block> blocks = tnt.GetBlocks(e.getLocation());
+	    		
+				for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfGhastBall, _airHashSet ,null))
+				{
+		    		if(_mutationBlock.contains(loc)) continue;
+		    		
+		    		_mutationBlock.add(loc);
+		    		
+					blocks.add(loc.getBlock());
+				}
+				
+				
+	    		
+				new BukkitRunnable() 
+				{
+					
+					@Override
+					public void run()
+					{
+						EntityExplodeEvent explodeEvent = new EntityExplodeEvent(entity, hitLoc, blocks, 0);
+						Bukkit.getServer().getPluginManager().callEvent(explodeEvent);
+			    		
+			    		if(explodeEvent.isCancelled()) 
+			    		{
+			    			for(Block b : blocks)
+			    	    	{
+			    	    		_mutationBlock.remove(b.getLocation());
+			    	    	}
+			    			return;
+			    		}
+						
+						//System.out.println("blocks: "+blocks.size()+ " mats: "+_ghastBallMaterials.length);
+						
+			    		//Runs in main thread
+						ChangeBlockType(blocks, _ghastBallMaterials, _ghastMaterialDelayTicks, 0);
+					}
+				}.runTask(DontLoseItems.Instance);
+				
+			}
+		}.runTaskAsynchronously(DontLoseItems.Instance);
+		
+	}
+	
+	private void OnBlazeExplotion(Location hitLoc)
+	{	
+		for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfBlazeBall, _airHashSet, null))
+		{
+			//if(loc.getBlock() == null || loc.getBlock().getType() == Material.AIR) continue;
+			
+			Block firePos = loc.add(0, 1, 0).getBlock();
+			
+			if(firePos == null || firePos.getType() != Material.AIR) continue;
+			
+			firePos.setType(Material.FIRE);
+		}
 	}
 	
 	@EventHandler
@@ -341,6 +917,24 @@ public class NetherEvents implements Listener
 
 		// if(!entity.getWorld().getName().matches("world_nether")) return;
 		if(!IsNether(entity)) return;
+		
+		if(entity instanceof Zombie && _enableSpeedZombie)
+		{	        
+	        if(Metods._ins.getPersistenData(entity, "SPEED_ZOMBIE", PersistentDataType.INTEGER) == null) return;
+	        
+	        if(_rand.nextInt(100) >= _speedZombieDropChance) return;
+	        
+	        System.out.println("Loot spawned by killed zombie");
+	        e.getDrops().clear();
+
+	        LinkedList<ItemStack> drops = ChestLootEvents.Instance.GenerateNetherLoot(1, _speedZombieRollChances);
+	        
+	        for(ItemStack stack : drops)
+	        {
+	        	 entity.getWorld().dropItemNaturally(entity.getLocation(), stack);
+	        }
+	       
+		}
 		
 		if (entity instanceof MagmaCube && _enableMagmaCube)
 		{
@@ -358,8 +952,6 @@ public class NetherEvents implements Listener
 			block.setType(Material.LAVA);
 
 		}
-		
-
 	}
 	
 	@EventHandler
@@ -417,26 +1009,26 @@ public class NetherEvents implements Listener
         
 	  }
 	
-	@EventHandler
-	public void ProjectileLaunch(ProjectileHitEvent e)
-	{
-		if (!(e.getEntity().getShooter() instanceof Skeleton))
-			return;
-
-		if (!(e.getHitEntity() instanceof Player))
-			return;
-
-		Player player = (Player) e.getHitEntity();
-
-		if (player.getGameMode() != GameMode.SURVIVAL)
-			return;
-
-		if (player.isBlocking())
-		{
-			return;
-		}
-
-	}
+//	@EventHandler
+//	public void ProjectileLaunch(ProjectileHitEvent e)
+//	{
+//		if (!(e.getEntity().getShooter() instanceof Skeleton))
+//			return;
+//
+//		if (!(e.getHitEntity() instanceof Player))
+//			return;
+//
+//		Player player = (Player) e.getHitEntity();
+//
+//		if (player.getGameMode() != GameMode.SURVIVAL)
+//			return;
+//
+//		if (player.isBlocking())
+//		{
+//			return;
+//		}
+//
+//	}
 	private void ChangeBlockType(Iterable<Block> list, Material[] mat_list, long delay, int index) {
 	    
 		Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, () -> 
@@ -469,7 +1061,7 @@ public class NetherEvents implements Listener
 	    			block.breakNaturally();
 	    			continue;
 	    		}
-	    		
+
 	    		block.setType(mat_list[index]);
 	    		
 	    		

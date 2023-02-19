@@ -1,70 +1,71 @@
 package imu.DontLoseItems.Events;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Random;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import imu.DontLoseItems.CustomItems.Manager_HellTools;
+import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
-import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 
 public class ChestLootEvents implements Listener
 {
-
+	public static ChestLootEvents Instance;
 	private Random _rand;
 
 	private World _nether;
 
-	private Cooldowns _cds;
+	
 	private final String META_OPENED_CHEST = "chestOpened";
-
-	private ImusLootTable<ItemStack> _lootTable;
-
-	private HashMap<UUID, Location> _lastLocations;
-
-	private final String _PD_LAVA_BOOTS = "HELL_BOOTS";
 	
-	private final String _META_HELL_BOOTS_STONE = "HB_Stone";
 
-	private final String _CD_ON_LAVA = "onLava";
-	private final String _CD_IN_LAVA = "inLava";
-	private final String _CD_CREATED_SAFE_PLAT = "safe_plat";
+	private ImusLootTable<ItemStack> _lootTable_hellArmor;
+	private ImusLootTable<ItemStack> _lootTable_hellArrows;
+	//private ImusLootTable<ItemStack> _lootTable_hellShields;
+	private ImusLootTable<ItemStack> _lootTable_hellTools;
+	private ImusLootTable<ItemStack> _lootTable_blocks;
+	private ImusLootTable<ItemStack> _lootTable_valuables;
+	private ImusLootTable<ItemStack> _lootTable_food;
 	
-	private final int _hellBootsRadius = 3;
+	
+	private ImusLootTable<Enchantment> _lootTable_enchants_armor;
+	private ImusLootTable<Enchantment> _lootTable_enchants_tool;
+	
+	private ImusLootTable<Integer> _lootTable_stackMaxAmounts;
+	
+	private int _chestRollMaxAmount = 10;
+	
+	private boolean _chestDEBUG = true;
+	///setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public ChestLootEvents()
 	{
+		Instance = this;
 		_rand = new Random();
-		_lastLocations = new HashMap<>();
-		_cds = new Cooldowns();
+		
 		// GetSettings();
 
 		_nether = Bukkit.getWorld("world_nether");
@@ -76,17 +77,161 @@ public class ChestLootEvents implements Listener
 
 	private void InitLootTable()
 	{
-		_lootTable = new ImusLootTable<>();
-
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Common), 100);
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Uncommon), 90);
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Rare), 80);
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Epic), 70);
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Mythic), 30);
-		_lootTable.Add(CreateHellBoots(ITEM_RARITY.Legendary), 10);
+		_lootTable_hellArmor = new ImusLootTable<>();
+		_lootTable_hellArrows = new ImusLootTable<>();
+		//_lootTable_hellShields = new ImusLootTable<>();
+		_lootTable_blocks = new ImusLootTable<>();
+		_lootTable_hellTools = new ImusLootTable<>();
+		_lootTable_stackMaxAmounts = new ImusLootTable<>();
+		_lootTable_valuables = new ImusLootTable<>();
+		_lootTable_food = new ImusLootTable<>();
+		_lootTable_enchants_armor = new ImusLootTable<>();
+		_lootTable_enchants_tool = new ImusLootTable<>();
+		
+		_lootTable_stackMaxAmounts.Add(5, 90);
+		_lootTable_stackMaxAmounts.Add(10, 70);
+		_lootTable_stackMaxAmounts.Add(13, 50);
+		_lootTable_stackMaxAmounts.Add(30, 15);
+		_lootTable_stackMaxAmounts.Add(40, 7);
+		_lootTable_stackMaxAmounts.Add(64, 5);
+		
+		
+		
+		int common = 90;
+		int unCommon = 90;
+		int rare = 80;
+		int epic = 73;
+		int mythic = 33;
+		int lege = 21;
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Common), common);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Common), common);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Common), common);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Legendary), lege);
+		
+		
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellTorch(), 105);
+		_lootTable_hellArrows.Add(new ItemStack(Material.ARROW), 90);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Common), 60);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Uncommon), 60);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Rare), 40);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Epic), 28);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Mythic), 18);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Legendary), 8);
+		
+		
+		_lootTable_hellTools.Add(new ItemStack(Material.SHIELD), rare);
+		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
+		
+		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_PICKAXE), rare);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Legendary), lege);
+		
+		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_SWORD), rare);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Legendary), lege);
+		
+		//_lootTable_hellTools.Add(null, lege);
 		// _lootTable.Add(new ItemStack(Material.DIAMOND), 1);
 		// _lootTable.Add(new ItemStack(Material.GOLD_INGOT), 10);
 		// _lootTable.Add(new ItemStack(Material.IRON_INGOT), 20);
+		
+		
+		_lootTable_blocks.Add(new ItemStack(Material.STONE), 160);
+		_lootTable_blocks.Add(new ItemStack(Material.NETHER_BRICK), 160);
+		_lootTable_blocks.Add(new ItemStack(Material.GRAVEL), 130);
+		_lootTable_blocks.Add(new ItemStack(Material.GLOWSTONE), 80);
+		_lootTable_blocks.Add(new ItemStack(Material.SHROOMLIGHT), 60);
+		_lootTable_blocks.Add(new ItemStack(Material.BASALT), 160);
+		_lootTable_blocks.Add(new ItemStack(Material.BLACK_STAINED_GLASS), 150);
+		_lootTable_blocks.Add(new ItemStack(Material.SOUL_SAND), 150);
+		_lootTable_blocks.Add(new ItemStack(Material.MAGMA_BLOCK), 120);
+		_lootTable_blocks.Add(new ItemStack(Material.OBSIDIAN), 110);
+		_lootTable_blocks.Add(new ItemStack(Material.CRYING_OBSIDIAN), 50);
+		_lootTable_blocks.Add(new ItemStack(Material.GILDED_BLACKSTONE), 40);
+		_lootTable_blocks.Add(new ItemStack(Material.CRIMSON_STEM), 130);
+		_lootTable_blocks.Add(new ItemStack(Material.WARPED_STEM), 130);
+		//_lootTable_blocks.Add(new ItemStack(Material.), 120);
+		
+		
+		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 48);
+		_lootTable_valuables.Add(new ItemStack(Material.GOLD_INGOT), 80);
+		_lootTable_valuables.Add(new ItemStack(Material.IRON_INGOT), 100);
+		_lootTable_valuables.Add(new ItemStack(Material.EMERALD), 100);
+		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_LAZULI), 120);
+		_lootTable_valuables.Add(new ItemStack(Material.MAGMA_CREAM), 90);
+		_lootTable_valuables.Add(new ItemStack(Material.GUNPOWDER), 100);
+		_lootTable_valuables.Add(new ItemStack(Material.REDSTONE), 120);
+		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 45);
+		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 45);
+		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 45);
+		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND_BLOCK), 4);
+		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 80);
+		_lootTable_valuables.Add(new ItemStack(Material.BLAZE_ROD), 40);
+		_lootTable_valuables.Add(new ItemStack(Material.GHAST_TEAR), 17);
+		_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 2);
+		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
+		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
+		
+		_lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
+		
+		
+		_lootTable_food.Add(new ItemStack(Material.APPLE), 20);
+		_lootTable_food.Add(new ItemStack(Material.COOKED_PORKCHOP), 13);
+		_lootTable_food.Add(new ItemStack(Material.BAKED_POTATO), 8);
+		_lootTable_food.Add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1);
+		_lootTable_food.Add(new ItemStack(Material.GOLDEN_APPLE), 3);
+		//_lootTable_food.Add(Manager_HellArmor.Instance.CreateHellReflectShield(), 100);
+		
+		
+		
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("protection")), 8);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("fire_protection")), 9);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("blast_protection")), 11);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("projectile_protection")), 10);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("respiration")), 8);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("aqua_affinity")), 8);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("thorns")), 5);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 7);
+		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 3);
+		//_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("binding_curse")), 1);
+		
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("efficiency")), 10);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 10);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("silk_touch")), 2);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("fortune")), 3);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("power")), 4);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("punch")), 7);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("flame")), 5);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("looting")), 3);
+		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 1);
+		//_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("vanishing_curse")), 1);
 
 	}
 
@@ -111,365 +256,371 @@ public class ChestLootEvents implements Listener
 	@SuppressWarnings("unused")
 	private boolean IsNether(Location loc)
 	{
+		if(loc == null) return false;
+		
 		return loc.getWorld() == _nether;
 	}
 	
-	public class RarityItem
+	
+	
+	public LinkedList<ItemStack> GenerateNetherLoot(int rollIncrease, int rollChances)
 	{
-		public ItemStack Stack;
-		public String Name;
-		public ITEM_RARITY Rarity;
+		LinkedList<ItemStack> stacks = new LinkedList<>();
+
+		int totalRolls = 0;
+		int startChance = 92;
+		int reduceChance = 8;
 		
-		public double[] Values;
-		
-		public RarityItem(ItemStack stack, String name, ITEM_RARITY rarity, double[] values)
+		for(int i = 0; i < rollChances; i++)
 		{
-			this.Stack = stack;
-			this.Name = name;
-			this.Rarity = rarity;
-			this.Values = values;
-		}
-		
-		public ItemStack GetItemStack()
-		{
-			ItemStack stack = Stack.clone();
-			Metods.setDisplayName(stack, GetColor(Rarity)+" "+Name);
+			if(_rand.nextInt(100) >= startChance) break;
 			
-			return stack;
+			startChance -= reduceChance;
+			totalRolls += rollIncrease;
 		}
 		
-		private String GetColor(ITEM_RARITY rarity) 
+		if(totalRolls <= 0) totalRolls = 1;
+		
+		int blockLootChance = 75;
+		int valuableChance = 36;
+		int hellArrowChance = 11; //11
+		int foodChance = 2; //2
+		int hellArmorChance = 3;
+		int enchantedBook = 3;
+		int toolGear = 4;
+		
+
+		for(int i = 0; i < totalRolls; i++)
 		{
-		    switch (rarity) {
-		        case Common:
-		            return ChatColor.GRAY + rarity.toString();
-		        case Uncommon:
-		            return ChatColor.GREEN + rarity.toString();
-		        case Rare:
-		            return ChatColor.YELLOW + rarity.toString();
-		        case Epic:
-		            return ChatColor.LIGHT_PURPLE + rarity.toString();
-		        case Mythic:
-		            return ChatColor.AQUA + rarity.toString();
-		        case Legendary:
-		            return ChatColor.GOLD + rarity.toString();
-		        default:
-		            return ChatColor.WHITE + rarity.toString();
-		    }
-		}
-		
-		
-	}
-	
-	public enum ITEM_RARITY
-	{
-	    Common,
-	    Uncommon,
-	    Rare,
-	    Epic,
-	    Mythic,
-	    Legendary
-	}
-	
-	private RarityItem[] _hellBoots = 
-		{
-			new RarityItem(new ItemStack(Material.LEATHER_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Common, 		new double[] {0.0, -14,  1, 0}),	
-			new RarityItem(new ItemStack(Material.GOLDEN_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Uncommon, 	new double[] {0.00, -12, 1, 0}),	
-			new RarityItem(new ItemStack(Material.CHAINMAIL_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Rare, 		new double[] {0.01, -10, 1, 1}),	
-			new RarityItem(new ItemStack(Material.IRON_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Epic, 			new double[] {0.01, -8,  1, 1}),	
-			new RarityItem(new ItemStack(Material.DIAMOND_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Mythic, 		new double[] {0.03, -6,  1, 1}),	
-			new RarityItem(new ItemStack(Material.NETHERITE_BOOTS), ChatColor.DARK_RED+"Hell Boots", ITEM_RARITY.Legendary, new double[] {0.08, -4,  3, 4}),	
-		};
-	private ItemStack CreateHellBoots(ITEM_RARITY rarity)
-	{
-		
-		RarityItem rarityItem = null;
-		
-		for(RarityItem boots : _hellBoots)
-		{
-			if(boots.Rarity == rarity) {rarityItem = boots;}
-		}
-		
-		ItemStack stack = rarityItem.GetItemStack();
-		
-		String[] lores = 
-			{ 
-				" ",
-				"&9Able to walk on &cLava",
-				" ",
-				"&7'Some say these boots were created by",
-				"&7a mad wizard in an attempt to control the power",
-				"&7of the volcanoes. Others say he just wanted",
-				"&7a comfy pair of slippers'",
+			ItemStack stack;
+			if(ThreadLocalRandom.current().nextInt(100) < blockLootChance)
+			{
+				stack = GetValidAmountStack(_lootTable_blocks.GetLoot().clone());
+				//inv.addItem(stack);
+				stacks.add(stack);
 				
-				};
-
-		Metods._ins.SetLores(stack, lores, false);
-
-		ItemMeta meta = stack.getItemMeta();
- 
+			}
+			if(ThreadLocalRandom.current().nextInt(100) < valuableChance)
+			{
+				stack = GetValidAmountStack(_lootTable_valuables.GetLoot().clone());
+				stacks.add(stack);
+				
+			}
+			
+			if(ThreadLocalRandom.current().nextInt(100) < hellArrowChance)
+			{
+				stack = GetValidAmountStack(_lootTable_hellArrows.GetLoot().clone());
+				//inv.addItem(stack);
+				stacks.add(stack);
+			}
+			
+			if(ThreadLocalRandom.current().nextInt(100) < foodChance)
+			{
+				stack = GetValidAmountStack(_lootTable_food.GetLoot().clone());
+				//inv.addItem(stack);
+				stacks.add(stack);
+			}
+			
+			if(ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
+			{
+				stack = GetValidAmountStack(_lootTable_hellArmor.GetLoot().clone());
+				//inv.addItem(stack);
+				stacks.add(stack);
+			}
+			if(ThreadLocalRandom.current().nextInt(100) < enchantedBook)
+			{
+				stack = EnchantBook(2);
+				//inv.addItem(stack);
+				stacks.add(stack);
+			}
+			
+			if(ThreadLocalRandom.current().nextInt(100) < toolGear)
+			{
+				stack = GetValidAmountStack(_lootTable_hellTools.GetLoot().clone());
+				stacks.add(stack);
+			}
+		}
+		return stacks;
+	}
 	
-		if(rarityItem.Values[0] != 0.00) meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", rarityItem.Values[0],AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		if(rarityItem.Values[1] != 0.00) meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", rarityItem.Values[1], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		if(rarityItem.Values[2] != 0.00) meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", rarityItem.Values[2], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		if(rarityItem.Values[3] != 0.00) meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", rarityItem.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-
-		stack.setItemMeta(meta);
-
-		Metods._ins.setPersistenData(stack, _PD_LAVA_BOOTS, PersistentDataType.INTEGER, 1);
-
+	private ItemStack GetValidAmountStack(ItemStack stack)
+	{
+		stack.setAmount(ThreadLocalRandom.current().nextInt((_lootTable_stackMaxAmounts.GetLoot())+1));
+		
+		if(stack.getType() == Material.NETHER_STAR) 
+		{
+			stack.setAmount(1);
+		}
+		
+		if(stack.getType() == Material.NETHERITE_INGOT) 
+		{
+			if(stack.getAmount() > 16) stack.setAmount(16);
+		}
+		
+		if(Metods._ins.isArmor(stack))
+		{
+			stack.setAmount(1);
+			EnchantArmor(stack,5,2);
+			
+			if(Metods._ins.HasEnchant(stack, Enchantment.DURABILITY) && ThreadLocalRandom.current().nextInt(100) < 20)
+			{
+				stack.removeEnchantment(Enchantment.DURABILITY);
+				stack.addUnsafeEnchantment(Enchantment.DURABILITY, 4);
+			}
+		}
+		
+		if(Metods._ins.isTool(stack))
+		{
+			stack.setAmount(1);
+			EnchantTool(stack,5,2);
+			
+			if(Metods._ins.HasEnchant(stack, Enchantment.DURABILITY) && ThreadLocalRandom.current().nextInt(100) < 20)
+			{
+				stack.removeEnchantment(Enchantment.DURABILITY);
+				stack.addUnsafeEnchantment(Enchantment.DURABILITY, 4);
+			}
+		}
+		
+		if(Manager_HellArmor.Instance.IsHellArrow(stack))
+		{
+			//System.out.println("it was hell arrow");
+			if(stack.getAmount() > 5) stack.setAmount(5);
+			
+			Metods._ins.AddGlow(stack);
+		}
+		
+		if(stack.getType() == Material.ENCHANTED_GOLDEN_APPLE)
+		{
+			if(stack.getAmount() > 3) stack.setAmount(3);
+			else stack.setAmount(1);
+			 
+		}
+			
+		
 		return stack;
 	}
 	
-	
-	
-	private boolean IsHellBoots(ItemStack stack)
+	private ItemStack EnchantBook(int miniumLevel)
 	{
-		return Metods._ins.getPersistenData(stack, _PD_LAVA_BOOTS, PersistentDataType.INTEGER) != null;
+		ItemStack stack = new ItemStack(Material.ENCHANTED_BOOK);
+		
+		if(ThreadLocalRandom.current().nextInt(100) > 50) EnchantTool(stack, 3, miniumLevel);
+		else EnchantArmor(stack, 3, miniumLevel);
+			
+		
+		return stack;
 	}
+	private void EnchantTool(ItemStack stack, int rolls,int miniumLevel)
+	{
+		for(int i = 0; i < rolls; i++)
+		{
+			if(ThreadLocalRandom.current().nextInt(100) > 50) break;
+			
+			Enchantment ench = _lootTable_enchants_tool.GetLoot();
+			int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+miniumLevel;
+			
+			if(level == 0) level = 1;
+			
+			if(level > ench.getMaxLevel()) level = ench.getMaxLevel();
+			
+			if(stack.getType() != Material.ENCHANTED_BOOK && !ench.canEnchantItem(stack) ) continue;
+			
+			if(stack.getType() == Material.ENCHANTED_BOOK)
+			{
 
+				EnchantmentStorageMeta meta = (EnchantmentStorageMeta)stack.getItemMeta();
+				meta.addStoredEnchant(ench, level, true);
+				stack.setItemMeta(meta);
+				return;
+			}
+			stack.addEnchantment(ench, level);
+			
+		}
+		
+		if(stack.getType() == Material.ENCHANTED_BOOK && stack.getEnchantments().size() == 0)
+		{
+			EnchantTool(stack, rolls, miniumLevel);
+		}
+	}
+	
+	private void EnchantArmor(ItemStack stack,  int rolls,int miniumLevel)
+	{
+
+		for(int i = 0; i < rolls; i++)
+		{
+			boolean done = false;
+			
+			if(ThreadLocalRandom.current().nextInt(100) > 55) break;
+			
+			Enchantment ench = _lootTable_enchants_armor.GetLoot();
+			int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+miniumLevel;
+			
+			if(level == 0) level = 1;
+			
+			if(level > ench.getMaxLevel()) level = ench.getMaxLevel();
+			
+			if(stack.getType() != Material.ENCHANTED_BOOK && !ench.canEnchantItem(stack) ) continue;
+			
+			if(stack.getType() == Material.ENCHANTED_BOOK)
+			{
+				EnchantmentStorageMeta meta = (EnchantmentStorageMeta)stack.getItemMeta();
+				meta.addStoredEnchant(ench, level, true);
+				stack.setItemMeta(meta);
+				return;
+			}
+			
+			int counter = 0;
+			
+			for(Enchantment en : stack.getEnchantments().keySet())
+			{
+				if(en.conflictsWith(ench))
+				{
+					counter++;
+				}
+				
+				if(counter >= 2) {done = true; break;}
+				
+			}
+			
+			
+			
+			if(done) continue;
+			
+			stack.addEnchantment(ench, level);
+			
+			
+		}
+		
+		if(stack.getType() == Material.ENCHANTED_BOOK && stack.getEnchantments().size() == 0)
+		{
+			EnchantArmor(stack, rolls, miniumLevel);
+		}
+		
+	}
+	
+	
+	@EventHandler
+	public void OnInventoryOpen(LootGenerateEvent e)
+	{
+		
+		
+		if (!(IsNether(e.getWorld())))
+			return;
+		
+		if(e.isCancelled()) return;
+		
+		
+		
+		Inventory inv = e.getInventoryHolder().getInventory();
+		
+//		if(!isDouble) System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened chest");
+//		else System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened DOUBLE chest");
+		
+		System.out.println("Player: "+e.getEntity()+ " Generated loot by opened  chest");
+		
+		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) { inv.addItem(stack); }
+		
+		//if(isDouble) for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount+2)) { inv.addItem(stack); }
+		//GenerateNetherLoot(chestInventory);
+
+		
+	}
 	@EventHandler
 	public void OnInventoryOpen(InventoryOpenEvent e)
 	{
-		if (!(IsNether(e.getInventory().getLocation())))
-			return;
-
-		if (!(e.getInventory().getHolder() instanceof Chest))
-			return;
-
-		Chest chest = (Chest) e.getInventory().getHolder();
-		Inventory chestInventory = chest.getInventory();
-
-		// if (chest.hasMetadata(META_OPENED_CHEST)) return;
-
-		chest.getInventory().clear();
-		_lootTable.AddLootAsItemStack(chestInventory, 27);
-
-		chest.setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
-	}
-
-	@EventHandler
-	public void OnBlockBreak(BlockBreakEvent e)
-	{
-		if (!(IsNether(e.getBlock())))
-			return;
-
-		// if (!(e.getInventory().getHolder() instanceof Chest)) return;
-
-		Block block = e.getBlock();
-
-		if (block == null || block.getType() != Material.CHEST)
-			return;
-
-		if (!block.hasMetadata(META_OPENED_CHEST))
-			return;
-
-		block.removeMetadata(META_OPENED_CHEST, DontLoseItems.Instance);
-		System.out.println("Metadata removed");
-
-	}
-
-	public void onPlayerQuit(PlayerQuitEvent e)
-	{
-		RemoveLastLocation(e.getPlayer());
-
-		_cds.removeCooldown(e.getPlayer().getUniqueId().toString() + _CD_IN_LAVA);
-		_cds.removeCooldown(e.getPlayer().getUniqueId().toString() + _CD_ON_LAVA);
-	}
-
-	private void RemoveLastLocation(Player player)
-	{
-		if (_lastLocations.containsKey(player.getUniqueId()))
-			_lastLocations.remove(player.getUniqueId());
-	}
-
-//	@EventHandler
-//	public void onPlayerMove(BlockPlaceEvent event)
-//	{
-//		event.setCancelled(true);
-//	}
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent event)
-	{
-
-		// if(!_lastLocations.containsKey(event.getPlayer().getUniqueId())) return;
-
-		Player player = event.getPlayer();
-
-		Location lastLocation = _lastLocations.get(player.getUniqueId());
-		Location currentLocation = player.getLocation();
-
-
-		if (!(lastLocation == null || lastLocation.getWorld() != currentLocation.getWorld()
-				|| currentLocation.distance(lastLocation) >= 1))
-		{
-			return;
-		}
-			
-
-		if (!IsHellBoots(player.getInventory().getBoots()))
-		{
-			RemoveLastLocation(player);
-			return;
-		}
-
-		Block block = currentLocation.getBlock().getRelative(BlockFace.DOWN);
+//		if (!(IsNether(e.getInventory().getLocation())))
+//			return;
+//		
+//		if(e.isCancelled()) return;
+		if(!_chestDEBUG) return;
 		
-		if(block.getType() != Material.LAVA && block.getType() != Material.STONE && block.getType() != Material.AIR)
-		{
-			//System.out.println("noni");
-			_cds.removeCooldown(player.getUniqueId().toString() + _CD_ON_LAVA);
-		}
-		
-		if (currentLocation.getBlock().getType() == Material.LAVA)
-		{
-			return;
-		}
-		
-		//CHECKING FALLING 
-		if(player.getVelocity().getY() < -0.5 && _cds.isCooldownReady(player.getUniqueId().toString()+_CD_CREATED_SAFE_PLAT))
-		{
-
-			for(int i = 0; i < 6; i++)
-			{
-				Block b = currentLocation.clone().add(0,-1*i,0).getBlock();
-				
-				if(b.getType() != Material.LAVA) continue;
-				
-				if(!CreateStonePlatform(player, b,_hellBootsRadius)) continue;
-				
-				_cds.setCooldownInSeconds(player.getUniqueId().toString()+_CD_CREATED_SAFE_PLAT, 2);
-				return;
-			}
-		}
-		
-		if(CreateStonePlatform(player, block,_hellBootsRadius))
-		{
-			_lastLocations.put(player.getUniqueId(), currentLocation);
-		}
-	}
-	
-	private Block SetBlockType(Player player,Block block, Material mat)
-	{
-
-		
-	    BlockPlaceEvent event = new BlockPlaceEvent(block, block.getState(), block.getRelative(BlockFace.DOWN), new ItemStack(mat), player, true, EquipmentSlot.HAND);
-	    //new BlockPl
-	    Bukkit.getServer().getPluginManager().callEvent(event);
-	    
-	    if(event.isCancelled()) return block;
-	    
-	    block.setType(mat);
-	    
-		return block;
-	}
-	
-	
-	
-//	private boolean CreateStonePlatform_radius3(Player player, Block block)
-//	{
-//		if (block.getType() == Material.LAVA || !_cds.isCooldownReady(player.getUniqueId().toString() + _CD_ON_LAVA))
+		Block[] block = {null,null};
+		Inventory inv = null;
+		//boolean isDouble = false;
+//		if(e.getInventory().getHolder() instanceof DoubleChest)
 //		{
-//			System.out.println("set lava");
-//			
-//			Block center = block.getRelative(player.getFacing(), 1);
-//			_cds.setCooldownInSeconds(player.getUniqueId().toString() + _CD_ON_LAVA, 3);
-//			int x = center.getX();
-//			int y = center.getY();
-//			int z = center.getZ();
-//			int radius = 3;
+//			DoubleChest chest = (DoubleChest) e.getInventory().getHolder();
+//			block[0] = chest.getLeftSide().getInventory().getLocation().getBlock();
+//			block[1] = chest.getRightSide().getInventory().getLocation().getBlock();
+//			inv = chest.getInventory();
+//			isDouble = true;
 //
-//			Block[] blocks = new Block[] {
-//				    center.getWorld().getBlockAt(x, y, z),
-//				    center.getWorld().getBlockAt(x + radius, y, z),
-//				    center.getWorld().getBlockAt(x + (int)(radius * Math.cos(Math.toRadians(45))), y, z + (int)(radius * Math.sin(Math.toRadians(45)))),
-//				    center.getWorld().getBlockAt(x, y, z + radius),
-//				    center.getWorld().getBlockAt(x - (int)(radius * Math.cos(Math.toRadians(45))), y, z + (int)(radius * Math.sin(Math.toRadians(45)))),
-//				    center.getWorld().getBlockAt(x - radius, y, z),
-//				    center.getWorld().getBlockAt(x - (int)(radius * Math.cos(Math.toRadians(45))), y, z - (int)(radius * Math.sin(Math.toRadians(45)))),
-//				    center.getWorld().getBlockAt(x, y, z - radius),
-//				    center.getWorld().getBlockAt(x + (int)(radius * Math.cos(Math.toRadians(45))), y, z - (int)(radius * Math.sin(Math.toRadians(45))))
-//				};
-//
-//			for (Block b : blocks) 
-//			{
-//			    if (b.getType() != Material.LAVA) 
-//			    {
-//			        continue;
-//			    }
-//			    SetBlockType(b, Material.STONE);
-//			}
-//			return true;
 //		}
 //		
-//		return false;
+		if (e.getInventory().getHolder() instanceof Chest)	
+		{
+			Chest chest = (Chest) e.getInventory().getHolder();
+			block[0] = chest.getBlock();
+			inv = chest.getInventory();
+		}		
+//		
+		if(block[0] == null) return;
+//		 
+		inv.clear();
+//		if (block[0] != null && block[0].hasMetadata(META_OPENED_CHEST)) return;
+//		
+//		if(block[1] != null && block[1].hasMetadata(META_OPENED_CHEST)) return;
+		
+		//chest.getInventory().clear();
+		//_lootTable_hellArrows.AddLootAsItemStack(chestInventory, 27);
+		//_lootTable_hellArmor.AddLootAsItemStack(chestInventory, 27);
+//		if(!isDouble) System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened chest");
+//		else System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened DOUBLE chest");
+//		
+		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) { inv.addItem(stack); }
+//		
+//		if(isDouble) for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount+2)) { inv.addItem(stack); }
+//		//GenerateNetherLoot(chestInventory);
+//
+//		block[0].setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
+//		
+//		if(block[1] != null) block[1].setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
+	}
+	
+//	@EventHandler
+//	public void OnBlockPlace(BlockPlaceEvent e)
+//	{
+//		if (!(IsNether(e.getBlock())))
+//			return;
+//		
+//		if(e.isCancelled()) return;
+//		// if (!(e.getInventory().getHolder() instanceof Chest)) return;
+//
+//		Block block = e.getBlock();
+//
+//		if (block == null || block.getType() != Material.CHEST)
+//			return;
+//		
+//		if(!_chestDEBUG) block.setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
+//	}
+//	@EventHandler
+//	public void OnBlockBreak(BlockBreakEvent e)
+//	{
+//		if (!(IsNether(e.getBlock())))
+//			return;
+//
+//		// if (!(e.getInventory().getHolder() instanceof Chest)) return;
+//
+//		Block block = e.getBlock();
+//
+//		if (block == null || block.getType() != Material.CHEST)
+//			return;
+//
+//		if (!block.hasMetadata(META_OPENED_CHEST))
+//			return;
+//
+//		block.removeMetadata(META_OPENED_CHEST, DontLoseItems.Instance);
+//		
 //	}
 	
-	private boolean CreateStonePlatform(Player player,Block block, int radius)
-	{
-		if (block.getType() == Material.LAVA || !_cds.isCooldownReady(player.getUniqueId().toString() + _CD_ON_LAVA))
-		{
-			//System.out.println("set lava");
-			
-			Block center = block.getRelative(player.getFacing(), 1);
-
-			_cds.setCooldownInSeconds(player.getUniqueId().toString() + _CD_ON_LAVA, 3);
-			int x = center.getX();
-			int y = center.getY();
-			int z = center.getZ();
-			int r = radius;
-			
-			for (int i = x - r; i <= x + r; i++)
-			{
-				for (int k = z - r; k <= z + r; k++)
-				{
-					Block b = center.getWorld().getBlockAt(i, y, k);
-					
-					if (b.getType() != Material.LAVA) continue;
 	
-					if(!IsInCircle(i, y, k, x, y, z, r)) continue;
-					
-					SetBlockType(player, b,Material.STONE);
-				}
 
-			}
-			return true;
-		}
-		
-		return false;
-	}
-	private boolean IsInCircle(int x, int y, int z, int cx, int cy, int cz, int r)
-	{
-		return (x - cx) * (x - cx) + (y - cy) * (y - cy) + (z - cz) * (z - cz) <= r * r;
-	}
+	
+	
 
-//	@EventHandler
-//    public void onPlayerMove(PlayerMoveEvent event) {
-//        Player player = event.getPlayer();
-//        Block block = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
-//
-//        if (block.getType() == Material.LAVA) {
-//            int x = block.getX();
-//            int y = block.getY();
-//            int z = block.getZ();
-//            int r = 2;
-//
-//            for (int i = x - r; i <= x + r; i++) {
-//                for (int j = y - r; j <= y + r; j++) {
-//                    for (int k = z - r; k <= z + r; k++) {
-//                        Block b = block.getWorld().getBlockAt(i, j, k);
-//                        if (b.getType() == Material.LAVA && isInCircle(i, j, k, x, y, z, r)) {
-//                            b.setType(Material.STONE);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    private boolean isInCircle(int x, int y, int z, int cx, int cy, int cz, int r) {
-//        return (x - cx) * (x - cx) + (y - cy) * (y - cy) + (z - cz) * (z - cz) <= r * r;
-//    }
+	
+
+
 
 	void GetSettings()
 	{

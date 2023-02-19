@@ -171,7 +171,7 @@ public class MySQL
 					
 					if(CheckConnection())
 					{
-						Bukkit.getLogger().info(syntax+"Checking SQL connection and its TRUE");
+						//Bukkit.getLogger().info(syntax+"Checking SQL connection and its TRUE");
 					}else
 					{
 						Bukkit.getLogger().info(syntax+"Checking SQL connection and its FALSE");

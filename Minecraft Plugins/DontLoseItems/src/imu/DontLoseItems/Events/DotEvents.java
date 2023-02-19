@@ -1,5 +1,6 @@
 package imu.DontLoseItems.Events;
 
+import java.util.HashMap;
 import java.util.Random;
 
 import org.bukkit.ChatColor;
@@ -16,11 +17,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 
 
@@ -32,13 +36,14 @@ public class DotEvents implements Listener
 	private int _arrowFoodLevelReduce = 1;
 	private int _foodReduceChance = 65;
 	
-	
+	private double _howOftenTakesDurLost = 0.2f;
+	private Cooldowns _cds;
 	private Random _rand;
 	public DotEvents()
 	{
 		_rand = new Random();
 		System.out.println("Dot event");
-	
+		_cds = new Cooldowns();
 		GetSettings();
 	}
 	
@@ -47,17 +52,31 @@ public class DotEvents implements Listener
 	@EventHandler
 	public void OnEntityDamage(EntityDamageEvent e)
 	{
-		Entity entity = e.getEntity();
+
 		
-		if(!(entity instanceof Player)) return;
+		if(!(e.getEntity() instanceof Player)) return;
 		
-		Player player = (Player) entity;
+		if(e.isCancelled()) return;
+		
+		Player player = (Player) e.getEntity();
 		
 		DamageCause cause = e.getCause();
+		
+		
 		
 		if(cause == DamageCause.POISON)
 		{
 			Add_DurabilityLost_Armor(player, _durabilityDamageArmor);
+		}
+		
+		if(cause == DamageCause.WITHER)
+		{
+			Add_DurabilityLost_Armor(player, _durabilityDamageArmor);
+		}
+		
+		if (Manager_HellArmor.Instance.IsHellLeggins(player.getInventory().getLeggings()))
+		{
+			if(Manager_HellArmor.Instance.IsHellChestplate(player.getInventory().getChestplate())) return;
 		}
 		
 		if(cause == DamageCause.FIRE)
@@ -70,7 +89,7 @@ public class DotEvents implements Listener
 			Add_DurabilityLost_Armor(player, _durabilityDamageArmor);
 		}
 		
-		if(cause == DamageCause.WITHER)
+		if(cause == DamageCause.LAVA)
 		{
 			Add_DurabilityLost_Armor(player, _durabilityDamageArmor);
 		}
@@ -78,7 +97,11 @@ public class DotEvents implements Listener
 	}
 	
 
-	
+	@EventHandler
+	public void PlayerQuit(PlayerQuitEvent e)
+	{
+		_cds.removeCooldown(e.getPlayer().getUniqueId()+"dur");
+	}
 	@EventHandler
 	public void ProjectileLaunch(ProjectileHitEvent e)
 	{
@@ -107,6 +130,10 @@ public class DotEvents implements Listener
 	
 	private void Add_HungerDamage(Player player, int hungerDmg)
 	{
+		if(player.isBlocking()) return;
+		
+		if(player.isBlocking() && Manager_HellArmor.Instance.IsHellReflectShield(player.getInventory().getItemInOffHand())) return;
+		
 		int newHunger = player.getFoodLevel()-hungerDmg;
 		
 		player.setFoodLevel(newHunger);
@@ -117,6 +144,13 @@ public class DotEvents implements Listener
 		if(durabilityLost <= 0) return;
 		
 		if(player.getGameMode() != GameMode.SURVIVAL) return;
+		
+		
+		if(!_cds.isCooldownReady(player.getUniqueId()+"dur")) return;
+		
+		_cds.setCooldownInSeconds(player.getUniqueId()+"dur", _howOftenTakesDurLost);
+		
+		//System.out.println("dur lost");
 		
 		ItemStack[] armors = player.getInventory().getArmorContents();
 		

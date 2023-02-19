@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class DateParser
 {
-	private static SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+	private static SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy/HH:mm");
 //	private static final List<SimpleDateFormat> DATE_FORMATS = Arrays.asList
 //		   (new SimpleDateFormat("dd/MM/yyyy"),
 //			new SimpleDateFormat("dd.MM.yyyy"),

@@ -16,10 +16,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Shulker;
+import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -79,13 +81,13 @@ public class MainEvents implements Listener
 	
 	private Date _netherOpenDate;
 	private Date _endOpenDate;
-	
+	private boolean _enableGolemDieOnWither = true;
 	private Random _rand;
 	public MainEvents(Plugin plugin)
 	{
 
-		_netherOpenDate = DateParser.ParseDate("10/2/2023");
-		_endOpenDate = DateParser.ParseDate("24/2/2023");
+		_netherOpenDate = DateParser.ParseDate("10/2/2023/18:00");
+		_endOpenDate = DateParser.ParseDate("24/2/2023/18:00");
 		
 		_plugin = plugin;
 		_itemM = ImusAPI._metods;
@@ -169,6 +171,12 @@ public class MainEvents implements Listener
 		String id = "portal."+e.getPlayer().getUniqueId().toString();
 		final float portalCd = 2f;
 		
+		if(e.getTo().getWorld().getName().matches("world_nether"))
+			System.out.println("date: "+_netherOpenDate + " is nether allowd: "+IsNetherAllowed()+ " "+e.getPlayer().getName());
+		
+		if(e.getTo().getWorld().getName().matches("world_the_end"))
+			System.out.println("date: "+_endOpenDate + " is end allowd: "+IsNetherAllowed()+ " "+e.getPlayer().getName());
+		
 		if(e.getTo().getWorld().getName().matches("world_the_end") && !IsEndAllowed() && !e.getPlayer().isOp())
 		{
 			if(!_cd.isCooldownReady(id)) { e.setCancelled(true); return;}
@@ -180,6 +188,7 @@ public class MainEvents implements Listener
 			_cd.addCooldownInSeconds(id, portalCd);
 			return;
 		}
+		
 		
 		if(e.getTo().getWorld().getName().matches("world_nether")  && !IsNetherAllowed()  && !e.getPlayer().isOp())
 		{
@@ -229,6 +238,17 @@ public class MainEvents implements Listener
 	@EventHandler
 	public void onInteract(EntityDamageByEntityEvent event)
 	{
+		if(event.isCancelled()) return;
+		
+		if(event.getDamager() instanceof IronGolem && event.getEntity() instanceof Wither)
+		{
+			if(!_enableGolemDieOnWither) return;
+			IronGolem golem = (IronGolem) event.getDamager();
+			golem.setHealth(0);
+			event.setCancelled(true);
+			return;
+			
+		}
 		
 		if(event.getDamager() instanceof Player && !(event.getEntity() instanceof Player) && event.getEntity() instanceof Monster)
 		{
@@ -525,7 +545,15 @@ public class MainEvents implements Listener
 			cm.saveConfig();
 			return;
 		}
-		
+		if(!config.contains(endOpenDate_path)) 
+		{
+			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
+		}
+		if(!config.contains(netherOpenDate_path)) 
+		{
+			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
+		}
+		cm.saveConfig();
 		String jokeTotemChance = "jokes.jokeTotemChance";
 		
 		if(!config.contains("jokes.")) 

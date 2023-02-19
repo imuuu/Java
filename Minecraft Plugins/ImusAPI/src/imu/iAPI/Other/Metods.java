@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
@@ -25,9 +26,8 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.Conversation.ConversationState;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
-
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -45,6 +45,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
@@ -52,10 +53,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
-
 import com.google.common.base.Strings;
 
 import imu.iAPI.Interfaces.DelaySendable;
+import imu.iAPI.Main.ImusAPI;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -72,6 +73,7 @@ public class Metods
 {
 	public static Metods _ins;
 	Plugin _main = null;
+	
 	public Metods(Plugin main) 
 	{
 		_ins = this;
@@ -332,6 +334,22 @@ public class Metods
 		if(meta.hasEnchant(ench)) return true;
 		
 		return false;
+	}
+	
+	public int GetEnchantLevel(ItemStack stack, Enchantment ench)
+	{
+		if(stack == null || stack.getType() == Material.AIR) return 0;
+		
+		if(!stack.hasItemMeta()) return 0;
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(meta.hasEnchant(ench)) 
+		{
+			return meta.getEnchantLevel(ench);
+		}
+		
+		return 0;
 	}
 	
 	@SuppressWarnings("unused")
@@ -795,6 +813,31 @@ public class Metods
 		if(entity.getPersistentDataContainer().has(key, type)) return entity.getPersistentDataContainer().get(key, type);
 		
 		return value;
+	}
+	
+	public <T> Block SetMetaData(Block block, String keyName, T data)
+	{
+		block.setMetadata(keyName, new FixedMetadataValue(ImusAPI._instance, data));
+		return block;
+	}
+	
+	public <T> Object GetMetaData(Block block, String keyName)
+	{
+		
+		if(!block.hasMetadata(keyName)) return null;
+
+		return block.getMetadata(keyName).get(0).value();
+	}
+	
+	public boolean HasMetaData(Block block, String keyName)
+	{
+		
+		return block.hasMetadata(keyName);
+	}
+	
+	public void RemoveMetaData(Block block, String keyName)
+	{
+		block.removeMetadata(keyName,ImusAPI._instance);
 	}
 	
 	public Integer[] InventoryAddItemOrDrop(ItemStack stack, Player player)
@@ -1578,6 +1621,21 @@ public class Metods
 		hologram.setCustomName(msgC(str));
 		hologram.setGravity(false);
 		return hologram;
+	}
+	
+	public ItemStack FortuneSimulation(ItemStack stack, int fortuneLevel) 
+	{
+
+	    int x = fortuneLevel;
+	    double chance = 1.0 - (2.0 / ((double)x + 2.0)); 
+
+	    int xx = stack.getAmount();
+	    
+	    if(ThreadLocalRandom.current().nextInt(100) < (chance*100.0))
+	    	xx *= ThreadLocalRandom.current().nextInt(2,x+1);
+   
+	    stack.setAmount(xx);
+	    return stack;
 	}
 	
 	/**
