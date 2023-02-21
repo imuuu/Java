@@ -4,5 +4,6 @@
 	<classpathentry kind="lib" path="E:/McServerThings/Server1.19.2/plugins/ImusAPI.jar"/>
 	<classpathentry kind="lib" path="E:/McServerThings/BuildTools/spigot-1.19.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="E:/McServerThings/Server1.19.2/plugins/ProtocolLib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

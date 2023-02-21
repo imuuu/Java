@@ -13,7 +13,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
@@ -40,7 +39,7 @@ public class ChestLootEvents implements Listener
 	private World _nether;
 
 	
-	private final String META_OPENED_CHEST = "chestOpened";
+	//private final String META_OPENED_CHEST = "chestOpened";
 	
 
 	private ImusLootTable<ItemStack> _lootTable_hellArmor;
@@ -59,7 +58,7 @@ public class ChestLootEvents implements Listener
 	
 	private int _chestRollMaxAmount = 10;
 	
-	private boolean _chestDEBUG = true;
+	private boolean _chestDEBUG = false;
 	///setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public ChestLootEvents()
 	{
@@ -101,8 +100,8 @@ public class ChestLootEvents implements Listener
 		int unCommon = 90;
 		int rare = 80;
 		int epic = 73;
-		int mythic = 33;
-		int lege = 21;
+		int mythic = 34;
+		int lege = 20;
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Rare), rare);
@@ -132,8 +131,8 @@ public class ChestLootEvents implements Listener
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Legendary), lege);
 		
 		
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellTorch(), 105);
-		_lootTable_hellArrows.Add(new ItemStack(Material.ARROW), 90);
+		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellTorch(), 85);
+		_lootTable_hellArrows.Add(new ItemStack(Material.ARROW), 80);
 		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Common), 60);
 		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Uncommon), 60);
 		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Rare), 40);
@@ -142,7 +141,7 @@ public class ChestLootEvents implements Listener
 		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Legendary), 8);
 		
 		
-		_lootTable_hellTools.Add(new ItemStack(Material.SHIELD), rare);
+		//_lootTable_hellTools.Add(new ItemStack(Material.SHIELD), rare);
 		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
 		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
 		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
@@ -153,9 +152,18 @@ public class ChestLootEvents implements Listener
 		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Legendary), lege);
 		
 		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_SWORD), rare);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleSword(ITEM_RARITY.Legendary), lege);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Legendary), lege);
+		
 		
 		//_lootTable_hellTools.Add(null, lege);
 		// _lootTable.Add(new ItemStack(Material.DIAMOND), 1);
@@ -173,33 +181,34 @@ public class ChestLootEvents implements Listener
 		_lootTable_blocks.Add(new ItemStack(Material.SOUL_SAND), 150);
 		_lootTable_blocks.Add(new ItemStack(Material.MAGMA_BLOCK), 120);
 		_lootTable_blocks.Add(new ItemStack(Material.OBSIDIAN), 110);
-		_lootTable_blocks.Add(new ItemStack(Material.CRYING_OBSIDIAN), 50);
+		_lootTable_blocks.Add(new ItemStack(Material.CRYING_OBSIDIAN), 40);
 		_lootTable_blocks.Add(new ItemStack(Material.GILDED_BLACKSTONE), 40);
 		_lootTable_blocks.Add(new ItemStack(Material.CRIMSON_STEM), 130);
 		_lootTable_blocks.Add(new ItemStack(Material.WARPED_STEM), 130);
 		//_lootTable_blocks.Add(new ItemStack(Material.), 120);
 		
 		
-		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 48);
+		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 33);
 		_lootTable_valuables.Add(new ItemStack(Material.GOLD_INGOT), 80);
-		_lootTable_valuables.Add(new ItemStack(Material.IRON_INGOT), 100);
-		_lootTable_valuables.Add(new ItemStack(Material.EMERALD), 100);
-		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_LAZULI), 120);
+		_lootTable_valuables.Add(new ItemStack(Material.IRON_INGOT), 90);
+		//_lootTable_valuables.Add(new ItemStack(Material.EMERALD), 10);
+		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_LAZULI), 100);
 		_lootTable_valuables.Add(new ItemStack(Material.MAGMA_CREAM), 90);
-		_lootTable_valuables.Add(new ItemStack(Material.GUNPOWDER), 100);
-		_lootTable_valuables.Add(new ItemStack(Material.REDSTONE), 120);
+		_lootTable_valuables.Add(new ItemStack(Material.GUNPOWDER), 70);
+		_lootTable_valuables.Add(new ItemStack(Material.REDSTONE), 110);
 		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 45);
 		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 45);
 		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 45);
+		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 40);
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND_BLOCK), 4);
-		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 80);
+		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 60);
 		_lootTable_valuables.Add(new ItemStack(Material.BLAZE_ROD), 40);
-		_lootTable_valuables.Add(new ItemStack(Material.GHAST_TEAR), 17);
+		_lootTable_valuables.Add(new ItemStack(Material.GHAST_TEAR), 14);
 		_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 2);
 		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
 		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
 		
-		_lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
+		//_lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 		
 		
 		_lootTable_food.Add(new ItemStack(Material.APPLE), 20);
@@ -270,67 +279,56 @@ public class ChestLootEvents implements Listener
 		int totalRolls = 0;
 		int startChance = 92;
 		int reduceChance = 8;
-		
 		for(int i = 0; i < rollChances; i++)
 		{
 			if(_rand.nextInt(100) >= startChance) break;
 			
 			startChance -= reduceChance;
 			totalRolls += rollIncrease;
-		}
-		
+		}	
 		if(totalRolls <= 0) totalRolls = 1;
 		
 		int blockLootChance = 75;
 		int valuableChance = 36;
 		int hellArrowChance = 11; //11
 		int foodChance = 2; //2
-		int hellArmorChance = 3;
+		int hellArmorChance = 4;
 		int enchantedBook = 3;
-		int toolGear = 4;
-		
-
+		int toolGear = 5; //4
 		for(int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
 			if(ThreadLocalRandom.current().nextInt(100) < blockLootChance)
 			{
 				stack = GetValidAmountStack(_lootTable_blocks.GetLoot().clone());
-				//inv.addItem(stack);
-				stacks.add(stack);
-				
+				stacks.add(stack);				
 			}
 			if(ThreadLocalRandom.current().nextInt(100) < valuableChance)
 			{
 				stack = GetValidAmountStack(_lootTable_valuables.GetLoot().clone());
-				stacks.add(stack);
-				
+				stacks.add(stack);				
 			}
 			
 			if(ThreadLocalRandom.current().nextInt(100) < hellArrowChance)
 			{
 				stack = GetValidAmountStack(_lootTable_hellArrows.GetLoot().clone());
-				//inv.addItem(stack);
 				stacks.add(stack);
 			}
 			
 			if(ThreadLocalRandom.current().nextInt(100) < foodChance)
 			{
 				stack = GetValidAmountStack(_lootTable_food.GetLoot().clone());
-				//inv.addItem(stack);
 				stacks.add(stack);
 			}
 			
 			if(ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
 			{
 				stack = GetValidAmountStack(_lootTable_hellArmor.GetLoot().clone());
-				//inv.addItem(stack);
 				stacks.add(stack);
 			}
 			if(ThreadLocalRandom.current().nextInt(100) < enchantedBook)
 			{
 				stack = EnchantBook(2);
-				//inv.addItem(stack);
 				stacks.add(stack);
 			}
 			
@@ -353,6 +351,11 @@ public class ChestLootEvents implements Listener
 		}
 		
 		if(stack.getType() == Material.NETHERITE_INGOT) 
+		{
+			if(stack.getAmount() > 16) stack.setAmount(16);
+		}
+		
+		if(stack.getType() == Material.ENDER_PEARL) 
 		{
 			if(stack.getAmount() > 16) stack.setAmount(16);
 		}
@@ -392,7 +395,7 @@ public class ChestLootEvents implements Listener
 		if(stack.getType() == Material.ENCHANTED_GOLDEN_APPLE)
 		{
 			if(stack.getAmount() > 3) stack.setAmount(3);
-			else stack.setAmount(1);
+			//else stack.setAmount(1);
 			 
 		}
 			

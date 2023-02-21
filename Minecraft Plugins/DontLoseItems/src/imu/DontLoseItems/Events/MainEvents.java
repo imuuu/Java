@@ -175,7 +175,7 @@ public class MainEvents implements Listener
 			System.out.println("date: "+_netherOpenDate + " is nether allowd: "+IsNetherAllowed()+ " "+e.getPlayer().getName());
 		
 		if(e.getTo().getWorld().getName().matches("world_the_end"))
-			System.out.println("date: "+_endOpenDate + " is end allowd: "+IsNetherAllowed()+ " "+e.getPlayer().getName());
+			System.out.println("date: "+_endOpenDate + " is end allowd: "+IsEndAllowed()+ " "+e.getPlayer().getName());
 		
 		if(e.getTo().getWorld().getName().matches("world_the_end") && !IsEndAllowed() && !e.getPlayer().isOp())
 		{

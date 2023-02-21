@@ -69,6 +69,7 @@ import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.DontLoseItems.other.PlayerFear;
+import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
@@ -147,8 +148,7 @@ public class NetherEvents implements Listener
 	
 	private HashMap<Location, Long> _placedTorches;
 	
-	private HashSet<Material> _airHashSet;
-	//private LinkedList<Location> _torches;
+	
 	
 	private final long TORCH_TIME = 23000;
 	public NetherEvents()
@@ -157,8 +157,7 @@ public class NetherEvents implements Listener
 		_rand = new Random();
 		_playerFear = new HashMap<>();
 		_placedTorches = new HashMap<>();
-		_airHashSet = new HashSet<>();
-		_airHashSet.add(Material.AIR);
+
 		_cds = new Cooldowns();
 		// GetSettings();
 		_mutationBlock = Collections.synchronizedSet(new HashSet<>());
@@ -855,7 +854,7 @@ public class NetherEvents implements Listener
 				LinkedList<Block> blocks = new LinkedList<>();
 				//List<Block> blocks = tnt.GetBlocks(e.getLocation());
 	    		
-				for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfGhastBall, _airHashSet ,null))
+				for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfGhastBall, ImusAPI.AirHashSet ,null))
 				{
 		    		if(_mutationBlock.contains(loc)) continue;
 		    		
@@ -898,7 +897,7 @@ public class NetherEvents implements Listener
 	
 	private void OnBlazeExplotion(Location hitLoc)
 	{	
-		for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfBlazeBall, _airHashSet, null))
+		for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfBlazeBall, ImusAPI.AirHashSet, null))
 		{
 			//if(loc.getBlock() == null || loc.getBlock().getType() == Material.AIR) continue;
 			

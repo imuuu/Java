@@ -47,6 +47,7 @@ import imu.DontLoseItems.CustomItems.Arrow_ReflectController;
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
@@ -66,7 +67,7 @@ public class Manager_HellArmor implements Listener
 	private final String _PD_HELL_FEAR_REDUCE = "HELL_FEAR_REDUCE";
 	private final String _PD_HELL_ARROW = "HELL_ARROW";
 	private final String _PD_HELL_TORCH = "HELL_TORCH";
-	private final String _PD_HELL_STONE_SHIELD = "HELL_STONE_SHIELD";
+	//private final String _PD_HELL_STONE_SHIELD = "HELL_STONE_SHIELD";
 	private final String _PD_HELL_REFLECT_SHIELD = "HELL_REFLECT_SHIELD";
 	
 	private final String _PD_BLOCK_DEBRIS = "DebrisBlock";	
@@ -77,13 +78,13 @@ public class Manager_HellArmor implements Listener
 	private final String _CD_CREATED_SAFE_PLAT = "safe_plat";
 	
 	private Cooldowns _cds;
-	private Random _rand;
+	//private Random _rand;
 	private World _nether;
 	
 	private final int _hellBootsRadius = 3;
 	public final int ReflectShieldDurabilityLost = 3;
 	
-	private HashSet<Material> _ores;
+
 	@SuppressWarnings("unused")
 	private BukkitTask _asyncTask;
 	private int _asyncTaskTicks = 1;
@@ -99,10 +100,9 @@ public class Manager_HellArmor implements Listener
 	{
 		Instance = this;
 		_lastLocations = new HashMap<>();
-		
-		InitOres();
+
 		_cds = new Cooldowns();
-		_rand = new Random();
+		//_rand = new Random();
 		_nether = Bukkit.getWorld("world_nether");
 		//RunnableAsync();
 		
@@ -122,37 +122,14 @@ public class Manager_HellArmor implements Listener
 				
 				ReflectArrowController.OnReflectArrowLoop();
 				Manager_HellTools.Instance.HellSword_Controller.OnThrowLoop();
+				Manager_HellTools.Instance.HellAxe_Controller.OnThrowLoop();
 			}
 
 			
 		}.runTaskTimer(DontLoseItems.Instance, 20 * 3, _taskTicks);	
 	}
 	
-	private void InitOres()
-	{
-		_ores = new HashSet<>();
-		
-		_ores.add(Material.COAL_ORE);
-        _ores.add(Material.DIAMOND_ORE);
-        _ores.add(Material.EMERALD_ORE);
-        _ores.add(Material.GOLD_ORE);
-        _ores.add(Material.IRON_ORE);
-        _ores.add(Material.LAPIS_ORE);
-        _ores.add(Material.NETHER_QUARTZ_ORE);
-        _ores.add(Material.REDSTONE_ORE);
-        _ores.add(Material.ANCIENT_DEBRIS);
-        _ores.add(Material.GLOWSTONE);
-        _ores.add(Material.NETHER_GOLD_ORE);
-        _ores.add(Material.COPPER_ORE);
-        
-        _ores.add(Material.DEEPSLATE_COAL_ORE);
-        _ores.add(Material.DEEPSLATE_DIAMOND_ORE);
-        _ores.add(Material.DEEPSLATE_EMERALD_ORE);
-        _ores.add(Material.DEEPSLATE_GOLD_ORE);
-        _ores.add(Material.DEEPSLATE_IRON_ORE);
-        _ores.add(Material.DEEPSLATE_LAPIS_ORE);
-        _ores.add(Material.DEEPSLATE_REDSTONE_ORE);
-	}
+	
 	
 	private RarityItem[] _hellBoots = 
 		{
@@ -813,7 +790,7 @@ public class Manager_HellArmor implements Listener
 			@Override
 			public void run()
 			{
-				LinkedList<Location> locs = ImusUtilities.CreateSphere(block.getLocation(), radius,null, _ores);
+				LinkedList<Location> locs = ImusUtilities.CreateSphere(block.getLocation(), radius,null, ImusAPI.Ores);
 				
 				new BukkitRunnable() {
 					
