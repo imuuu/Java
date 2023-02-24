@@ -27,6 +27,7 @@ public class Unstable_Void_Stone extends CustomItem
 	public ItemStack GetItemStack()
 	{
 		ItemStack stack = Stack.clone();
+		Metods.setDisplayName(stack, "&5UNSTABLE &0VOID &7STONE");
 
 		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 0);
 		return stack;
@@ -58,7 +59,7 @@ public class Unstable_Void_Stone extends CustomItem
 	}
 	private ItemStack GetNormal()
 	{
-		ItemStack stack = Stack.clone();
+		ItemStack stack = GetItemStack();
 		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 0);
 		
 		stack = SetBaseLore(stack, 1);
@@ -72,9 +73,10 @@ public class Unstable_Void_Stone extends CustomItem
 	
 	private ItemStack GetRare()
 	{
-		ItemStack stack = Stack.clone();
-		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 1);
+		ItemStack stack =  GetItemStack();
+		stack = Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 1);
 		stack = SetBaseLore(stack, 2);
+		Metods._ins.AddGlow(stack);
 		return stack;
 	}
 	

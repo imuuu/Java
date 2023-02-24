@@ -34,9 +34,10 @@ public class Manager_LegendaryUpgrades
 	
 	public ItemStack AddSyntax(ItemStack stack)
 	{
-		Metods._ins.addDisplayName(stack, ChatColor.AQUA+"UPGRADE &5to ", true);
+		Metods._ins.addDisplayName(stack, ChatColor.AQUA+"UPGRADE &5for ", true);
 		stack = Manager_HellArmor.Instance.RemoveArmorData(stack);
 		
+		Metods._ins.RemoveLores(stack);
 		List<String> lores = new ArrayList<>();
 		
 		lores.add(" ");

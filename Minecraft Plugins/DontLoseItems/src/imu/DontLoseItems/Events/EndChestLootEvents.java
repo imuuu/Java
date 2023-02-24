@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
+import imu.DontLoseItems.CustomItems.CustomItem;
 import imu.DontLoseItems.CustomItems.Unstable_Void_Stone;
 import imu.DontLoseItems.CustomItems.Unstable_Void_Stone.VOID_STONE_TIER;
 import imu.DontLoseItems.main.DontLoseItems;
@@ -108,8 +109,8 @@ public class EndChestLootEvents implements Listener
         _lootTable_valuables.Add(new ItemStack(Material.END_CRYSTAL), 2);
         
         Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 4);
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 4);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 8);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 8);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 
@@ -240,6 +241,11 @@ public class EndChestLootEvents implements Listener
 		}
 		
 		if (stack.getType() == Material.ELYTRA)
+		{
+			stack.setAmount(1);
+		}
+		
+		if (Unstable_Void_Stone.IsVoidStone(stack))
 		{
 			stack.setAmount(1);
 		}

@@ -152,6 +152,17 @@ public class Metods
     	return stack;
 	}
 	
+	public ItemStack RemoveLores(ItemStack stack)
+	{
+    	if(stack != null && stack.getType() != Material.AIR)
+    	{
+			ItemMeta meta = stack.getItemMeta();
+    		meta.setLore(new ArrayList<>());
+    		stack.setItemMeta(meta);
+    	}
+    	return stack;
+	}
+	
 	public ItemStack addLore(ItemStack stack, Iterable<String> lores)
 	{
     	if(stack != null && stack.getType() != Material.AIR)
