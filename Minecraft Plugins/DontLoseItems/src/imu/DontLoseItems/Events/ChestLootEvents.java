@@ -352,7 +352,9 @@ public class ChestLootEvents implements Listener
 		
 		if(stack.getType() == Material.NETHERITE_INGOT) 
 		{
-			if(stack.getAmount() > 16) stack.setAmount(16);
+			if(stack.getAmount() > 32) stack.setAmount(16);
+			else if(stack.getAmount() > 16)stack.setAmount(4);
+			else stack.setAmount(1);
 		}
 		
 		if(stack.getType() == Material.ENDER_PEARL) 
@@ -395,7 +397,7 @@ public class ChestLootEvents implements Listener
 		if(stack.getType() == Material.ENCHANTED_GOLDEN_APPLE)
 		{
 			if(stack.getAmount() > 3) stack.setAmount(3);
-			//else stack.setAmount(1);
+			else stack.setAmount(1);
 			 
 		}
 			

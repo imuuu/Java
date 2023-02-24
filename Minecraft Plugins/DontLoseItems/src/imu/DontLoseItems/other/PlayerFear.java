@@ -11,13 +11,11 @@ import org.bukkit.potion.PotionEffectType;
 public class PlayerFear
 {
 	private double _fearLevel = 0;
-	private Player _player;
 	private BossBar _bossBar;
 	private Random _rand;
 	private int _fearState = 0;
 	public PlayerFear(Player player)
 	{
-		_player = player;
 		_rand = new Random();
         
 	}
@@ -32,7 +30,6 @@ public class PlayerFear
 	}
 	public void SetPlayer(Player player)
 	{
-		_player = player;
 	}
 	public void SetFear(int fearLevel)
 	{

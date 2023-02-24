@@ -104,10 +104,10 @@ public class NetherEvents implements Listener
 	private final int _radiusOfBlazeBall = 2;
 	private final boolean _blazeFireStartONfeetOnHit = true;
 	
-	private final double _fearIncrease = 1; // 14
+	private final double _fearIncrease = 15; // 14
 	private final double _fearDecrease = 10;
 	private final int _fearDecreaseLightLevel = 12; //top of torch is 12
-	private final int _fearIncreaseByHit = 4; //top of torch is 12
+	private final int _fearIncreaseByHit = 5; //top of torch is 12
 	
 	private final double _fearDamageDelay = 8;
 	private final double _fearIncreaseDelay = 25;
