@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -49,6 +50,7 @@ public class EndEvents implements Listener
 		InitIncrease();
 		//GetSettings();
 		RunnableAsync();
+		InitValidBlocks();
 		
 	}
 	public void InitValidBlocks()
@@ -64,6 +66,8 @@ public class EndEvents implements Listener
 	{
 		PLACING_OTHER_BLOCKS,
 		BREAKING_OTHER_BLOCKS,
+		ON_ENTITY_DAMAGE, 
+		ON_ENTITY_DEATH,
 	}
 	public void InitIncrease()
 	{
@@ -71,6 +75,8 @@ public class EndEvents implements Listener
 		
 		_increases.put(INC_ID.BREAKING_OTHER_BLOCKS, new  UnstableIncrease(5));
 		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(8));
+		_increases.put(INC_ID.ON_ENTITY_DAMAGE, new  UnstableIncrease(2));
+		_increases.put(INC_ID.ON_ENTITY_DEATH, new  UnstableIncrease(3));
 	}
 	public UnstableIncrease GetIncrease(INC_ID id)
 	{
@@ -143,7 +149,12 @@ public class EndEvents implements Listener
 	}
 	public boolean IsPlayerUnstableArea(Player player)
 	{
-		if(!DontLoseItems.IsEnd(player)) return false;
+		return IsPlayerUnstableArea((Entity)player);
+	}
+	
+	public boolean IsPlayerUnstableArea(Entity entity)
+	{
+		if(!DontLoseItems.IsEnd(entity)) return false;
 		
 		
 		return true;
@@ -188,23 +199,7 @@ public class EndEvents implements Listener
 		if(!UnstableEnd.IsMax()) return;
 		
 		UnstableEnd.OnTrigger();
-//		new BukkitRunnable() 
-//		{
-//            @Override
-//            public void run() 
-//            {
-//            	UnstableEnd.AddState(amount);
-//            }
-//        }.runTaskLater(DontLoseItems.Instance, 20L); 
-        
-//		new BukkitRunnable() 
-//		{
-//            @Override
-//            public void run() 
-//            {
-//                bossBar.removeAll();
-//            }
-//        }.runTaskLater(DontLoseItems.Instance, 200L); 
+
         
         
 	}
@@ -250,7 +245,7 @@ public class EndEvents implements Listener
 	{
 		
 	    
-	  }
+	 }
 
 	
 	
@@ -259,7 +254,9 @@ public class EndEvents implements Listener
 	@EventHandler
 	public void OnEntityDamage(EntityDamageEvent e)
 	{
+		if(!IsPlayerUnstableArea(e.getEntity())) return;
 		
+		UpdateUnstapleVoid(INC_ID.ON_ENTITY_DAMAGE);
 
 	}
 	
@@ -275,9 +272,12 @@ public class EndEvents implements Listener
 	@EventHandler
 	public void OnEntityDeath(EntityDeathEvent e)
 	{
+		if(!IsPlayerUnstableArea(e.getEntity())) return;
 		
-		
+		UpdateUnstapleVoid(INC_ID.ON_ENTITY_DEATH);
 	}
+	
+	
 	
 
 	void GetSettings()

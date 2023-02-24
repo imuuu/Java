@@ -193,7 +193,24 @@ public class Manager_HellArmor implements Listener
 		};
 	
 	
-	
+	public ItemStack RemoveArmorData(ItemStack stack)
+	{
+		String[] hellEquipment = {
+			    _PD_HELL_BOOTS,
+			    _PD_HELL_LEGGINS,
+			    _PD_HELL_CHESTPLATE,
+			    _PD_HELL_HELMET,
+			    _PD_HELL_TIER,
+			    _PD_HELL_REFLECT_SHIELD
+			};
+		
+		for(String pd : hellEquipment)
+		{
+			stack = Metods._ins.removePersistenData(stack, pd);
+		}
+		
+		return stack;
+	}
 	public ItemStack CreateHellBoots(ITEM_RARITY rarity)
 	{
 		

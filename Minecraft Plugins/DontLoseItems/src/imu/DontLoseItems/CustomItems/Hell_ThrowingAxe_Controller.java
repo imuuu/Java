@@ -134,6 +134,11 @@ public final class Hell_ThrowingAxe_Controller
 		return Metods._ins.getPersistenData(stack, _PD_HELL_AXE, PersistentDataType.INTEGER) != null;
 	}
 	
+	public ItemStack RemoveHellAxe(ItemStack stack)
+	{
+		return Metods._ins.removePersistenData(stack, _PD_HELL_AXE);
+	}
+	
 	private void RemoveThrowable(Throwable_Axe td)
 	{		
 		if(td.ArmorStand != null) 			td.ArmorStand.remove();

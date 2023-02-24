@@ -8,6 +8,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
@@ -16,6 +17,7 @@ import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnde
 
 public class UnstableEnd
 {
+	public static UnstableEnd Instance;
 	private double _state = 0;
 	private final double MAX_STATE = 1000;
 	public BossBar BOSS_BAR;
@@ -23,8 +25,10 @@ public class UnstableEnd
 	public int _totalRolls = 3;
 	
 	
+	
 	public UnstableEnd()
 	{
+		Instance = this;
 		BOSS_BAR =  Bukkit.createBossBar("Unstable Void", BarColor.PURPLE, BarStyle.SEGMENTED_20, BarFlag.DARKEN_SKY);
 		BOSS_BAR.setTitle(ChatColor.BLACK + "| "+ChatColor.DARK_PURPLE+"Unstable Void"+ChatColor.BLACK+" |");
 	}
@@ -45,6 +49,10 @@ public class UnstableEnd
 		if(_state > MAX_STATE) _state = MAX_STATE;
 	}
 	
+	public int GetPlayerBaseRollAmount(Player player)
+	{
+		return 0;
+	}
 	public boolean IsMax()
 	{
 		return _state >= MAX_STATE;
@@ -63,7 +71,7 @@ public class UnstableEnd
 	{
 		SetState(GetStateAmount() + increase.Amount);
 	}
-	
+//rasse plus  plus 4
 	public void OnTrigger()
 	{
 		System.out.println("OnTrigger");

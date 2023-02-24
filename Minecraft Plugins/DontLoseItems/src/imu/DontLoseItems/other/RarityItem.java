@@ -4,13 +4,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.DontLoseItems.CustomItems.CustomItem;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.iAPI.Other.Metods;
 
-public class RarityItem
+public class RarityItem extends CustomItem
 {
-	public ItemStack Stack;
-	public String Name;
+	
 	public ITEM_RARITY Rarity;
 	
 	public double[] Values;
@@ -18,10 +18,10 @@ public class RarityItem
 	
 	public RarityItem(ItemStack stack, String name, ITEM_RARITY rarity, double[] values)
 	{
-		this.Stack = stack;
-		this.Name = name;
-		this.Rarity = rarity;
-		this.Values = values;
+		super(stack, name);
+		
+		Rarity = rarity;
+		Values = values;
 	}
 	
 	public ItemStack GetItemStack()

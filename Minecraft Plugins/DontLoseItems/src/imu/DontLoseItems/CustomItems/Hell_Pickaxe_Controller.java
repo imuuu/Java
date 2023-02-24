@@ -114,6 +114,11 @@ public final class Hell_Pickaxe_Controller
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_PICKAXE, PersistentDataType.INTEGER) != null;
 	}
+	
+	public ItemStack RemoveHellPickaxe(ItemStack stack)
+	{
+		return Metods._ins.removePersistenData(stack, _PD_HELL_PICKAXE);
+	}
 
 	private boolean BreakTheBlock(Player player, Block b, int fortune)
 	{

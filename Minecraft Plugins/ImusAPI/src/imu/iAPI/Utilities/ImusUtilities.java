@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -181,6 +182,23 @@ public  class ImusUtilities
 		float pitch = (float) Math.toDegrees(Math.asin(vector.getY()));
 		
 		return new float[] {yaw, pitch};
+	}
+	
+	public static <T> T[] ShuffleArray(T[] array) {
+	    int n = array.length;
+	    Random random = new Random();
+	    
+	    for (int i = 0; i < n; i++) 
+	    {
+	        // Pick a new index higher than current for each item in the array
+	        int r = i + random.nextInt(n - i);
+
+	        // Swap item into new spot
+	        T t = array[r];
+	        array[r] = array[i];
+	        array[i] = t;
+	    }
+	    return array;
 	}
 //	public static LinkedList<Block> CreateSphere(Location center, int radius) 
 //	{

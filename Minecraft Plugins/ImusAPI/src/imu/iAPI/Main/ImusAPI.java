@@ -56,6 +56,9 @@ public class ImusAPI extends JavaPlugin
 		
 		AirHashSet = new HashSet<>();
 		AirHashSet.add(Material.AIR);
+		AirHashSet.add(Material.VOID_AIR);
+		AirHashSet.add(Material.CAVE_AIR);
+		
 		InitOres();
 		InitEntities();
 		

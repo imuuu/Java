@@ -3,7 +3,7 @@ package imu.iAPI.LootTables;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +12,7 @@ public class ImusLootTable<T>
 {
 	private List<LootTableItem<T>> items = new ArrayList<>();
 	private int totalWeight = 0;
-	private Random random = new Random();
+	//private Random random = new Random();
 
 	public void Add(T value, int weight)
 	{
@@ -22,7 +22,8 @@ public class ImusLootTable<T>
 
 	public T GetLoot()
 	{
-		int randomIndex = random.nextInt(totalWeight);
+//		int randomIndex = random.nextInt(totalWeight);
+		int randomIndex = ThreadLocalRandom.current().nextInt(totalWeight);
 		
 		for (LootTableItem<T> item : items)
 		{

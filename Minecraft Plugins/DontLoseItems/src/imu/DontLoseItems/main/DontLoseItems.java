@@ -13,11 +13,16 @@ import imu.DontLoseItems.Commands.ExampleCmd;
 import imu.DontLoseItems.CustomEnd.EndEvents;
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
+import imu.DontLoseItems.CustomItems.VoidTotemController;
 import imu.DontLoseItems.Events.ChestLootEvents;
 import imu.DontLoseItems.Events.DotEvents;
+import imu.DontLoseItems.Events.ElytraGenerationEvents;
+import imu.DontLoseItems.Events.EndChestLootEvents;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.DontLoseItems.Events.NetherEvents;
+import imu.DontLoseItems.Events.VoidTotemEvents;
 import imu.DontLoseItems.other.Manager_HellArmor;
+import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.Handelers.CommandHandler;
 
 
@@ -25,13 +30,13 @@ public class DontLoseItems extends JavaPlugin
 {
 	public static DontLoseItems Instance;
    
-	
+	private Manager_LegendaryUpgrades _manager_leg_upgrades;
   
 	@Override
 	public void onEnable() 
 	{
 		Instance = this;
-		
+		_manager_leg_upgrades = new Manager_LegendaryUpgrades();
 		registerCommands();
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN +" Dont lose your items has been activated!");
 		getServer().getPluginManager().registerEvents(new MainEvents(this), this);
@@ -42,6 +47,9 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new Manager_HellArmor(), this);
 		getServer().getPluginManager().registerEvents(new Manager_HellTools(), this);
 		getServer().getPluginManager().registerEvents(new ChestLootEvents(), this);
+		getServer().getPluginManager().registerEvents(new EndChestLootEvents(), this);
+		getServer().getPluginManager().registerEvents(new ElytraGenerationEvents(), this);
+		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
 		//getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 	}
 	

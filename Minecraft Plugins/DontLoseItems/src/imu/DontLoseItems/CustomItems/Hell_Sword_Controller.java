@@ -108,6 +108,11 @@ public final class Hell_Sword_Controller
 		return Metods._ins.getPersistenData(stack, _PD_HELL_SWORD, PersistentDataType.INTEGER) != null;
 	}
 	
+	public ItemStack RemoveHellSword(ItemStack stack)
+	{
+		return Metods._ins.removePersistenData(stack, _PD_HELL_SWORD);
+	}
+	
 	private void RemoveThrowable(Throwable_DoubleSword td)
 	{
 		

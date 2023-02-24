@@ -1,6 +1,7 @@
 package imu.DontLoseItems.Events;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.ChatColor;
@@ -10,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -18,8 +20,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import imu.DontLoseItems.CustomEnd.UnstableEnd;
+import imu.DontLoseItems.CustomItems.Unstable_Void_Stone;
+import imu.DontLoseItems.CustomItems.Unstable_Void_Stone.VOID_STONE_TIER;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.DontLoseItems.other.Manager_HellArmor;
+import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Metods;
@@ -30,6 +36,7 @@ public class EndChestLootEvents implements Listener
 
 	private ImusLootTable<ItemStack> _lootTable_valuables;
 	private ImusLootTable<ItemStack> _lootTable_food;
+	private ImusLootTable<ItemStack> _lootTable_leg_upgrades;
 	private ImusLootTable<Enchantment> _lootTable_enchants_armor;
 	private ImusLootTable<Enchantment> _lootTable_enchants_tool;
 
@@ -37,7 +44,7 @@ public class EndChestLootEvents implements Listener
 
 	private int _chestRollMaxAmount = 10;
 
-	private boolean _chestDEBUG = false;
+	private boolean _chestDEBUG = true;
 
 	/// setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public EndChestLootEvents()
@@ -55,6 +62,7 @@ public class EndChestLootEvents implements Listener
 		_lootTable_food = new ImusLootTable<>();
 		_lootTable_enchants_armor = new ImusLootTable<>();
 		_lootTable_enchants_tool = new ImusLootTable<>();
+		_lootTable_leg_upgrades = new ImusLootTable<>();
 
 		_lootTable_stackMaxAmounts.Add(5, 90);
 		_lootTable_stackMaxAmounts.Add(10, 70);
@@ -71,24 +79,44 @@ public class EndChestLootEvents implements Listener
 		int lege = 20;
 
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 33);
-		_lootTable_valuables.Add(new ItemStack(Material.GUNPOWDER), 70);
-
-		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 40);
+		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 35);
+		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 35);
+		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 35);
+		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 20);
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND_BLOCK), 4);
-		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 60);
+		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 50);
+		
 
 		_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 1);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
+		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
+		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 5);
+		
+        _lootTable_valuables.Add(new ItemStack(Material.ELYTRA), 1);
+        _lootTable_valuables.Add(new ItemStack(Material.TOTEM_OF_UNDYING), 2);
+        _lootTable_valuables.Add(new ItemStack(Material.SHULKER_SHELL), 2);
+        _lootTable_valuables.Add(new ItemStack(Material.DRAGON_BREATH), 7);
+
+
+        _lootTable_valuables.Add(new ItemStack(Material.PRISMARINE_CRYSTALS), 10);
+        _lootTable_valuables.Add(new ItemStack(Material.END_STONE), 50);
+        _lootTable_valuables.Add(new ItemStack(Material.END_STONE_BRICKS), 40);
+        _lootTable_valuables.Add(new ItemStack(Material.OBSIDIAN), 40);
+        _lootTable_valuables.Add(new ItemStack(Material.TURTLE_HELMET), 5);
+        _lootTable_valuables.Add(new ItemStack(Material.TRIDENT), 1);
+        _lootTable_valuables.Add(new ItemStack(Material.NAME_TAG), 15);
+        _lootTable_valuables.Add(new ItemStack(Material.END_ROD), 10);
+        _lootTable_valuables.Add(new ItemStack(Material.END_CRYSTAL), 2);
+        
+        Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 4);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 4);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 
-		_lootTable_food.Add(new ItemStack(Material.APPLE), 20);
+		_lootTable_food.Add(new ItemStack(Material.APPLE), 15);
 		_lootTable_food.Add(new ItemStack(Material.COOKED_PORKCHOP), 13);
 		_lootTable_food.Add(new ItemStack(Material.BAKED_POTATO), 8);
+		_lootTable_food.Add(new ItemStack(Material.CHORUS_FRUIT), 9);
 		_lootTable_food.Add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1);
 		_lootTable_food.Add(new ItemStack(Material.GOLDEN_APPLE), 3);
 		// _lootTable_food.Add(Manager_HellArmor.Instance.CreateHellReflectShield(),
@@ -115,17 +143,30 @@ public class EndChestLootEvents implements Listener
 		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("flame")), 5);
 		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("looting")), 3);
 		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 1);
-		// _lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("vanishing_curse")),
-		// 1);
+		
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellHelmet(), 	1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellChest(), 		1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellLeggings(), 	1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellBoots(), 		1);
+		
+		
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellHoe(), 1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellPickaxe(), 1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellAxe(), 1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellShield(), 1);
+		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellSword(), 1);
+		
+		
+		
 
 	}
 
-	public LinkedList<ItemStack> GenerateEndLoot(int rollIncrease, int rollChances)
+	public LinkedList<ItemStack> GenerateEndLoot(int baseRollAmount,int rollIncrease, int rollChances)
 	{
 		LinkedList<ItemStack> stacks = new LinkedList<>();
 
-		int totalRolls = 0;
-		int startChance = 92;
+		int totalRolls = 0+baseRollAmount;
+		int startChance = 98;
 		int reduceChance = 8;
 		for (int i = 0; i < rollChances; i++)
 		{
@@ -141,7 +182,8 @@ public class EndChestLootEvents implements Listener
 		int valuableChance = 36;
 		int foodChance = 2; // 2
 		int enchantedBook = 3;
-
+		int legendaryUpgrades = 1;
+		System.out.println("total rolls: "+totalRolls+" base rolls:"+baseRollAmount);
 		for (int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
@@ -167,6 +209,12 @@ public class EndChestLootEvents implements Listener
 				stack = EnchantBook(2);
 				stacks.add(stack);
 			}
+			
+			if (ThreadLocalRandom.current().nextInt(100) < legendaryUpgrades)
+			{
+				stack = GetValidAmountStack(_lootTable_leg_upgrades.GetLoot().clone());
+				stacks.add(stack);
+			}
 
 		}
 		return stacks;
@@ -182,6 +230,16 @@ public class EndChestLootEvents implements Listener
 		}
 
 		if (stack.getType() == Material.NETHERITE_INGOT)
+		{
+			stack.setAmount(1);
+		}
+		
+		if (stack.getType() == Material.TOTEM_OF_UNDYING)
+		{
+			stack.setAmount(1);
+		}
+		
+		if (stack.getType() == Material.ELYTRA)
 		{
 			stack.setAmount(1);
 		}
@@ -360,8 +418,20 @@ public class EndChestLootEvents implements Listener
 		Inventory inv = e.getInventoryHolder().getInventory();
 
 		System.out.println("End Player: " + e.getEntity() + " Generated loot by opened  chest");
-
-		for (ItemStack stack : GenerateEndLoot(2, _chestRollMaxAmount))
+		List<ItemStack> stacks = null;
+		
+		if(e.getEntity() instanceof Player)
+		{
+			stacks = GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getEntity()), 2,_chestRollMaxAmount);
+		}
+		else
+		{
+			stacks = GenerateEndLoot(0, 2,_chestRollMaxAmount);
+		}
+		
+		
+		
+		for (ItemStack stack : stacks)
 		{
 			inv.addItem(stack);
 		}
@@ -391,7 +461,11 @@ public class EndChestLootEvents implements Listener
 		inv.clear();
 
 //		
-		for (ItemStack stack : GenerateEndLoot(2, _chestRollMaxAmount))
+		
+		List<ItemStack> stacks =GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getPlayer()), 2,_chestRollMaxAmount);
+		
+		
+		for (ItemStack stack : stacks)
 		{
 			inv.addItem(stack);
 		}
