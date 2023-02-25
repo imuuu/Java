@@ -113,7 +113,10 @@ public abstract class EndEvent implements Listener
 		
 		player.sendMessage(ChatColor.BLUE+"======================");
 	}
-	
+
+	public void titleToPlayer(Player player) {
+		player.sendTitle(ChatColor.LIGHT_PURPLE + "End Event Started", ChatColor.DARK_AQUA + "For the next...",10,70,20);
+	}
 	
 	protected void AddChestLootBaseToAll(int amount)
 	{

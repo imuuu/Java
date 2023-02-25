@@ -7,7 +7,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 
 	public EndEvent_RandomEntityTypeEnderman(double duration)
 	{
-		super("Endermans chances its type", duration);
+		super("Endermen change their type", duration);
 		
 	}
 

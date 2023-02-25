@@ -220,7 +220,9 @@ public class UnstableEnd implements Listener
 			if(!EndEvents.Instance.IsPlayerUnstableArea(player)) continue;
 			
 			event.AddPlayer(player);
-			event.PrintToPlayer(player);
+			//FIXME tests
+			//event.PrintToPlayer(player);
+			event.titleToPlayer(player);
 		}
 		
 		event.RegisterBukkitEvents();
