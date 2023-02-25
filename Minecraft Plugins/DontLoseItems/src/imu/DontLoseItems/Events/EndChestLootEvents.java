@@ -79,27 +79,27 @@ public class EndChestLootEvents implements Listener
 //		int lege = 20;
 
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 22);
-		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 35);
-		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 35);
-		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 35);
-		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 20);
+		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 50);
+		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 40);
+		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 40);
+		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 25);
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND_BLOCK), 4);
-		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 50);
+		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 60);
 		
 
 		_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 1);
 		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 4);
+		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 3);
 		
         _lootTable_valuables.Add(new ItemStack(Material.ELYTRA), 1);
-        _lootTable_valuables.Add(new ItemStack(Material.TOTEM_OF_UNDYING), 2);
+        _lootTable_valuables.Add(new ItemStack(Material.TOTEM_OF_UNDYING), 3);
         _lootTable_valuables.Add(new ItemStack(Material.SHULKER_SHELL), 2);
         _lootTable_valuables.Add(new ItemStack(Material.DRAGON_BREATH), 7);
 
 
         _lootTable_valuables.Add(new ItemStack(Material.PRISMARINE_CRYSTALS), 10);
         _lootTable_valuables.Add(new ItemStack(Material.END_STONE), 50);
-        _lootTable_valuables.Add(new ItemStack(Material.END_STONE_BRICKS), 40);
+        _lootTable_valuables.Add(new ItemStack(Material.END_STONE_BRICKS), 50);
         _lootTable_valuables.Add(new ItemStack(Material.OBSIDIAN), 40);
         _lootTable_valuables.Add(new ItemStack(Material.TURTLE_HELMET), 6);
         _lootTable_valuables.Add(new ItemStack(Material.TRIDENT), 1);
@@ -109,7 +109,7 @@ public class EndChestLootEvents implements Listener
         
         Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 4);
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 3);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 2);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 
@@ -183,7 +183,7 @@ public class EndChestLootEvents implements Listener
 		int foodChance = 2; // 2
 		int enchantedBook = 3;
 		int legendaryUpgrades = 1;
-		System.out.println("total rolls: "+totalRolls+" base rolls:"+baseRollAmount);
+
 		for (int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
@@ -427,7 +427,7 @@ public class EndChestLootEvents implements Listener
 
 		Inventory inv = e.getInventoryHolder().getInventory();
 
-		System.out.println("End Player: " + e.getEntity() + " Generated loot by opened  chest");
+		//System.out.println("End Player: " + e.getEntity() + " Generated loot by opened  chest");
 		List<ItemStack> stacks = null;
 		
 		if(e.getEntity() instanceof Player)

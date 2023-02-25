@@ -19,7 +19,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 
 	public EndEvent_RandomPotionEffect()
 	{
-		super("Random potion effects", 10);
+		super("Random potion effects", 60);
 		ChestLootAmount = 2;
 	}
 

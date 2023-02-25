@@ -38,7 +38,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 		};
 	public EndEvent_RandomEntityTypeEnderman()
 	{
-		super("Endermen change their type", 10);
+		super("Endermen change their type", 60);
 		
 		for(World w :  DontLoseItems.Instance.getServer().getWorlds() )
 		{

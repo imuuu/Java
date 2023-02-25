@@ -1,13 +1,8 @@
 package imu.DontLoseItems.CustomEnd;
 
-import java.io.File;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.UUID;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,9 +61,9 @@ public class UnstableEnd implements Listener
 		_allEvents = new LinkedList<>();
 		_activeEvents = new LinkedList<>();
 
-//		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
-//		_allEvents.add(new EndEvent_RandomPotionEffect());
-//		_allEvents.add(new EndEvent_EndermanToTnt());
+		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
+		_allEvents.add(new EndEvent_RandomPotionEffect());
+		_allEvents.add(new EndEvent_EndermanToTnt());
 		_allEvents.add(new EndEvent_SpecialCreepers());
 	}
 

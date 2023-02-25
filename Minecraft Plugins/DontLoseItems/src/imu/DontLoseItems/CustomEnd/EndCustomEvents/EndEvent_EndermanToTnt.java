@@ -31,7 +31,7 @@ public class EndEvent_EndermanToTnt extends EndEvent
 		};
 	public EndEvent_EndermanToTnt()
 	{
-		super("Tnt every where!", 30);
+		super("Tnt every where!", 40);
 		
 		for(World w :  DontLoseItems.Instance.getServer().getWorlds() )
 		{

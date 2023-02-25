@@ -18,13 +18,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Utilities.ImusUtilities;
-
 
 public class EndEvent_SpecialCreepers extends EndEvent
 {
@@ -119,14 +117,10 @@ public class EndEvent_SpecialCreepers extends EndEvent
 
 		Creeper creeper = (Creeper) e.getEntity();
 		
-		//if(!creeper.isPowered()) return;
-		
-
 		Entity crystal = creeper.getWorld().spawnEntity(creeper.getLocation().add(0,2,0), EntityType.ENDER_CRYSTAL);
 		
 		new BukkitRunnable() 
-		{
-			
+		{		
 			@Override
 			public void run()
 			{

@@ -302,24 +302,23 @@ public final class Hell_ThrowingAxe_Controller
 		
 		useItem.getIntegers().write(0, player.getEntityId());
 		useItem.getIntegers().write(1, 0);
-
-		for (Player p : Bukkit.getOnlinePlayers()) 
+		
+		try
 		{
-			if(p.getWorld() == player.getWorld())
+			for (Player p : Bukkit.getOnlinePlayers()) 
 			{
-				try {
+				if(p.getWorld() == player.getWorld())
+				{
 					ProtocolLibrary.getProtocolManager().sendServerPacket(p, destroyPacket);
-				} catch (InvocationTargetException e) {
-					throw new RuntimeException(e);
-				}
-				try {
 					ProtocolLibrary.getProtocolManager().sendServerPacket(p, useItem);
-				} catch (InvocationTargetException e) {
-					throw new RuntimeException(e);
 				}
-
 			}
+		} 
+		catch (Exception e)
+		{
+			
 		}
+		
 	}
 	
 	
