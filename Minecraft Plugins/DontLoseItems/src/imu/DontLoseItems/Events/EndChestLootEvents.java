@@ -108,8 +108,8 @@ public class EndChestLootEvents implements Listener
         _lootTable_valuables.Add(new ItemStack(Material.END_CRYSTAL), 2);
         
         Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 4);
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 2);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
+        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 1);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 
