@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,6 +44,8 @@ public class EndEvents implements Listener
 	private HashMap<UUID, UnstableEnd_Player> _players;
 	
 	private HashSet<Material> _validBlocks;
+	
+	private final int _shulkerDropChance = 20;
 	public EndEvents()
 	{
 		Instance = this;
@@ -74,7 +78,7 @@ public class EndEvents implements Listener
 		_increases = new HashMap<>();
 		
 		_increases.put(INC_ID.BREAKING_OTHER_BLOCKS, new  UnstableIncrease(5));
-		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(8));
+		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(100));
 		_increases.put(INC_ID.ON_ENTITY_DAMAGE, new  UnstableIncrease(2));
 		_increases.put(INC_ID.ON_ENTITY_DEATH, new  UnstableIncrease(3));
 	}
@@ -257,6 +261,8 @@ public class EndEvents implements Listener
 		if(!IsPlayerUnstableArea(e.getEntity())) return;
 		
 		UpdateUnstapleVoid(INC_ID.ON_ENTITY_DAMAGE);
+		
+		
 
 	}
 	
@@ -275,6 +281,24 @@ public class EndEvents implements Listener
 		if(!IsPlayerUnstableArea(e.getEntity())) return;
 		
 		UpdateUnstapleVoid(INC_ID.ON_ENTITY_DEATH);
+		
+		if(e.getEntityType() == EntityType.SHULKER)
+		{
+			
+			if(ThreadLocalRandom.current().nextInt(100) >= _shulkerDropChance) 
+			{
+				e.getDrops().clear();
+				return;
+			}
+			
+			for(var i : e.getDrops())
+			{
+				i.setAmount(1);
+			}
+			
+
+			
+		}
 	}
 	
 	

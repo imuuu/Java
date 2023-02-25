@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
+import imu.iAPI.Utilities.ImusUtilities;
 
 
 
@@ -23,20 +25,20 @@ public class UnstableEnd
 	public BossBar BOSS_BAR;
 	private LinkedList<EndEvent> _allEvents;
 	public int _totalRolls = 3;
-	
-	
-	
+		
 	public UnstableEnd()
 	{
 		Instance = this;
 		BOSS_BAR =  Bukkit.createBossBar("Unstable Void", BarColor.PURPLE, BarStyle.SEGMENTED_20, BarFlag.DARKEN_SKY);
 		BOSS_BAR.setTitle(ChatColor.BLACK + "| "+ChatColor.DARK_PURPLE+"Unstable Void"+ChatColor.BLACK+" |");
+		InitEvents();
 	}
 	
 	public void InitEvents()
 	{
 		_allEvents = new LinkedList<>();
 		_allEvents.add(new EndEvent_RandomEntityTypeEnderman(1));
+		_allEvents.add(new EndEvent_RandomPotionEffect(1));
 	}
 	public void RefreshPorgress()
 	{
@@ -74,7 +76,15 @@ public class UnstableEnd
 //rasse plus  plus 4
 	public void OnTrigger()
 	{
-		System.out.println("OnTrigger");
+		EndEvent[] events = _allEvents.toArray(new EndEvent[_allEvents.size()]);
+		
+		for(var e : ImusUtilities.ShuffleArray(events))
+		{
+			System.out.println("e :"+e.GetName());
+		}
+		
+		
+		System.out.println("OnTrigger: "+events);
 		SetState(0);
 		RefreshPorgress();
 	}

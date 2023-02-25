@@ -10,7 +10,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	}
 
 	@Override
-	public void OnTrigger()
+	public void OnEventStart()
 	{
 		
 	}
@@ -27,6 +27,13 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void OnEventEnd()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

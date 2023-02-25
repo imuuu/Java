@@ -2,10 +2,15 @@ package imu.DontLoseItems.other;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
@@ -46,12 +51,17 @@ public class Manager_LegendaryUpgrades
 		lores.add(" ");
 		lores.add("&4&k# "+"&4This item alone doesn't have any legendary effects!");
 		
-//		for(String lore : lores)
-//		{
-//			
-//		}
-		stack = Metods._ins.addLore(stack, lores);
+		ItemMeta meta = stack.getItemMeta();
+		 		
+		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 0,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
 
+		stack.setItemMeta(meta);
+		stack = Metods._ins.addLore(stack, lores);
+		
+		
 		return stack;
 	}
 	public ItemStack Get_UpgradeHellHelmet()

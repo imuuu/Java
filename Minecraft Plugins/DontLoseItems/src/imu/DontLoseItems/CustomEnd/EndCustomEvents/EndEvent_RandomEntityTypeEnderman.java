@@ -10,7 +10,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	}
 
 	@Override
-	public void OnTrigger()
+	public void OnEventStart()
 	{
 		
 	}
@@ -18,15 +18,21 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	@Override
 	public String GetEventName()
 	{
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
 	@Override
 	public String GetRewardInfo()
 	{
-		// TODO Auto-generated method stub
+
 		return null;
+	}
+
+	@Override
+	public void OnEventEnd()
+	{
+		
 	}
 
 }

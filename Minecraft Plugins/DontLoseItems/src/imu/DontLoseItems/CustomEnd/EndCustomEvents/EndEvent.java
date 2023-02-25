@@ -1,6 +1,5 @@
 package imu.DontLoseItems.CustomEnd.EndCustomEvents;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -57,7 +56,8 @@ public abstract class EndEvent
 	{
 		return _name;
 	}
-	public abstract void OnTrigger();
+	public abstract void OnEventStart();
+	public abstract void OnEventEnd();
 	public abstract String GetEventName();
 	public abstract String GetRewardInfo();
 	

@@ -14,8 +14,7 @@ public class Unstable_Void_Stone extends CustomItem
 	private static final String PD_VOID_STONE = "UNSTABLE_VOID_STONE";
 	public Unstable_Void_Stone()
 	{
-		super(new ItemStack(Material.STONE), "&5UNSTABLE &0VOID &7STONE");
-		
+		super(new ItemStack(Material.STONE), "&5UNSTABLE &0VOID &7STONE");		
 	}
 	
 	public enum VOID_STONE_TIER
@@ -49,10 +48,13 @@ public class Unstable_Void_Stone extends CustomItem
 		
 		lores.add("");
 		lores.add("&9This unstable stone is able to enchant two random enchants");
-		lores.add("&9with either a +"+power+" or -"+power+" level.");
+		lores.add("&9with either a &2+"+power+" &9 or &4-"+power+"&9 level.");
 		lores.add("");
 		lores.add("&9Combine it in a Smithing Table");
-		lores.add("&9with an enchanted item to apply the enchantments.");
+		lores.add("&9with an enchanted item to apply the effect");
+		lores.add("");
+		lores.add("&9After use the item will be");
+		lores.add("&9unenchantable");
 		Metods._ins.addLore(stack, lores);
 		return stack;
 
@@ -68,8 +70,6 @@ public class Unstable_Void_Stone extends CustomItem
 		Metods._ins.AddGlow(stack);
 		return stack;
 	}
-	
-	
 	
 	private ItemStack GetRare()
 	{
