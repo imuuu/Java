@@ -25,6 +25,8 @@ public abstract class EndEvent implements Listener
 	private double _duration = 0;
 	
 	private HashMap<UUID, Player> _activePlayer;
+	public int ChestLootAmount = 0;
+	
 	public EndEvent(String name, double duration)
 	{
 		_name = name;
