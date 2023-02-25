@@ -1,7 +1,6 @@
 package imu.DontLoseItems.CustomEnd.EndCustomEvents;
 
 import java.util.LinkedList;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,35 +10,28 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
 import imu.DontLoseItems.main.DontLoseItems;
 
-public class EndEvent_RandomEntityTypeEnderman extends EndEvent
+public class EndEvent_EndermanToTnt extends EndEvent
 {
 	private LinkedList<Entity> _spawnedEntites = new LinkedList<>();
 	private EntityType _spawnType;
 	private World _end;
-	private final int MAX_ENTITES_IN_CHUNK = 3;
+	private final int MAX_ENTITES_IN_CHUNK = 2;
+	private int _tntCounter = 0;
+	private int MAX_TNT = 30;
 	private EntityType[] _types = 
 		{
-			EntityType.CREEPER,	
-			EntityType.ZOMBIE,	
-			EntityType.PIGLIN_BRUTE,	
-			EntityType.CREEPER,	
-			EntityType.WITCH,	
-			EntityType.BAT,	
-			EntityType.SHULKER,	
-			EntityType.RAVAGER,	
-			EntityType.CAVE_SPIDER,	
-			EntityType.WITHER_SKELETON,	
-			EntityType.SNOWMAN,	
 
+			EntityType.PRIMED_TNT,	
 		};
-	public EndEvent_RandomEntityTypeEnderman()
+	public EndEvent_EndermanToTnt()
 	{
-		super("Endermans chances its type", 10);
+		super("Tnt every where!", 30);
 		
 		for(World w :  DontLoseItems.Instance.getServer().getWorlds() )
 		{
@@ -49,12 +41,15 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 				break;
 			}
 		}
+		
+		ChestLootAmount = 2;
 	}
 
 	@Override
 	public void OnEventStart()
 	{
-		_spawnType = _types[ThreadLocalRandom.current().nextInt(_types.length)];
+		_tntCounter = 0;
+		_spawnType = _types[0];
 		for(Entity ent : _end.getLivingEntities())
 		{
 			if(!EndEvents.Instance.IsPlayerUnstableArea(ent)) continue;
@@ -67,6 +62,8 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	@Override
 	public void OnEventEnd()
 	{
+		_tntCounter = 0;
+		AddChestLootBaseToAll(ChestLootAmount);
 		for(Entity e : _spawnedEntites)
 		{
 			e.remove();
@@ -84,6 +81,8 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 		livEnt.remove();
 		Entity newEnt =_end.spawnEntity(loc, _spawnType);
 		_spawnedEntites.add(newEnt);
+		
+		_tntCounter++;
 	}
 	@EventHandler
 	public void OnEntitySpawn(EntitySpawnEvent e)
@@ -91,16 +90,33 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 		if(e.isCancelled()) return;
 		
 		if(e.getEntityType() != EntityType.ENDERMAN) return;
-		
+
 		if(e.getEntity().getLocation().getChunk().getEntities().length > MAX_ENTITES_IN_CHUNK) 
 		{
 			 e.setCancelled(true);
 			 return;
 		}
 		
+		if(_tntCounter > MAX_TNT)
+		{
+			e.setCancelled(true);
+			return;
+		}
 		ChanceEntity(e.getEntity());
 
 		
+	}
+	
+	@EventHandler
+	public void OnEntitySpawn(EntityExplodeEvent e)
+	{
+		if(e.isCancelled()) return;
+		
+		if(!EndEvents.Instance.IsPlayerUnstableArea(e.getEntity())) return;
+		
+		if(e.getEntityType() != EntityType.PRIMED_TNT) return;
+		
+		_tntCounter--;
 	}
 	@Override
 	public String GetEventName()
@@ -113,13 +129,13 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	public String GetRewardInfo()
 	{
 		
-		return "Chestloot base by +2";
+		return "Chestloot base by &2+"+ChestLootAmount;
 	}
 
 	@Override
 	public String GetDescription()
 	{
-		return "&6Endermans has change the form!";
+		return "&6Whatch out tnt!";
 	}
 
 	@Override

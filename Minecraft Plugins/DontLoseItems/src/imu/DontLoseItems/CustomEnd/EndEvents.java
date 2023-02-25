@@ -50,8 +50,8 @@ public class EndEvents implements Listener
 	
 	private HashSet<Material> _validBlocks;
 	
-	private final int _shulkerDropChance = 20;
-	private final double _lootingBonusPerLevel = 6.0;
+	private final int _shulkerDropChance = 10;
+	private final double _lootingBonusPerLevel = 4;
 	public EndEvents()
 	{
 		Instance = this;
@@ -305,13 +305,19 @@ public class EndEvents implements Listener
 		if(e.getEntityType() == EntityType.SHULKER)
 		{
 			int looting = 0;
-			if(e.getEntity().getLastDamageCause().getEntity() instanceof Player)
+			if(e.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent)
 			{
-				Player player = (Player)e.getEntity().getLastDamageCause().getEntity();
-				ItemStack stack = player.getInventory().getItemInMainHand();
-				looting = Metods._ins.GetItemStackEnchantCount(stack, Enchantment.LOOT_BONUS_MOBS);
+				EntityDamageByEntityEvent edbe = (EntityDamageByEntityEvent)e.getEntity().getLastDamageCause();
+
+				if(edbe.getDamager() instanceof Player)
+				{
+					Player player = (Player)edbe.getDamager();
+					ItemStack stack = player.getInventory().getItemInMainHand();
+					looting = Metods._ins.GetItemStackEnchantCount(stack, Enchantment.LOOT_BONUS_MOBS);
+				}
+				
 			}
-			System.out.println("bonus: "+looting + " real: "+_lootingBonusPerLevel * looting);
+
 			if(ThreadLocalRandom.current().nextInt(100) >= _shulkerDropChance+(_lootingBonusPerLevel * looting)) 
 			{
 				e.getDrops().clear();
