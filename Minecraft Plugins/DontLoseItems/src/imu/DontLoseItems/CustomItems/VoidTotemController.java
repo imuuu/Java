@@ -32,18 +32,6 @@ public class VoidTotemController {
         Bukkit.addRecipe(GetRecipe());
     }
 
-    /*
-      x     x     x
-        x   x   x
-          x x x
-        x x x x x
-          x x x
-        x   x   x
-
-     */
-
-    //(i*2 +1)
-
     public void findSafeBlock(Player player) 
     {
         final long start = System.currentTimeMillis();
@@ -88,26 +76,6 @@ public class VoidTotemController {
 				}.runTask(DontLoseItems.Instance);
 			}
 		}.runTaskAsynchronously(DontLoseItems.Instance);
-       
-        
-//        while(radius < 100) {
-//            for (int x = -radius; x <= radius; x += step) {
-//                for (int y = -radius; y <= radius; y += step) {
-//                    for (int z = -radius; z <= radius; z += step) {
-//                        total += 1;
-//                        Location location = mid.clone().add(x, y, z);
-//                        Block block = end.getBlockAt(location);
-//                        if (block.getType() != Material.AIR) {
-//                            // found a non-air block
-//                            System.out.println("Safeblock took: " + (System.currentTimeMillis() - start) + "ms and " + total + " blocks were checked.");
-//                            return findTop(location);
-//                        }
-//                    }
-//                }
-//            }
-//            radius += 10;
-//        }
-
         
     }
 
