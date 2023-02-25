@@ -66,6 +66,9 @@ public class EndEvent_EndermanToTnt extends EndEvent
 		AddChestLootBaseToAll(ChestLootAmount);
 		for(Entity e : _spawnedEntites)
 		{
+			
+			if(e == null || !e.isValid()) continue;
+			
 			e.remove();
 		}
 		_spawnedEntites.clear();

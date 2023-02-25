@@ -27,7 +27,6 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 			EntityType.CREEPER,	
 			EntityType.ZOMBIE,	
 			EntityType.PIGLIN_BRUTE,	
-			EntityType.CREEPER,	
 			EntityType.WITCH,	
 			EntityType.BAT,	
 			EntityType.SHULKER,	
@@ -69,6 +68,9 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	{
 		for(Entity e : _spawnedEntites)
 		{
+			
+			if(e == null || !e.isValid()) continue;
+			
 			e.remove();
 		}
 		_spawnedEntites.clear();

@@ -25,6 +25,7 @@ import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndermanToTnt;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_SpecialCreepers;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Utilities.ImusUtilities;
@@ -65,9 +66,10 @@ public class UnstableEnd implements Listener
 		_allEvents = new LinkedList<>();
 		_activeEvents = new LinkedList<>();
 
-		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
-		_allEvents.add(new EndEvent_RandomPotionEffect());
-		_allEvents.add(new EndEvent_EndermanToTnt());
+//		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
+//		_allEvents.add(new EndEvent_RandomPotionEffect());
+//		_allEvents.add(new EndEvent_EndermanToTnt());
+		_allEvents.add(new EndEvent_SpecialCreepers());
 	}
 
 
