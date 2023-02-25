@@ -1,26 +1,23 @@
 package imu.DontLoseItems.Events;
 
-import imu.DontLoseItems.main.DontLoseItems;
-import net.md_5.bungee.api.ChatColor;
+import java.awt.Color;
+import java.util.HashSet;
+
 import org.bukkit.EntityEffect;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-
-import imu.DontLoseItems.CustomItems.VoidTotemController;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.awt.*;
-import java.util.HashSet;
+import imu.DontLoseItems.CustomItems.VoidTotemController;
+import imu.iAPI.Other.Metods;
+import net.md_5.bungee.api.ChatColor;
 
 public class VoidTotemEvents implements Listener {
     private static VoidTotemEvents instance;
@@ -53,24 +50,27 @@ public class VoidTotemEvents implements Listener {
         ItemStack offhand = inv.getItemInOffHand();
         ItemStack mainhand = inv.getItemInMainHand();
 
-        if(getPersistant(offhand)) {
+       
+        if(GetPersistant(offhand)) 
+        {
             inv.setItemInOffHand(new ItemStack(Material.AIR));
             return true;
-        } else if(getPersistant(mainhand)) {
+        } else if(GetPersistant(mainhand)) 
+        {
             inv.setItemInMainHand(new ItemStack(Material.AIR));
             return true;
         } else return false;
     }
 
-    private boolean getPersistant(ItemStack item) {
-        NamespacedKey key = new NamespacedKey(DontLoseItems.Instance, "totemtype");
-        ItemMeta meta = item.getItemMeta();
-        if(meta == null) return false;
+    private boolean GetPersistant(ItemStack item) 
+    {
+    	String str = Metods._ins.getPersistenData(item, "totemtype", PersistentDataType.STRING);
+    	if(str == null) return false;
+    	
+    	if(str.matches("void")) return true;
+    	
+    	return false;
 
-        String totemtype = meta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
-        if(totemtype == null) return false;
-
-        return totemtype.matches("void");
     }
 
     //recipe event ?

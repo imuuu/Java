@@ -12,9 +12,10 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	private PotionEffect[] _potionEffectsPositive;
 	
 	private final double _chanceToBePositive = 40;
-	public EndEvent_RandomPotionEffect(double duration)
+	
+	public EndEvent_RandomPotionEffect()
 	{
-		super("Random potion effects", duration);
+		super("Random potion effects", 10);
 		
 	}
 	public void InitPotionEffects()
@@ -47,7 +48,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	@Override
 	public void OnEventEnd()
 	{
-		
+		AddChestLootBaseToAll(2);
 	}
 	
 	private void AddEffects(Player player)
@@ -67,7 +68,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 		player.addPotionEffect(effect);
 		
 	}
-
+	
 	@Override
 	public String GetEventName()
 	{
@@ -79,7 +80,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	public String GetRewardInfo()
 	{
 		
-		return "Chestloot base by +1";
+		return "Chestloot base by &2+2";
 	}
 
 	

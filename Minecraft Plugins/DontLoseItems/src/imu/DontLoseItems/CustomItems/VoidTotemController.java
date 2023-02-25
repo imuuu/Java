@@ -3,6 +3,7 @@ package imu.DontLoseItems.CustomItems;
 import imu.DontLoseItems.Events.VoidTotemEvents;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
@@ -106,16 +107,18 @@ public class VoidTotemController {
                 elytraChoice);
     }
 
-    private ItemStack GetVoidtotemItem() {
+    private ItemStack GetVoidtotemItem() 
+    {
         ItemStack item = new ItemStack(Material.TOTEM_OF_UNDYING);
         ItemMeta meta = item.getItemMeta();
         assert meta != null : "ItemMeta for voidtotem is null!";
 
         meta.setDisplayName(ChatColor.of(new Color(122, 55, 173)) + "Void Totem");
         meta.setLore(List.of("Why do we fall?", "So we can learn to pick ourselves up."));
-        meta.getPersistentDataContainer().set(new NamespacedKey(DontLoseItems.Instance, "totemtype"), PersistentDataType.STRING, "void");
-
+        //meta.getPersistentDataContainer().set(new NamespacedKey(DontLoseItems.Instance, "totemtype"), PersistentDataType.STRING, "void");
         item.setItemMeta(meta);
+        Metods._ins.setPersistenData(item, "totemtype", PersistentDataType.STRING, "void");
+        Metods._ins.AddGlow(item);
         return item;
     }
 

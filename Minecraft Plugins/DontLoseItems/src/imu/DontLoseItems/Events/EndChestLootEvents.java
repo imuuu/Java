@@ -71,12 +71,12 @@ public class EndChestLootEvents implements Listener
 		_lootTable_stackMaxAmounts.Add(40, 7);
 		_lootTable_stackMaxAmounts.Add(64, 5);
 
-		int common = 90;
-		int unCommon = 90;
-		int rare = 80;
-		int epic = 73;
-		int mythic = 34;
-		int lege = 20;
+//		int common = 90;
+//		int unCommon = 90;
+//		int rare = 80;
+//		int epic = 73;
+//		int mythic = 34;
+//		int lege = 20;
 
 		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 22);
 		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 35);
@@ -433,6 +433,7 @@ public class EndChestLootEvents implements Listener
 		if(e.getEntity() instanceof Player)
 		{
 			stacks = GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getEntity()), 2,_chestRollMaxAmount);
+			UnstableEnd.Instance.RemovePlayerChestLootBase((Player)e.getEntity());
 		}
 		else
 		{
@@ -473,7 +474,7 @@ public class EndChestLootEvents implements Listener
 //		
 		
 		List<ItemStack> stacks =GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getPlayer()), 2,_chestRollMaxAmount);
-		
+		UnstableEnd.Instance.RemovePlayerChestLootBase((Player)e.getPlayer());
 		
 		for (ItemStack stack : stacks)
 		{
