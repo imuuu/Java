@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -24,11 +25,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Metods;
 
 
 public class EndEvents implements Listener
@@ -48,6 +51,7 @@ public class EndEvents implements Listener
 	private HashSet<Material> _validBlocks;
 	
 	private final int _shulkerDropChance = 20;
+	private final double _lootingBonusPerLevel = 6.0;
 	public EndEvents()
 	{
 		Instance = this;
@@ -104,11 +108,10 @@ public class EndEvents implements Listener
 
 			@Override
 			public void run() 
-			{
-				
+			{		
 				UnstableEnd.OnLoop();
 			}
-		}.runTaskTimerAsynchronously(DontLoseItems.Instance, 0, 20);	
+		}.runTaskTimer(DontLoseItems.Instance, 0, 1);	
 	}
 	private void RunnableAsync()
 	{
@@ -301,8 +304,15 @@ public class EndEvents implements Listener
 		
 		if(e.getEntityType() == EntityType.SHULKER)
 		{
-			
-			if(ThreadLocalRandom.current().nextInt(100) >= _shulkerDropChance) 
+			int looting = 0;
+			if(e.getEntity().getLastDamageCause().getEntity() instanceof Player)
+			{
+				Player player = (Player)e.getEntity().getLastDamageCause().getEntity();
+				ItemStack stack = player.getInventory().getItemInMainHand();
+				looting = Metods._ins.GetItemStackEnchantCount(stack, Enchantment.LOOT_BONUS_MOBS);
+			}
+			System.out.println("bonus: "+looting + " real: "+_lootingBonusPerLevel * looting);
+			if(ThreadLocalRandom.current().nextInt(100) >= _shulkerDropChance+(_lootingBonusPerLevel * looting)) 
 			{
 				e.getDrops().clear();
 				return;

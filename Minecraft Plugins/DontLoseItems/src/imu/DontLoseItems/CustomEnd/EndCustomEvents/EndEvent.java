@@ -108,7 +108,8 @@ public abstract class EndEvent implements Listener
 		player.sendMessage(ChatColor.BLUE+"======================");
 		
 		if(GetEventName() != null) 		player.sendMessage(Metods.msgC("&3Name &2"+GetEventName()));
-		if(_duration >= 0) 		   		player.sendMessage(Metods.msgC("&4Duration: &2"+(int)_duration+" seconds")); 
+		if(_duration >= 0) 		   		player.sendMessage(Metods.msgC("&4Duration: &2"+(int)_duration+" seconds"));
+		if(GetRewardInfo() != null)		player.sendMessage(Metods.msgC("&aReward: &e"+GetRewardInfo()));
 		if(GetDescription() != null) 	player.sendMessage(Metods.msgC("&3Description: &e"+GetDescription())); 
 		
 		player.sendMessage(ChatColor.BLUE+"======================");

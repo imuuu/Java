@@ -12,6 +12,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -19,6 +20,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
+import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Utilities.ImusUtilities;
 
@@ -46,6 +48,7 @@ public class UnstableEnd implements Listener
 	public UnstableEnd()
 	{
 		Instance = this;
+		Bukkit.getServer().getPluginManager().registerEvents(this, DontLoseItems.Instance);
 		_cds = new Cooldowns();
 		BOSS_BAR =  Bukkit.createBossBar("Unstable Void", BarColor.PURPLE, BarStyle.SEGMENTED_20, BarFlag.DARKEN_SKY);
 		BOSS_BAR.setTitle(ChatColor.BLACK + "| "+ChatColor.DARK_PURPLE+"Unstable Void"+ChatColor.BLACK+" |");
@@ -56,8 +59,8 @@ public class UnstableEnd implements Listener
 	{
 		_allEvents = new LinkedList<>();
 		_activeEvents = new LinkedList<>();
-		_allEvents.add(new EndEvent_RandomEntityTypeEnderman(10));
-		_allEvents.add(new EndEvent_RandomPotionEffect(10));
+		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
+		_allEvents.add(new EndEvent_RandomPotionEffect());
 	}
 	
 	public void OnDisabled()
@@ -65,6 +68,7 @@ public class UnstableEnd implements Listener
 		_chestLootBases.clear();
 		_allEvents.clear();
 		_activeEvents.clear();
+		//HandlerList.unregisterAll(this);
 	}
 	public void RefreshPorgress()
 	{
@@ -79,6 +83,7 @@ public class UnstableEnd implements Listener
 	
 	public int GetPlayerBaseRollAmount(Player player)
 	{
+		//System.out.println("base is: "+_chestLootBases.get(player.getUniqueId()));
 		if(_chestLootBases.containsKey(player.getUniqueId())) return _chestLootBases.get(player.getUniqueId());
 		return 0;
 	}
@@ -97,6 +102,10 @@ public class UnstableEnd implements Listener
 			return;
 		}
 		_chestLootBases.put(player.getUniqueId(), value+amount);
+	}
+	public void RemovePlayerChestLootBase(Player player)
+	{
+		_chestLootBases.remove(player.getUniqueId());
 	}
 	public boolean IsMax()
 	{
@@ -135,6 +144,8 @@ public class UnstableEnd implements Listener
 	private void CheckPlayers()
 	{
 		EndEvent event = GetCurrentEvent();
+		if(event == null) return;
+		
 		for(Player player : Bukkit.getOnlinePlayers())
 		{
 			if(EndEvents.Instance.IsPlayerUnstableArea(player)) 
@@ -156,19 +167,26 @@ public class UnstableEnd implements Listener
 	@EventHandler
 	public void OnPlayerQuit(PlayerQuitEvent e)
 	{
+		if(GetCurrentEvent() == null) return;
+		
+
 		if(!GetCurrentEvent().HasPlayer(e.getPlayer())) return;
 		
+		GetCurrentEvent().RemovePlayer(e.getPlayer());
 		GetCurrentEvent().OnPlayerLeftMiddleOfEvent(e.getPlayer());
 	}
 	
 	@EventHandler
 	public void OnPlayerJoin(PlayerJoinEvent e)
 	{
+
+		if(GetCurrentEvent() == null) return;
+
+		if(!EndEvents.Instance.IsPlayerUnstableArea(e.getPlayer())) return;
+
 		if(GetCurrentEvent().HasPlayer(e.getPlayer())) return;
-		
-		if(EndEvents.Instance.IsPlayerUnstableArea(e.getPlayer())) 
-			
-		GetCurrentEvent().AddPlayer(e.getPlayer());
+
+		//GetCurrentEvent().AddPlayer(e.getPlayer());
 		GetCurrentEvent().OnPlayerJoinMiddleOfEvent(e.getPlayer());
 	}
 	
@@ -193,7 +211,6 @@ public class UnstableEnd implements Listener
 		}
 		OnTriggerEvent(_activeEvents.getFirst());
 		
-		System.out.println("Event is changed");
 	}
 	
 	private void SetCooldown(EndEvent event)
@@ -202,12 +219,15 @@ public class UnstableEnd implements Listener
 	}
 	private void OnEventDeActive(EndEvent event)
 	{
+		event.OnEventEnd();
 		event.ClearPlayers();
 		event.UnRegisterBukkitEvents();
-		event.OnEventEnd();
+		
 	}
 	public EndEvent GetCurrentEvent()
 	{
+		if(_activeEvents.size() == 0) return null;
+		
 		return _activeEvents.getFirst();
 	}
 	private void OnTriggerEvent(EndEvent event)
@@ -224,9 +244,9 @@ public class UnstableEnd implements Listener
 			//event.PrintToPlayer(player);
 			event.titleToPlayer(player);
 		}
-		
-		event.RegisterBukkitEvents();
 		event.OnEventStart();
+		event.RegisterBukkitEvents();
+		
 	}
 	public void OnTrigger()
 	{

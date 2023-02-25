@@ -5,9 +5,9 @@ import org.bukkit.entity.Player;
 public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 {
 
-	public EndEvent_RandomEntityTypeEnderman(double duration)
+	public EndEvent_RandomEntityTypeEnderman()
 	{
-		super("Endermen change their type", duration);
+		super("Endermans chances its type", 10);
 		
 	}
 
