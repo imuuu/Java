@@ -242,7 +242,7 @@ public class UnstableEnd implements Listener
 			event.AddPlayer(player);
 			//FIXME tests
 			//event.PrintToPlayer(player);
-			event.titleToPlayer(player);
+			event.TitleToPlayer(player);
 		}
 		event.OnEventStart();
 		event.RegisterBukkitEvents();
