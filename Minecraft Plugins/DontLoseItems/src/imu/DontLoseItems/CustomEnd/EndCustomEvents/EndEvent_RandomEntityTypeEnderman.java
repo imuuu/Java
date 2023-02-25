@@ -39,7 +39,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 		};
 	public EndEvent_RandomEntityTypeEnderman()
 	{
-		super("Endermans chances its type", 10);
+		super("Endermen change their type", 10);
 		
 		for(World w :  DontLoseItems.Instance.getServer().getWorlds() )
 		{
@@ -119,7 +119,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	@Override
 	public String GetDescription()
 	{
-		return "&6Endermans has change the form!";
+		return "&6Endermen change their form!";
 	}
 
 	@Override
