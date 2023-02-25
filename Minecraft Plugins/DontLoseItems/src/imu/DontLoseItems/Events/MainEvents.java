@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -167,43 +165,49 @@ public class MainEvents implements Listener
 	@EventHandler
 	public void CancelPortals(PlayerPortalEvent e)
 	{
-		
+		if(e.getPlayer().isOp()) return;
+
 		String id = "portal."+e.getPlayer().getUniqueId().toString();
 		final float portalCd = 2f;
-		
-		if(e.getTo().getWorld().getName().matches("world_nether"))
-			System.out.println("date: "+_netherOpenDate + " is nether allowd: "+IsNetherAllowed()+ " "+e.getPlayer().getName());
-		
-		if(e.getTo().getWorld().getName().matches("world_the_end"))
-			System.out.println("date: "+_endOpenDate + " is end allowd: "+IsEndAllowed()+ " "+e.getPlayer().getName());
-		
-		if(e.getTo().getWorld().getName().matches("world_the_end") && !IsEndAllowed() && !e.getPlayer().isOp())
-		{
-			if(!_cd.isCooldownReady(id)) { e.setCancelled(true); return;}
-			
-			e.getPlayer().sendMessage(ChatColor.RED+"End isn't opened yet!");
-			e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "End opens in "+ DateParser.GetTimeDifference(_endOpenDate));
-			e.setCancelled(true);
-			
-			_cd.addCooldownInSeconds(id, portalCd);
-			return;
+
+		Location to = e.getTo();
+		if(to == null) return;
+
+		World world = to.getWorld();
+		if(world == null) return;
+
+		switch (world.getName()) {
+			case "world_nether" -> {
+				if (!IsNetherAllowed()) {
+					if (!_cd.isCooldownReady(id)) {
+						e.setCancelled(true);
+						return;
+					}
+
+					System.out.println("date: " + _netherOpenDate + " is nether allowed: " + IsNetherAllowed() + " " + e.getPlayer().getName());
+					e.getPlayer().sendMessage(ChatColor.RED + "Nether isn't opened yet!");
+					e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "Nether opens in " + DateParser.GetTimeDifference(_netherOpenDate));
+					e.setCancelled(true);
+
+					_cd.addCooldownInSeconds(id, portalCd);
+				}
+			}
+			case "world_the_end" -> {
+				if (!IsEndAllowed()) {
+					if (!_cd.isCooldownReady(id)) {
+						e.setCancelled(true);
+						return;
+					}
+
+					System.out.println("date: " + _endOpenDate + " is end allowed: " + IsEndAllowed() + " " + e.getPlayer().getName());
+					e.getPlayer().sendMessage(ChatColor.RED + "End isn't opened yet!");
+					e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "End opens in " + DateParser.GetTimeDifference(_endOpenDate));
+					e.setCancelled(true);
+
+					_cd.addCooldownInSeconds(id, portalCd);
+				}
+			}
 		}
-		
-		
-		if(e.getTo().getWorld().getName().matches("world_nether")  && !IsNetherAllowed()  && !e.getPlayer().isOp())
-		{
-			if(!_cd.isCooldownReady(id)) { e.setCancelled(true); return;}
-			
-			e.getPlayer().sendMessage(ChatColor.RED+"Nether isn't opened yet!");
-			e.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "Nether opens in "+ DateParser.GetTimeDifference(_netherOpenDate));
-			e.setCancelled(true);
-			
-			_cd.addCooldownInSeconds(id, portalCd);
-			return;
-		}
-		
-		
-		
 	}
 	
 //	@EventHandler
