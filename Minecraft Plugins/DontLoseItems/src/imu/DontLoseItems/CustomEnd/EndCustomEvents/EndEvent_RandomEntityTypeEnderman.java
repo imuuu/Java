@@ -1,11 +1,13 @@
 package imu.DontLoseItems.CustomEnd.EndCustomEvents;
 
+import org.bukkit.entity.Player;
+
 public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 {
 
 	public EndEvent_RandomEntityTypeEnderman(double duration)
 	{
-		super("Endermans chance the type", duration);
+		super("Endermans chances its type", duration);
 		
 	}
 
@@ -14,24 +16,51 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 	{
 		
 	}
+	
+	@Override
+	public void OnEventEnd()
+	{
+		
+	}
 
 	@Override
 	public String GetEventName()
 	{
-
-		return null;
+		
+		return GetName();
 	}
 
 	@Override
 	public String GetRewardInfo()
 	{
-
-		return null;
+		
+		return "Chestloot base by +2";
 	}
 
 	@Override
-	public void OnEventEnd()
+	public String GetDescription()
 	{
+		return "&6Endermans has change the form!";
+	}
+
+	@Override
+	public void OnPlayerLeftMiddleOfEvent(Player player)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnPlayerJoinMiddleOfEvent(Player player)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void OnOneTickLoop()
+	{
+		// TODO Auto-generated method stub
 		
 	}
 

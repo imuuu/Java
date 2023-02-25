@@ -582,50 +582,6 @@ public class ChestLootEvents implements Listener
 //		if(block[1] != null) block[1].setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
 	}
 	
-//	@EventHandler
-//	public void OnBlockPlace(BlockPlaceEvent e)
-//	{
-//		if (!(IsNether(e.getBlock())))
-//			return;
-//		
-//		if(e.isCancelled()) return;
-//		// if (!(e.getInventory().getHolder() instanceof Chest)) return;
-//
-//		Block block = e.getBlock();
-//
-//		if (block == null || block.getType() != Material.CHEST)
-//			return;
-//		
-//		if(!_chestDEBUG) block.setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
-//	}
-//	@EventHandler
-//	public void OnBlockBreak(BlockBreakEvent e)
-//	{
-//		if (!(IsNether(e.getBlock())))
-//			return;
-//
-//		// if (!(e.getInventory().getHolder() instanceof Chest)) return;
-//
-//		Block block = e.getBlock();
-//
-//		if (block == null || block.getType() != Material.CHEST)
-//			return;
-//
-//		if (!block.hasMetadata(META_OPENED_CHEST))
-//			return;
-//
-//		block.removeMetadata(META_OPENED_CHEST, DontLoseItems.Instance);
-//		
-//	}
-	
-	
-
-	
-	
-
-	
-
-
 
 	void GetSettings()
 	{

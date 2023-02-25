@@ -39,6 +39,8 @@ public class EndEvents implements Listener
 	
 	@SuppressWarnings("unused")
 	private BukkitTask _asyncTask;
+	@SuppressWarnings("unused")
+	private BukkitTask _task;
 	
 	private HashMap<INC_ID, UnstableIncrease> _increases;
 	private HashMap<UUID, UnstableEnd_Player> _players;
@@ -54,6 +56,7 @@ public class EndEvents implements Listener
 		InitIncrease();
 		//GetSettings();
 		RunnableAsync();
+		Runnable();
 		InitValidBlocks();
 		
 	}
@@ -90,10 +93,24 @@ public class EndEvents implements Listener
 	}
 	public void OnDisabled()
 	{
-		
+		UnstableEnd.OnDisabled();
 	}
 		
-	void RunnableAsync()
+	private void Runnable()
+	{
+		
+		_task = new BukkitRunnable() 
+		{			
+
+			@Override
+			public void run() 
+			{
+				
+				UnstableEnd.OnLoop();
+			}
+		}.runTaskTimerAsynchronously(DontLoseItems.Instance, 0, 20);	
+	}
+	private void RunnableAsync()
 	{
 		
 		_asyncTask = new BukkitRunnable() 

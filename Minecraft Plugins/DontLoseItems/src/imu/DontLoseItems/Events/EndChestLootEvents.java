@@ -239,6 +239,11 @@ public class EndChestLootEvents implements Listener
 			stack.setAmount(1);
 		}
 		
+		if (stack.getType() == Material.SHULKER_SHELL)
+		{
+			stack.setAmount(1);
+		}
+		
 		if (stack.getType() == Material.ELYTRA)
 		{
 			stack.setAmount(1);
