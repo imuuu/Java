@@ -1,5 +1,6 @@
 package imu.DontLoseItems.CustomItems;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -306,9 +307,17 @@ public final class Hell_ThrowingAxe_Controller
 		{
 			if(p.getWorld() == player.getWorld())
 			{
-				 ProtocolLibrary.getProtocolManager().sendServerPacket(p, destroyPacket);
-				 ProtocolLibrary.getProtocolManager().sendServerPacket(p, useItem);
-				 
+				try {
+					ProtocolLibrary.getProtocolManager().sendServerPacket(p, destroyPacket);
+				} catch (InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+				try {
+					ProtocolLibrary.getProtocolManager().sendServerPacket(p, useItem);
+				} catch (InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+
 			}
 		}
 	}

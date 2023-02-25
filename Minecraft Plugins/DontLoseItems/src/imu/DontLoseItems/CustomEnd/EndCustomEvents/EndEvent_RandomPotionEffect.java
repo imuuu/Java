@@ -110,7 +110,9 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	public String GetEventName()
 	{
 
-		return GetName();
+		return "Random potion effects are applied";
+		//return GetName();
+
 	}
 
 	@Override

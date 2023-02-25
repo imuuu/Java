@@ -274,7 +274,9 @@ public class UnstableEnd implements Listener
 				continue;
 
 			event.AddPlayer(player);
-			event.PrintToPlayer(player);
+			//FIXME tests
+			//event.PrintToPlayer(player);
+			event.TitleToPlayer(player);
 		}
 		event.OnEventStart();
 		event.RegisterBukkitEvents();

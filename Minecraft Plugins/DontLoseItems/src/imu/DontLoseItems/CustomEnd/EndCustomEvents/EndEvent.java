@@ -1,5 +1,6 @@
 package imu.DontLoseItems.CustomEnd.EndCustomEvents;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,7 +117,36 @@ public abstract class EndEvent implements Listener
 		
 		player.sendMessage(ChatColor.BLUE+"======================");
 	}
-	
+
+	public void TitleToPlayer(Player player) {
+		String durText = "";
+		if(GetDuration() < 0) {
+			durText = ChatColor.DARK_AQUA +"Until the next " + ChatColor.DARK_PURPLE + "Unstable Void";
+		} else {
+			durText = ChatColor.DARK_AQUA + "For the next " + ChatColor.GOLD + (int)GetDuration() + ChatColor.DARK_AQUA + " seconds";
+		}
+
+		Color tclr = new Color(214, 76, 245);
+		player.sendTitle(
+				ChatColor.DARK_PURPLE + "End Event has started!",
+				   durText + " " + ChatColor.of(tclr) + GetEventName(),
+				10,70,20);
+
+		Color clr = new Color(22, 156, 115);
+
+		player.sendMessage(ChatColor.of(clr)+"~~~~~~~~~~~~~~~~~~~~~");
+		player.sendMessage(ChatColor.DARK_PURPLE + "End Event: " + ChatColor.DARK_AQUA + GetEventName());
+
+
+		if(GetRewardInfo() != null) {
+			player.sendMessage(ChatColor.GREEN + "During the event: " + ChatColor.YELLOW + GetRewardInfo());
+		}
+		/*if(GetDescription() != null) {
+			player.sendMessage();
+		}*/
+
+		player.sendMessage(ChatColor.of(clr)+"\n~~~~~~~~~~~~~~~~~~~~~");
+	}
 	
 	protected void AddChestLootBaseToAll(int amount)
 	{
