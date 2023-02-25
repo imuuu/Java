@@ -1,5 +1,6 @@
 package imu.DontLoseItems.CustomItems;
 
+import imu.DontLoseItems.Events.VoidTotemEvents;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Utilities.ImusUtilities;
@@ -32,63 +33,63 @@ public class VoidTotemController {
         Bukkit.addRecipe(GetRecipe());
     }
 
-    public void findSafeBlock(Player player) 
+    public void findSafeBlock(Player player)
     {
         final long start = System.currentTimeMillis();
 
         Location mid = player.getLocation();
-        mid.setY(50);
         World end = mid.getWorld();
         assert end != null;
 
-        int radius = 10;
-        int step = 1;
-        int total = 0;
-        
-
-        new BukkitRunnable() 
+        new BukkitRunnable()
         {
-			
-			@Override
-			public void run()
-			{
-				 LinkedList<Location> list = ImusUtilities.CreateSphere(mid, 50, ImusAPI.AirHashSet, null);
-				 
-				
-				 
-				 new BukkitRunnable() 
-				 {
-					
-					@Override
-					public void run()
-					{
-						 if(list.size() <= 0) 
-						 {
-							 Location locc = player.getBedSpawnLocation() != null ? player.getBedSpawnLocation() : Objects.requireNonNull(Bukkit.getServer().getWorld(defaultWorld)).getSpawnLocation();
-							 player.teleport(locc);
-							 System.out.println("not found");
-							 return ;
-						 }
-						 
-						System.out.println("found block"+ list.get(0).toVector()+" type: "+list.get(0).getBlock());
-						player.teleport(findTop(list.get(0)));
-					}
-				}.runTask(DontLoseItems.Instance);
-			}
-		}.runTaskAsynchronously(DontLoseItems.Instance);
-        
+
+            @Override
+            public void run()
+            {
+                mid.setY(30.0);
+                LinkedList<Location> list = ImusUtilities.CreateSphere(mid, 50, ImusAPI.AirHashSet, null);
+
+                new BukkitRunnable()
+                {
+
+                    @Override
+                    public void run()
+                    {
+                        if(list.size() == 0)
+                        {
+                            Location locc = player.getBedSpawnLocation() != null ? player.getBedSpawnLocation() : Objects.requireNonNull(Bukkit.getServer().getWorld(defaultWorld)).getSpawnLocation();
+                            player.teleport(locc);
+                            //remove player from active players
+                            VoidTotemEvents.instance().setSaved(player);
+                            return;
+                        }
+
+                        //System.out.println("found block"+ list.get(0).toVector()+" type: "+list.get(0).getBlock());
+
+                        player.teleport(findTop(list.get(0)));
+
+                        //remove player from active players
+                        VoidTotemEvents.instance().setSaved(player);
+
+                    }
+                }.runTask(DontLoseItems.Instance);
+            }
+        }.runTaskAsynchronously(DontLoseItems.Instance);
+
     }
 
-    private Location findTop(Location bottom) 
+    private Location findTop(Location bottom)
     {
-    	bottom.setY(255);
-    	
-    	while(bottom.getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR)
-    	{
-    		bottom.add(0,-1,0);
-    		
-    		if( bottom.getY() > 0) break;
-    	}
+        Location safe = bottom.clone();
+        bottom.setY(255.0);
+
+        while(!bottom.getBlock().getType().isSolid())
+        {
+            bottom.subtract(0,1,0);
+
+            if( bottom.getY() < 0) return safe;
+        }
         return bottom;
     }
 
