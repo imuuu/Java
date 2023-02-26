@@ -59,6 +59,7 @@ public class ChestLootEvents implements Listener
 	private int _chestRollMaxAmount = 10;
 	
 	private boolean _chestDEBUG = false;
+	
 	///setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public ChestLootEvents()
 	{

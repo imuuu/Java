@@ -17,10 +17,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
-import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndermanToTnt;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
-import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
-import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_SpecialCreepers;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_TntEverywhere;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Utilities.ImusUtilities;
@@ -62,14 +60,17 @@ public class UnstableEnd implements Listener
 		_activeEvents = new LinkedList<>();
 
 		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
-		_allEvents.add(new EndEvent_RandomPotionEffect());
-		_allEvents.add(new EndEvent_EndermanToTnt());
-		_allEvents.add(new EndEvent_SpecialCreepers());
+		//_allEvents.add(new EndEvent_RandomPotionEffect());
+		//_allEvents.add(new EndEvent_TntEverywhere());
+		//_allEvents.add(new EndEvent_SpecialCreepers());
 	}
 
 
 	public void OnDisabled()
 	{
+		if(GetCurrentEvent() != null) GetCurrentEvent().OnEventEnd();
+		
+		BOSS_BAR.removeAll();
 		_chestLootBases.clear();
 		_allEvents.clear();
 		_activeEvents.clear();

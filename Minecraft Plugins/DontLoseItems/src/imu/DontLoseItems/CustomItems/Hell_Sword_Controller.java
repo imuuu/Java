@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.bukkit.Color;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

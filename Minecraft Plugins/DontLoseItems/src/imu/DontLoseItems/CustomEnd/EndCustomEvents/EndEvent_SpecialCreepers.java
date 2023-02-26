@@ -37,7 +37,7 @@ public class EndEvent_SpecialCreepers extends EndEvent
 		};
 	public EndEvent_SpecialCreepers()
 	{
-		super("Special Creepers", 60);
+		super("Special Creepers", 80);
 		
 		for(World w :  DontLoseItems.Instance.getServer().getWorlds() )
 		{
@@ -48,7 +48,7 @@ public class EndEvent_SpecialCreepers extends EndEvent
 			}
 		}
 		
-		ChestLootAmount = 2;
+		ChestLootAmount = 3;
 	}
 
 	@Override

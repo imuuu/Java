@@ -574,19 +574,7 @@ public class NetherEvents implements Listener
 	    
 	    if(mainHand != null && mainHand.getType() == Material.CROSSBOW)
 	    {
-//	    	System.out.println("he has crossbow");
-//	    	
-//	    	AttributeInstance attributeMap = entity.getAttribute(Attribute.GENERIC_ATTACK_SPEED).set;
-//	    	AttributeModifier  attri = new AttributeModifier("Custom Attack Speed", 0.5, AttributeModifier.Operation.ADD_NUMBER);
-//	    	//AttributeModifier attri = new AttributeModifier("Custom Attack Speed", 0.5, AttributeModifier.Operation.ADD_NUMBER);
-//	    	
-//	    	AttributeInstance attributeInstance = entity.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
-//	    	if (attributeInstance == null) {
-//	    	    attributeInstance = new AttributeInstance(Attribute.GENERIC_ATTACK_SPEED);
-//	    	    entity.getAttributeMap().addAttributeInstance(attributeInstance);
-//	    	}
-//	    	attributeInstance.applyPersistentModifier(attri);
-	    	
+
 	    	ItemStack stack = new ItemStack(Material.DIAMOND_BOOTS);
 		
 			ItemMeta meta = stack.getItemMeta();
@@ -828,7 +816,7 @@ public class NetherEvents implements Listener
 		
 		if(fireball.getShooter() instanceof Ghast && _enableGhastFireBall)
 		{
-			OnGhastExplotion(fireball,hitLoc);
+			OnGhastExplotion(fireball,hitLoc, _radiusOfGhastBall);
 			
 			return;
 		}
@@ -844,7 +832,7 @@ public class NetherEvents implements Listener
 
 	}
 	
-	private void OnGhastExplotion(Entity entity, Location hitLoc)
+	public void OnGhastExplotion(Entity entity, Location hitLoc, int radius)
 	{
 		new BukkitRunnable() {
 			
@@ -854,7 +842,7 @@ public class NetherEvents implements Listener
 				LinkedList<Block> blocks = new LinkedList<>();
 				//List<Block> blocks = tnt.GetBlocks(e.getLocation());
 	    		
-				for(Location loc : ImusUtilities.CreateSphere(hitLoc, _radiusOfGhastBall, ImusAPI.AirHashSet ,null))
+				for(Location loc : ImusUtilities.CreateSphere(hitLoc, radius, ImusAPI.AirHashSet ,null))
 				{
 		    		if(_mutationBlock.contains(loc)) continue;
 		    		
@@ -1007,27 +995,7 @@ public class NetherEvents implements Listener
         e.setCancelled(true);
         
 	  }
-	
-//	@EventHandler
-//	public void ProjectileLaunch(ProjectileHitEvent e)
-//	{
-//		if (!(e.getEntity().getShooter() instanceof Skeleton))
-//			return;
-//
-//		if (!(e.getHitEntity() instanceof Player))
-//			return;
-//
-//		Player player = (Player) e.getHitEntity();
-//
-//		if (player.getGameMode() != GameMode.SURVIVAL)
-//			return;
-//
-//		if (player.isBlocking())
-//		{
-//			return;
-//		}
-//
-//	}
+
 	private void ChangeBlockType(Iterable<Block> list, Material[] mat_list, long delay, int index) {
 	    
 		Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, () -> 

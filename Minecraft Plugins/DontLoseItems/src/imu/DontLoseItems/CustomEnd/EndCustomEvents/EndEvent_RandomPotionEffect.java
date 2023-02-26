@@ -13,7 +13,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	private PotionEffect[] _potionEffectsPositive;
 
 	private final double _chanceToBePositive = 33;
-	private final int _rangeTotalEffect = 2;
+	private final int _rangeTotalEffect = 4;
 
 	private LinkedList<PotionEffect> _givenEffects = new LinkedList<>();
 

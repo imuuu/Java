@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import imu.iAPI.Main.ImusAPI;
@@ -199,6 +202,44 @@ public  class ImusUtilities
 	        array[i] = t;
 	    }
 	    return array;
+	}
+	
+	public static Chunk[] Get9ChunksAround(Location loc)
+	{
+		Chunk[] chunks = new Chunk[9];
+		
+		World world = loc.getWorld();
+		
+		chunks[0] = loc.getChunk();
+		
+		int x = chunks[0].getX();
+		int z = chunks[0].getZ();
+		
+		chunks[1] = world.getChunkAt(x+1, z);
+		chunks[2] = world.getChunkAt(x, z+1);
+		chunks[3] = world.getChunkAt(x+1, z+1);
+		
+		chunks[4] = world.getChunkAt(x-1, z);
+		chunks[5] = world.getChunkAt(x, z-1);
+		chunks[6] = world.getChunkAt(x-1, z-1);
+		
+		chunks[7] = world.getChunkAt(x-1, z+1);
+		chunks[8] = world.getChunkAt(x+1, z-1);
+		
+		return chunks;
+	}
+	public static Chunk[] GetChunksAround(Location loc, int range) {
+	    Chunk[] chunks = new Chunk[(range * 2 + 1) * (range * 2 + 1)];
+	    World world = loc.getWorld();
+	    int chunkX = loc.getChunk().getX();
+	    int chunkZ = loc.getChunk().getZ();
+	    int index = 0;
+	    for (int x = chunkX - range; x <= chunkX + range; x++) {
+	        for (int z = chunkZ - range; z <= chunkZ + range; z++) {
+	            chunks[index++] = world.getChunkAt(x, z);
+	        }
+	    }
+	    return chunks;
 	}
 //	public static LinkedList<Block> CreateSphere(Location center, int radius) 
 //	{

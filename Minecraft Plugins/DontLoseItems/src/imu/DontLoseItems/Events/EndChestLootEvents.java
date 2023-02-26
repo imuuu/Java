@@ -44,7 +44,7 @@ public class EndChestLootEvents implements Listener
 
 	private int _chestRollMaxAmount = 10;
 
-	private boolean _chestDEBUG = true;
+	private boolean _chestDEBUG = false;
 
 	/// setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public EndChestLootEvents()
@@ -155,9 +155,6 @@ public class EndChestLootEvents implements Listener
 		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellAxe(), 1);
 		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellShield(), 1);
 		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellSword(), 1);
-		
-		
-		
 
 	}
 
@@ -440,6 +437,7 @@ public class EndChestLootEvents implements Listener
 			stacks = GenerateEndLoot(0, 2,_chestRollMaxAmount);
 		}
 		
+		System.out.println("Player: "+e.getEntity()+ " Generated loot by opened  chest");
 		
 		
 		for (ItemStack stack : stacks)
@@ -475,6 +473,9 @@ public class EndChestLootEvents implements Listener
 		
 		List<ItemStack> stacks =GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getPlayer()), 2,_chestRollMaxAmount);
 		UnstableEnd.Instance.RemovePlayerChestLootBase((Player)e.getPlayer());
+		
+		System.out.println("Player: "+e.getPlayer()+ " Generated loot by opened  chest");
+		
 		
 		for (ItemStack stack : stacks)
 		{

@@ -1,13 +1,13 @@
 package imu.DontLoseItems.CustomEnd.EndCustomEvents;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -68,6 +68,8 @@ public abstract class EndEvent implements Listener
 		{
 			Player player = Bukkit.getPlayer(uuid);
 			if(player == null) continue;
+			
+			if(player.getGameMode() == GameMode.SPECTATOR) continue;
 			
 			if(!EndEvents.Instance.IsPlayerUnstableArea(player)) 
 			{				
@@ -138,8 +140,10 @@ public abstract class EndEvent implements Listener
 		player.sendMessage(ChatColor.DARK_PURPLE + "End Event: " + ChatColor.DARK_AQUA + GetEventName());
 
 
-		if(GetRewardInfo() != null) {
-			player.sendMessage(ChatColor.GREEN + "During the event: " + ChatColor.YELLOW + GetRewardInfo());
+		if(GetRewardInfo() != null) 
+		{
+			//player.sendMessage(ChatColor.GREEN + "During the event: " + ChatColor.YELLOW + GetRewardInfo());
+			player.sendMessage(Metods.msgC("&After the event: &e"+GetRewardInfo()));
 		}
 		/*if(GetDescription() != null) {
 			player.sendMessage();

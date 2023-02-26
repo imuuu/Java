@@ -1,6 +1,5 @@
 package imu.DontLoseItems.Events;
 
-import java.util.HashMap;
 import java.util.Random;
 
 import org.bukkit.ChatColor;
@@ -9,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;

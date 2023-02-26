@@ -209,7 +209,7 @@ public final class Hell_Pickaxe_Controller
 			return;
 
 		BlockFace face = e.getBlockFace();
-
+		
 		switch (face)
 		{
 		case DOWN:

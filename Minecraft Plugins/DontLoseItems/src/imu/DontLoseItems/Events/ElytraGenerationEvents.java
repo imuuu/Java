@@ -1,8 +1,12 @@
 package imu.DontLoseItems.Events;
 
-import imu.iAPI.Other.Metods;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
+import static java.util.Arrays.stream;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -12,20 +16,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.awt.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-
-import static java.util.Arrays.*;
+import imu.iAPI.Other.Metods;
+import net.md_5.bungee.api.ChatColor;
 
 public class ElytraGenerationEvents implements Listener
 {
