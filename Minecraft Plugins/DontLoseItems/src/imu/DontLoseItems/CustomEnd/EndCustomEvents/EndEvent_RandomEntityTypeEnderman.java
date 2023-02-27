@@ -51,7 +51,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 			new SpawnType(1, EntityType.RAVAGER),
 			new SpawnType(1, EntityType.CAVE_SPIDER),
 			new SpawnType(2, EntityType.WITHER_SKELETON),
-			new SpawnType(-1, EntityType.BLAZE),
+//			new SpawnType(-1, EntityType.BLAZE),
 			new SpawnType(1, EntityType.GHAST),
 
 

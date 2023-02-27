@@ -3,6 +3,7 @@ package imu.DontLoseItems.Events;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -31,9 +33,11 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -62,6 +66,8 @@ public class MainEvents implements Listener
 	boolean saveTools = false;
 	boolean saveWeapons = false;
 	
+	private boolean _disableElytraOnPVP = true;
+	
 	double durability_penalty_pve = 0.25;
 	double durability_penalty_pvp = 0.6;
 	double durability_penalty_mob = 0.1;
@@ -71,9 +77,9 @@ public class MainEvents implements Listener
 	Cooldowns _cd;
 	
 	String _cd_in_combat_dmg = "entity_combat_";
-	int _cd_in_combat_cooldown = 5;
+	int _cd_in_combat_cooldown = 10;
 	
-	HashMap<Player, ArrayList<EntityType>> _player_combat_with = new HashMap<>();
+	HashMap<Player, HashSet<EntityType>> _player_combat_with = new HashMap<>();
 	HashMap<UUID, Double> _player_combat_penalty_join = new HashMap<>();
 	
 	private MinecraftJokes _joker;
@@ -108,6 +114,30 @@ public class MainEvents implements Listener
 //			System.out.println("error has happend");
 //			//e.printStackTrace();
 //		}
+	}
+	
+	
+	@EventHandler
+	public void OnMove(PlayerMoveEvent e)
+	{
+		if(e.getPlayer().isGliding())
+		{
+			if(!_disableElytraOnPVP) return;
+
+			if(!_player_combat_with.containsKey(e.getPlayer())) return;
+
+			if(!_player_combat_with.get(e.getPlayer()).contains(EntityType.PLAYER)) return;
+
+			e.getPlayer().setGliding(false);
+			if(!_cd.isCooldownReady(e.getPlayer().getUniqueId().toString()+"elytraPVP")) return;
+			
+			_cd.setCooldownInSeconds(e.getPlayer().getUniqueId().toString()+"elytraPVP", 2);
+			
+			e.getPlayer().sendMessage(Metods.msgC("&cYou are unable to use elytra on PVP combat!"));
+			
+			
+			
+		}
 	}
 	@EventHandler
 	public void OnEntityDamage(EntityDamageEvent e)
@@ -212,17 +242,7 @@ public class MainEvents implements Listener
 		}
 	}
 	
-//	@EventHandler
-//	public void OnBlockPlace(BlockPlaceEvent e)
-//	{
-//		
-//		if(e.getBlock().getType() != Material.SPAWNER) return;
-//		
-//		CreatureSpawner spawner = (CreatureSpawner)e.getBlock().getState();
-//		spawner.setSpawnedType(EntityType.CREEPER);
-//		spawner.update();
-//	}
-	
+
 	public boolean IsNetherAllowed()
 	{
 		return DateParser.IsDateNowOrPassed(_netherOpenDate);
@@ -272,12 +292,16 @@ public class MainEvents implements Listener
 		if(event.getDamager() instanceof Projectile && event.getEntity() instanceof Player)
 		{
 			Projectile pr =(Projectile) event.getDamager();
-			if(pr.getShooter() instanceof Player)
+//			if(pr.getShooter() instanceof Player)
+//			{
+//				return;
+//			}
+			if(!(pr.getShooter() instanceof LivingEntity))
 			{
 				return;
 			}
 			Player p =(Player) event.getEntity();
-			setInCombat(p, event.getDamager());
+			setInCombat(p, ((Entity)pr.getShooter()));
 		}
 		
 	}
@@ -302,7 +326,7 @@ public class MainEvents implements Listener
 		}
 		else
 		{
-			ArrayList<EntityType> arr = new ArrayList<>();
+			HashSet<EntityType> arr = new HashSet<>();
 			arr.add(with_mob.getType());
 			_player_combat_with.put(p, arr);
 			
@@ -327,7 +351,7 @@ public class MainEvents implements Listener
 			public void run() 
 			{
 				ArrayList<Player> removeThesePlayers = new ArrayList<>();
-				for(Map.Entry<Player,ArrayList<EntityType>> entry : _player_combat_with.entrySet())
+				for(Map.Entry<Player,HashSet<EntityType>> entry : _player_combat_with.entrySet())
 				{
 					Player p = entry.getKey();
 					if(_cd.isCooldownReady(_cd_in_combat_dmg+p.getName()))
