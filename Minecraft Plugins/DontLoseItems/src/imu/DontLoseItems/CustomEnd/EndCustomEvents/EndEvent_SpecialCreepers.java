@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
 import imu.DontLoseItems.main.DontLoseItems;
@@ -126,6 +127,8 @@ public class EndEvent_SpecialCreepers extends EndEvent
 			{
 				LinkedList<Location> locs = ImusUtilities.CreateSphere(creeper.getLocation(), 20, ImusAPI.AirHashSet, null);
 				
+				if(locs == null || locs.size() == 0) return; 
+				
 				LinkedList<Block> blocks = new LinkedList<>();
 				for(Location loc : locs)
 				{
@@ -135,9 +138,12 @@ public class EndEvent_SpecialCreepers extends EndEvent
 					
 					if(b.getType().getBlastResistance() > 1200) continue;
 					
+					if(!EndEvents.Instance.EndBlocks.contains(b.getType())) continue;
 					
 					blocks.add(b);
 				}
+				
+				if(blocks.isEmpty()) return;
 				
 				StartAnimation(creeper, crystal,blocks);
 				
@@ -157,8 +163,7 @@ public class EndEvent_SpecialCreepers extends EndEvent
 			{
 				if(counter > 300) 
 				{
-					//crystal.getWorld().createExplosion(crystal, 10);
-					
+
 					TNTPrimed tnt = crystal.getWorld().spawn(crystal.getLocation(), TNTPrimed.class);
 					tnt.setFuseTicks(0);
 					crystal.remove();
@@ -176,7 +181,16 @@ public class EndEvent_SpecialCreepers extends EndEvent
 				
 				FallingBlock fallingBlock = entity.getWorld().spawnFallingBlock(b.getLocation(), b.getBlockData());
 				
-				fallingBlock.setVelocity(fallingBlock.getLocation().toVector().subtract(crystal.getLocation().toVector()).multiply(-10).normalize());
+				//fallingBlock.setVelocity(fallingBlock.getLocation().toVector().subtract(crystal.getLocation().toVector()).multiply(-10).normalize());
+				
+				Vector vel = fallingBlock.getLocation().toVector().subtract(crystal.getLocation().toVector()).multiply(-10).normalize();
+				
+				if (!Double.isFinite(vel.getX()) || !Double.isFinite(vel.getY()) || !Double.isFinite(vel.getZ())) {
+					vel = new Vector(0, 1, 0);
+
+				}
+
+				fallingBlock.setVelocity(vel);
 				
 				fallingBlock.setGravity(false);
 				fallingBlock.setDropItem(false);

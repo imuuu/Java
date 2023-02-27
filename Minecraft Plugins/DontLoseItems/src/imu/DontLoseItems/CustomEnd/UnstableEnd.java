@@ -17,8 +17,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDeprisScrap;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDiamond;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_PlayergroundVanish;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_SpecialCreepers;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_TntEverywhere;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_UnstableGround;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Utilities.ImusUtilities;
@@ -32,7 +38,7 @@ public class UnstableEnd implements Listener
 	private LinkedList<EndEvent> _allEvents;
 	private LinkedList<EndEvent> _activeEvents;
 
-	public int _totalRolls = 3;
+	public int _totalRolls = 4;
 
 	private Cooldowns _cds;
 
@@ -60,9 +66,13 @@ public class UnstableEnd implements Listener
 		_activeEvents = new LinkedList<>();
 
 		_allEvents.add(new EndEvent_RandomEntityTypeEnderman());
-		//_allEvents.add(new EndEvent_RandomPotionEffect());
-		//_allEvents.add(new EndEvent_TntEverywhere());
-		//_allEvents.add(new EndEvent_SpecialCreepers());
+		_allEvents.add(new EndEvent_EndStoneToDiamond());
+		_allEvents.add(new EndEvent_EndStoneToDeprisScrap());
+		_allEvents.add(new EndEvent_PlayergroundVanish());
+		_allEvents.add(new EndEvent_UnstableGround());
+		_allEvents.add(new EndEvent_RandomPotionEffect());
+		_allEvents.add(new EndEvent_TntEverywhere());
+		_allEvents.add(new EndEvent_SpecialCreepers());
 	}
 
 

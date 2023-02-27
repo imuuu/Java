@@ -122,6 +122,7 @@ public class MainEvents implements Listener
 	{
 		if(e.getPlayer().isGliding())
 		{
+			
 			if(!_disableElytraOnPVP) return;
 
 			if(!_player_combat_with.containsKey(e.getPlayer())) return;

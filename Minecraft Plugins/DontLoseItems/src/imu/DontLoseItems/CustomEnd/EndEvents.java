@@ -1,9 +1,12 @@
 package imu.DontLoseItems.CustomEnd;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -21,6 +24,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Player;
@@ -31,16 +35,20 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Utilities.ImusUtilities;
 
 
 public class EndEvents implements Listener
@@ -58,6 +66,7 @@ public class EndEvents implements Listener
 	private HashMap<UUID, UnstableEnd_Player> _players;
 	
 	private HashSet<Material> _validBlocks;
+	public HashSet<Material> EndBlocks;
 	
 	private final int _shulkerDropChance = 10;
 	private final double _lootingBonusPerLevel = 4;
@@ -69,11 +78,14 @@ public class EndEvents implements Listener
 	
 	private final boolean _enableGhastFireBall = true;
 	private final int _ghastFireBall_radius = 3;
+	
+	private Set<Location> _mutationBlock;
 	public EndEvents()
 	{
 		Instance = this;
 		UnstableEnd = new UnstableEnd();
 		_players = new HashMap<>();
+		_mutationBlock = Collections.synchronizedSet(new HashSet<>());
 		InitIncrease();
 		//GetSettings();
 		_end = GetEnd();
@@ -96,6 +108,16 @@ public class EndEvents implements Listener
 		_validBlocks.add(Material.END_STONE_BRICK_WALL);
 		_validBlocks.add(Material.END_STONE_BRICKS);
 		_validBlocks.add(Material.END_ROD);
+		
+		EndBlocks = new HashSet<>();
+		EndBlocks.add(Material.PURPUR_BLOCK);
+		EndBlocks.add(Material.END_STONE);
+		EndBlocks.add(Material.END_STONE_BRICKS);
+		EndBlocks.add(Material.END_PORTAL_FRAME);
+		EndBlocks.add(Material.END_ROD);
+		EndBlocks.add(Material.DRAGON_EGG);
+		EndBlocks.add(Material.CHORUS_PLANT);
+		EndBlocks.add(Material.CHORUS_FLOWER);
 	}
 	public enum INC_ID
 	{
@@ -206,12 +228,8 @@ public class EndEvents implements Listener
 	{
 		Location loc = chunk.getBlock(7, 0, 7).getLocation();
 		
-		if(!DontLoseItems.IsEnd(loc)) return false;
-		
-		
-		if(loc.distance(loc.zero()) < _distanceToUnstable) return false;
-		
-		return true;
+		return IsPlayerUnstableArea(loc);
+
 	}
 	
 	public boolean IsPlayerUnstableArea(Entity entity)
@@ -221,6 +239,16 @@ public class EndEvents implements Listener
 		
 		if(entity.getLocation().distance(entity.getLocation().zero()) < _distanceToUnstable) return false;
 		
+		
+		return true;
+	}
+	
+	public boolean IsPlayerUnstableArea(Location loc)
+	{
+		loc = loc.clone();
+		if(!DontLoseItems.IsEnd(loc)) return false;
+
+		if(loc.distance(loc.clone().zero()) < _distanceToUnstable) return false;
 		
 		return true;
 	}
@@ -412,7 +440,213 @@ public class EndEvents implements Listener
 		
 		
 	}
+	
+	
+	public void CreateUnstableFallingBlocks(Location loc, double pullforce, int lastTicks, int range, boolean useEndblocks, boolean removeBlocks)
+	{
 
+		new BukkitRunnable() 
+		{		
+			@Override
+			public void run()
+			{
+				LinkedList<Location> locs = 
+						ImusUtilities.CreateSphere(loc, range, ImusAPI.AirHashSet, null);
+				
+				if(locs == null || locs.size() == 0) return; 
+				
+				ArrayList<Block> blocks = new ArrayList<>();
+				
+				for(Location loc : locs)
+				{
+					Block b = loc.getWorld().getHighestBlockAt(loc.getBlockX(), loc.getBlockZ());
+					
+					if(b.getType().isInteractable()) continue;
+					
+					if(b.getType().getBlastResistance() > 1200) continue;
+					
+					if(useEndblocks && !EndBlocks.contains(b.getType())) continue;
+					
+					blocks.add(b);
+				}
+				
+				if(blocks.isEmpty())
+				{
+					return;
+				}
+				Integer[] shuffleArray = new Integer[blocks.size()];
+				for(int i = 0; i < blocks.size(); i++)
+				{
+					shuffleArray[i] = i;
+				}
+				shuffleArray = ImusUtilities.ShuffleArray(shuffleArray);
+				
+				StartAnimation(loc,blocks, shuffleArray,pullforce,lastTicks,removeBlocks);
+				
+			}
+		}.runTaskAsynchronously(DontLoseItems.Instance);
+		
+	}
+	
+	private void StartAnimation(Location loc, ArrayList<Block> blocks, Integer[] indexOrder,double pullforce,int totalTicks, boolean removeBlocks)
+	{
+
+		new BukkitRunnable() {
+			
+			private int counter = 0;
+			private LinkedList<FallingBlock> _fallingBlocks = new LinkedList<>();
+			int index = 0;
+			@Override
+			public void run()
+			{
+				if(counter > totalTicks) 
+				{
+
+					for( FallingBlock fb : _fallingBlocks)
+					{
+						fb.setGravity(true);
+					}
+					_fallingBlocks.clear();
+					cancel();
+					return;
+				}
+				
+				//Block b = blocks.get(ThreadLocalRandom.current().nextInt(blocks.size()));
+				
+				Block b = blocks.get(indexOrder[index]);
+				
+				if(++index >= blocks.size()) index = 0;
+				
+				if(b == null || b.getType().isAir())
+				{
+					counter++;
+					return;
+				}
+				
+				
+				FallingBlock fallingBlock = loc.getWorld().spawnFallingBlock(b.getLocation(), b.getBlockData());
+				
+				b.setType(Material.AIR);
+				
+				Vector vel = fallingBlock.getLocation().toVector().subtract(loc.toVector()).multiply(pullforce).normalize();
+				
+				if (!Double.isFinite(vel.getX()) || !Double.isFinite(vel.getY()) || !Double.isFinite(vel.getZ())) {
+
+					vel = new Vector(0, 1, 0);
+				}
+
+				fallingBlock.setVelocity(vel);
+				
+				fallingBlock.setGravity(false);
+				fallingBlock.setDropItem(false);
+				fallingBlock.setHurtEntities(true);
+				
+				_fallingBlocks.add(fallingBlock);
+				counter++;
+			}
+			
+		}.runTaskTimer(DontLoseItems.Instance, 0, 1);
+	}
+	
+	public void CreateMaterialSphere(Entity entity, Location hitLoc, Material[] mat_list, long delay, double maxY, int radius)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				LinkedList<Block> blocks = new LinkedList<>();
+				//List<Block> blocks = tnt.GetBlocks(e.getLocation());
+	    		
+				for(Location loc : ImusUtilities.CreateSphere(hitLoc, radius, ImusAPI.AirHashSet ,null))
+				{
+		    		if(_mutationBlock.contains(loc)) continue;
+		    		
+		    		if(loc.getY() > maxY) continue;
+		    		
+		    		_mutationBlock.add(loc);
+		    		
+					blocks.add(loc.getBlock());
+				}
+				
+				
+	    		
+				new BukkitRunnable() 
+				{
+					
+					@Override
+					public void run()
+					{
+						if(entity != null)
+						{
+							EntityExplodeEvent explodeEvent = new EntityExplodeEvent(entity, hitLoc, blocks, 0);
+							Bukkit.getServer().getPluginManager().callEvent(explodeEvent);
+				    		
+				    		if(explodeEvent.isCancelled()) 
+				    		{
+				    			for(Block b : blocks)
+				    	    	{
+				    	    		_mutationBlock.remove(b.getLocation());
+				    	    	}
+				    			return;
+				    		}
+						}
+						
+						
+						//System.out.println("blocks: "+blocks.size()+ " mats: "+_ghastBallMaterials.length);
+						
+			    		//Runs in main thread
+						ChangeBlockType(blocks, mat_list, delay, 0);
+					}
+				}.runTask(DontLoseItems.Instance);
+				
+			}
+		}.runTaskAsynchronously(DontLoseItems.Instance);
+		
+	}
+	
+	private void ChangeBlockType(Iterable<Block> list, Material[] mat_list, long delay, int index) {
+	    
+		Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, () -> 
+	    {
+	    	boolean remove = false;
+	    	
+	    	
+	    	int newIndex  = index + 1;
+	    	
+	    	if(newIndex < mat_list.length)
+	    	{
+	    		ChangeBlockType(list, mat_list, delay, newIndex);
+	    	}
+	    	else
+	    	{
+	    		remove = true;
+	    	}
+	    	
+	    	for(Block block : list)
+	    	{
+	    		if(remove) _mutationBlock.remove(block.getLocation());
+	    		
+	    		Material mat = block.getType();
+	    		if(block == null || mat == Material.AIR) continue;
+	    		
+	    		if(mat.getBlastResistance() >= 1200) continue;
+	    		
+	    		if(mat.isInteractable())
+	    		{
+	    			block.breakNaturally();
+	    			continue;
+	    		}
+
+	    		block.setType(mat_list[index]);
+	    		
+	    		
+	    	}
+	    	
+	        
+	    }, delay);
+	}
+	
 	void GetSettings()
 	{
 		final String netherSettings = "EndSettings";

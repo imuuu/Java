@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -99,7 +100,7 @@ public  class ImusUtilities
 	    return positions;
 	}
 	
-	private static LinkedList<Location> CreateCirclePlatform(Location center, int radius, HashSet<Material> ignoreSet, HashSet<Material> includeSet)
+	public static LinkedList<Location> CreateCirclePlatform(Location center, int radius, HashSet<Material> ignoreSet, HashSet<Material> includeSet)
 	{
 		LinkedList<Location> positions = new LinkedList<>();
 		int x = center.getBlockX();
@@ -189,12 +190,12 @@ public  class ImusUtilities
 	
 	public static <T> T[] ShuffleArray(T[] array) {
 	    int n = array.length;
-	    Random random = new Random();
-	    
+	   
 	    for (int i = 0; i < n; i++) 
 	    {
 	        // Pick a new index higher than current for each item in the array
-	        int r = i + random.nextInt(n - i);
+	        //int r = i + random.nextInt(n - i);
+	        int r = i + ThreadLocalRandom.current().nextInt(n-i);
 
 	        // Swap item into new spot
 	        T t = array[r];
