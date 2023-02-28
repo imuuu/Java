@@ -89,9 +89,10 @@ public class WaystoneEvents implements Listener
 		
 	
 	}
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void OnBreakPlace(BlockBreakEvent e)
+
+	//since there are no changes to the event itself we can use monitor to be certain if the event was cancelled
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void OnWaystoneBreak(BlockBreakEvent e)
 	{
 		if(e.isCancelled()) return;
 		
