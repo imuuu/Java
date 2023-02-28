@@ -16,7 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -33,8 +33,8 @@ public class CombatGamePlanerChoosePlayerINV extends CustomInvLayout
 	int _current_page = 0;
 	CombatDataCard _card;
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
-	Main _main;
-	public CombatGamePlanerChoosePlayerINV(Main main, Player player, CombatDataCard card, HashMap<UUID, ItemStack> playerHeads) 
+	ImusMiniGames _main;
+	public CombatGamePlanerChoosePlayerINV(ImusMiniGames main, Player player, CombatDataCard card, HashMap<UUID, ItemStack> playerHeads) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Players =====", 3*9);
 		_main = main;

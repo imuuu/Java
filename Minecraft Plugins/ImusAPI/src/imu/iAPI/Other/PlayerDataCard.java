@@ -32,6 +32,36 @@ public class PlayerDataCard
 	String _dataFolderName;
 	
 	Collection<PotionEffect> _potionEffects;
+	public Collection<PotionEffect> get_potionEffects()
+	{
+		return _potionEffects;
+	}
+
+	public void set_potionEffects(Collection<PotionEffect> _potionEffects)
+	{
+		this._potionEffects = _potionEffects;
+	}
+
+	public int get_fireTick()
+	{
+		return _fireTick;
+	}
+
+	public void set_fireTick(int _fireTick)
+	{
+		this._fireTick = _fireTick;
+	}
+
+	public boolean is_isFlying()
+	{
+		return _isFlying;
+	}
+
+	public void set_isFlying(boolean _isFlying)
+	{
+		this._isFlying = _isFlying;
+	}
+
 	int _fireTick = 0;
 
 	boolean _isFlying;
@@ -258,6 +288,11 @@ public class PlayerDataCard
 
 	public void set_xp(int _xp) {
 		this._xp = _xp;
+	}
+	
+	public GameMode get_gamemode()
+	{
+		return _gamemode;
 	}
 
 	//https://gist.github.com/Jikoo/30ec040443a4701b8980 ========

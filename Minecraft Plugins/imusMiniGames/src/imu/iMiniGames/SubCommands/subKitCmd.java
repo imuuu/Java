@@ -2,23 +2,23 @@ package imu.iMiniGames.SubCommands;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import net.md_5.bungee.api.ChatColor;
 
 public class subKitCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 	String _subCmd = "";
 	CombatManager _com;
 	String[] _subs; // {"create"};	 
- 	public subKitCmd(Main main, String[] sub_cmds) 
+ 	public subKitCmd(ImusMiniGames main, String[] sub_cmds) 
 	{
 		_main = main;
 		_subs = sub_cmds;

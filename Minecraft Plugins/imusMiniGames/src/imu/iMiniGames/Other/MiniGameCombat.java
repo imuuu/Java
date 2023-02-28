@@ -43,7 +43,7 @@ import imu.iMiniGames.Handlers.CombatGameHandler;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
 import imu.iMiniGames.Leaderbords.PlayerVsPlayerBoard;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 @SuppressWarnings("deprecation")
 public class MiniGameCombat extends MiniGame implements Listener
@@ -82,7 +82,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 	
 	String pd_mgItem = "mgItem";
 	
-	public MiniGameCombat(Main main, CombatGameHandler combatHandler, CombatGameCard gameCard,String minigameName) 
+	public MiniGameCombat(ImusMiniGames main, CombatGameHandler combatHandler, CombatGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
 		

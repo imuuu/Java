@@ -8,15 +8,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class cmd3_tab implements TabCompleter
 {
 
 	HashMap<String, String[]> _cmdAndArguments = new HashMap<>();
-	Main _main;
+	ImusMiniGames _main;
 	String _mainCmd;
-	public cmd3_tab(Main main,String mainCmd,HashMap<String, String[]> cmdAndArguments) 
+	public cmd3_tab(ImusMiniGames main,String mainCmd,HashMap<String, String[]> cmdAndArguments) 
 	{
 		_cmdAndArguments = cmdAndArguments;
 		_main = main;

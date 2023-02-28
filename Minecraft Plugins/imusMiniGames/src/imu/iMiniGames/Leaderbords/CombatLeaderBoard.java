@@ -13,14 +13,14 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Invs.CombatLeaderBoardStats;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class CombatLeaderBoard extends Leaderboard implements ILeaderboard
 {
 	LocalDate _weeklyStartDate = null;
 	LocalDate _weeklyEndDate = null;
 	BukkitTask _runnable = null;
-	public CombatLeaderBoard(Main main,String name) 
+	public CombatLeaderBoard(ImusMiniGames main,String name) 
 	{
 		super(main,name);
 		_path = "/Combat/Leaderboards";

@@ -12,11 +12,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.SpleefArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class SpleefManager extends GameManager
 {
-	public SpleefManager(Main main) 
+	public SpleefManager(ImusMiniGames main) 
 	{
 		super(main, "Spleef");
 		_main = main;

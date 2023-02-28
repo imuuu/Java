@@ -15,7 +15,7 @@ import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.SpleefArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -33,8 +33,8 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	SpleefDataCard _card;
-	Main _main;
-	public SpleefGamePlanerChooseArenaINV(Main main, Player player, SpleefDataCard card) 
+	ImusMiniGames _main;
+	public SpleefGamePlanerChooseArenaINV(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
 		_main = main;

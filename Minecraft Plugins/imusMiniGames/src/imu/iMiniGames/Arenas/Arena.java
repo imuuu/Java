@@ -1,12 +1,14 @@
 package imu.iMiniGames.Arenas;
 
+
+
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.ChatColor;
 
 public abstract class Arena 
 {
@@ -46,13 +48,6 @@ public abstract class Arena
 		this._name = _name;
 	}
 
-//	public String get_displayName() {
-//		return _displayName;
-//	}
-//
-//	public void set_displayName(String _displayName) {
-//		this._displayName = _displayName;
-//	}
 	
 	public String get_arenaNameWithColor()
 	{

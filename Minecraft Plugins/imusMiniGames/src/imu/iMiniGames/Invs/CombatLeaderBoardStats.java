@@ -21,7 +21,7 @@ import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
 import imu.iMiniGames.Leaderbords.PlayerBoard;
 import imu.iMiniGames.Leaderbords.PlayerVsPlayerBoard;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public class CombatLeaderBoardStats extends CustomInvLayout  
@@ -44,9 +44,9 @@ public class CombatLeaderBoardStats extends CustomInvLayout
 	boolean _ascending = false; //ascending
 	boolean _weekly = false;
 	
-	Main _main;
+	ImusMiniGames _main;
 	Cooldowns _cds = new Cooldowns();
-	public CombatLeaderBoardStats(Main main, Player player) {
+	public CombatLeaderBoardStats(ImusMiniGames main, Player player) {
 		super(main, player, ChatColor.BLACK + "" + ChatColor.BOLD + "====== Leaderboards ======", 9 * 3);
 		
 		_main = main;

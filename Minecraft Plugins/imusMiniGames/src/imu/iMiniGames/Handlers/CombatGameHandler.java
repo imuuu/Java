@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
 import imu.iMiniGames.Leaderbords.CombatPlayerBoard;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.CombatDataCard;
 import imu.iMiniGames.Other.CombatGameCard;
 import imu.iMiniGames.Other.MiniGame;
@@ -30,7 +30,7 @@ public class CombatGameHandler extends GameHandeler
 
 
 		};
-	public CombatGameHandler(Main main)
+	public CombatGameHandler(ImusMiniGames main)
 	{
 		super(main,"Combat");		
 		_leaderBoard = _main.get_combatManager().getLeaderBoard();

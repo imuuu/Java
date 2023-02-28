@@ -6,19 +6,19 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.Arena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class ConvPromptSetDescriptionArena extends StringPrompt
 {
 
-	Main _main;
+	ImusMiniGames _main;
 	Player _player;
 
 	int _ans_id;
 
 	String _question;
 	Arena _arena;
-	public ConvPromptSetDescriptionArena(Main main, Player p, String question, Arena arena)
+	public ConvPromptSetDescriptionArena(ImusMiniGames main, Player p, String question, Arena arena)
 	{
 		_main = main;
 		_player  = p;

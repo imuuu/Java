@@ -11,7 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
+
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -22,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.SpleefArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Other.SpleefDataCard;
 import imu.iMiniGames.Other.SpleefGameCard;
@@ -37,7 +37,7 @@ public class SpleefGamePlaner extends GamePlaner
 	ArrayList<Integer> wrongs = new ArrayList<>();
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
 
-	public SpleefGamePlaner(Main main, Player player, SpleefDataCard card) 
+	public SpleefGamePlaner(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.BLUE + ""+ChatColor.BOLD + "Spleef Planer");
 
@@ -356,7 +356,7 @@ public class SpleefGamePlaner extends GamePlaner
 	public void onClickInsideInv(InventoryClickEvent e) {
 		int slot = e.getSlot();
 		ItemStack stack = e.getCurrentItem();
-		System.out.println("stack: "+stack);
+		//System.out.println("stack: "+stack);
 		
 		ConversationFactory cf = null;
 		String question = null;

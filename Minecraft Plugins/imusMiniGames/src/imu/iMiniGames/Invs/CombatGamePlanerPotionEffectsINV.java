@@ -19,7 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -41,8 +41,8 @@ public class CombatGamePlanerPotionEffectsINV extends CustomInvLayout
 	
 	int _powerMax = 5;
 	int _powerMin = 0;
-	Main _main;
-	public CombatGamePlanerPotionEffectsINV(Main main, Player player, CombatDataCard card) 
+	ImusMiniGames _main;
+	public CombatGamePlanerPotionEffectsINV(ImusMiniGames main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Effects =====", 4*9);
 		_main = main;

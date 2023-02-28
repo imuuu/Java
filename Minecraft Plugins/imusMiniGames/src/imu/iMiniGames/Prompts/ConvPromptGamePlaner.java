@@ -6,13 +6,13 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Invs.SpleefGamePlaner;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.SpleefDataCard;
 
 public class ConvPromptGamePlaner extends StringPrompt
 {
 
-	Main _main;
+	ImusMiniGames _main;
 	Player _player;
 
 	int _ans_id;
@@ -20,7 +20,7 @@ public class ConvPromptGamePlaner extends StringPrompt
 	String _question;
 
 	SpleefDataCard _card;
-	public ConvPromptGamePlaner(Main main, Player p ,SpleefDataCard card, int ans_id, String question)
+	public ConvPromptGamePlaner(ImusMiniGames main, Player p ,SpleefDataCard card, int ans_id, String question)
 	{
 		_main = main;
 		_player  = p;

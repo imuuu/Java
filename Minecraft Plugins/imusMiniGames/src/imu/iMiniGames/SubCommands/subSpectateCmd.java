@@ -2,21 +2,21 @@ package imu.iMiniGames.SubCommands;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public class subSpectateCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 
 	String _subCmd = "";
-	public subSpectateCmd(Main main, String subCmd) 
+	public subSpectateCmd(ImusMiniGames main, String subCmd) 
 	{
 		_main = main;
 		_subCmd=subCmd;

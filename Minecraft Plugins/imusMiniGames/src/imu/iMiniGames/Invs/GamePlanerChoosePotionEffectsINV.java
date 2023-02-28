@@ -18,9 +18,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import imu.iMiniGames.Main.Main;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.CustomInvLayout;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
@@ -41,12 +43,14 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 	
 	int _powerMax = 5;
 	int _powerMin = 0;
+
+	private Metods _itemM;
 	
-	public GamePlanerChoosePotionEffectsINV(Main main, Player player, SpleefDataCard card) 
+	public GamePlanerChoosePotionEffectsINV(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Effects =====", 4*9);
 		
-		_main.getServer().getPluginManager().registerEvents(this,_main);
+		_itemM = ImusAPI._metods;
 		_spleefManager = main.get_spleefManager();
 		addEffects();
 		_tooltip_starts = _size-9;
@@ -116,7 +120,7 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -146,7 +150,7 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 		}
 		
@@ -196,7 +200,7 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -231,7 +235,7 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 				break;
 				
 			case BACK:
-				new SpleefGamePlaner(_main, _player, _card);
+				new SpleefGamePlaner(ImusMiniGames.Instance, _player, _card);
 				break;
 			case POTION_EFFECT:
 				if(cType ==  ClickType.LEFT)
@@ -261,7 +265,7 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 						//System.out.println("Added pot: "+name+" power "+power + " size "+_card.get_invPotionEffects().size());
 					}
 				}
-				new SpleefGamePlaner(_main, _player, _card);
+				new SpleefGamePlaner(ImusMiniGames.Instance, _player, _card);
 				break;
 			case CLEAR:
 				_card.clearPotionEffect();
@@ -281,6 +285,33 @@ public class GamePlanerChoosePotionEffectsINV extends CustomInvLayout implements
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+
+
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void setupButtons()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

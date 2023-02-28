@@ -13,12 +13,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Interfaces.IGameManager;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.PlanerDataCard;
 
 public abstract class GameManager implements IGameManager
 {
-	Main _main;
+	ImusMiniGames _main;
 	
 	HashMap<Integer, Arena> _arenas = new HashMap<>();
 	HashMap<UUID, PlanerDataCard> _player_DataCards = new HashMap<>();
@@ -30,7 +30,7 @@ public abstract class GameManager implements IGameManager
 	
 	int _maximum_best_of = 5;
 	
-	public GameManager(Main main, String tag) 
+	public GameManager(ImusMiniGames main, String tag) 
 	{
 		_main = main;
 		_text_arena_yml += tag;

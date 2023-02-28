@@ -22,7 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.CombatArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Other.ArenaKit;
 import imu.iMiniGames.Other.CombatDataCard;
@@ -37,7 +37,7 @@ public class CombatGamePlaner extends GamePlaner
 	
 	ArrayList<Integer> wrongs = new ArrayList<>();
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
-	public CombatGamePlaner(Main main, Player player, CombatDataCard card) 
+	public CombatGamePlaner(ImusMiniGames main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + ""+ChatColor.BOLD + "Combat Planer");
 		

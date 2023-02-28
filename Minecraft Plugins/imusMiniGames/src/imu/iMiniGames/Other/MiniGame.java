@@ -10,12 +10,12 @@ import org.bukkit.entity.Player;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.PlayerDataCard;
 import imu.iMiniGames.Interfaces.IMiniGame;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public abstract class MiniGame implements IMiniGame
 {
-	protected Main _main;
+	protected ImusMiniGames _main;
 	protected Metods _itemM;
 	String _miniGameName;
 	
@@ -29,7 +29,7 @@ public abstract class MiniGame implements IMiniGame
 	
 	protected Location _spectator_loc = null;
 
-	public MiniGame(Main main, String minigameName)
+	public MiniGame(ImusMiniGames main, String minigameName)
 	{
 		_main = main;
 		_itemM = main.get_itemM();
@@ -70,7 +70,7 @@ public abstract class MiniGame implements IMiniGame
 		_players_off_game.clear();
 	}
 	
-	public void addSpectator(Main main, Player p)
+	public void addSpectator(ImusMiniGames main, Player p)
 	{
 		_players_spectators.put(p, new PlayerDataCard(main, p, "null"));
 	}

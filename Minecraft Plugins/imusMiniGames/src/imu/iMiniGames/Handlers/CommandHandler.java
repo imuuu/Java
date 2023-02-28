@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
  
 public class CommandHandler implements CommandExecutor
 {
@@ -24,8 +24,8 @@ public class CommandHandler implements CommandExecutor
     String lastCmdName = "";
     
     int maxLenSub = 0;
-    Main _main;
-    public CommandHandler(Main main) 
+    ImusMiniGames _main;
+    public CommandHandler(ImusMiniGames main) 
     {
 		_main = main;
 	}

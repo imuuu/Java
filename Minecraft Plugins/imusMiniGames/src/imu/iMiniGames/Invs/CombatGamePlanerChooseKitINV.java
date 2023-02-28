@@ -14,7 +14,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.ArenaKit;
 import imu.iMiniGames.Other.CombatDataCard;
@@ -33,8 +33,8 @@ public class CombatGamePlanerChooseKitINV extends CustomInvLayout implements Lis
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	CombatDataCard _card;
-	protected Main _main;
-	public CombatGamePlanerChooseKitINV(Main main, Player player, CombatDataCard card) 
+	protected ImusMiniGames _main;
+	public CombatGamePlanerChooseKitINV(ImusMiniGames main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Kits =====", 2*9);
 		_main = main;

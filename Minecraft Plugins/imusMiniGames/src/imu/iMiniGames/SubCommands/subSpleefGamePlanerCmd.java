@@ -6,16 +6,16 @@ import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
 import imu.iMiniGames.Invs.SpleefGamePlaner;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
 public class subSpleefGamePlanerCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 
 	String _subCmd = "";
-	public subSpleefGamePlanerCmd(Main main, String subCmd) 
+	public subSpleefGamePlanerCmd(ImusMiniGames main, String subCmd) 
 	{
 		_main = main;
 		_subCmd=subCmd;

@@ -16,7 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -33,8 +33,8 @@ public class SpleefGamePlanerChoosePlayerINV extends CustomInvLayout
 	int _current_page = 0;
 	SpleefDataCard _card;
 	HashMap<UUID, ItemStack> _playerHeads = new HashMap<>();
-	Main _main;
-	public SpleefGamePlanerChoosePlayerINV(Main main, Player player, SpleefDataCard card) 
+	ImusMiniGames _main;
+	public SpleefGamePlanerChoosePlayerINV(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "===== Available Players =====", 3*9);
 		_main = main;

@@ -35,7 +35,7 @@ import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.Tuple;
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Handlers.SpleefGameHandler;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class MiniGameSpleef extends MiniGame implements Listener
 {
@@ -63,7 +63,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	Location mid_loc = null;
 	double _max_distance = 0;
 	BukkitTask run;
-	public MiniGameSpleef(Main main, SpleefGameHandler spleefHandler, SpleefGameCard gameCard,String minigameName) 
+	public MiniGameSpleef(ImusMiniGames main, SpleefGameHandler spleefHandler, SpleefGameCard gameCard,String minigameName) 
 	{
 		super(main,minigameName);
 		

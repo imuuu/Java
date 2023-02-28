@@ -2,7 +2,7 @@ package imu.iMiniGames.SubCommands;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,20 +12,20 @@ import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.SpleefArena;
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Prompts.ConvPromptSetDescriptionArena;
 import net.md_5.bungee.api.ChatColor;
 
 public class subSpleefArenaCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 	String _subCmd = "";
 	SpleefManager _sm;
 	boolean override_thicknes = false;
 	String[] _subs; //{"create", "spawn", "pos", "save", "remove", "lobby","desc"};
 	int max_distance = 500;
- 	public subSpleefArenaCmd(Main main, String[] sub_cmds) 
+ 	public subSpleefArenaCmd(ImusMiniGames main, String[] sub_cmds) 
 	{
 		_main = main;
 		_subs = sub_cmds;

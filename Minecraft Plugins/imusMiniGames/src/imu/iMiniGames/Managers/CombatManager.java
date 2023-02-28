@@ -14,7 +14,7 @@ import imu.iAPI.Other.ConfigMaker;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Leaderbords.CombatLeaderBoard;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.ArenaKit;
 
 public class CombatManager extends GameManager
@@ -25,7 +25,7 @@ public class CombatManager extends GameManager
 
 	CombatLeaderBoard _leaderboard;
 	
-	public CombatManager(Main main) 
+	public CombatManager(ImusMiniGames main) 
 	{
 		super(main, "Combat");
 		addPotionEffects();

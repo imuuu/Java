@@ -16,7 +16,7 @@ import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.CombatArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -34,8 +34,8 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	CombatDataCard _card;
-	protected Main _main;
-	public CombatGamePlanerChooseArenaINV(Main main, Player player, CombatDataCard card) 
+	protected ImusMiniGames _main;
+	public CombatGamePlanerChooseArenaINV(ImusMiniGames main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
 		_main = main;

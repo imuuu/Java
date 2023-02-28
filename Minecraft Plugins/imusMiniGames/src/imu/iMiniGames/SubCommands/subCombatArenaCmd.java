@@ -2,7 +2,7 @@ package imu.iMiniGames.SubCommands;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversation;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.CombatArena;
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Prompts.ConvPromptSetDescriptionArena;
 import imu.iMiniGames.Prompts.ConvPromptSetRadiusCombatArena;
@@ -19,11 +19,11 @@ import net.md_5.bungee.api.ChatColor;
 
 public class subCombatArenaCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 	String _subCmd = "";
 	CombatManager _com;
 	String[] _subs; //{"create, spawn, middle, save, remove, lobby","desc"};
- 	public subCombatArenaCmd(Main main, String[] sub_cmds) 
+ 	public subCombatArenaCmd(ImusMiniGames main, String[] sub_cmds) 
 	{
 		_main = main;
 		_subs = sub_cmds;

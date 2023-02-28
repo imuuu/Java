@@ -12,11 +12,13 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Other.CustomInvLayout;
+import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Arenas.SpleefArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.SpleefManager;
-import imu.iMiniGames.Other.CustomInvLayout;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
 
@@ -33,14 +35,24 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 	int _tooltip_starts = 0;
 	int _current_page = 0;
 	SpleefDataCard _card;
+
+	private Metods _itemM;
 	
-	public GamePlanerChooseArenaINV(Main main, Player player, SpleefDataCard card) 
+	public GamePlanerChooseArenaINV(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
 		
-		_main.getServer().getPluginManager().registerEvents(this,_main);
+		//_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
-		_arenas = _spleefManager.getArenas();
+		//_arenas = _spleefManager.getArenas();
+		_itemM = ImusAPI._metods;
+		for(Arena arena : _spleefManager.getArenas())
+		{
+			if(arena instanceof SpleefArena)
+			{
+				_arenas.add((SpleefArena)arena);
+			}
+		}
 		
 		_tooltip_starts = _size-9;
 		_card = card;
@@ -60,7 +72,7 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 	void refresh()
 	{
 		ItemStack optionLine = new ItemStack(Material.ORANGE_STAINED_GLASS_PANE);
-		_itemM.setDisplayName(optionLine, " ");
+		Metods.setDisplayName(optionLine, " ");
 		
 		for(int i = _size-1; i > _tooltip_starts-1; --i)
 		{
@@ -74,7 +86,7 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 			{
 				Arena arena = _arenas.get(idx);
 				
-				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.SNOW_BLOCK,ChatColor.GOLD + arena.get_displayName(),i);
+				ItemStack item_arena = setupButton(BUTTON.ARENA, Material.SNOW_BLOCK,ChatColor.GOLD + arena.get_name(),i);
 				_itemM.addLore(item_arena, ChatColor.AQUA + "Desc: "+ChatColor.GOLD+arena.get_description(), true);
 				_itemM.addLore(item_arena, ChatColor.AQUA + "Max players: "+ChatColor.GOLD+arena.get_maxPlayers(), true);
 				
@@ -82,7 +94,7 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 			}
 			else
 			{
-				_inv.setItem(i, _itemM.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
+				_inv.setItem(i, Metods.setDisplayName(new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 			}
 		}
 		
@@ -130,7 +142,7 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 	public ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		_itemM.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -164,12 +176,12 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 				break;
 				
 			case BACK:
-				new SpleefGamePlaner(_main, _player, _card);
+				new SpleefGamePlaner(ImusMiniGames.Instance, _player, _card);
 				break;
 			case ARENA:
 				String ar_name = _itemM.getPersistenData(stack, pd_arena_name, PersistentDataType.STRING);
 				_card.set_arena(_spleefManager.getArena(ar_name));
-				new SpleefGamePlaner(_main, _player, _card);
+				new SpleefGamePlaner(ImusMiniGames.Instance, _player, _card);
 				break;
 			default:
 				break;
@@ -185,6 +197,27 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 		{
 			HandlerList.unregisterAll(this);
 		}
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setupButtons()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

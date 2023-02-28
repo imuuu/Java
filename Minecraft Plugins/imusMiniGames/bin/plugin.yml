@@ -1,9 +1,9 @@
 name: imusMiniGames
 author: imukuppikorva
 version: 1.0
-main: imu.iMiniGames.Main.Main
+main: imu.iMiniGames.Main.ImusMiniGames
 description: imusMiniGames
-api-version: 1.18
+api-version: 1.19
 softdepend: [imusAPI,Vault]
 commands:
    img:

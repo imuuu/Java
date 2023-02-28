@@ -13,7 +13,7 @@ import org.bukkit.persistence.PersistentDataType;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Enums.COMBAT_ATTRIBUTE;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -29,8 +29,8 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 	CombatDataCard _card;
 	
 	ItemStack[] _displays = new ItemStack[2];
-	protected Main _main;
-	public CombatGamePlanerChooseAttributesINV(Main main, Player player, CombatDataCard card) 
+	protected ImusMiniGames _main;
+	public CombatGamePlanerChooseAttributesINV(ImusMiniGames main, Player player, CombatDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Attributes =====", 3*9);
 		_main = main;
@@ -202,7 +202,7 @@ public class CombatGamePlanerChooseAttributesINV extends CustomInvLayout impleme
 				new CombatGamePlaner(_main, _player, _card);
 				break;
 			case ATTRIBUTE:
-				//otetaan väärästä, pitäs ottaa se sieltä arraysta
+				//otetaan vï¿½ï¿½rï¿½stï¿½, pitï¿½s ottaa se sieltï¿½ arraysta
 				String type = Metods._ins.getPersistenData(stack, "type", PersistentDataType.STRING);
 				int value = Metods._ins.getPersistenData(stack, type, PersistentDataType.INTEGER);
 				if(value > 0)

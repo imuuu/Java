@@ -17,11 +17,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iMiniGames.Handlers.GameCard;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class PlayerDataCard 
 {
-	Main _main;
+	ImusMiniGames _main;
 	Player _player;
 	UUID _uuid;	
 	ItemStack[] _invContent;
@@ -37,7 +37,7 @@ public class PlayerDataCard
 	int _fireTick = 0;
 
 	boolean _isFlying;
-	public PlayerDataCard(Main main, Player p, String dataFolderName)
+	public PlayerDataCard(ImusMiniGames main, Player p, String dataFolderName)
 	{
 		_main = main;
 		_player = p;

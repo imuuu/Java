@@ -12,13 +12,13 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class GamePlaner extends CustomInvLayout
 {
 	String pd_buttonType = "sGP.buttonType";
-	protected Main _main;
-	public GamePlaner(Main main, Player player, String name) 
+	protected ImusMiniGames _main;
+	public GamePlaner(ImusMiniGames main, Player player, String name) 
 	{
 		super(main, player, name, 9*3);
 		_main = main;

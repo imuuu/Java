@@ -23,7 +23,7 @@ import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.PlayerDataCard;
 import imu.iMiniGames.Arenas.Arena;
 import imu.iMiniGames.Interfaces.IGameHandeler;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.PlayerGameDataCard;
@@ -31,7 +31,7 @@ import net.milkbowl.vault.economy.Economy;
 
 public abstract class GameHandeler implements IGameHandeler, Listener
 {
-	protected Main _main;
+	protected ImusMiniGames _main;
 	Metods _itemM;
 	CombatManager _combatManager;
 	Economy _econ;
@@ -55,7 +55,7 @@ public abstract class GameHandeler implements IGameHandeler, Listener
 	int _cd_invite_time = 10; //seconds
 	int _roundTime = 600;
 	String _playerDataFolderName="Combat";
-	public GameHandeler(Main main,String dataFolderName) 
+	public GameHandeler(ImusMiniGames main,String dataFolderName) 
 	{
 		_main = main;
 		

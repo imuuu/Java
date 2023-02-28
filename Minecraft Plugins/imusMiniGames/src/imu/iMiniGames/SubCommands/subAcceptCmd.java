@@ -6,16 +6,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public class subAcceptCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 
 	String _subCmd = "";
 	Inventory _tempInv;
-	public subAcceptCmd(Main main, String subCmd) 
+	public subAcceptCmd(ImusMiniGames main, String subCmd) 
 	{
 		_main = main;
 		_subCmd=subCmd;

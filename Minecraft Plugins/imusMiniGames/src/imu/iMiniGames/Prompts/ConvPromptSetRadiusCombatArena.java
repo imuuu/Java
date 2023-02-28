@@ -6,20 +6,20 @@ import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Arenas.CombatArena;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public class ConvPromptSetRadiusCombatArena extends StringPrompt
 {
 
-	Main _main;
+	ImusMiniGames _main;
 	Player _player;
 
 	int _ans_id;
 
 	String _question;
 	CombatArena _arena;
-	public ConvPromptSetRadiusCombatArena(Main main, Player p, String question, CombatArena arena)
+	public ConvPromptSetRadiusCombatArena(ImusMiniGames main, Player p, String question, CombatArena arena)
 	{
 		_main = main;
 		_player  = p;

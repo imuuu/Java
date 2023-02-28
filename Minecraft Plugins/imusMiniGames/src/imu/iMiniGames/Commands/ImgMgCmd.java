@@ -6,13 +6,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
  
 public class ImgMgCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 
-	public ImgMgCmd(Main main)
+	public ImgMgCmd(ImusMiniGames main)
 	{
 		_main = main;
 	}

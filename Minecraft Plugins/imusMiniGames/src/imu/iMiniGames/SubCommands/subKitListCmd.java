@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.ArenaKit;
 import net.md_5.bungee.api.ChatColor;
@@ -16,11 +16,11 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class subKitListCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 	String _subCmd = "";
 	CombatManager _com;
 	String _sub_cmd; 
- 	public subKitListCmd(Main main, String sub_cmd) 
+ 	public subKitListCmd(ImusMiniGames main, String sub_cmd) 
 	{
 		_main = main;
 		_sub_cmd = sub_cmd;

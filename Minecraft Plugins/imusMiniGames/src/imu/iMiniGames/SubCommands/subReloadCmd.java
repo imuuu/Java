@@ -5,14 +5,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import imu.iMiniGames.Interfaces.CommandInterface;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import net.md_5.bungee.api.ChatColor;
 
 public class subReloadCmd implements CommandInterface
 {
-	Main _main = null;
+	ImusMiniGames _main = null;
 	String _subCmd = "";
-	public subReloadCmd(Main main, String subCmd) 
+	public subReloadCmd(ImusMiniGames main, String subCmd) 
 	{
 		_main = main;
 		_subCmd=subCmd;

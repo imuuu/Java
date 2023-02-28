@@ -19,7 +19,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.SpleefManager;
 import imu.iMiniGames.Other.SpleefDataCard;
 import net.md_5.bungee.api.ChatColor;
@@ -41,8 +41,8 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 	
 	int _powerMax = 5;
 	int _powerMin = 0;
-	Main _main;
-	public SpleefGamePlanerPotionEffectsINV(Main main, Player player, SpleefDataCard card) 
+	ImusMiniGames _main;
+	public SpleefGamePlanerPotionEffectsINV(ImusMiniGames main, Player player, SpleefDataCard card) 
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Effects =====", 4*9);
 		_main = main;

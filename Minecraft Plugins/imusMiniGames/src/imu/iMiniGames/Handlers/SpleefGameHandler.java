@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.ConfigMaker;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Other.MiniGame;
 import imu.iMiniGames.Other.MiniGameSpleef;
 import imu.iMiniGames.Other.SpleefGameCard;
@@ -19,7 +19,7 @@ public class SpleefGameHandler extends GameHandeler implements Listener
 {
 	int _anti_block_time = 7;
 
-	public SpleefGameHandler(Main main)
+	public SpleefGameHandler(ImusMiniGames main)
 	{
 		super(main, "Spleef");		
 		_main.getServer().getPluginManager().registerEvents(this, _main);

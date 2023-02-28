@@ -4,15 +4,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.Metods;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class PlanerManager 
 {
-	Main _main;
+	ImusMiniGames _main;
 	
 	String pd_value = "planer_value";
 		
-	public PlanerManager(Main main) 
+	public PlanerManager(ImusMiniGames main) 
 	{
 		_main = main;
 	}

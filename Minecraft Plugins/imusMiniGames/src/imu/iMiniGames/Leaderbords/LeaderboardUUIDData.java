@@ -11,15 +11,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.ConfigMaker;
-import imu.iMiniGames.Main.Main;
+import imu.iMiniGames.Main.ImusMiniGames;
 
 public class LeaderboardUUIDData implements Listener
 {
 	HashMap<UUID, String> _names = new HashMap<>();
 	String _path = "UUIDandNames.yml";
-	private Main _main;
+	private ImusMiniGames _main;
 	
-	public LeaderboardUUIDData(Main main)
+	public LeaderboardUUIDData(ImusMiniGames main)
 	{
 		_main = main;
 		_main.getServer().getPluginManager().registerEvents(this, main);
