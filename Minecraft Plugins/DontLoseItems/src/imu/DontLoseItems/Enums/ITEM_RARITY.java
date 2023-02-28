@@ -7,7 +7,8 @@ public enum ITEM_RARITY
     Rare,
     Epic,
     Mythic,
-    Legendary;
+    Legendary,
+	Void;
     
 	public int GetIndex()
     {
@@ -25,6 +26,8 @@ public enum ITEM_RARITY
 			return 4;
 		case Legendary:
 			return 5;
+		case Void:
+			return 6;
 		default:
 			return -1;
 		}

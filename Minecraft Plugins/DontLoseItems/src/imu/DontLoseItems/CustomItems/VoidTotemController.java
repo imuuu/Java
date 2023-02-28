@@ -100,8 +100,8 @@ public class VoidTotemController {
         NamespacedKey key = new NamespacedKey(DontLoseItems.Instance, "voidtotem");
         RecipeChoice.MaterialChoice totemChoice = new RecipeChoice.MaterialChoice(Material.TOTEM_OF_UNDYING);
         RecipeChoice.MaterialChoice elytraChoice = new RecipeChoice.MaterialChoice(Material.ELYTRA);
-
-
+        
+       
         return new SmithingRecipe(
                 key,
                 GetVoidtotemItem(),

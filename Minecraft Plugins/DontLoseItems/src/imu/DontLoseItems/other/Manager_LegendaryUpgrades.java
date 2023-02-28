@@ -2,15 +2,10 @@ package imu.DontLoseItems.other;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
@@ -31,15 +26,20 @@ public class Manager_LegendaryUpgrades
 	public final String PD_HELL_SWORD = "PD_UPGRADE_HELL_SWORD";
 	public final String PD_HELL_AXE = "PD_UPGRADE_HELL_AXE";
 	public final String PD_HELL_SHIELD = "PD_UPGRADE_HELL_SHIELD";
-
+	
+	
 	public Manager_LegendaryUpgrades()
 	{
 		Instance = this;
 	}
 	
-	public ItemStack AddSyntax(ItemStack stack)
+	
+	public ItemStack AddSyntax(ItemStack s)
 	{
-		Metods._ins.addDisplayName(stack, ChatColor.AQUA+"UPGRADE &5for ", true);
+		Metods._ins.addDisplayName(s, ChatColor.AQUA+"UPGRADE &5for ", true);
+		ItemStack stack = new ItemStack(s.getType(),1);
+		Metods.setDisplayName(stack, s.getItemMeta().getDisplayName());
+		
 		stack = Manager_HellArmor.Instance.RemoveArmorData(stack);
 		
 		Metods._ins.RemoveLores(stack);
@@ -51,14 +51,14 @@ public class Manager_LegendaryUpgrades
 		lores.add(" ");
 		lores.add("&4&k# "+"&4This item alone doesn't have any legendary effects!");
 		
-		ItemMeta meta = stack.getItemMeta();
-		 		
-		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 0,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-
-		stack.setItemMeta(meta);
+//		ItemMeta meta = stack.getItemMeta();
+//		 		
+//		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 0,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+//		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+//		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+//		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness",0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+//
+//		stack.setItemMeta(meta);
 		stack = Metods._ins.addLore(stack, lores);
 		
 		
@@ -154,5 +154,49 @@ public class Manager_LegendaryUpgrades
 		stack.setType(Material.SHIELD);
 		return stack;
 	}
+	public boolean IsUpgradeHellHelmet(ItemStack stack)
+	{
+		return Metods._ins.getPersistenData(stack, PD_HELL_HELMET, PersistentDataType.INTEGER) != null;
+	}
+	public boolean IsUpgradeHellChest(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_CHEST, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellLegg(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_LEGG, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellBoots(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_BOOTS, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellHoe(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_HOE, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellPickaxe(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_PICKAXE, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellSword(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_SWORD, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellAxe(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_AXE, PersistentDataType.INTEGER) != null;
+	}
+
+	public boolean IsUpgradeHellShield(ItemStack stack)
+	{
+	    return Metods._ins.getPersistenData(stack, PD_HELL_SHIELD, PersistentDataType.INTEGER) != null;
+	}
+	
 
 }

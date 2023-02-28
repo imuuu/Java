@@ -59,6 +59,8 @@ public class ChestLootEvents implements Listener
 	private int _chestRollMaxAmount = 10;
 	
 	private boolean _chestDEBUG = false;
+	private boolean _lootBoost = false;
+	
 	
 	///setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public ChestLootEvents()
@@ -296,6 +298,17 @@ public class ChestLootEvents implements Listener
 		int hellArmorChance = 4;
 		int enchantedBook = 3;
 		int toolGear = 5; //4
+		
+		if(_chestDEBUG && _lootBoost)
+		{
+			blockLootChance = 75;
+			valuableChance = 36;
+			hellArrowChance = 80; //11
+			foodChance = 2; //2
+			hellArmorChance = 80;
+			enchantedBook = 80;
+			toolGear = 80; //4
+		}
 		for(int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
@@ -534,25 +547,12 @@ public class ChestLootEvents implements Listener
 	@EventHandler
 	public void OnInventoryOpen(InventoryOpenEvent e)
 	{
-//		if (!(IsNether(e.getInventory().getLocation())))
-//			return;
-//		
-//		if(e.isCancelled()) return;
+
 		if(!_chestDEBUG) return;
 		
 		Block[] block = {null,null};
 		Inventory inv = null;
-		//boolean isDouble = false;
-//		if(e.getInventory().getHolder() instanceof DoubleChest)
-//		{
-//			DoubleChest chest = (DoubleChest) e.getInventory().getHolder();
-//			block[0] = chest.getLeftSide().getInventory().getLocation().getBlock();
-//			block[1] = chest.getRightSide().getInventory().getLocation().getBlock();
-//			inv = chest.getInventory();
-//			isDouble = true;
-//
-//		}
-//		
+
 		if (e.getInventory().getHolder() instanceof Chest)	
 		{
 			Chest chest = (Chest) e.getInventory().getHolder();
@@ -563,24 +563,9 @@ public class ChestLootEvents implements Listener
 		if(block[0] == null) return;
 //		 
 		inv.clear();
-//		if (block[0] != null && block[0].hasMetadata(META_OPENED_CHEST)) return;
-//		
-//		if(block[1] != null && block[1].hasMetadata(META_OPENED_CHEST)) return;
-		
-		//chest.getInventory().clear();
-		//_lootTable_hellArrows.AddLootAsItemStack(chestInventory, 27);
-		//_lootTable_hellArmor.AddLootAsItemStack(chestInventory, 27);
-//		if(!isDouble) System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened chest");
-//		else System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened DOUBLE chest");
-//		
+
 		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) { inv.addItem(stack); }
-//		
-//		if(isDouble) for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount+2)) { inv.addItem(stack); }
-//		//GenerateNetherLoot(chestInventory);
-//
-//		block[0].setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
-//		
-//		if(block[1] != null) block[1].setMetadata(META_OPENED_CHEST, new FixedMetadataValue(DontLoseItems.Instance, true));
+
 	}
 	
 

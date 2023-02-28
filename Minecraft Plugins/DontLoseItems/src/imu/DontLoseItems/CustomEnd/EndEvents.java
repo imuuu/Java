@@ -132,7 +132,7 @@ public class EndEvents implements Listener
 		_increases = new HashMap<>();
 		
 		_increases.put(INC_ID.BREAKING_OTHER_BLOCKS, new  UnstableIncrease(8));
-		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(200)); //
+		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(15)); //
 		_increases.put(INC_ID.ON_ENTITY_DAMAGE, new  UnstableIncrease(5));
 		_increases.put(INC_ID.ON_ENTITY_DEATH, new  UnstableIncrease(8));
 		_increases.put(INC_ID.ON_OPEN_CHEST, new  UnstableIncrease(100));

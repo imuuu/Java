@@ -46,6 +46,8 @@ public class EndChestLootEvents implements Listener
 
 	private boolean _chestDEBUG = false;
 
+	private boolean _lootBoost = false;
+
 	/// setblock ~ ~ ~ minecraft:chest{LootTable:"chests/bastion_bridge"}
 	public EndChestLootEvents()
 	{
@@ -180,7 +182,14 @@ public class EndChestLootEvents implements Listener
 		int foodChance = 2; // 2
 		int enchantedBook = 3;
 		int legendaryUpgrades = 1;
-
+		
+		if(_chestDEBUG && _lootBoost)
+		{
+			valuableChance = 80;
+			foodChance = 80;
+			enchantedBook = 80;
+			legendaryUpgrades = 80;
+		}
 		for (int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;

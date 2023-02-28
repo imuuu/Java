@@ -1,5 +1,6 @@
 package imu.DontLoseItems.other;
 
+import java.awt.event.InvocationEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,10 +31,15 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -65,11 +71,9 @@ public class Manager_HellArmor implements Listener
 	private final String _PD_HELL_FEAR_REDUCE = "HELL_FEAR_REDUCE";
 	private final String _PD_HELL_ARROW = "HELL_ARROW";
 	private final String _PD_HELL_TORCH = "HELL_TORCH";
-	//private final String _PD_HELL_STONE_SHIELD = "HELL_STONE_SHIELD";
 	private final String _PD_HELL_REFLECT_SHIELD = "HELL_REFLECT_SHIELD";
 	
-	private final String _PD_BLOCK_DEBRIS = "DebrisBlock";	
-	//private final String _META_HELL_BOOTS_STONE = "HB_Stone";
+
 
 	private final String _CD_ON_LAVA = "onLava";
 	private final String _CD_IN_LAVA = "inLava";
@@ -90,15 +94,15 @@ public class Manager_HellArmor implements Listener
 	@SuppressWarnings("unused")
 	private BukkitTask _task;
 	private int _taskTicks = 1;
-	
-	//public final Arrow_Reflect ReflectArrow = new Arrow_Reflect(0.5,1.2,2,10,false);
+
 	public final Arrow_ReflectController ReflectArrowController;
 	
+	private boolean _workInProgress = true;
 	public Manager_HellArmor()
 	{
 		Instance = this;
 		_lastLocations = new HashMap<>();
-
+	
 		_cds = new Cooldowns();
 		//_rand = new Random();
 		_nether = Bukkit.getWorld("world_nether");
@@ -106,9 +110,10 @@ public class Manager_HellArmor implements Listener
 		
 		ReflectArrowController = new Arrow_ReflectController();
 		Runnable();
+		//AddVoidArmorRecipies();
 	}
 	
-
+	
 	
 	private void Runnable()
 	{
@@ -126,8 +131,7 @@ public class Manager_HellArmor implements Listener
 			
 		}.runTaskTimer(DontLoseItems.Instance, 20 * 3, _taskTicks);	
 	}
-	
-	
+
 	
 	private RarityItem[] _hellBoots = 
 		{
@@ -189,6 +193,13 @@ public class Manager_HellArmor implements Listener
 			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Mythic, 		new double[] {0}),	
 			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Legendary, 	new double[] {0}),	
 		};
+
+	private boolean _forInProgress;
+
+	private boolean _forInProgress2;
+	
+	
+	
 	
 	
 	public ItemStack RemoveArmorData(ItemStack stack)
@@ -558,6 +569,288 @@ public class Manager_HellArmor implements Listener
 	}
 	
 	
+	///VOID
+	public ItemStack CreateVOIDBoots()
+	{
+		RarityItem hellBoots = _hellBoots[_hellBoots.length-1];
+				
+		RarityItem rarityItem = new RarityItem(new ItemStack(Material.NETHERITE_BOOTS), "&5Boots", ITEM_RARITY.Void, new double[] {});
+		
+		ItemStack stack = rarityItem.GetItemStack();
+		
+		double fearReduce = hellBoots.Values[5]+2;
+		String[] lores = 
+			{ 
+				" ",
+				"&9Able to walk on &cLava",
+				" ",
+				"&9Reduce &5Fear &9Build up by &2"+fearReduce,
+				" ",
+				//"&9Fixed armor, thoughness and little bit more speed",
+				"&0Some health and a little bit more speed.",
+				" ",
+				"&7'Some say these boots were created by",
+				"&7a mad wizard in an attempt to control the power",
+				"&7of the volcanoes. Others say he just wanted",
+				"&7a comfy pair of slippers'",
+				
+				};
+
+		Metods._ins.SetLores(stack, lores, false);
+
+		ItemMeta meta = stack.getItemMeta();
+ 
+	
+		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", hellBoots.Values[0]+0.01,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", hellBoots.Values[2], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", hellBoots.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+
+		stack.setItemMeta(meta);
+
+		Metods._ins.setPersistenData(stack, _PD_HELL_BOOTS, PersistentDataType.INTEGER, 2);
+		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, rarityItem.Rarity.toString());
+		Metods._ins.setPersistenData(stack, _PD_HELL_FEAR_REDUCE, PersistentDataType.DOUBLE, fearReduce);
+
+		return stack;
+	}
+	
+	public ItemStack CreateVOIDLeggins()
+	{
+		RarityItem helllegg = _hellLeggins[_hellLeggins.length-1];
+		
+		RarityItem rarityItem = new RarityItem(new ItemStack(Material.NETHERITE_LEGGINGS), "&5Leggings", ITEM_RARITY.Void, new double[] {});
+		
+		ItemStack stack = rarityItem.GetItemStack();
+		
+		double fearReduce = helllegg.Values[5]+1;
+		String[] lores = 
+			{ 
+				" ",
+				"&9Half &cFire &9Damage Taken",
+				" ",
+				"&9Reduce &5Fear &9Build up by &2"+fearReduce,
+				" ",
+				"&0Some health and a little bit more speed.",
+				" ",
+				"&7'Looking for leggings that can withstand",
+				"&7the heat?. Look no further, the Void",
+				"&7Leggings have got you covered...",
+				"&7half-covered, that is'",
+				
+				};
+
+		Metods._ins.SetLores(stack, lores, false);
+
+		ItemMeta meta = stack.getItemMeta();
+ 
+		// {0.01,  0,  6, 3, 0, 3}),	
+		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 
+				helllegg.Values[0]+0.01,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health",
+				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", 
+				helllegg.Values[2], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", 
+				helllegg.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
+				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+		stack.setItemMeta(meta);
+
+		Metods._ins.setPersistenData(stack, _PD_HELL_LEGGINS, PersistentDataType.INTEGER, 2);
+		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, rarityItem.Rarity.toString());
+		Metods._ins.setPersistenData(stack, _PD_HELL_FEAR_REDUCE, PersistentDataType.DOUBLE, fearReduce);
+
+		return stack;
+	}
+	@EventHandler
+	public void Smithing(PrepareSmithingEvent e)
+	{
+		if(_workInProgress) return; 
+		
+		SmithingInventory inv = e.getInventory();
+		
+		ItemStack stack1 = inv.getItem(0);
+		ItemStack stack2 = inv.getItem(1);
+		if(stack1 == null || stack2 == null) return;
+		
+		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
+		{
+			e.setResult(CreateVOIDHelmet());
+			return;
+		}
+		
+		if(IsHellChestplate(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellChest(stack2))
+		{
+			e.setResult(CreateVOIDChestplate());
+			return;
+		}
+		
+		if(IsHellLeggins(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellLegg(stack2))
+		{
+			e.setResult(CreateVOIDLeggins());
+			return;
+		}
+		
+		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
+		{
+			e.setResult(CreateVOIDHelmet());
+			return;
+		}
+		
+
+	}
+	
+	@EventHandler
+	public void SmithingClick(InventoryClickEvent e)
+	{
+		
+		if(e.isCancelled()) return;
+		
+		if(!(e.getInventory() instanceof SmithingInventory)) return;
+		
+		if(e.getSlotType() != SlotType.RESULT) return;
+		
+		SmithingInventory inv = (SmithingInventory)e.getInventory();
+				
+		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
+		
+		boolean found = false;
+		
+		if(IsVoidHelmet(e.getCurrentItem())) 		found = true;
+		if(IsVoidChestplate(e.getCurrentItem())) 	found = true;
+		if(IsVoidLeggins(e.getCurrentItem())) 		found = true;
+		if(IsVoidBoots(e.getCurrentItem())) 		found = true;
+
+		if(!found) return;
+
+		Metods._ins.InventoryAddItemOrDrop(e.getCurrentItem(), (Player)e.getWhoClicked());
+
+		inv.setItem(0, new ItemStack(Material.AIR));
+		inv.setItem(1, new ItemStack(Material.AIR));
+	}
+
+	public ItemStack CreateVOIDChestplate()
+	{
+		
+		RarityItem helllchess = _hellChest[_hellChest.length-1];
+		
+		RarityItem rarityItem = new RarityItem(new ItemStack(Material.ELYTRA), "&5Elytra", ITEM_RARITY.Void, new double[] {});
+		
+		ItemStack stack = rarityItem.GetItemStack();
+		
+		double fearReduce = helllchess.Values[5]+1;
+		String[] lores = 
+			{ 
+				" ",
+				"&9Half &cFire &9Damage Taken.",
+				" ",
+				"&9If &0Void &4Leggins &9Equip too",
+				"&9then &5immunity &cFire &9damage",
+				" ",
+				"&9Reduce &5Fear &9Build up by &2"+fearReduce,
+				" ",
+				"&0Some health, armor and flight",
+				" ",
+				"&7'When it comes to fire protection,",
+				"&7the Void Elytra is worth its weight in,",
+				"&7well, not gold, but it will save you ",
+				"&7from getting burned!'",
+				
+				};
+
+		Metods._ins.SetLores(stack, lores, false);
+
+		ItemMeta meta = stack.getItemMeta();
+ 
+		//{0.00, 0,  8, 2, 0.6,   5}
+//		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 
+//				helllchess.Values[0]+0.01,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health",
+				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", 
+				helllchess.Values[2]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", 
+				helllchess.Values[3]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+		
+		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
+				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+		stack.setItemMeta(meta);
+
+		
+
+		Metods._ins.setPersistenData(stack, _PD_HELL_CHESTPLATE, PersistentDataType.INTEGER, 2);
+		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, rarityItem.Rarity.toString());
+		Metods._ins.setPersistenData(stack, _PD_HELL_FEAR_REDUCE, PersistentDataType.DOUBLE, fearReduce);
+
+		return stack;
+	}
+	
+	public ItemStack CreateVOIDHelmet()
+	{
+		
+		RarityItem hellHelmet = _hellHelmet[_hellHelmet.length-1];
+		
+		RarityItem rarityItem = new RarityItem(new ItemStack(Material.NETHERITE_HELMET), "&5Helmet", ITEM_RARITY.Void, new double[] {});
+		
+		ItemStack stack = rarityItem.GetItemStack();
+		
+		double fearReduce = hellHelmet.Values[5]+1;
+		
+		String[] lores = 
+			{ 
+				" ",
+				"&9Gives &aNight Vision",
+				//" ",
+				//"&4Hells &8Darkness &9Doesn't effect on you",
+				" ",
+				"&9Reduce &5Fear &9Build up by &2"+fearReduce,
+				" ",
+				"&0Some health and a little bit more speed",
+				" ",
+				"&7'No more fumbling around in",
+				"&7the dark with the Void Helmet.",
+				"&7It's like a built-in night light!",
+				
+				};
+
+		Metods._ins.SetLores(stack, lores, false);
+
+		ItemMeta meta = stack.getItemMeta();
+ 
+		//{0.01,  0,  2, 2, 0, 3}),	
+		meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(UUID.randomUUID(), "generic.movementSpeed", 
+				hellHelmet.Values[0]+0.01,AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+
+		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health",
+				1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", 
+				hellHelmet.Values[2]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+
+		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", 
+				hellHelmet.Values[3]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+
+		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
+				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+		stack.setItemMeta(meta);
+
+
+		Metods._ins.setPersistenData(stack, _PD_HELL_HELMET, PersistentDataType.INTEGER, 2);
+		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, rarityItem.Rarity.toString());
+		Metods._ins.setPersistenData(stack, _PD_HELL_FEAR_REDUCE, PersistentDataType.DOUBLE, fearReduce);
+
+		return stack;
+	}
+	
 	
 	
 	public void onPlayerQuit(PlayerQuitEvent e)
@@ -885,6 +1178,42 @@ public class Manager_HellArmor implements Listener
 		return Metods._ins.getPersistenData(stack, _PD_HELL_HELMET, PersistentDataType.INTEGER) != null;
 	}
 	
+	
+	
+	public boolean IsVoidBoots(ItemStack stack)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_BOOTS, PersistentDataType.INTEGER);
+		
+		if(i != null && i == 2) return true;
+		
+		return false;
+	}
+	
+	public boolean IsVoidLeggins(ItemStack stack)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_LEGGINS, PersistentDataType.INTEGER);
+		
+		if(i != null && i == 2) return true;
+		
+		return false;
+	}
+	
+	public boolean IsVoidChestplate(ItemStack stack)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_CHESTPLATE, PersistentDataType.INTEGER);
+		if(i != null && i == 2) return true;
+		
+		return false;
+	}
+	
+	public boolean IsVoidHelmet(ItemStack stack)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_HELMET, PersistentDataType.INTEGER);
+		if(i != null && i == 2) return true;
+		
+		return false;
+	}
+	
 	public boolean IsHellTorch(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_TORCH, PersistentDataType.INTEGER) != null;
@@ -904,20 +1233,7 @@ public class Manager_HellArmor implements Listener
 		return 0;
 	}
 	
-	public boolean IsPlayerDebris(Block block)
-	{	
-		return Metods._ins.HasMetaData(block, _PD_BLOCK_DEBRIS);
-	}
 	
-	public void SetPlayerDebrisBlock(Block block)
-	{
-		Metods._ins.SetMetaData(block, _PD_BLOCK_DEBRIS, 1);
-	}
-	
-	public void RemovePlayerDebris(Block block)
-	{
-		Metods._ins.RemoveMetaData(block, _PD_BLOCK_DEBRIS);
-	}
 	
 	public boolean IsHellArrow(ItemStack stack)
 	{

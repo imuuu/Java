@@ -39,8 +39,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.RecipeChoice.ExactChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -1647,6 +1650,37 @@ public class Metods
    
 	    stack.setAmount(xx);
 	    return stack;
+	}
+	
+	public static void SetSmithingRecipe(String id, Material mat1, Material mat2, ItemStack resultStack)
+	{
+		NamespacedKey key = new NamespacedKey(ImusAPI._instance, id);
+        RecipeChoice.MaterialChoice choice1 = new RecipeChoice.MaterialChoice(mat1);
+        RecipeChoice.MaterialChoice choice2 = new RecipeChoice.MaterialChoice(mat2);
+        
+        
+        Bukkit.addRecipe(new SmithingRecipe(
+                key,
+                resultStack,
+                choice1,
+                choice2));
+	}
+	public static void SetSmithingRecipe(String id, ItemStack stack1, ItemStack stack2, ItemStack resultStack)
+	{
+		NamespacedKey key = new NamespacedKey(ImusAPI._instance, id);
+        
+        
+        RecipeChoice.ExactChoice choice1 = new RecipeChoice.ExactChoice(stack1);
+        RecipeChoice.ExactChoice choice2 = new RecipeChoice.ExactChoice(stack2);
+        
+        Bukkit.getServer().addRecipe(new SmithingRecipe(
+                key,
+                resultStack,
+                choice1,
+                choice2));
+//        System.out.println("");
+//        System.out.println("Stack added: "+stack1.getItemMeta().getDisplayName());
+//        System.out.println("with Stack added: "+stack2.getItemMeta().getDisplayName());
 	}
 	
 	/**

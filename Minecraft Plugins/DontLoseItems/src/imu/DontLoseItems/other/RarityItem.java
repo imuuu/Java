@@ -57,6 +57,9 @@ public class RarityItem extends CustomItem
 	            return ChatColor.AQUA + rarity.toString();
 	        case Legendary:
 	            return ChatColor.GOLD + rarity.toString();
+	        case Void:
+	            return ChatColor.BLACK + rarity.toString().toUpperCase();
+	            
 	        default:
 	            return ChatColor.WHITE + rarity.toString();
 	    }
