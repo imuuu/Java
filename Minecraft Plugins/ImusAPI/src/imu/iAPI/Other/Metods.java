@@ -40,7 +40,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.RecipeChoice.ExactChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.SmithingRecipe;
@@ -395,6 +394,16 @@ public class Metods
 				
 		}
 		return map;
+	}
+	
+	public static void CloneEnchantments(ItemStack item1, ItemStack item2) {
+
+	    item2.getEnchantments().keySet().forEach(enchantment -> item2.removeEnchantment(enchantment));
+	    item1.getEnchantments().forEach((enchantment, level) -> item2.addUnsafeEnchantment(enchantment, level));
+	}
+	public static void RemoveEnchantments(ItemStack stack) {
+
+		stack.getEnchantments().keySet().forEach(enchantment -> stack.removeEnchantment(enchantment));
 	}
 	
 	public ItemStack removeLore(ItemStack stack, String lore)

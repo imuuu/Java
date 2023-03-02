@@ -545,7 +545,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 				return;
 			}
 			
-			if(p.getLocation().distance(mid_loc) > _max_distance)
+			if(mid_loc.getWorld().getEnvironment() != p.getWorld().getEnvironment() || p.getLocation().distance(mid_loc) > _max_distance)
 			{
 				p.sendMessage(ChatColor.RED + "You went too far from arena!");
 				moveToLobbyPlayer(p);

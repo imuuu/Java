@@ -1,6 +1,5 @@
 package imu.DontLoseItems.other;
 
-import java.awt.event.InvocationEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -97,7 +95,7 @@ public class Manager_HellArmor implements Listener
 
 	public final Arrow_ReflectController ReflectArrowController;
 	
-	private boolean _workInProgress = true;
+	private boolean _workInProgress = false;
 	public Manager_HellArmor()
 	{
 		Instance = this;
@@ -194,11 +192,6 @@ public class Manager_HellArmor implements Listener
 			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Legendary, 	new double[] {0}),	
 		};
 
-	private boolean _forInProgress;
-
-	private boolean _forInProgress2;
-	
-	
 	
 	
 	
@@ -605,7 +598,7 @@ public class Manager_HellArmor implements Listener
 		meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(UUID.randomUUID(), "generic.health", 1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
 		meta.addAttributeModifier(Attribute.GENERIC_ARMOR, new AttributeModifier(UUID.randomUUID(), "generic.armor", hellBoots.Values[2], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
 		meta.addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS, new AttributeModifier(UUID.randomUUID(), "generic.armor_toughness", hellBoots.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
-		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res", 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
+		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res", 0.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.FEET));
 
 		stack.setItemMeta(meta);
 
@@ -659,7 +652,7 @@ public class Manager_HellArmor implements Listener
 				helllegg.Values[3], AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
 		
 		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
-				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
+				0.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.LEGS));
 		stack.setItemMeta(meta);
 
 		Metods._ins.setPersistenData(stack, _PD_HELL_LEGGINS, PersistentDataType.INTEGER, 2);
@@ -668,72 +661,7 @@ public class Manager_HellArmor implements Listener
 
 		return stack;
 	}
-	@EventHandler
-	public void Smithing(PrepareSmithingEvent e)
-	{
-		if(_workInProgress) return; 
-		
-		SmithingInventory inv = e.getInventory();
-		
-		ItemStack stack1 = inv.getItem(0);
-		ItemStack stack2 = inv.getItem(1);
-		if(stack1 == null || stack2 == null) return;
-		
-		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
-		{
-			e.setResult(CreateVOIDHelmet());
-			return;
-		}
-		
-		if(IsHellChestplate(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellChest(stack2))
-		{
-			e.setResult(CreateVOIDChestplate());
-			return;
-		}
-		
-		if(IsHellLeggins(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellLegg(stack2))
-		{
-			e.setResult(CreateVOIDLeggins());
-			return;
-		}
-		
-		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
-		{
-			e.setResult(CreateVOIDHelmet());
-			return;
-		}
-		
-
-	}
 	
-	@EventHandler
-	public void SmithingClick(InventoryClickEvent e)
-	{
-		
-		if(e.isCancelled()) return;
-		
-		if(!(e.getInventory() instanceof SmithingInventory)) return;
-		
-		if(e.getSlotType() != SlotType.RESULT) return;
-		
-		SmithingInventory inv = (SmithingInventory)e.getInventory();
-				
-		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
-		
-		boolean found = false;
-		
-		if(IsVoidHelmet(e.getCurrentItem())) 		found = true;
-		if(IsVoidChestplate(e.getCurrentItem())) 	found = true;
-		if(IsVoidLeggins(e.getCurrentItem())) 		found = true;
-		if(IsVoidBoots(e.getCurrentItem())) 		found = true;
-
-		if(!found) return;
-
-		Metods._ins.InventoryAddItemOrDrop(e.getCurrentItem(), (Player)e.getWhoClicked());
-
-		inv.setItem(0, new ItemStack(Material.AIR));
-		inv.setItem(1, new ItemStack(Material.AIR));
-	}
 
 	public ItemStack CreateVOIDChestplate()
 	{
@@ -782,7 +710,7 @@ public class Manager_HellArmor implements Listener
 				helllchess.Values[3]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
 		
 		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
-				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
+				0.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.CHEST));
 		stack.setItemMeta(meta);
 
 		
@@ -840,7 +768,7 @@ public class Manager_HellArmor implements Listener
 				hellHelmet.Values[3]+1, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
 
 		meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, new AttributeModifier(UUID.randomUUID(), "generic.knockback_res",
-				2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
+				0.2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HEAD));
 		stack.setItemMeta(meta);
 
 
@@ -1214,6 +1142,87 @@ public class Manager_HellArmor implements Listener
 		return false;
 	}
 	
+	@EventHandler
+	public void Smithing(PrepareSmithingEvent e)
+	{
+
+		if(_workInProgress) return; 
+		
+		SmithingInventory inv = e.getInventory();
+		
+		ItemStack stack1 = inv.getItem(0);
+		ItemStack stack2 = inv.getItem(1);
+		if(stack1 == null || stack2 == null) return;
+		ItemStack result = null;
+		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
+		{
+			result = CreateVOIDHelmet();
+			Metods.CloneEnchantments(stack1, result);
+			e.setResult(result);
+			return;
+		}
+		
+		if(IsHellChestplate(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellChest(stack2))
+		{
+			result = CreateVOIDChestplate();
+			Metods.CloneEnchantments(stack1, result);
+			e.setResult(result);
+			return;
+		}
+		
+		if(IsHellLeggins(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellLegg(stack2))
+		{
+			result = CreateVOIDLeggins();
+			Metods.CloneEnchantments(stack1, result);
+			e.setResult(result);
+			return;
+		}
+		
+		if(IsHellBoots(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellBoots(stack2))
+		{
+			result = CreateVOIDBoots();
+			Metods.CloneEnchantments(stack1, result);
+			e.setResult(result);
+			return;
+		}
+		
+
+	}
+	
+	private void GiveVoidArmor(Player player, ItemStack baseStack,ItemStack stack)
+	{
+		Metods.CloneEnchantments(baseStack, stack);
+		Metods._ins.InventoryAddItemOrDrop(stack, player );
+	}
+	
+	@EventHandler
+	public void SmithingClick(InventoryClickEvent e)
+	{
+		
+		if(e.isCancelled()) return;
+		
+		if(!(e.getInventory() instanceof SmithingInventory)) return;
+		
+		if(e.getSlotType() != SlotType.RESULT) return;
+		
+		SmithingInventory inv = (SmithingInventory)e.getInventory();
+				
+		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
+		
+		boolean found = false;
+		
+		if(IsVoidHelmet(e.getCurrentItem())) 		found = true;
+		if(IsVoidChestplate(e.getCurrentItem())) 	found = true;
+		if(IsVoidLeggins(e.getCurrentItem())) 		found = true;
+		if(IsVoidBoots(e.getCurrentItem())) 		found = true;
+
+		if(!found) return;
+
+		 GiveVoidArmor((Player)e.getWhoClicked(), inv.getItem(0), e.getCurrentItem());
+
+		inv.setItem(0, new ItemStack(Material.AIR));
+		inv.setItem(1, new ItemStack(Material.AIR));
+	}
 	public boolean IsHellTorch(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_TORCH, PersistentDataType.INTEGER) != null;

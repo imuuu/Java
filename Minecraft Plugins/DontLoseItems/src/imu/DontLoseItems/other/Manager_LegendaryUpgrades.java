@@ -154,6 +154,14 @@ public class Manager_LegendaryUpgrades
 		stack.setType(Material.SHIELD);
 		return stack;
 	}
+	public boolean IsUpgrade(ItemStack stack) 
+	{
+	    return IsUpgradeHellHelmet(stack) || IsUpgradeHellChest(stack) || IsUpgradeHellLegg(stack) || 
+	           IsUpgradeHellBoots(stack) || IsUpgradeHellHoe(stack) || IsUpgradeHellPickaxe(stack) || 
+	           IsUpgradeHellSword(stack) || IsUpgradeHellAxe(stack) || IsUpgradeHellShield(stack);
+	}
+
+	
 	public boolean IsUpgradeHellHelmet(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, PD_HELL_HELMET, PersistentDataType.INTEGER) != null;

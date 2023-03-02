@@ -21,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
+import imu.DontLoseItems.CustomItems.CustomItem;
+import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.CustomItems.Unstable_Void_Stone;
 import imu.DontLoseItems.CustomItems.Unstable_Void_Stone.VOID_STONE_TIER;
 import imu.DontLoseItems.main.DontLoseItems;
@@ -269,7 +271,8 @@ public class EndChestLootEvents implements Listener
 		if (Metods._ins.isArmor(stack))
 		{
 			stack.setAmount(1);
-			EnchantArmor(stack, 5, 2);
+			
+			if(!Manager_LegendaryUpgrades.Instance.IsUpgrade(stack)) EnchantArmor(stack, 5, 2);
 
 			if (Metods._ins.HasEnchant(stack, Enchantment.DURABILITY) && ThreadLocalRandom.current().nextInt(100) < 20)
 			{
@@ -281,7 +284,8 @@ public class EndChestLootEvents implements Listener
 		if (Metods._ins.isTool(stack))
 		{
 			stack.setAmount(1);
-			EnchantTool(stack, 5, 2);
+			
+			if(!Manager_LegendaryUpgrades.Instance.IsUpgrade(stack)) EnchantTool(stack, 5, 2);
 
 			if (Metods._ins.HasEnchant(stack, Enchantment.DURABILITY) && ThreadLocalRandom.current().nextInt(100) < 20)
 			{
@@ -307,6 +311,7 @@ public class EndChestLootEvents implements Listener
 				stack.setAmount(1);
 
 		}
+		
 
 		return stack;
 	}
