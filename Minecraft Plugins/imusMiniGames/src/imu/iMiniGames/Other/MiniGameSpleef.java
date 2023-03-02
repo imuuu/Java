@@ -10,6 +10,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -100,7 +102,17 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		PlayerInventory inv = p.getInventory();
 		inv.clear();
 		
-		p.setHealth(20);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+				p.setHealth(20);	
+			}
+		}.runTaskLater(ImusMiniGames.Instance, 10);
+		
+		
 		p.setFoodLevel(20);
 		p.setFireTicks(0);
 		_spleefHandler.removePotionEffects(p);
@@ -115,7 +127,6 @@ public class MiniGameSpleef extends MiniGame implements Listener
 		inv.addItem(shovel);
 		inv.addItem(shovel);
 		inv.addItem(shovel);
-		
 	}
 	
 	public int get_anti_stand() {
@@ -241,6 +252,7 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	void playerLeft(Player p)
 	{
 		//_combatHandler.removePotionEffects(p);
+		_spleefHandler.removePotionEffects(p);
 		_total_players--;
 		_players_ingame.remove(p);
 		_gameCard.get_players_accept().remove(p.getUniqueId());
@@ -297,6 +309,8 @@ public class MiniGameSpleef extends MiniGame implements Listener
 	void onQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
+		System.out.println("player quit:");
+		
 		if(_players_ingame.containsKey(p) )
 		{
 			playerLeft(p);

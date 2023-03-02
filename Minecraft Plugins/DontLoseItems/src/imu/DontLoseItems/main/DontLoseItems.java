@@ -19,6 +19,7 @@ import imu.DontLoseItems.Events.EndChestLootEvents;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.Events.VoidTotemEvents;
+import imu.DontLoseItems.other.AntiAfk;
 import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.Handelers.CommandHandler;
@@ -28,6 +29,7 @@ public class DontLoseItems extends JavaPlugin
 {
 	public static DontLoseItems Instance;
    
+	@SuppressWarnings("unused")
 	private Manager_LegendaryUpgrades _manager_leg_upgrades;
   
 	@Override
@@ -48,6 +50,7 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new EndChestLootEvents(), this);
 		getServer().getPluginManager().registerEvents(new ElytraGenerationEvents(), this);
 		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
+		getServer().getPluginManager().registerEvents(new AntiAfk(), this);
 		//getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 	}
 	

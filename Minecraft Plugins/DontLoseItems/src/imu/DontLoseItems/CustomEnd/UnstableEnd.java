@@ -38,7 +38,7 @@ public class UnstableEnd implements Listener
 	private LinkedList<EndEvent> _allEvents;
 	private LinkedList<EndEvent> _activeEvents;
 
-	public int _totalRolls = 4;
+	public int _totalRolls = 3;
 
 	private Cooldowns _cds;
 
@@ -73,6 +73,7 @@ public class UnstableEnd implements Listener
 		_allEvents.add(new EndEvent_RandomPotionEffect());
 		_allEvents.add(new EndEvent_TntEverywhere());
 		_allEvents.add(new EndEvent_SpecialCreepers());
+		
 	}
 
 

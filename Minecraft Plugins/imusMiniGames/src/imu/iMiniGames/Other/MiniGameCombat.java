@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -313,7 +314,16 @@ public class MiniGameCombat extends MiniGame implements Listener
 		PlayerInventory inv = p.getInventory();
 		inv.clear();
 		
-		p.setHealth(20);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+				p.setHealth(20);	
+			}
+		}.runTaskLater(ImusMiniGames.Instance, 10);
+		
 		p.setFoodLevel(20);
 		p.setFireTicks(-20);
 		_combatHandler.removePotionEffects(p);
@@ -462,7 +472,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	void playerLeft(Player p)
 	{
-		//_combatHandler.removePotionEffects(p);
+		_combatHandler.removePotionEffects(p);
 		_total_players--;
 		_players_ingame.remove(p);
 		_gameCard.get_players_accept().remove(p.getUniqueId());
