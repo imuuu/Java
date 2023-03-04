@@ -50,7 +50,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		_plugin = main;
 
 		_name = Metods.msgC(name);
-		_size = size;
+		_size = AdjustSize(size);
 		_player = player;	
 		_inv =  _plugin.getServer().createInventory(null, _size, _name);
 		RegisterToEvents();
@@ -112,6 +112,20 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		
 	}
 	
+	private int AdjustSize(int size)
+	{
+		if(size <= 0)
+		{
+			size = 1;
+		}
+		
+		int result = (size + 8) / 9 * 9;
+	    if (result > 54) 
+	    {
+	        return 54; 
+	    }
+	    return result;
+	}
 	public Player GetPlayer()
 	{
 		return _player;

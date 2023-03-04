@@ -5,3 +5,7 @@ main: imu.iAPI.Main.ImusAPI
 description: imus own api
 softdepend: [ProtocolLib]
 api-version: 1.19
+commands:
+   ia:
+     description: ia
+     usage: /<command>

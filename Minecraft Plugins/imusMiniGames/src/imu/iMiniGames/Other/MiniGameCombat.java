@@ -272,28 +272,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 		HandlerList.unregisterAll(this);
 	}
 
-	
-//	void setupGearData()
-//	{
-//		for(UUID uuid : _gameCard.get_players_accept().keySet())
-//		{
-//			ArrayList<ItemStack> arr = new ArrayList<>();
-//			for(ItemStack s : _ownGear.get(uuid))
-//			{
-//				if(s == null)
-//					continue;
-//				
-//				ItemStack clone  = s.clone();
-//				if(_itemM.isArmor(clone) || _itemM.isTool(clone))
-//				{
-//					_itemM.setDamage(clone, 0);
-//				}
-//				
-//				arr.add(clone);
-//			}
-//			_player_gears_check.put(uuid, arr);
-//		}
-//	}
+
 	
 	void putPotionEffects(Player p)
 	{
@@ -545,7 +524,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 				return;
 			}
 			
-			if(mid_loc.getWorld().getEnvironment() != p.getWorld().getEnvironment() || p.getLocation().distance(mid_loc) > _max_distance)
+			if(mid_loc.getWorld()!= p.getLocation().getWorld() || p.getLocation().distance(mid_loc) > _max_distance)
 			{
 				p.sendMessage(ChatColor.RED + "You went too far from arena!");
 				moveToLobbyPlayer(p);
@@ -744,7 +723,11 @@ public class MiniGameCombat extends MiniGame implements Listener
 			public void run() 
 			{
 				if(has_ended)
+				{
+					cancel();
 					return;
+				}
+					
 				
 				if(has_started)
 				{
@@ -797,7 +780,10 @@ public class MiniGameCombat extends MiniGame implements Listener
 				}
 				
 				if(has_ended)
+				{
+					cancel();
 					return;
+				}
 				
 				if(!_cd.isCooldownReady("start") && !has_started)
 				{					

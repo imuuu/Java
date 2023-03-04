@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.Other.Metods;
+import net.minecraft.world.entity.animal.EntityTropicalFish.Base;
 
 public class Hell_Hoe extends RarityItem
 {
@@ -26,18 +28,47 @@ public class Hell_Hoe extends RarityItem
 			case Epic: 		return new ItemStack(Material.IRON_HOE);
 			case Mythic: 	return new ItemStack(Material.DIAMOND_HOE);
 			case Legendary: return new ItemStack(Material.NETHERITE_HOE);
+			case Void: 		return new ItemStack(Material.NETHERITE_HOE);
 		}
 		
 		return new ItemStack(Material.STONE);
+	}
+	
+	@Override
+	public ItemStack GetItemStack()
+	{
+		ItemStack stack = super.GetItemStack();
+		
+		if(Rarity == ITEM_RARITY.Void)
+		{
+			Metods.setDisplayName(stack, "&0"+Rarity.toString()+"&4 Hoe");
+		}
+		
+		return stack;
+		
 	}
 	
 	public int GetSeedUsage()
 	{
 		switch (Rarity)
 		{
-		case Epic: return 3;
-		case Mythic: return 2;
+		case Epic: 		return 3;
+		case Mythic: 	return 2;
 		case Legendary: return 1;
+		case Void: 		return 1;
+		default: return 0;
+		
+		}
+	}
+	
+	public int GetAreaRadius()
+	{
+		switch (Rarity)
+		{
+		case Epic: 		return 1;
+		case Mythic: 	return 1;
+		case Legendary: return 1;
+		case Void: 		return 2;
 		default: return 0;
 		
 		}

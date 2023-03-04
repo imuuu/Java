@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.Other.Metods;
 
 public class Hell_Double_Axe extends RarityItem
 {
@@ -31,12 +32,25 @@ public class Hell_Double_Axe extends RarityItem
 			case Epic: 		return new ItemStack(Material.IRON_AXE);
 			case Mythic: 	return new ItemStack(Material.DIAMOND_AXE);
 			case Legendary: return new ItemStack(Material.NETHERITE_AXE);
+			case Void: 		return new ItemStack(Material.NETHERITE_AXE);
 		}
 		
 		return new ItemStack(Material.STONE);
 	}
 	
-	
+	@Override
+	public ItemStack GetItemStack()
+	{
+		ItemStack stack = super.GetItemStack();
+		
+		if(Rarity == ITEM_RARITY.Void)
+		{
+			Metods.setDisplayName(stack, "&0"+Rarity.toString()+"&4 Double Axe");
+		}
+		
+		return stack;
+		
+	}
 	
 	public Material GetMaterial()
 	{
@@ -47,10 +61,11 @@ public class Hell_Double_Axe extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 1.5;
-		case Mythic: return 0.8;
+		case Epic: 		return 1.5;
+		case Mythic: 	return 0.8;
 		case Legendary: return 0.33;
-		default: return 1;
+		case Void: 		return 0.29;
+		default: 		return 1;
 		
 		}
 	}
@@ -59,9 +74,10 @@ public class Hell_Double_Axe extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 1;
-		case Mythic: return 1;
+		case Epic: 		return 1;
+		case Mythic: 	return 1;
 		case Legendary: return 1;
+		case Void: 		return 2;
 		default: return 1;
 		
 		}
@@ -71,9 +87,10 @@ public class Hell_Double_Axe extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 0.5;
-		case Mythic: return 0.8;
+		case Epic: 		return 0.5;
+		case Mythic: 	return 0.8;
 		case Legendary: return 1.5;
+		case Void: 		return 1.5;
 		default: return 1;
 		
 		}
@@ -89,7 +106,8 @@ public class Hell_Double_Axe extends RarityItem
 			dustOptions = new DustOptions(Color.RED, 1.5f);
 
 			loc.getWorld().spawnParticle(Particle.REDSTONE, loc.clone(), 1, dustOptions);
-			loc.getWorld().spawnParticle(Particle.DRIP_LAVA, loc.clone(), 5, 0.1,0.1,0.1);
+			if(Rarity != ITEM_RARITY.Void) loc.getWorld().spawnParticle(Particle.DRIP_LAVA, loc.clone(), 5, 0.1,0.1,0.1);
+			else loc.getWorld().spawnParticle(Particle.FALLING_OBSIDIAN_TEAR, loc.clone(), 5, 0.1,0.1,0.1);
 			return;
 		}
 		if(damage > 8) 
@@ -163,9 +181,10 @@ public class Hell_Double_Axe extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 0.4;
-		case Mythic: return 0.6;
+		case Epic: 		return 0.4;
+		case Mythic: 	return 0.6;
 		case Legendary: return 0.9;
+		case Void: 		return 1.2;
 		default: return 0;
 		
 		}

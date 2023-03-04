@@ -31,8 +31,10 @@ import com.comphenix.protocol.events.PacketContainer;
 
 import imu.DontLoseItems.CustomItems.Entities.Throwable_Axe;
 import imu.DontLoseItems.CustomItems.RarityItems.Hell_Double_Axe;
+import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 
@@ -46,9 +48,11 @@ public final class Hell_ThrowingAxe_Controller
 	private RarityItem[] _hellAxe = 
 		{
 
-			new Hell_Double_Axe(ITEM_RARITY.Epic, 		new double[] {}),
+			new Hell_Double_Axe(ITEM_RARITY.Epic, 			new double[] {}),
 			new Hell_Double_Axe(ITEM_RARITY.Mythic, 		new double[] {}),
-			new Hell_Double_Axe(ITEM_RARITY.Legendary,	new double[] {}), };
+			new Hell_Double_Axe(ITEM_RARITY.Legendary,		new double[] {}), 
+			new Hell_Double_Axe(ITEM_RARITY.Void,			new double[] {}), 
+			};
 	
 	private HashSet<Throwable_Axe> _throwable;
 	
@@ -57,6 +61,10 @@ public final class Hell_ThrowingAxe_Controller
 		_cds = new Cooldowns();
 		_throwable = new HashSet<>();
 		_axeDamages =  new HashMap<>();
+		for(RarityItem rarityItem : _hellAxe)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Tools.toString(), CreateItem(rarityItem.Rarity));
+		}
 	}
 	
 	public class AxeDamage
@@ -98,24 +106,35 @@ public final class Hell_ThrowingAxe_Controller
 		}
 		return null;
 	}
-	public ItemStack CreateHellAxe(ITEM_RARITY rarity)
+	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
 		Hell_Double_Axe rarityItem = (Hell_Double_Axe) GetRarityItem(rarity);
 		ItemStack stack = rarityItem.GetItemStack();
-
+		
+		String colorCode = rarity == ITEM_RARITY.Void ? "&5" : "&9";
 		ArrayList<String> lores = new ArrayList<>();
 		lores.add(" ");
 		lores.add("&9Able to throw a second axe");
 		lores.add("&9with a base &cdamage &9of &2" + rarityItem.GetDamageBase());
 		lores.add(" ");
-		lores.add("&9Throw force of &2" + rarityItem.GetThrowForce());
+		lores.add(colorCode+"Throw force of &2" + rarityItem.GetThrowForce());
 		lores.add(" ");
-		lores.add("&9Throw cooldown of &2" + rarityItem.GetUseCooldown() + " &9seconds");
+		lores.add(colorCode+"Throw cooldown of &2" + rarityItem.GetUseCooldown() + " &9seconds");
 		lores.add(" ");
 		lores.add("&9Every mob hit &eincreases &cdamage");
 		lores.add(" ");
 		lores.add("&9But every &7miss &3resets &9the &cdamage");
 		lores.add(" ");
+		
+		if(rarity == ITEM_RARITY.Void)
+		{
+			lores.add("&5Damage increases faster to maximum");
+			lores.add(" ");
+			lores.add("&5Able to throw other void tier axe");
+			lores.add("&5from other hand");
+			lores.add(" ");
+		}
+		
 		lores.add("&7'Forged in the fiery depths of the Nether,");
 		lores.add("&7this axe is imbued with a deadly throwing ability.");
 		lores.add("&7It can cleave through even the strongest");
@@ -132,6 +151,16 @@ public final class Hell_ThrowingAxe_Controller
 	public boolean IsHellAxe(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_AXE, PersistentDataType.INTEGER) != null;
+	}
+	
+	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_AXE, PersistentDataType.INTEGER);
+		if(i == null ) return false;
+		
+		if(i == tier.GetIndex()) return true;
+		
+		return false;
 	}
 	
 	public ItemStack RemoveHellAxe(ItemStack stack)

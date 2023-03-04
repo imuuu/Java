@@ -133,18 +133,18 @@ public class CombatGameHandler extends GameHandeler
 		
 	}
 	
-	void setupOwnGear(GameCard gameCard)
-	{
-		CombatDataCard dataCard = (CombatDataCard) gameCard.getDataCard();
-		if(!dataCard.isOwnGearKit())
-			return;
-		
-		for(UUID uuid : gameCard.get_players_accept().keySet())
-		{
-			Player p = Bukkit.getPlayer(uuid);
-			
-		}
-	}
+//	void setupOwnGea(GameCard gameCard)
+//	{
+//		CombatDataCard dataCard = (CombatDataCard) gameCard.getDataCard();
+//		if(!dataCard.isOwnGearKit())
+//			return;
+//		
+//		for(UUID uuid : gameCard.get_players_accept().keySet())
+//		{
+//			Player p = Bukkit.getPlayer(uuid);
+//			
+//		}
+//	}
 
 
 

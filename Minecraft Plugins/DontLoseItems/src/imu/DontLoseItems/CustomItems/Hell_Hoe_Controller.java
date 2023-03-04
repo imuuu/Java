@@ -17,8 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.RarityItems.Hell_Hoe;
+import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 
@@ -34,15 +36,22 @@ public final class Hell_Hoe_Controller
 	private RarityItem[] _hellAxe = 
 		{
 
-			new Hell_Hoe(ITEM_RARITY.Epic, 		new double[] {}),
+			new Hell_Hoe(ITEM_RARITY.Epic, 		    new double[] {}),
 			new Hell_Hoe(ITEM_RARITY.Mythic, 		new double[] {}),
-			new Hell_Hoe(ITEM_RARITY.Legendary,	new double[] {}), };
+			new Hell_Hoe(ITEM_RARITY.Legendary,	    new double[] {}), 
+			new Hell_Hoe(ITEM_RARITY.Void,	    	new double[] {}), 
+			};
 	
 	
 	public Hell_Hoe_Controller()
 	{
 		_cds = new Cooldowns();
 		InitSeedMaterials();
+		
+		for(RarityItem rarityItem : _hellAxe)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Tools.toString(), CreateItem(rarityItem.Rarity));
+		}
 	}
 	
 	private void InitSeedMaterials()
@@ -82,15 +91,25 @@ public final class Hell_Hoe_Controller
 		}
 		return null;
 	}
-	public ItemStack CreateHellHoe(ITEM_RARITY rarity)
+	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
 		Hell_Hoe rarityItem = (Hell_Hoe) GetRarityItem(rarity);
 		ItemStack stack = rarityItem.GetItemStack();
 
 		ArrayList<String> lores = new ArrayList<>();
 		lores.add(" ");
-		lores.add("&9Able to place seeds over a &elarge &9area");
-		lores.add(" ");
+		
+		if(rarityItem.Rarity != ITEM_RARITY.Void)
+		{
+			lores.add("&9Able to place seeds over a &elarge &9area");
+			lores.add(" ");
+		}else
+		{
+			lores.add("&5Able to place seeds over a &emassive &9area");
+			lores.add(" ");
+			
+		}
+
 		lores.add("&9Uses seeds from the off-hand and");
 		lores.add("&3refills &9the same seeds from the off-hand");
 		lores.add(" ");
@@ -109,9 +128,20 @@ public final class Hell_Hoe_Controller
 		return stack;
 	}
 
+
 	public boolean IsHellHoe(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_HOE, PersistentDataType.INTEGER) != null;
+	}
+	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_HOE, PersistentDataType.INTEGER);
+		
+		if(i == null ) return false;
+		
+		if(i == tier.GetIndex()) return true;
+		
+		return false;
 	}
 	
 	public ItemStack RemoveHellHoe(ItemStack stack)
@@ -155,7 +185,7 @@ public final class Hell_Hoe_Controller
 		if(!_seedsMaterials.contains(stack.getType())) return;
 		
 
-		PlantSeeds(player, middleBlock.getLocation(), stack,hoe.GetSeedUsage(),1);
+		PlantSeeds(player, middleBlock.getLocation(), stack,hoe.GetSeedUsage(), hoe.GetAreaRadius());
 		
 		
 				

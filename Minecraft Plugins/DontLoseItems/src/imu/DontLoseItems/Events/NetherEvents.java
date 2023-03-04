@@ -685,28 +685,28 @@ public class NetherEvents implements Listener
 		
 		LivingEntity entity = (LivingEntity)e.getEntity();
 		
-		if(e.getEntity() instanceof Player)
-		{
-			 //System.out.println("sending back");
-			 
-			 if (e.getDamager().getType() != EntityType.ARROW) return;
-			 
-			 if(!((Player)entity).isBlocking()) return;
-			 
-			 ItemStack shield = entity.getEquipment().getItemInOffHand();
-			 if(!Manager_HellArmor.Instance.IsHellReflectShield(shield)) return;
-			 //System.out.println("==> sending back");
-			 Arrow arrow = (Arrow) e.getDamager();
-			 //SendArrowBackV2(entity, (Entity)arrow.getShooter(), arrow, 10, 2, true);
-			 ITEM_RARITY rarity = Manager_HellArmor.Instance.GetRarity(shield);
-			 Manager_HellArmor.Instance.OnHellShieldReflect(entity, (Entity)arrow.getShooter(), arrow,rarity);
-			 
-			 int durMulti = 6 - rarity.GetIndex();
-			 Metods._ins.giveDamage(shield, Manager_HellArmor.Instance.ReflectShieldDurabilityLost * durMulti, true);
-			 e.setCancelled(true);
-			 
-			 return;
-		}
+//		if(e.getEntity() instanceof Player) //MOVED
+//		{
+//			 //System.out.println("sending back");
+//			 
+//			 if (e.getDamager().getType() != EntityType.ARROW) return;
+//			 
+//			 if(!((Player)entity).isBlocking()) return;
+//			 
+//			 ItemStack shield = entity.getEquipment().getItemInOffHand();
+//			 if(!Manager_HellArmor.Instance.IsHellReflectShield(shield)) return;
+//			 //System.out.println("==> sending back");
+//			 Arrow arrow = (Arrow) e.getDamager();
+//			 //SendArrowBackV2(entity, (Entity)arrow.getShooter(), arrow, 10, 2, true);
+//			 ITEM_RARITY rarity = Manager_HellArmor.Instance.GetRarity(shield);
+//			 Manager_HellArmor.Instance.OnHellShieldReflect(entity, (Entity)arrow.getShooter(), arrow,rarity);
+//			 
+//			 int durMulti = 6 - rarity.GetIndex();
+//			 Metods._ins.giveDamage(shield, Manager_HellArmor.Instance.ReflectShieldDurabilityLost * durMulti, true);
+//			 e.setCancelled(true);
+//			 
+//			 return;
+//		}
 		
 		if(!IsNether(e.getEntity())) return;
 		

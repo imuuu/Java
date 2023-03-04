@@ -45,7 +45,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import imu.DontLoseItems.CustomItems.Arrow_ReflectController;
+import imu.DontLoseItems.CustomItems.Hell_ReflectShieldController;
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
@@ -69,7 +69,7 @@ public class Manager_HellArmor implements Listener
 	private final String _PD_HELL_FEAR_REDUCE = "HELL_FEAR_REDUCE";
 	private final String _PD_HELL_ARROW = "HELL_ARROW";
 	private final String _PD_HELL_TORCH = "HELL_TORCH";
-	private final String _PD_HELL_REFLECT_SHIELD = "HELL_REFLECT_SHIELD";
+	
 	
 
 
@@ -93,7 +93,7 @@ public class Manager_HellArmor implements Listener
 	private BukkitTask _task;
 	private int _taskTicks = 1;
 
-	public final Arrow_ReflectController ReflectArrowController;
+	//public final Hell_ReflectShieldController ReflectArrowController;
 	
 	private boolean _workInProgress = false;
 	public Manager_HellArmor()
@@ -106,7 +106,6 @@ public class Manager_HellArmor implements Listener
 		_nether = Bukkit.getWorld("world_nether");
 		//RunnableAsync();
 		
-		ReflectArrowController = new Arrow_ReflectController();
 		Runnable();
 		//AddVoidArmorRecipies();
 	}
@@ -120,8 +119,6 @@ public class Manager_HellArmor implements Listener
 			@Override
 			public void run() 
 			{
-				
-				ReflectArrowController.OnReflectArrowLoop();
 				Manager_HellTools.Instance.HellSword_Controller.OnThrowLoop();
 				Manager_HellTools.Instance.HellAxe_Controller.OnThrowLoop();
 			}
@@ -182,19 +179,7 @@ public class Manager_HellArmor implements Listener
 		};
 	
 	
-	private RarityItem[] _hellReflectShields = 
-		{
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Common, 		new double[] {0}),	//not used
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Uncommon, 		new double[] {0}),	//not used
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Rare, 			new double[] {0}),	//not used
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Epic, 			new double[] {0}),	
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Mythic, 		new double[] {0}),	
-			new RarityItem(new ItemStack(Material.SHIELD), ChatColor.DARK_RED+"Hell Reflect Shield", ITEM_RARITY.Legendary, 	new double[] {0}),	
-		};
 
-	
-	
-	
 	public ItemStack RemoveArmorData(ItemStack stack)
 	{
 		String[] hellEquipment = {
@@ -203,7 +188,7 @@ public class Manager_HellArmor implements Listener
 			    _PD_HELL_CHESTPLATE,
 			    _PD_HELL_HELMET,
 			    _PD_HELL_TIER,
-			    _PD_HELL_REFLECT_SHIELD
+
 			};
 		
 		for(String pd : hellEquipment)
@@ -504,62 +489,7 @@ public class Manager_HellArmor implements Listener
 		return stack;
 	}
 	
-	public ItemStack CreateHellReflectShield(ITEM_RARITY rarity)
-	{
-		RarityItem rarityItem = null;
-		
-		for(RarityItem arrow : _hellReflectShields)
-		{
-			if(arrow.Rarity == rarity) {rarityItem = arrow;}
-		}
-		
-		ItemStack stack = rarityItem.GetItemStack();
-		
-		ArrayList<String> lores = new ArrayList<>();
-		lores.add(" ");
-		lores.add("&9Blocks arrows &3any &9direction");
-		lores.add(" ");
-		if(rarity != ITEM_RARITY.Epic)lores.add("&eReflects &7arrow &9back to");
-		if(rarity == ITEM_RARITY.Epic)lores.add("&eReflects &7arrow &9back to attacker");
-
-		
-		if(rarity == ITEM_RARITY.Mythic) 	lores.add("&9attacker and &5doubles");
-		if(rarity == ITEM_RARITY.Legendary) lores.add("&9attacker and &5triples");
-		if(rarity != ITEM_RARITY.Epic) lores.add("&9it damage");
-		
-		if(rarity != ITEM_RARITY.Epic) lores.add(" ");
-//		if(rarity == ITEM_RARITY.Epic) lores.add("&9Arrow leaves a small trail");
-//		if(rarity == ITEM_RARITY.Epic) lores.add("&9of flames behind it");
-		
-		if(rarity == ITEM_RARITY.Mythic) lores.add("&9Arrow leaves a substantial");
-		if(rarity == ITEM_RARITY.Mythic) lores.add("&9trail of &4flames &9behind it");
 	
-		
-		if(rarity == ITEM_RARITY.Legendary) lores.add("&9Arrow leaves a massive");
-		if(rarity == ITEM_RARITY.Legendary) lores.add("&9trail of &4flames &9behind it");
-		lores.add(" ");
-		if(rarity == ITEM_RARITY.Legendary) lores.add("&9Causes &4fiery &9destruction upon impact");
-		if(rarity == ITEM_RARITY.Legendary) lores.add(" ");
-//		lores.add("&9If Arrow is Players, " + durabilityLost + " durability will be lost");
-//		lores.add(" ");
-		lores.add("&7'Legend has it that this Shield was");
-		lores.add("&7once owned by a mischievous archer");
-		lores.add("&7who loved to pull pranks on his");
-		lores.add("&7enemies. The Shield would always send");
-		lores.add("&7their arrows right back at them, much");
-		lores.add("&7to their surprise (and sometimes, horror!)'");
-		
-
-		Metods._ins.SetLores(stack, lores.toArray(new String[lores.size()]), false);
-
-		ItemMeta meta = stack.getItemMeta();
- 
-		stack.setItemMeta(meta);
-
-		Metods._ins.setPersistenData(stack, _PD_HELL_REFLECT_SHIELD, PersistentDataType.INTEGER, 1);
-		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, rarity.toString());
-		return stack;
-	}
 	
 	
 	///VOID
@@ -1079,10 +1009,6 @@ public class Manager_HellArmor implements Listener
 		
 	}
 	
-	public void OnHellShieldReflect(LivingEntity reflecterEntity, Entity target,Arrow arrow, ITEM_RARITY rarity )
-	{
-		ReflectArrowController.OnArrowInit(reflecterEntity, target, arrow, rarity);
-	}
 	
 	
 	
@@ -1249,10 +1175,7 @@ public class Manager_HellArmor implements Listener
 		return (GetHellArrow(stack) == 0 ? false : true);
 	}
 	
-	public boolean IsHellReflectShield(ItemStack stack)
-	{
-		return Metods._ins.getPersistenData(stack, _PD_HELL_REFLECT_SHIELD, PersistentDataType.INTEGER) != null;
-	}
+	
 	
 	public int GetHellArrow(ItemStack stack)
 	{

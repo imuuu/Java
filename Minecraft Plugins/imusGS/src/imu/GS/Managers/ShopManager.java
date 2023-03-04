@@ -178,7 +178,7 @@ public class ShopManager
 	
 	public void SendLogs(Player player,List<LogData> logDatas)
 	{
-		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(player, logDatas);
+		_main.get_shopManager().GetShopManagerSQL().LogPurchaseAsync(player, logDatas,0);
 	}
 	
 	void RunnableAsync()

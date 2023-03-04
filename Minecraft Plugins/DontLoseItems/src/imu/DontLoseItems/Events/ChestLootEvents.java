@@ -145,9 +145,9 @@ public class ChestLootEvents implements Listener
 		
 		
 		//_lootTable_hellTools.Add(new ItemStack(Material.SHIELD), rare);
-		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
 		
 		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_PICKAXE), rare);
 		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Epic), epic);

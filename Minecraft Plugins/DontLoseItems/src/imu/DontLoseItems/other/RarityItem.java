@@ -1,11 +1,16 @@
 package imu.DontLoseItems.other;
 
+import java.util.ArrayList;
+
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.CustomItem;
+import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.iAPI.FastInventory.Fast_Inventory;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Other.Metods;
 
 public class RarityItem extends CustomItem
@@ -32,6 +37,22 @@ public class RarityItem extends CustomItem
 		return stack;
 	}
 	
+	public RarityItem AddToTestInventory(CATEGORY category)
+	{
+		boolean hasCat = Manager_FastInventories.Instance.HasFastInv(category.toString());
+		
+		if(hasCat)
+		{
+			Manager_FastInventories.Instance.AddItemStack(category.toString(), GetItemStack());
+		}else
+		{
+			Fast_Inventory fastInv = new Fast_Inventory(category.toString(), "&4"+category.toString(), new ArrayList<>());
+			fastInv.AddStack(GetItemStack());
+			Manager_FastInventories.Instance.RegisterFastInventory(fastInv);
+		}
+		
+		return this;
+	}
 	//private abstract ItemStack GetItemStackBase;
 	
 	public static ITEM_RARITY GetRarity(ItemStack stack)

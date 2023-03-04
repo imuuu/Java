@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -233,7 +234,7 @@ public class ShopManagerSQL
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
-	public BukkitTask LogPurchaseAsync(Player player, List<LogData> logs)
+	public BukkitTask LogPurchaseAsync(Player player, List<LogData> logs, int iterations)
 	{
 		//_main.getLogger().info("Loging..");
 		return new BukkitRunnable() 
@@ -288,8 +289,27 @@ public class ShopManagerSQL
 				} 
 				catch (Exception e) 
 				{
-					Bukkit.getLogger().info("ShopManagerSQL:LogPurchaseAsync ERROR");
-					e.printStackTrace();
+					if(iterations < 6)
+					{
+						Bukkit.getLogger().info("ShopManagerSQL:LogPurchaseAsync Could't log the data to database. Will be doing it later");
+						int seconds = (ThreadLocalRandom.current().nextInt(60))+20;
+						
+						new BukkitRunnable() {
+							
+							@Override
+							public void run()
+							{
+								LogPurchaseAsync(player, logs, iterations+1);
+							}
+						}.runTaskLater(_main, 20 * seconds * 5);
+						
+					}else
+					{
+						Bukkit.getLogger().info("ShopManagerSQL:LogPurchaseAsync ERROR");
+						e.printStackTrace();
+					}
+					
+					
 				}
 			}
 		}.runTaskAsynchronously(_main);
@@ -610,16 +630,7 @@ public class ShopManagerSQL
 		return priceValue;
 	}
 	
-//	void RemovePriceValu(UUID shopItemSellerUUID) throws SQLException
-//	{
-//		Connection con = _main.GetSQL().GetConnection();
-//		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_values.toString()+" WHERE uuid='%s';",shopItemSellerUUID.toString()));
-//		ps.executeUpdate();
-//		
-//		ps.close();
-//		con.close();
-//	}
-	
+
 	void SavePriceValue(UUID shopItemSellerUUID, double value, boolean closeConnection) throws SQLException
 	{		
 		//RemovePriceValue(shopItemSellerUUID);
@@ -641,31 +652,7 @@ public class ShopManagerSQL
 		
 	}
 	
-//	public boolean CheckConnection() 
-//	{		
-//		boolean connected = true;
-//		try
-//		{
-//			Connection con =_main.GetSQL().GetConnection();
-//			PreparedStatement ps = con.prepareStatement("SELECT 1 FROM imusGS.shops");
-//			ps.executeQuery();
-//			
-//			con.close();
-//			ps.close();
-//		} 
-//		catch (Exception e)
-//		{
-//			//System.out.println("[imusGS] Tried to check SQL connection but failed");
-//			System.out.println(e);
-//			connected = false;
-//		}
-//		//RemovePriceValue(shopItemSellerUUID);
-//		
-//		return connected;
-//		
-//		
-//	}
-//	
+
 	PriceCustom GetPriceCustom(UUID uuid, boolean closeConnection) throws SQLException 
 	{
 		Connection con = _main.GetSQL().GetConnection();
@@ -712,16 +699,7 @@ public class ShopManagerSQL
 		return pc;
 	}
 	
-//	void RemovePriceCusto(UUID shopItemUUID) throws SQLException
-//	{
-//		Connection con = _main.GetSQL().GetConnection();
-//		PreparedStatement ps = con.prepareStatement(String.format("DELETE FROM "+SQL_TABLES.price_customs.toString()+" WHERE uuid='%s';",shopItemUUID.toString()));
-//		ps.executeUpdate();
-//		ps.close();
-//		con.close();
-//		
-//	}
-	
+
 	void SavePriceCustom(UUID shopItemUUID, PriceCustom pc, boolean closeConnection) throws SQLException
 	{
 		Connection con = _main.GetSQL().GetConnection();
@@ -1093,147 +1071,7 @@ public class ShopManagerSQL
 		
 	}
 	
-//	public void SaveShopIte(ShopItemSeller sis, int page, int slot, boolean deleteAllData)
-//	{
-//		if(sis.GetShop() == null)
-//			return;
-//		
-//
-//		if(deleteAllData)
-//		{
-//			ArrayList<ShopItemBase> ar = new ArrayList<ShopItemBase>();
-//			ar.add(sis);
-//			DeleteShopItem(ar, false);
-//		}
-//		
-//		
-//		try 
-//		{
-//			Connection con = _main.GetSQL().GetConnection();
-////			Statement stmt = con.createStatement();
-////			
-////			stmt.;
-//			PreparedStatement ps = con.prepareStatement("REPLACE INTO "+SQL_TABLES.shopitems.toString()+" "
-//					+ "(uuid, shop_uuid, type , item_display_name, amount, page, slot, price_type, max_amount, fill_amount, fill_delay, selltime_start, selltime_end,type_data, itemstack) "
-//					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-//			
-//			
-//			int i = 1;
-//			ps.setString(i++, sis.GetUUID().toString());
-//			ps.setString(i++, sis.GetShop().GetUUID().toString());
-//			ps.setString(i++, sis.GetItemType().toString());
-//			ps.setString(i++, ImusAPI._metods.GetItemDisplayName(sis.GetRealItem()));
-//			ps.setInt(i++, sis.Get_amount());
-//			ps.setInt(i++, page);
-//			ps.setInt(i++, slot);
-//			
-//			ShopItemModData modData = sis instanceof ShopItemStockable ? ((ShopItemStockable)sis).GetModData() : null; 
-//			
-//			ItemPriceType priceType = ItemPriceType.None;
-//			int max_amount =    modData == null ? -1 : modData._maxAmount;
-//			int fill_amount =  modData == null ? -1 : modData._fillAmount;
-//			int fill_delay = modData == null ? -1 : modData._fillDelayMinutes;
-//			int sellTimeStart = modData == null ? -1 : modData._sellTimeStart;
-//			int sellTimeEnd = modData == null ? -1 : modData._sellTimeEnd;
-//			
-//			if(sis.GetItemPrice().getClass().equals(PriceCustom.class)) priceType = ItemPriceType.PriceCustom;
-//
-//			
-//			if(sis.GetItemPrice().getClass().equals(PriceOwn.class)) priceType = ItemPriceType.PriceOwn;
-//
-//			if(sis.GetItemPrice().getClass().equals(PriceUnique.class)) priceType = ItemPriceType.PriceUnique;
-//
-//			//ps.setFloat(i++, (sis.GetItemPrice() instanceof PriceOwn) ? (float)((PriceOwn)sis.GetItemPrice()).GetPrice() : -1.0f);
-//			ps.setString(i++, priceType.toString());
-//			ps.setInt(i++, max_amount);
-//			ps.setInt(i++, fill_amount);
-//			ps.setInt(i++, fill_delay);
-//			ps.setInt(i++, sellTimeStart);
-//			ps.setInt(i++, sellTimeEnd);
-//			
-//			ps.setString(i++, new Gson().toJson(sis.GetJsonData()));
-//			ps.setString(i++, ImusAPI._metods.EncodeItemStack(sis.GetRealItem()));			
-//			ps.executeUpdate();
-//			
-//
-//			if(priceType == ItemPriceType.PriceOwn) SavePriceValue(sis.GetUUID(), sis.GetItemPrice().GetPrice(), false);
-//			if(priceType == ItemPriceType.PriceCustom) SavePriceCustom(sis.GetUUID(), ((PriceCustom)sis.GetItemPrice()), false);
-//			
-//			if(sis instanceof ShopItemStockable)
-//			{
-//
-//				PreparedStatement ps2;
-//				if(modData._permissions != null)
-//				{
-//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_permissions.toString()+" "
-//							+ "(uuid, name) VALUES (?,?)");
-//					for(String permission : modData._permissions)
-//					{
-//						
-//						ps2.setString(1, sis.GetUUID().toString());
-//						ps2.setString(2, permission);
-//						ps2.addBatch();
-//					}
-//					ps2.executeBatch();
-//				}
-//				
-////				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_worlds.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-////				ps2.executeUpdate();
-//				if(modData._worldNames != null)
-//				{
-//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_worlds.toString()+" "
-//							+ "(uuid, name) VALUES (?,?)");
-//					for(String worldName : modData._worldNames)
-//					{
-//						
-//						ps2.setString(1, sis.GetUUID().toString());
-//						ps2.setString(2, worldName);
-//						ps2.addBatch();
-//					}
-//					ps2.executeBatch();
-//				}
-//				
-////				ps2 = _main.GetSQL().GetConnection().prepareStatement(String.format("DELETE FROM "+SQL_TABLES.shopitem_locations.toString()+" WHERE uuid='%s';",sis.GetUUID().toString()));
-////				ps2.executeUpdate();			
-//				if(modData._locations != null)
-//				{
-//					ps2 = con.prepareStatement("INSERT INTO "+SQL_TABLES.shopitem_locations.toString()+" "
-//							+ "(uuid, distance, dis_world, dis_locX, dis_locY, dis_locZ) VALUES (?,?,?,?,?,?)");
-//					for(Tuple<Integer, Location> disLoc : modData._locations)
-//					{
-//						int l = 1;
-//						
-//						Location loc = disLoc.GetValue();
-//						ps2.setString(l++, sis.GetUUID().toString());					
-//						ps2.setInt(l++, disLoc.GetKey());
-//						ps2.setString(l++, loc.getWorld().getName());
-//						ps2.setInt(l++, loc.getBlockX());
-//						ps2.setInt(l++, loc.getBlockY());
-//						ps2.setInt(l++, loc.getBlockZ());
-//						ps2.addBatch();
-//					}
-//					ps2.executeBatch();
-//				}
-//				
-//				if(!sis.GetTags().isEmpty())
-//				{
-//					_main.GetTagManager().SaveTagsAsync(sis);
-//						
-//				}
-//				
-//			}
-//			
-//			
-//			
-//			con.close();
-//		} 
-//		catch (Exception e) 
-//		{
-//			e.printStackTrace();
-//			Bukkit.getLogger().info("ShopManagerSQL:SaveShopItem:Saving shopitem: Couldnt add item");
-//		}
-//		
-//	}
+
 
 	BukkitTask SaveUniqueItemAsync(ShopItemUnique siu)
 	{

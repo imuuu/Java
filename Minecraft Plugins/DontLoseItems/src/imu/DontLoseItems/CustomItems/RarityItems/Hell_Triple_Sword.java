@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.Other.Metods;
 
 public class Hell_Triple_Sword extends RarityItem
 {
@@ -27,12 +28,25 @@ public class Hell_Triple_Sword extends RarityItem
 			case Epic: 		return new ItemStack(Material.IRON_SWORD);
 			case Mythic: 	return new ItemStack(Material.DIAMOND_SWORD);
 			case Legendary: return new ItemStack(Material.NETHERITE_SWORD);
+			case Void: 		return new ItemStack(Material.NETHERITE_SWORD);
 		}
 		
 		return new ItemStack(Material.STONE);
 	}
 	
-	
+	@Override
+	public ItemStack GetItemStack()
+	{
+		ItemStack stack = super.GetItemStack();
+		
+		if(Rarity == ITEM_RARITY.Void)
+		{
+			Metods.setDisplayName(stack, "&0"+Rarity.toString()+"&4 Triple Sword");
+		}
+		
+		return stack;
+		
+	}
 	
 	public Material GetMaterial()
 	{
@@ -48,10 +62,11 @@ public class Hell_Triple_Sword extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 1;
-		case Mythic: return 2;
+		case Epic: 		return 1;
+		case Mythic: 	return 2;
 		case Legendary: return 4;
-		default: return 0;
+		case Void: 		return 7;
+		default: 		return 0;
 		
 		}
 	}
@@ -59,9 +74,10 @@ public class Hell_Triple_Sword extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return 5;
-		case Mythic: return 10;
+		case Epic: 		return 5;
+		case Mythic: 	return 10;
 		case Legendary: return 20;
+		case Void: 		return 40;
 		default: return 0;
 		
 		}
@@ -71,10 +87,11 @@ public class Hell_Triple_Sword extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return false;
-		case Mythic: return false;
+		case Epic: 		return false;
+		case Mythic: 	return false;
 		case Legendary: return false;
-		default: return false;
+		case Void: 		return true;
+		default: 		return false;
 		
 		}
 	}
@@ -83,9 +100,10 @@ public class Hell_Triple_Sword extends RarityItem
 	{
 		switch (Rarity)
 		{
-		case Epic: return false;
-		case Mythic: return false;
+		case Epic: 		return false;
+		case Mythic: 	return false;
 		case Legendary: return false;
+		case Void: 		return true;
 		default: return false;
 		
 		}

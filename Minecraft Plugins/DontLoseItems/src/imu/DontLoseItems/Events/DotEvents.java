@@ -18,6 +18,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.iAPI.Main.ImusAPI;
@@ -130,7 +131,9 @@ public class DotEvents implements Listener
 	{
 		if(player.isBlocking()) return;
 		
-		if(player.isBlocking() && Manager_HellArmor.Instance.IsHellReflectShield(player.getInventory().getItemInOffHand())) return;
+		if(player.isBlocking() 
+				&& Manager_HellTools.Instance.
+				Hell_ReflectShield_Controller.IsHellReflectShield(player.getInventory().getItemInOffHand())) return;
 		
 		int newHunger = player.getFoodLevel()-hungerDmg;
 		

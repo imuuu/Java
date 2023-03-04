@@ -26,8 +26,10 @@ import org.bukkit.util.Vector;
 import imu.DontLoseItems.CustomItems.Entities.Throwable_DoubleSword;
 import imu.DontLoseItems.CustomItems.Entities.Throwable_DoubleSword.Throwable_State;
 import imu.DontLoseItems.CustomItems.RarityItems.Hell_Triple_Sword;
+import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.other.RarityItem;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
@@ -44,7 +46,9 @@ public final class Hell_Sword_Controller
 //			new Hell_Double_Sword(ITEM_RARITY.Rare, 		new double[] { 0 }), // not used
 			new Hell_Triple_Sword(ITEM_RARITY.Epic, 		new double[] {}),
 			new Hell_Triple_Sword(ITEM_RARITY.Mythic, 		new double[] {}),
-			new Hell_Triple_Sword(ITEM_RARITY.Legendary,	new double[] {}), };
+			new Hell_Triple_Sword(ITEM_RARITY.Legendary,	new double[] {}), 
+			new Hell_Triple_Sword(ITEM_RARITY.Void,			new double[] {}), 
+			};
 	
 	private HashSet<Throwable_DoubleSword> _throwable;
 
@@ -53,6 +57,10 @@ public final class Hell_Sword_Controller
 	{
 		_cds = new Cooldowns();
 		_throwable = new HashSet<>();
+		for(RarityItem rarityItem : _hellSwords)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Tools.toString(), CreateItem(rarityItem.Rarity));
+		}
 	}
 
 	public RarityItem GetRarityItem(ITEM_RARITY rarity)
@@ -66,24 +74,25 @@ public final class Hell_Sword_Controller
 		}
 		return null;
 	}
-	public ItemStack CreateHellSword(ITEM_RARITY rarity)
+	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
 		Hell_Triple_Sword rarityItem = (Hell_Triple_Sword) GetRarityItem(rarity);
 		ItemStack stack = rarityItem.GetItemStack();
-
+		String colorCode = rarity == ITEM_RARITY.Void ? "&5" : "&9";
+		
 		ArrayList<String> lores = new ArrayList<>();
 		lores.add(" ");
 		lores.add("&9Able to throw the double swords");
 		lores.add(" ");
-		lores.add("&9Throw distance of &4"+(int)rarityItem.GetThrowDistance());
+		lores.add(colorCode+"Throw distance of &4"+(int)rarityItem.GetThrowDistance());
 		lores.add(" ");
-		lores.add("&9Stuck time on wall is &2"+(int)rarityItem.GetDotTimeMultiplier()+"&9 s");
+		lores.add(colorCode+"Stuck time on wall is &2"+(int)rarityItem.GetDotTimeMultiplier()+"&9 s");
 		lores.add(" ");
 		if(rarityItem.HasDotDamageEntityMultiplier())
 		{
-			lores.add("&9Every stacked mob &eincreases");
-			lores.add("&cfire &9dot damage by 2 hears");
-			lores.add("&9when swords are stuck to block");
+			lores.add(colorCode+"Every stacked mob &eincreases");
+			lores.add("&cfire "+colorCode+"dot damage by 2 hears");
+			lores.add(colorCode+"when swords are stuck to block");
 			lores.add(" ");
 		}
 		
@@ -105,6 +114,16 @@ public final class Hell_Sword_Controller
 	public boolean IsHellSword(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_SWORD, PersistentDataType.INTEGER) != null;
+	}
+	
+	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
+	{
+		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_SWORD, PersistentDataType.INTEGER);
+		if(i == null ) return false;
+		
+		if(i == tier.GetIndex()) return true;
+		
+		return false;
 	}
 	
 	public ItemStack RemoveHellSword(ItemStack stack)

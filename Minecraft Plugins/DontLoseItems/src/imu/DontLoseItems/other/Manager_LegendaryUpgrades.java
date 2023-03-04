@@ -148,9 +148,11 @@ public class Manager_LegendaryUpgrades
 
 	public ItemStack Get_UpgradeHellShield()
 	{
-		ItemStack stack = Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary);
+		//ItemStack stack = Manager_HellArmor.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary);
+		ItemStack stack = Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary);
 		stack = AddSyntax(stack);
 		Metods._ins.setPersistenData(stack, PD_HELL_SHIELD, PersistentDataType.INTEGER, 1);
+		stack = Manager_HellTools.Instance.Hell_ReflectShield_Controller.RemoveShield(stack);
 		stack.setType(Material.SHIELD);
 		return stack;
 	}

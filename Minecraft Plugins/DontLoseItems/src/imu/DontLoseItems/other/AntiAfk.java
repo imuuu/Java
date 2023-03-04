@@ -95,11 +95,19 @@ public class AntiAfk implements Listener
 		_afks.remove(player.getUniqueId());
         player.kickPlayer("You have been kicked for being AFK for too long.");
 	}
+	private double GetDistance(Location loc, Location loc2)
+	{
+		if(loc == null || loc2 == null) return 999999999;
+		
+		if(loc.getWorld() != loc2.getWorld() ) return 999999999;
+		
+		return loc.distance(loc2);
+	}
 	private void IsAfk(Player player)
 	{
 		AFK_Player afkPlayer = GetAFK_Player(player);
 			
-		if (afkPlayer.LastLoc != null && player.getLocation().distance(afkPlayer.LastLoc) > MAX_NEEDED_MOVE_DISTANCE)
+		if (GetDistance(player.getLocation(), afkPlayer.LastLoc) > MAX_NEEDED_MOVE_DISTANCE)
 		{
 			afkPlayer.Reset(player);
 			return;

@@ -418,7 +418,10 @@ public class MiniGameSpleef extends MiniGame implements Listener
 				}
 				
 				if(has_ended)
+				{
+					cancel();
 					return;
+				}
 				
 				if(!_cd.isCooldownReady("start") && !has_started)
 				{					

@@ -35,6 +35,7 @@ public class ImusTabCompleter implements TabCompleter
 		_permission = permission;
 	}
 	
+	
 	public void setArgumenrs(String argumentName, String[] argumnets)
 	{
 		_cmdAndArguments.put(argumentName, argumnets);
@@ -43,6 +44,69 @@ public class ImusTabCompleter implements TabCompleter
 	public void RemoveArgument(String argumentName)
 	{
 		_cmdAndArguments.remove(argumentName);
+	}
+	
+	public void AddArgument(String argumentName, String argument)
+	{
+		String[] args = null;
+		
+		if(_cmdAndArguments.containsKey(argumentName))
+		{
+			args = _cmdAndArguments.get(argumentName);
+		}
+		
+		String[] newArgs = {argument};
+		
+		if(args != null)
+		{
+			newArgs = new String[args.length+1];
+			for(int i = 0; i < args.length; i ++)
+			{
+				newArgs[i] = args[i];
+			}
+			newArgs[newArgs.length-1] = argument;
+		}
+		
+		_cmdAndArguments.put(argumentName, newArgs);
+	}
+	
+	public void RemoveArgument(String argumentName, String removeArgument)  //NOT TESTED
+	{
+	    String[] args = _cmdAndArguments.get(argumentName);
+	    if (args == null) 
+	    {
+	        return;
+	    }
+
+	    int removeIndex = -1;
+	    for (int i = 0; i < args.length; i++) {
+	        if (args[i].equals(removeArgument)) {
+	            removeIndex = i;
+	            break;
+	        }
+	    }
+
+	    if (removeIndex == -1) {
+	        // Argument not found in the array, do nothing
+	        return;
+	    }
+
+	    // Create a new array without the argument to remove
+	    String[] newArgs = new String[args.length - 1];
+	    int newIndex = 0;
+	    for (int i = 0; i < args.length; i++) {
+	        if (i != removeIndex) {
+	            newArgs[newIndex] = args[i];
+	            newIndex++;
+	        }
+	    }
+
+	    // Update the HashMap with the new array
+	    if (newArgs.length == 0) {
+	        _cmdAndArguments.remove(argumentName);
+	    } else {
+	        _cmdAndArguments.put(argumentName, newArgs);
+	    }
 	}
 	
 	
