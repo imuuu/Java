@@ -56,6 +56,7 @@ public class DontLoseItems extends JavaPlugin
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 		
 		_manager_leg_upgrades.SetTestItems();
+		Manager_HellArmor.Instance.SetArmorTestItems();
 	}
 
 	@Override

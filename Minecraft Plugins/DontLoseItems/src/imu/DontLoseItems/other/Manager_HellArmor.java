@@ -47,8 +47,10 @@ import org.bukkit.scheduler.BukkitTask;
 
 import imu.DontLoseItems.CustomItems.Hell_ReflectShieldController;
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
+import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
@@ -108,9 +110,37 @@ public class Manager_HellArmor implements Listener
 		
 		Runnable();
 		//AddVoidArmorRecipies();
+		
+		
 	}
 	
-	
+	public void SetArmorTestItems()
+	{
+		for(RarityItem rarityItem : _hellHelmet)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellHelmet(rarityItem.Rarity));
+		}
+		
+		for(RarityItem rarityItem : _hellChest)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellChestplate(rarityItem.Rarity));
+		}
+		
+		for(RarityItem rarityItem : _hellLeggins)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellLeggins(rarityItem.Rarity));
+		}
+		
+		for(RarityItem rarityItem : _hellBoots)
+		{
+			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellBoots(rarityItem.Rarity));
+		}
+		
+		for(RarityItem rarityItem : _hellArrows)
+		{
+			Manager_FastInventories.Instance.TryToAdd("Hell_Other", CreateHellArrow(rarityItem.Rarity));
+		}
+	}
 	
 	private void Runnable()
 	{
