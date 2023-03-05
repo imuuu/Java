@@ -10,6 +10,8 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.iAPI.FastInventory.Fast_Inventory;
+import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Other.Metods;
 
 public class Manager_LegendaryUpgrades
@@ -31,9 +33,27 @@ public class Manager_LegendaryUpgrades
 	public Manager_LegendaryUpgrades()
 	{
 		Instance = this;
+		
 	}
 	
-	
+	public void SetTestItems()
+	{
+		Fast_Inventory fastInv = new Fast_Inventory("Upgrade Items", "&eUpgrades", null);
+		
+		fastInv.AddStack(Get_UpgradeHellAxe());
+		fastInv.AddStack(Get_UpgradeHellPickaxe());
+		fastInv.AddStack(Get_UpgradeHellHoe());
+		fastInv.AddStack(Get_UpgradeHellShield());
+		fastInv.AddStack(Get_UpgradeHellSword());
+		
+		fastInv.AddStack(Get_UpgradeHellHelmet());
+		fastInv.AddStack(Get_UpgradeHellChest());
+		fastInv.AddStack(Get_UpgradeHellLeggings());
+		fastInv.AddStack(Get_UpgradeHellBoots());
+		
+		Manager_FastInventories.Instance.RegisterFastInventory(fastInv);
+		
+	}
 	public ItemStack AddSyntax(ItemStack s)
 	{
 		Metods._ins.addDisplayName(s, ChatColor.AQUA+"UPGRADE &5for ", true);

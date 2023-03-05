@@ -54,6 +54,8 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
 		getServer().getPluginManager().registerEvents(new AntiAfk(), this);
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
+		
+		_manager_leg_upgrades.SetTestItems();
 	}
 
 	@Override
