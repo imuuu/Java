@@ -120,21 +120,25 @@ public class Manager_HellArmor implements Listener
 		{
 			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellHelmet(rarityItem.Rarity));
 		}
+		Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateVOIDHelmet());
 		
 		for(RarityItem rarityItem : _hellChest)
 		{
 			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellChestplate(rarityItem.Rarity));
 		}
+		Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateVOIDChestplate());
 		
 		for(RarityItem rarityItem : _hellLeggins)
 		{
 			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellLeggins(rarityItem.Rarity));
 		}
+		Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateVOIDLeggins());
 		
 		for(RarityItem rarityItem : _hellBoots)
 		{
 			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateHellBoots(rarityItem.Rarity));
 		}
+		Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Armor.toString(), CreateVOIDBoots());
 		
 		for(RarityItem rarityItem : _hellArrows)
 		{
