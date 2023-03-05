@@ -1,4 +1,4 @@
-package imu.DontLoseItems.other;
+package imu.DontLoseItems.Managers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.iAPI.FastInventory.Fast_Inventory;
 import imu.iAPI.FastInventory.Manager_FastInventories;

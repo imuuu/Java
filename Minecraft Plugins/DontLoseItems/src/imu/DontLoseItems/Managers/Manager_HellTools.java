@@ -1,4 +1,4 @@
-package imu.DontLoseItems.CustomItems;
+package imu.DontLoseItems.Managers;
 
 import java.util.ArrayList;
 
@@ -19,9 +19,13 @@ import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import imu.DontLoseItems.CustomItems.Hell_Hoe_Controller;
+import imu.DontLoseItems.CustomItems.Hell_Pickaxe_Controller;
+import imu.DontLoseItems.CustomItems.Hell_ReflectShieldController;
+import imu.DontLoseItems.CustomItems.Hell_Sword_Controller;
+import imu.DontLoseItems.CustomItems.Hell_ThrowingAxe_Controller;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.Other.Metods;
 
 

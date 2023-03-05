@@ -23,10 +23,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
+import imu.DontLoseItems.Managers.Manager_HellTools;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Metods;

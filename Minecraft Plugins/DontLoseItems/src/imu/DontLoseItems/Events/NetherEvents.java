@@ -66,8 +66,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.DontLoseItems.other.PlayerFear;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;

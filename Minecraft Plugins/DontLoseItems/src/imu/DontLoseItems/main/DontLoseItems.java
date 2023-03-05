@@ -9,7 +9,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Events.ChestLootEvents;
 import imu.DontLoseItems.Events.DotEvents;
 import imu.DontLoseItems.Events.ElytraGenerationEvents;
@@ -17,9 +16,10 @@ import imu.DontLoseItems.Events.EndChestLootEvents;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.Events.VoidTotemEvents;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
+import imu.DontLoseItems.Managers.Manager_HellTools;
+import imu.DontLoseItems.Managers.Manager_LegendaryUpgrades;
 import imu.DontLoseItems.other.AntiAfk;
-import imu.DontLoseItems.other.Manager_HellArmor;
-import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.CmdUtil.CmdHelper;
 import imu.iAPI.Other.ImusTabCompleter;
 

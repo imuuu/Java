@@ -1,4 +1,4 @@
-package imu.DontLoseItems.other;
+package imu.DontLoseItems.Managers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,10 +46,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import imu.DontLoseItems.CustomItems.Hell_ReflectShieldController;
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.Enums.CATEGORY;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.main.DontLoseItems;
+import imu.DontLoseItems.other.RarityItem;
 import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;

@@ -21,13 +21,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
-import imu.DontLoseItems.CustomItems.CustomItem;
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
 import imu.DontLoseItems.CustomItems.Unstable_Void_Stone;
-import imu.DontLoseItems.CustomItems.Unstable_Void_Stone.VOID_STONE_TIER;
+import imu.DontLoseItems.Enums.VOID_STONE_TIER;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
+import imu.DontLoseItems.Managers.Manager_LegendaryUpgrades;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.DontLoseItems.other.Manager_HellArmor;
-import imu.DontLoseItems.other.Manager_LegendaryUpgrades;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Metods;

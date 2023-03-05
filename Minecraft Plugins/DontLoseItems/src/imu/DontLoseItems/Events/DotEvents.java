@@ -18,9 +18,9 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import imu.DontLoseItems.CustomItems.Manager_HellTools;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
+import imu.DontLoseItems.Managers.Manager_HellTools;
 import imu.DontLoseItems.main.DontLoseItems;
-import imu.DontLoseItems.other.Manager_HellArmor;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;

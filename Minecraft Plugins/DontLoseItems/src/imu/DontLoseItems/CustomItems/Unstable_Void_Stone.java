@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.DontLoseItems.Enums.VOID_STONE_TIER;
 import imu.iAPI.Other.Metods;
 
 public class Unstable_Void_Stone extends CustomItem
@@ -17,11 +18,7 @@ public class Unstable_Void_Stone extends CustomItem
 		super(new ItemStack(Material.STONE), "&5UNSTABLE &0VOID &7STONE");		
 	}
 	
-	public enum VOID_STONE_TIER
-	{
-		NORMAL,
-		RARE,
-	}
+	
 	@Override
 	public ItemStack GetItemStack()
 	{
