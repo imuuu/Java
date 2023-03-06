@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
-import imu.DontLoseItems.CustomItems.Unstable_Void_Stone;
+import imu.DontLoseItems.CustomItems.VoidStones.Unstable_Void_Stone;
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.Managers.Manager_LegendaryUpgrades;
