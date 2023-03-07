@@ -107,7 +107,7 @@ public final class Hell_ReflectShieldController implements Listener
 
 	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
-		Hell_ReflectShield rarityItem = null;
+		Hell_ReflectShield rarityItem = _hellReflectShields[0];
 
 		for (Hell_ReflectShield shield : _hellReflectShields)
 		{
@@ -192,7 +192,12 @@ public final class Hell_ReflectShieldController implements Listener
 		}
 
 	}
-
+	
+	public ITEM_RARITY GetRarity(ItemStack stack)
+	{
+		return ITEM_RARITY.GetRarity(Metods._ins.getPersistenData(stack, _PD_HELL_REFLECT_SHIELD, PersistentDataType.INTEGER));
+	}
+	
 	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
 	{
 		Integer i = Metods._ins.getPersistenData(stack, _PD_HELL_TIER, PersistentDataType.INTEGER);

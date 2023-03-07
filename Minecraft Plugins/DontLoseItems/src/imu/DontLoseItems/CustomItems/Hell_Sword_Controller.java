@@ -72,7 +72,7 @@ public final class Hell_Sword_Controller
 				return sword;
 			}
 		}
-		return null;
+		return _hellSwords[0];
 	}
 	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
@@ -114,6 +114,11 @@ public final class Hell_Sword_Controller
 	public boolean IsHellSword(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_SWORD, PersistentDataType.INTEGER) != null;
+	}
+	
+	public ITEM_RARITY GetRarity(ItemStack stack)
+	{
+		return ITEM_RARITY.GetRarity(Metods._ins.getPersistenData(stack, _PD_HELL_SWORD, PersistentDataType.INTEGER));
 	}
 	
 	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)

@@ -25,6 +25,7 @@ import imu.DontLoseItems.CustomItems.VoidStones.Unstable_Void_Stone;
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.Managers.Manager_LegendaryUpgrades;
+import imu.DontLoseItems.Managers.Manager_VoidStones;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
@@ -255,7 +256,7 @@ public class EndChestLootEvents implements Listener
 			stack.setAmount(1);
 		}
 		
-		if (Unstable_Void_Stone.IsVoidStone(stack))
+		if (Manager_VoidStones.IsVoidStone(stack))
 		{
 			stack.setAmount(1);
 		}

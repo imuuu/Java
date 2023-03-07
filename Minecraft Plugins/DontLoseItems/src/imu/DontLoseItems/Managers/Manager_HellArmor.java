@@ -55,6 +55,7 @@ import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
+import net.minecraft.world.item.enchantment.Enchantment.Rarity;
 
 public class Manager_HellArmor implements Listener
 {
@@ -1202,7 +1203,32 @@ public class Manager_HellArmor implements Listener
 		return 0;
 	}
 	
+	public boolean IsHellArmor(ItemStack stack)
+	{
+		return 		IsHellHelmet(stack) 
+				|| 	IsHellChestplate(stack) 
+				|| 	IsHellLeggins(stack)
+				|| 	IsHellBoots(stack);
+	}
 	
+	public ItemStack IncreaseTier(ItemStack stack, int increase)
+	{
+		ITEM_RARITY current_rarity = GetRarity(stack);
+		ITEM_RARITY now_rarity = current_rarity.GetIncreaseRarity(increase);
+		ItemStack newStack = null;
+		
+		//if used more rapidly then should be use if else	
+		if(IsHellHelmet(stack)) 	newStack = CreateHellHelmet(now_rarity);
+		
+		if(IsHellChestplate(stack)) newStack = CreateHellChestplate(now_rarity);
+		
+		if(IsHellLeggins(stack))	newStack = CreateHellLeggins(now_rarity);
+		
+		if(IsHellBoots(stack)) 		newStack = CreateHellBoots(now_rarity);
+		
+		Metods.CloneEnchantments(stack, newStack);
+		return newStack;
+	}
 	
 	public boolean IsHellArrow(ItemStack stack)
 	{

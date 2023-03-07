@@ -33,7 +33,7 @@ public final class Hell_Hoe_Controller
 	private HashSet<Material> _seedsMaterials;
 	HashMap<Material, Material> cropDataMaterials = new HashMap<>();
 	
-	private RarityItem[] _hellAxe = 
+	private RarityItem[] _hellHoe = 
 		{
 
 			new Hell_Hoe(ITEM_RARITY.Epic, 		    new double[] {}),
@@ -48,7 +48,7 @@ public final class Hell_Hoe_Controller
 		_cds = new Cooldowns();
 		InitSeedMaterials();
 		
-		for(RarityItem rarityItem : _hellAxe)
+		for(RarityItem rarityItem : _hellHoe)
 		{
 			Manager_FastInventories.Instance.TryToAdd(CATEGORY.Hell_Tools.toString(), CreateItem(rarityItem.Rarity));
 		}
@@ -82,14 +82,14 @@ public final class Hell_Hoe_Controller
 	
 	public RarityItem GetRarityItem(ITEM_RARITY rarity)
 	{
-		for (RarityItem sword : _hellAxe)
+		for (RarityItem hoe : _hellHoe)
 		{
-			if (sword.Rarity == rarity)
+			if (hoe.Rarity == rarity)
 			{
-				return sword;
+				return hoe;
 			}
 		}
-		return null;
+		return _hellHoe[0];
 	}
 	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
@@ -132,6 +132,11 @@ public final class Hell_Hoe_Controller
 	public boolean IsHellHoe(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_HOE, PersistentDataType.INTEGER) != null;
+	}
+	
+	public ITEM_RARITY GetRarity(ItemStack stack)
+	{
+		return ITEM_RARITY.GetRarity(Metods._ins.getPersistenData(stack, _PD_HELL_HOE, PersistentDataType.INTEGER));
 	}
 	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
 	{

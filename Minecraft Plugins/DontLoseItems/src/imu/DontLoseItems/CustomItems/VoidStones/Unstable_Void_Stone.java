@@ -12,29 +12,19 @@ import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.CustomItem;
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
+import imu.DontLoseItems.Enums.VOID_STONE_TYPE;
 import imu.DontLoseItems.Managers.Manager_VoidStones;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 
-public class Unstable_Void_Stone extends CustomItem
+public class Unstable_Void_Stone extends Void_Stone
 {
-	private static final String PD_VOID_STONE = "UNSTABLE_VOID_STONE";
+
 	public Unstable_Void_Stone()
 	{
-		super(new ItemStack(Material.STONE), "&5UNSTABLE &0VOID &7STONE");		
+		super("&5UNSTABLE &0VOID &7STONE", VOID_STONE_TYPE.UNSTABLE, VOID_STONE_TIER.NONE);		
 	}
-	
-	
-	@Override
-	public ItemStack GetItemStack()
-	{
-		ItemStack stack = Stack.clone();
-		Metods.setDisplayName(stack, "&5UNSTABLE &0VOID &7STONE");
 
-		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 0);
-		return stack;
-	}
-	
 	@SuppressWarnings("incomplete-switch")
 	public ItemStack GetVoidStoneWithTier(VOID_STONE_TIER tier)
 	{
@@ -46,7 +36,7 @@ public class Unstable_Void_Stone extends CustomItem
 		return GetItemStack();
 	}
 	
-	public static int GetTierInceaseToEnchant(VOID_STONE_TIER tier)
+	public int GetTierInceaseToEnchant(VOID_STONE_TIER tier)
 	{
 		switch (tier)
 		{
@@ -71,46 +61,35 @@ public class Unstable_Void_Stone extends CustomItem
 		lores.add("&9Item needs to have at least 3 enchants");
 		lores.add("");
 		lores.add("&9After use the item will be");
-		lores.add("&9unenchantable");
+		lores.add("&4unenchantable &9and &4Smitable");
 		Metods._ins.addLore(stack, lores);
 		return stack;
 
 	}
 	private ItemStack GetNormal()
 	{
+		Set_tier(VOID_STONE_TIER.NORMAL);
 		ItemStack stack = GetItemStack();
 		stack = SetBaseLore(stack, 1);
 		Metods._ins.AddGlow(stack);
-		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 0);
+
 		return stack;
 	}
 	
 	private ItemStack GetRare()
 	{
+		Set_tier(VOID_STONE_TIER.RARE);
 		ItemStack stack =  GetItemStack();
 
 		stack = SetBaseLore(stack, 2);
 		Metods._ins.AddGlow(stack);
-		Metods._ins.setPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER, 1);
 		return stack;
 	}
-	
-	public static boolean IsVoidStone(ItemStack stack)
+	@Override
+	public ItemStack UseItem(ItemStack stack,VOID_STONE_TIER tier)
 	{
-		return Metods._ins.getPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER) != null;
-	}
-	
-	public static VOID_STONE_TIER GetVoidStoneTier(ItemStack stack)
-	{
-		Integer i = Metods._ins.getPersistenData(stack, PD_VOID_STONE, PersistentDataType.INTEGER);
-		if( i == null) return VOID_STONE_TIER.NONE;
+		if(tier == VOID_STONE_TIER.NONE) return stack;
 		
-		return VOID_STONE_TIER.GetFromIndex(i);
-		
-	}
-	
-	public static ItemStack UseItem(ItemStack stack, VOID_STONE_TIER tier)
-	{
 		if(stack.getEnchantments().size() < 3)
 		{
 			System.out.println("not enough enchants");
@@ -156,6 +135,9 @@ public class Unstable_Void_Stone extends CustomItem
 		
 		return stack;
 	}
+
+	
+	
 	
 	
 

@@ -176,6 +176,62 @@ public class Manager_HellTools implements Listener
 		HellAxe_Controller.OnProjectileHit(e);
 	}
 	
+	public boolean IsHellTool(ItemStack stack)
+	{
+		return 		HellHoe_Controller.IsHellHoe(stack) 
+				|| 	HellPickController.IsHellPickaxe(stack) 
+				|| 	Hell_ReflectShield_Controller.IsHellReflectShield(stack) 
+				|| 	HellSword_Controller.IsHellSword(stack) 
+				|| 	HellAxe_Controller.IsHellAxe(stack);
+
+	}
+	
+	public ItemStack IncreaseTier(ItemStack stack, int increase)
+	{
+		ITEM_RARITY current_rarity;
+		ITEM_RARITY now_rarity; // = current_rarity.GetIncreaseRarity(increase);
+		ItemStack newStack = null;
+		
+		//if used more rapidly then should be use if else	
+		if(HellHoe_Controller.IsHellHoe(stack)) 
+		{
+			current_rarity = HellHoe_Controller.GetRarity(stack);
+			now_rarity = current_rarity.GetIncreaseRarity(increase);
+			newStack = CreateHellHoe(now_rarity);
+		}
+		
+		if(HellPickController.IsHellPickaxe(stack)) 
+		{
+			current_rarity = HellPickController.GetRarity(stack);
+			now_rarity = current_rarity.GetIncreaseRarity(increase);
+			newStack = CreateHellPickaxe(now_rarity);
+		}
+		
+		if(Hell_ReflectShield_Controller.IsHellReflectShield(stack)) 
+		{
+			current_rarity = Hell_ReflectShield_Controller.GetRarity(stack);
+			now_rarity = current_rarity.GetIncreaseRarity(increase);
+			newStack = CreateHellReflectShield(now_rarity);
+		}
+		
+		if(HellSword_Controller.IsHellSword(stack)) 
+		{
+			current_rarity = HellSword_Controller.GetRarity(stack);
+			now_rarity = current_rarity.GetIncreaseRarity(increase);
+			newStack = CreateHellTripleSword(now_rarity);
+		}
+		
+		if(HellAxe_Controller.IsHellAxe(stack)) 
+		{
+			current_rarity = HellAxe_Controller.GetRarity(stack);
+			now_rarity = current_rarity.GetIncreaseRarity(increase);
+			newStack = CreateHellDoubleAxe(now_rarity);
+		}
+		
+		Metods.CloneEnchantments(stack, newStack);
+		return newStack;
+	}
+	
 	@EventHandler
 	public void Smithing(PrepareSmithingEvent e)
 	{

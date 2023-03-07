@@ -29,10 +29,11 @@ public class RarityItem extends CustomItem
 		Values = values;
 	}
 	
+	@Override
 	public ItemStack GetItemStack()
 	{
-		ItemStack stack = Stack.clone();
-		Metods.setDisplayName(stack, GetColor(Rarity)+" "+Name);
+		ItemStack stack = Get_stack().clone();
+		Metods.setDisplayName(stack, GetColor(Rarity)+" "+Get_displayName());
 		Metods._ins.setPersistenData(stack, _PD_HELL_TIER, PersistentDataType.STRING, Rarity.toString());
 		return stack;
 	}

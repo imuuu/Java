@@ -67,7 +67,7 @@ public final class Hell_Pickaxe_Controller
 
 	public ItemStack CreateItem(ITEM_RARITY rarity)
 	{
-		Hell_Pickaxe rarityItem = null;
+		Hell_Pickaxe rarityItem = _hellPickaxes[0];
 
 		for (Hell_Pickaxe pick : _hellPickaxes)
 		{
@@ -134,6 +134,11 @@ public final class Hell_Pickaxe_Controller
 	public boolean IsHellPickaxe(ItemStack stack)
 	{
 		return Metods._ins.getPersistenData(stack, _PD_HELL_PICKAXE, PersistentDataType.INTEGER) != null;
+	}
+	
+	public ITEM_RARITY GetRarity(ItemStack stack)
+	{
+		return ITEM_RARITY.GetRarity(Metods._ins.getPersistenData(stack, _PD_HELL_PICKAXE, PersistentDataType.INTEGER));
 	}
 	public boolean IsTier(ItemStack stack, ITEM_RARITY tier)
 	{

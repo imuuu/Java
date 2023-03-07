@@ -18,8 +18,9 @@ public enum VOID_STONE_TIER
 		return -1;
     }
 	
-	public static VOID_STONE_TIER GetFromIndex(int i)
+	public static VOID_STONE_TIER GetFromIndex(Integer i)
     {
+		if(i == null) return NONE;
     	switch (i)
 		{
 		case -1: 	return NONE;

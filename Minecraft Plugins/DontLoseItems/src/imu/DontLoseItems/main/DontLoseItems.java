@@ -46,7 +46,8 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new DotEvents(), this);
 		getServer().getPluginManager().registerEvents(new NetherEvents(), this);
 		getServer().getPluginManager().registerEvents(new EndEvents(), this);
-
+		
+		getServer().getPluginManager().registerEvents(new Manager_VoidStones(), this);
 		getServer().getPluginManager().registerEvents(new Manager_HellArmor(), this);
 		getServer().getPluginManager().registerEvents(new Manager_HellTools(), this);
 		getServer().getPluginManager().registerEvents(new ChestLootEvents(), this);
@@ -54,7 +55,7 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new ElytraGenerationEvents(), this);
 		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
 		getServer().getPluginManager().registerEvents(new AntiAfk(), this);
-		getServer().getPluginManager().registerEvents(new Manager_VoidStones(), this);
+		
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 		
 		_manager_leg_upgrades.SetTestItems();
