@@ -21,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
+import imu.DontLoseItems.CustomItems.VoidStones.Reforge_Void_Stone;
+import imu.DontLoseItems.CustomItems.VoidStones.Unanointment_Void_Stone;
 import imu.DontLoseItems.CustomItems.VoidStones.Unstable_Void_Stone;
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
@@ -113,6 +115,8 @@ public class EndChestLootEvents implements Listener
         Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 1);
+        _lootTable_valuables.Add(new Reforge_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 1);
+        _lootTable_valuables.Add(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 1);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 

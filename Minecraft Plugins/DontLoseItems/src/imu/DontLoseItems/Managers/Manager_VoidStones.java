@@ -18,6 +18,7 @@ import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.DontLoseItems.CustomItems.VoidStones.Reforge_Void_Stone;
+import imu.DontLoseItems.CustomItems.VoidStones.Unanointment_Void_Stone;
 import imu.DontLoseItems.CustomItems.VoidStones.Unstable_Void_Stone;
 import imu.DontLoseItems.CustomItems.VoidStones.Void_Stone;
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
@@ -46,6 +47,7 @@ public class Manager_VoidStones	implements Listener
 	private Void_Stone[] _voidStones = {
 			new Unstable_Void_Stone(),
 			new Reforge_Void_Stone(),
+			new Unanointment_Void_Stone(),
 		};
 	
 	public Manager_VoidStones()
@@ -54,11 +56,7 @@ public class Manager_VoidStones	implements Listener
 		//VoidStone = new Unstable_Void_Stone();
 		InitMaxLevels();
 		
-//		_voidStones = new Void_Stone[]
-//			{
-//				new Unstable_Void_Stone(),
-//				new Reforge_Void_Stone(),
-//			};
+
 	}
 	
 	private void InitMaxLevels()
@@ -72,10 +70,11 @@ public class Manager_VoidStones	implements Listener
 	
 	public void SetTestItems()
 	{
-		Fast_Inventory fastInv= new Fast_Inventory("VoidStones", "&5VoidStones", null);
+		Fast_Inventory fastInv= new Fast_Inventory("Void_Stones", "&5VoidStones", null);
 		fastInv.AddStack(new Unstable_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
 		fastInv.AddStack(new Unstable_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.RARE));
 		fastInv.AddStack(new Reforge_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
+		fastInv.AddStack(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
 		Manager_FastInventories.Instance.RegisterFastInventory(fastInv);
 	}
 	
@@ -135,7 +134,6 @@ public class Manager_VoidStones	implements Listener
 	@EventHandler
 	public void OnAnvil(PrepareAnvilEvent e)
 	{
-		System.out.println("smithg");
 		AnvilInventory inv = e.getInventory();
 		
 		ItemStack stack1 = inv.getItem(0);
@@ -156,11 +154,7 @@ public class Manager_VoidStones	implements Listener
 			return;
 		}
 		
-//		if(IsUnenchantable(stack2))
-//		{
-//			e.setResult(result);
-//			return;
-//		}
+
 	}
 	@EventHandler
 	public void OnBlockPlace(BlockPlaceEvent e)
@@ -207,7 +201,6 @@ public class Manager_VoidStones	implements Listener
 			}
 			Metods._ins.SetLores(result, lores, false);
 			Metods.setDisplayName(result, Metods._ins.GetItemDisplayName(stack1));
-			//Metods.CloneEnchantments(stack1, result);
 			e.setResult(result);
 			return;
 		}
@@ -219,6 +212,26 @@ public class Manager_VoidStones	implements Listener
 			result = new ItemStack(Material.BEDROCK);
 			Metods.setDisplayName(result, "&e&kT &5Unstable Result &e&kT");
 
+			e.setResult(result);
+			return;
+		}
+		
+		if((Metods._ins.isTool(stack1) || Metods._ins.isArmor(stack1)) && GetVoidStoneType(voidStone) == VOID_STONE_TYPE.UNANOINTMENT)
+		{
+			
+			int enchantCount = stack1.getEnchantments().size();
+			
+			if(enchantCount == 0) return;
+	
+			result = new ItemStack(stack1.getType());
+			//result.setAmount(1);
+			String[] lores = new String[stack1.getEnchantments().size()];
+			for(int i = 0; i < enchantCount; i++)
+			{
+				lores[i] = "&5&kTTTTTTT";
+			}
+			Metods._ins.SetLores(result, lores, false);
+			Metods.setDisplayName(result, Metods._ins.GetItemDisplayName(stack1));
 			e.setResult(result);
 			return;
 		}
@@ -280,6 +293,21 @@ public class Manager_VoidStones	implements Listener
 			inv.getItem(0).setAmount(stack1.getAmount()-1);
 			inv.getItem(1).setAmount(voidStone.getAmount()-1);
 			inv.getItem(2).setAmount(0);
+			return;
+		}
+		
+		if(GetVoidStoneType(voidStone) == VOID_STONE_TYPE.UNANOINTMENT)
+		{
+			//ItemStack stack = Unstable_Void_Stone.UseItem(stack1.clone(), GetVoidStoneTier(stack2));
+			ItemStack stack = UseVoidStone(stack1.clone(), voidStone);
+			
+			Metods._ins.InventoryAddItemOrDrop(stack, (Player)e.getWhoClicked());
+			//inv.setItem(0, new ItemStack(Material.AIR));
+			inv.getItem(0).setAmount(stack1.getAmount()-1);
+			inv.getItem(1).setAmount(voidStone.getAmount()-1);
+			inv.getItem(2).setAmount(0);
+			//inv.setItem(1, new ItemStack(Material.AIR));
+			return;
 		}
 
 		

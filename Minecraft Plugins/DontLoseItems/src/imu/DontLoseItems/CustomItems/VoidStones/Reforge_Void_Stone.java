@@ -21,17 +21,17 @@ public class Reforge_Void_Stone extends Void_Stone
 		super("&5REFORGE &0VOID &7STONE", VOID_STONE_TYPE.REFORCE, VOID_STONE_TIER.NORMAL);		
 	}
 	
-	private ItemStack SetBaseLore(ItemStack stack, int power)
+	private ItemStack SetBaseLore(ItemStack stack)
 	{
 		List<String> lores = new ArrayList<>();
 		
 		lores.add("");
-		lores.add("&9This unstable stone is reforge rarity item");
-		lores.add("&9It might completly destory the item or");
-		lores.add("&9decrease or increase rarity by one");
+		lores.add("&9This unstable stone can be used to reforge rare items.");
+		lores.add("&9However, it may completely &4destroy &9the item,");
+		lores.add("&9or &7decrease &9or &eincrease its rarity by &2one.");
 		lores.add("");
-		lores.add("&9Combine it in a Smithing Table");
-		lores.add("&9with a rarity item to apply the effect");
+		lores.add("&9To apply the effect, combine the stone with a rare item");
+		lores.add("&9in a &7Smithing Table");
 		lores.add("");
 
 		Metods._ins.addLore(stack, lores);
@@ -78,7 +78,7 @@ public class Reforge_Void_Stone extends Void_Stone
 	public ItemStack GetVoidStoneWithTier(VOID_STONE_TIER tier)
 	{
 		ItemStack stack = GetItemStack();
-		stack = SetBaseLore(stack, 1);
+		stack = SetBaseLore(stack);
 		
 		return stack;
 	}
