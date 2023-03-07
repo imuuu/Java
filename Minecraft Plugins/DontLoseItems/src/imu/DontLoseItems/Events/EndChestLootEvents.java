@@ -116,7 +116,7 @@ public class EndChestLootEvents implements Listener
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 1);
         _lootTable_valuables.Add(new Reforge_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 1);
-        _lootTable_valuables.Add(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 1);
+        _lootTable_valuables.Add(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
 
 		// _lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 
