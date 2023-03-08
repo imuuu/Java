@@ -38,7 +38,6 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Arenas =====", 2*9);
 		_main = main;
-		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
 		for(Arena arena : _spleefManager.getArenas())
 		{
@@ -139,8 +138,8 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout
 		return _inv.getItem(itemSlot);
 	}
 	
-	@EventHandler
-	public void onInvClickEvent(InventoryClickEvent e) 
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e)
 	{
 		int rawSlot = e.getRawSlot();
 		int slot = e.getSlot();
@@ -195,10 +194,6 @@ public class SpleefGamePlanerChooseArenaINV extends CustomInvLayout
 		
 	}
 
-	@Override
-	public void onClickInsideInv(InventoryClickEvent arg0) {
-		
-	}
 
 	@Override
 	public void setupButtons() {

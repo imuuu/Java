@@ -17,10 +17,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -546,7 +549,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
-	void onQuit(PlayerQuitEvent event)
+	void OnQuit(PlayerQuitEvent event)
 	{
 		Player p = event.getPlayer();
 		if(_players_ingame.containsKey(p) )
@@ -565,7 +568,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
-	void onDrop(PlayerDropItemEvent event)
+	void OnDrop(PlayerDropItemEvent event)
 	{
 		Player p = event.getPlayer();
 				
@@ -577,9 +580,12 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
-	void onPickUp( PlayerPickupItemEvent event)
+	void OnPickUp(EntityPickupItemEvent event)
 	{
-		Player p = event.getPlayer();
+		if(!(event.getEntity() instanceof Player)) return;
+		
+		Player p = (Player)event.getEntity();
+		
 		if(_players_ingame.containsKey(p) || _players_spectators.containsKey(p) || _players_off_game.containsKey(p))
 		{
 			Entity entity = null;
@@ -623,12 +629,22 @@ public class MiniGameCombat extends MiniGame implements Listener
 	}
 	
 	@EventHandler
+	private void OnDeath(PlayerDeathEvent e)
+	{
+		System.out.println("cancel death?");
+		
+		
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
 	void onEntityDamage(EntityDamageEvent event)
 	{
+		if(event.isCancelled()) return;
+		
 		if(has_ended)
 			return;
 		
-		if(event.getEntity() instanceof Player)
+		if((event.getEntity() instanceof Player))
 		{
 			
 			if(event instanceof EntityDamageByEntityEvent)
@@ -763,7 +779,7 @@ public class MiniGameCombat extends MiniGame implements Listener
 				}
 				count++;
 			}
-		}.runTaskTimerAsynchronously(_main, 0, 20);
+		}.runTaskTimerAsynchronously(_main, 0, 10);
 	}
 	void runnable()
 	{

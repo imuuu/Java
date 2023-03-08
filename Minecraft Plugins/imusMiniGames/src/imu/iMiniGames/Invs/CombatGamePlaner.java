@@ -11,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -42,14 +41,13 @@ public class CombatGamePlaner extends GamePlaner
 		super(main, player, ChatColor.DARK_AQUA + ""+ChatColor.BOLD + "Combat Planer");
 		
 		_card = card;
-		System.out.println("card: "+_card);
 		_pm = main.get_planerManager();
 		_card.set_bestOfMax(_main.get_combatManager().get_maximum_best_of());
 		
 		loadPlayerHeads();
 		reset();
 		
-		LoadButtons();
+		//setupButtons();
 	}
 	
 	void reset()
@@ -75,7 +73,8 @@ public class CombatGamePlaner extends GamePlaner
 		}.runTaskAsynchronously(_main);
 	}
 	
-	void LoadButtons() 
+	@Override
+	public void setupButtons() 
 	{
 		ItemStack mod;
 		String lore;
@@ -131,7 +130,7 @@ public class CombatGamePlaner extends GamePlaner
 		 Metods._ins.addLore(mod, ChatColor.AQUA + "Person needs " + ChatColor.DARK_GREEN + ChatColor.BOLD+ _card.get_bestOfAmount()+ChatColor.AQUA+" win(s)", true);
 		 
 		 mod = setupButton(BUTTON.SET_KIT, Material.NETHERITE_CHESTPLATE, ChatColor.AQUA + "Set Kit", 12);
-		 Metods._ins.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bM3:&9 &k# &5Own Gear&9 &k#"),false);
+		 Metods._ins.addLore(mod,ChatColor.translateAlternateColorCodes('&', "&bM1: &aSet &bM2: &cRemove &bSM2:&9 &k# &5Own Gear&9 &k#"),false);
 		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eChoose kit which all"), true);
 		 Metods._ins.addLore(mod, ChatColor.translateAlternateColorCodes('&', "&eplayers use in combat"), true);
 		 Metods._ins.hideAttributes(mod);
@@ -529,7 +528,7 @@ public class CombatGamePlaner extends GamePlaner
 			
 			
 			}
-		}else if(e.getClick()== ClickType.MIDDLE)
+		}else if(e.getClick()== ClickType.SHIFT_RIGHT)
 		{
 			switch(button)
 			{

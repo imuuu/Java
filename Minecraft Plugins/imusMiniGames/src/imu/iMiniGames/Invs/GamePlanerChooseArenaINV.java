@@ -148,8 +148,8 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 		return _inv.getItem(itemSlot);
 	}
 	
-	@EventHandler
-	public void onInvClickEvent(InventoryClickEvent e) 
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e)
 	{
 		int rawSlot = e.getRawSlot();
 		int slot = e.getSlot();
@@ -206,12 +206,6 @@ public class GamePlanerChooseArenaINV extends CustomInvLayout implements Listene
 		
 	}
 
-	@Override
-	public void onClickInsideInv(InventoryClickEvent arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setupButtons()

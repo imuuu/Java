@@ -46,7 +46,6 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 	{
 		super(main, player, ChatColor.DARK_AQUA + "====== Available Effects =====", 4*9);
 		_main = main;
-		_main.getServer().getPluginManager().registerEvents(this,_main);
 		_spleefManager = main.get_spleefManager();
 		addEffects();
 		_tooltip_starts = _size-9;
@@ -202,8 +201,8 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 		return _inv.getItem(itemSlot);
 	}
 	
-	@EventHandler
-	public void onInvClickEvent(InventoryClickEvent e) 
+	@Override
+	public void onClickInsideInv(InventoryClickEvent e) 
 	{
 		int rawSlot = e.getRawSlot();
 		int slot = e.getSlot();
@@ -234,6 +233,7 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 				new SpleefGamePlaner(_main, _player, _card);
 				break;
 			case POTION_EFFECT:
+
 				if(cType ==  ClickType.LEFT)
 				{
 					refresh_item(slot, 1);
@@ -291,10 +291,7 @@ public class SpleefGamePlanerPotionEffectsINV extends CustomInvLayout
 
 
 
-	@Override
-	public void onClickInsideInv(InventoryClickEvent arg0) {
-	}
-
+	
 
 
 	@Override

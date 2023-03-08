@@ -22,6 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Other.Metods;
 import imu.iMiniGames.Arenas.SpleefArena;
+import imu.iMiniGames.Invs.GamePlaner.BUTTON;
 import imu.iMiniGames.Main.ImusMiniGames;
 import imu.iMiniGames.Managers.PlanerManager;
 import imu.iMiniGames.Other.SpleefDataCard;
@@ -119,10 +120,16 @@ public class SpleefGamePlaner extends GamePlaner
 			 }
 		 }
 		 
-		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Best of (amount)", 10);
-		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);	
-		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add how many wins person needs to win the small tournament!", true);
-		 Metods._ins.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
+//		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Best of (amount)", 10);
+//		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);	
+//		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add how many wins person needs to win the small tournament!", true);
+//		 Metods._ins.addLore(mod, ChatColor.AQUA + "Best of: " +ChatColor.DARK_GREEN + _card.get_bestOfAmount(), true);
+//		 
+		 mod = setupButton(BUTTON.ADD_BEST_OF_AMOUNT, Material.WRITABLE_BOOK, ChatColor.AQUA + "Add Needed wins", 10);
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "M1: "+ChatColor.GREEN + "Increase"+ChatColor.AQUA + " M2: "+ChatColor.RED + "Decrease", false);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "Add how many wins ", true);
+		 Metods._ins.addLore(mod, ChatColor.YELLOW + "person needs to win!", true);	 
+		 Metods._ins.addLore(mod, ChatColor.AQUA + "Person needs " + ChatColor.DARK_GREEN + ChatColor.BOLD+ _card.get_bestOfAmount()+ChatColor.AQUA+" win(s)", true);
 		 
 	}
 	
