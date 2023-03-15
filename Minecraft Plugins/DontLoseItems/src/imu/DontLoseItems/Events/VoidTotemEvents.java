@@ -16,27 +16,42 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import imu.DontLoseItems.CustomItems.VoidTotemController;
+import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.iAPI.Other.Metods;
 import net.md_5.bungee.api.ChatColor;
 
-public class VoidTotemEvents implements Listener {
+public class VoidTotemEvents implements Listener 
+{
     private static VoidTotemEvents instance;
     private final VoidTotemController controller;
 
     private final HashSet<Player> players;
+    
+    public VoidTotemEvents() 
+    {
+        instance = this;
+        controller = new VoidTotemController();
+        players = new HashSet<>();
+    }
+
+    public static VoidTotemEvents instance() {
+        return instance;
+    }
+    
     @EventHandler
-    public void voidDamageEvent(EntityDamageEvent e)
+    public void VoidDamageEvent(EntityDamageEvent e)
     {
         if(e.getEntity() instanceof Player)
         {
             Player player = (Player)e.getEntity();
-            if(e.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            if(e.getCause() == EntityDamageEvent.DamageCause.VOID) 
+            {
                 if(players.contains(player)) {
                     e.setCancelled(true);
                     return;
                 }
 
-                if(validateTotem(player.getInventory())) {
+                if(ValidateTotem(player.getInventory())) {
                     player.playEffect(EntityEffect.TOTEM_RESURRECT);
                     player.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 1200, 0));
                     players.add(player);
@@ -46,10 +61,17 @@ public class VoidTotemEvents implements Listener {
         }
     }
 
-    private boolean validateTotem(PlayerInventory inv) {
+    private boolean ValidateTotem(PlayerInventory inv) {
         ItemStack offhand = inv.getItemInOffHand();
         ItemStack mainhand = inv.getItemInMainHand();
-
+        
+        if(Manager_HellArmor.Instance.IsVoidHelmet(inv.getHelmet())
+          && Manager_HellArmor.Instance.IsVoidChestplate(inv.getChestplate())
+          && Manager_HellArmor.Instance.IsVoidLeggins(inv.getLeggings())
+          && Manager_HellArmor.Instance.IsVoidBoots(inv.getBoots()))
+        {
+        	return true;
+        }
        
         if(GetPersistant(offhand)) 
         {
@@ -82,13 +104,5 @@ public class VoidTotemEvents implements Listener {
         players.remove(player);
     }
 
-    public VoidTotemEvents() {
-        instance = this;
-        controller = new VoidTotemController();
-        players = new HashSet<>();
-    }
-
-    public static VoidTotemEvents instance() {
-        return instance;
-    }
+   
 }

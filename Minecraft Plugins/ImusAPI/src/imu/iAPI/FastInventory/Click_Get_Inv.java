@@ -51,7 +51,8 @@ public class Click_Get_Inv extends CustomInvLayout
 		switch (button)
 		{
 		case ITEM:
-			ItemStack stack = _stacks.get(slot).clone();
+			int index = slot+(_currentPage*(_size-9));
+			ItemStack stack = _stacks.get(index).clone();
 			int amount = 1;
 			
 			if(		e.getClick() == ClickType.RIGHT 
