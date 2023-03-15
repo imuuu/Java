@@ -17,6 +17,8 @@ import imu.iAPI.Other.Metods;
 public class Click_Get_Inv extends CustomInvLayout
 {
 	public ArrayList<ItemStack> _stacks;
+	
+	private int _currentPage = 0;
 	public Click_Get_Inv(Player player, String name, ArrayList<ItemStack> stacks)
 	{
 		super(ImusAPI._instance, player, name+ " &3=> &bClick &3to Copy", stacks.size());
@@ -25,7 +27,10 @@ public class Click_Get_Inv extends CustomInvLayout
 
 	enum BUTTON implements IButton
 	{
-		NONE, ITEM,
+		NONE, 
+		ITEM,
+		GO_LEFT,
+		GO_RIGHT
 	}
 
 	@Override
@@ -41,7 +46,8 @@ public class Click_Get_Inv extends CustomInvLayout
 		Integer slot = GetSLOT(e.getCurrentItem());
 		if (slot == null)
 			return;
-
+		
+		int nextPage = 0;
 		switch (button)
 		{
 		case ITEM:
@@ -56,6 +62,18 @@ public class Click_Get_Inv extends CustomInvLayout
 			return;
 
 		case NONE:
+			return;
+		case GO_LEFT:
+			nextPage = PageChance(_currentPage, -1, _stacks.size(), _size-9);
+			if(nextPage > _currentPage) return;
+			_currentPage = nextPage;
+			setupButtons();
+			return;
+		case GO_RIGHT:
+			nextPage = PageChance(_currentPage, 1, _stacks.size(), _size-9);
+			if(nextPage < _currentPage) return;
+			_currentPage = nextPage;
+			setupButtons();
 			return;
 
 		default:
@@ -80,20 +98,35 @@ public class Click_Get_Inv extends CustomInvLayout
 	@Override
 	public void setupButtons()
 	{
-		ItemStack empty = Metods.setDisplayName(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE), " ");
 
-		for (int i = 0; i < _size; i++)
+		ItemStack empty = Metods.setDisplayName(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE), " ");
+		boolean needPages = _stacks.size() >= _size - 9;
+
+		for (int i = 0; i < _size-9; i++)
 		{
-			if (i >= _stacks.size())
+			int index = i+(_currentPage*(_size-9));
+			if (index >= _stacks.size())
 			{
 
 				SetITEM(i, empty);
 				continue;
 			}
-			ItemStack stack = _stacks.get(i).clone();
+			ItemStack stack = _stacks.get(index).clone();
 			SetButton(stack, BUTTON.ITEM);
 			SetITEM(i, stack);
 		}
+		
+		if(!needPages) return;
+		
+		ItemStack redLine = Metods.setDisplayName(new ItemStack(Material.RED_STAINED_GLASS_PANE), " ");
+		for(int i = 0 ; i < 9; i++)
+		{
+			
+			SetButton(redLine, BUTTON.NONE);
+			SetITEM(_size-i-1, redLine);
+		}
+		setupButton(BUTTON.GO_LEFT, Material.DARK_OAK_SIGN, Metods.msgC("&9<< Next"), _size-9);
+		setupButton(BUTTON.GO_RIGHT, Material.DARK_OAK_SIGN, Metods.msgC("&9Next >>"), _size-1);
 	}
 
 	@Override
