@@ -18,6 +18,7 @@ import imu.iAPI.Interfaces.IModDataValue;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Utilities.ImusUtilities;
 import imu.iCards.Main.ImusCards;
 import imu.iCards.Other.Card;
 import imu.iCards.Other.Weighted_Drop;
@@ -47,6 +48,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 	private int[] _selector_array;
 
 	private int _clickedSlot;
+	private ClickType _clickedType;
 	
 	private HashMap<IButton, Integer> _max_modify_rows;
 	
@@ -140,13 +142,17 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 	{
 		BUTTON button = GetButtonPress(e);
 		Integer slot = GetSLOT(e.getCurrentItem());
+		
+		System.out.println("slot: "+slot + " button: "+button + " click: "+e.getClick());
+		
 		if(slot == null) return;
 		
 		_clickedSlot = slot;
+		_clickedType = e.getClick();
 		switch (button) 
 		{
 		case CARD_ITEM:
-
+			
 			if(e.getClick() == ClickType.MIDDLE)
 			{
 				_dropItem.remove((int)slot);
@@ -165,14 +171,34 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 			return;
 		case LORES:
 		{
+			_max_modify_rows.put(BUTTON.LORES, _card.Get_lores().length-1);
+			
 			if(e.getClick() == ClickType.RIGHT)
 			{
 				MoveSelector_OnItem(e.getCurrentItem(), button);
 				RefreshButton_Lores();
 				return;
 			}
+			if(_clickedType == ClickType.MIDDLE)
+			{
+				if(_card.Get_lores() == null || _card.Get_lores().length == 0) return;
+				
+				String[] lores = _card.Get_lores().clone();
+ 				lores = ImusUtilities.RemoveElementAtIndex(lores, GetCurrentSectionIndex());
+				_card.Set_lores(lores);
+				_max_modify_rows.put(BUTTON.LORES, _card.Get_lores().length-1);
+				_selector_array[slot] = 0;
+				RefreshButton_Lores();
+				return;
+			}
 			
-			//Modify_Ench(GetCurrentSection());
+			if(_clickedType != ClickType.SHIFT_LEFT && _clickedType != ClickType.SHIFT_RIGHT)
+			{
+				if(_card.Get_lores() == null || _card.Get_lores().length == 0) return;
+			}
+			
+			
+			
 			String str = "&3Give lore";
 			Metods._ins.ConversationWithPlayer(_player, new ConvModData(BUTTON.LORES,this,str));
 			_player.closeInventory();
@@ -194,7 +220,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 		}
 		
 	}
-	
+
 	@Override
 	protected void onClickPlayerInv(InventoryClickEvent e)
 	{
@@ -224,8 +250,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 						" ",					
 						"&6 Weight:&2 " + info.Get_weight(),
 						"&6 Stack Amount:&2 " + info.StackAmount,
-						//"&6 Raw Mult:&2 " + eInfo.Get_rawMultiplier(),
-						//"&7(&e Modify by M3&7)&6 Max Level:&2 " + eInfo.GetMaxLevel(),
+
 				};
 
 		Metods._ins.SetLores(info.Stack, MakeItFat(lores,slot,3), false);
@@ -242,8 +267,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 			{
 				ar[ll] = "&l"+ar[ll];
 			}
-			
-			//lores[(l+offset)] = "&b&l==> "+lores[(l+offset)];
+
 			lores[(l+offset)] = "&b&l==> &r"+Metods._ins.CombineArrayToOneString(ar, " ");
 			break;
 		}
@@ -260,6 +284,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 		
 		RefreshButton_Name();
 		RefreshButton_Lores();
+		RefreshButton_EventTrigger();
 
 		
 		for(int i = 0; i < 27; ++i)
@@ -280,7 +305,26 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 		ItemStack stack = new ItemStack(Material.PAPER);
 		Metods.setDisplayName(stack, "&bSet Lores");
 		//setupButton(BUTTON.LORES, Material.PAPER, "&bSet Lores", _size-6);
-		String[] lores =  MakeItFat(_card.Get_lores().clone(), _size-6, 0);
+		String[] lores_top = 
+			{
+				"&6M1 &2Modify &6value &e& &6M2 &bMove &6Selector",
+				"&bS&6M1 &2Add &fnew &9Below &e& &bS&6M2 &2Add &9Top",
+				"&6M3 &cRemove &3Selected Lore",
+				" ",		
+			};
+		
+		String[] lores;
+		if(_card.Get_lores() == null || _card.Get_lores().length == 0)
+		{
+			lores = ImusUtilities.CombineArrays(lores_top,  new String[] {"&9= No Lores= "});
+		}
+		else
+		{
+			lores = ImusUtilities.CombineArrays(lores_top,  _card.Get_lores().clone());
+			lores = MakeItFat(lores, _size-6, lores_top.length);
+		}
+		
+		
 		
 		Metods._ins.SetLores(stack,lores , false);
 		SetButton(stack, BUTTON.LORES);
@@ -290,8 +334,7 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 	
 	private void RefreshButton_Name()
 	{
-		//setupButton(BUTTON.NAME, Material.NAME_TAG, "&bGive Card Name", _size-8);
-		
+
 		ItemStack stack = new ItemStack(Material.NAME_TAG);
 		Metods.setDisplayName(stack, "&bGive Card name");
 		String[] lores = new String[] {
@@ -301,6 +344,19 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 		Metods._ins.SetLores(stack,lores , false);
 		SetButton(stack, BUTTON.NAME);
 		SetITEM(_size-8, stack);
+	}
+	
+	private void RefreshButton_EventTrigger()
+	{
+		ItemStack stack = new ItemStack(Material.BEACON);
+		Metods.setDisplayName(stack, "&bAdd Trigger Events");
+		String[] lores = new String[] {
+				"&6=== EVENTS === ",
+		};
+		
+		Metods._ins.SetLores(stack,lores , false);
+		SetButton(stack, BUTTON.TRIGGER_EVENTS);
+		SetITEM(_size-4, stack);
 	}
 //	private void SetIndex(ItemStack stack, int i)
 //	{
@@ -320,8 +376,9 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 	
 	private void AddItem(ItemStack stack)
 	{
-		stack.setAmount(1);
+		
 		ItemStack clone = stack.clone();
+		clone.setAmount(1);
 		SetButton(clone, BUTTON.CARD_ITEM);
 		String str_realStack = ImusAPI._metods.EncodeItemStack(stack);
 		ImusAPI._metods.setPersistenData(clone, REAL_ITEM_ID, PersistentDataType.STRING, str_realStack);
@@ -369,8 +426,31 @@ public class Inv_CreateCard extends CustomInvLayout implements IModDataInv
 
 		case LORES:
 			String[] lores = _card.Get_lores().clone();
-			lores[GetCurrentSectionIndex()] = anwser;
+			int index = 0;
+			if(_clickedType == ClickType.SHIFT_LEFT)
+			{
+				index = GetCurrentSectionIndex()+1;
+				
+				if(_card.Get_lores() == null || _card.Get_lores().length == 0) index = 0;
+				
+				lores = ImusUtilities.AddElementAtIndex(lores, anwser, index);
+			}
+			if(_clickedType == ClickType.SHIFT_RIGHT)
+			{
+				index = GetCurrentSectionIndex();
+				
+				if(index <= 0 || _card.Get_lores() == null || _card.Get_lores().length == 0) index = 0;
+				
+
+				lores = ImusUtilities.AddElementAtIndex(lores, anwser, index);
+			}
+			if(_clickedType == ClickType.LEFT)
+			{
+				lores[GetCurrentSectionIndex()] = anwser;
+			}
+
 			_card.Set_lores(lores);
+			_max_modify_rows.put(BUTTON.LORES, _card.Get_lores().length-1);
 			openThis();
 			break;
 		case NAME:

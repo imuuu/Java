@@ -16,9 +16,10 @@ import imu.imusTNT.TNTs.TNT_Mananger;
 public class ImusTNT extends JavaPlugin
 {
 	public static ImusTNT Instance;
-	private CmdHelper _cmdHelper;
+	
 	final private String _pluginName = "[imusCards]";
 
+	private CmdHelper _cmdHelper;
 	private ImusTabCompleter _tab_cmd1;
 	private TNT_Mananger _managerTNT;
 	@Override
