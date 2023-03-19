@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +19,7 @@ import imu.iMiniGames.Managers.CombatManager;
 import imu.iMiniGames.Other.CombatDataCard;
 import net.md_5.bungee.api.ChatColor;
 
-public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements Listener
+public class CombatGamePlanerChooseArenaINV extends CustomInvLayout
 {
 	CombatManager _combatManager;
 	
@@ -133,7 +131,7 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 	ItemStack setupButton(BUTTON b, Material material, String displayName, int itemSlot)
 	{
 		ItemStack sbutton = new ItemStack(material);
-		Metods._ins.setDisplayName(sbutton, displayName);
+		Metods.setDisplayName(sbutton, displayName);
 		setButton(sbutton, b);
 		_inv.setItem(itemSlot, sbutton);
 		return _inv.getItem(itemSlot);
@@ -181,30 +179,23 @@ public class CombatGamePlanerChooseArenaINV extends CustomInvLayout implements L
 		}	
 	}
 	
-	@EventHandler
-	public void onInvClose(InventoryCloseEvent e)
+	
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0) 
 	{
-		if(isThisInv(e))
-		{
-			HandlerList.unregisterAll(this);
-		}
+
 	}
 
-	@Override
-	public void invClosed(InventoryCloseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onClickInsideInv(InventoryClickEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setupButtons() {
-		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClickInsideInv(InventoryClickEvent arg0)
+	{
 		
 	}
 

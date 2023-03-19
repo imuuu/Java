@@ -4,84 +4,50 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.bukkit.Material;
-
-import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-
+import org.bukkit.util.Vector;
 
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-
-import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Main.ImusWaystones;
 import imu.iWaystones.Managers.WaystoneManager;
 
-public class WaystoneMenuInv extends CustomInvLayout {
+public class WaystoneListInv extends CustomInvLayout {
 
 	private ImusWaystones _main;
-	private Waystone _waystone;
+
 	private WaystoneManager _wManager;
 	private int _page = 0;
 	private ArrayList<Waystone> _discoveredWaystones = new ArrayList<>();
 	
-	public WaystoneMenuInv(Waystone waystone, Player player) 
+	public WaystoneListInv(Player player) 
 	{
-		super(ImusWaystones._instance, player, waystone.GetName()+" "+(waystone.IsCooldown(player) ? "&ccd: "+ waystone.GetCooldown(player): "") , 4 * 9);
+		super(ImusWaystones._instance, player, "&5List of Waystones" , 4 * 9);
 		_main = ImusWaystones._instance;
-		_waystone = waystone;
+
 		_wManager = _main.GetWaystoneManager();
-		_waystone.ReadBuildUpgrade();
 		
 	}
 	
 	void LoadWaystones()
 	{
 		_discoveredWaystones.clear();
-		
-		if(_waystone.IsCooldown(_player)) 
+		for(UUID uuid_ws : _wManager.GetWaystones().keySet())
 		{
-			_player.sendMessage(Metods.msgC("&eYou have cooldown => "+_waystone.GetCooldown(_player)));
-			return;
-		}
-		
-		PlayerUpgradePanel panel = _waystone.GetPlayerUpgradePanel(_player.getUniqueId());
-		for(UUID uuid_ws : _wManager.GetDiscovered().get(_player.getUniqueId()))
-		{
-			if(uuid_ws.equals(_waystone.GetUUID())) continue;
+			
 			
 			Waystone ws = _wManager.GetWaystone(uuid_ws);
 			if(ws == null) continue;
 			
-			if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
-			{
-				continue;
-			}
 			
-			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
-			{
-				continue;
-			}
-			
-			
-			
-			if(ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
-			{
-				continue;
-			}
-			
-			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
-			{
-				continue;
-			}
-			
-			if(!IsAbleToShow(ws)) continue;
 			_discoveredWaystones.add(ws);
 		}
 	}
@@ -91,7 +57,6 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		NONE,
 		GO_LEFT,
 		GO_RIGHT,
-		UPGRADE,
 		WAYSTONE,
 	}
 	BUTTON GetButtonPress(InventoryClickEvent e)
@@ -107,18 +72,12 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		return BUTTON.valueOf(buttonName);
 	}
 	
-	@Override
-	public void invClosed(InventoryCloseEvent e) 
-	{
-		super.invClose(e);
-		ImusWaystones._instance.GetWaystoneManager().UnRegisterInv(_waystone, this);
-	}
-
+	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
 		BUTTON button = GetButtonPress(e);
-		if(!CheckIfValid()) return;
+		//if(!CheckIfValid()) return;
 		
 		switch (button) 
 		{
@@ -129,14 +88,22 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			break;
 		case GO_RIGHT:
 			_page = PageChance(_page, 1, _discoveredWaystones.size(), _size-9);
-			break;		
-		case UPGRADE:
-			_player.closeInventory();
-			new WaystoneUpgradeMenu(_main, _player, _waystone).openThis();
 			break;
+		
+//		case UPGRADE:
+//			_player.closeInventory();
+//			new WaystoneUpgradeMenu(_main, _player, _waystone).openThis();
+//			break;
 		case WAYSTONE:
 			
-			
+			if(e.getClick() == ClickType.SHIFT_RIGHT)
+			{
+				_wManager.RemoveWaystone(GetWaystoneFromButton(e.getCurrentItem()));
+				_player.sendMessage(Metods.msgC("&eWaystone &2has &cREMOVED"));
+				//_player.closeInventory();
+				Init();
+				return;
+			}
 			Teleporting(e.getCurrentItem());			
 			_player.closeInventory();
 			break;
@@ -144,64 +111,56 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		}
 	}
 	
-	boolean CheckIfValid()
-	{
-		if(!_wManager.IsValid(_wManager.GetWaystone(_waystone.GetUUID())))
-		{
-			_player.sendMessage(Metods.msgC("&cThe waystone isn't valid!"));
-			_wManager.RemoveWaystone(_waystone.GetUUID());
-			_player.closeInventory();
-			return false;
-		}
-		return true;
-	}
+//	boolean CheckIfValid()
+//	{
+//		if(!_wManager.IsValid(_wManager.GetWaystone(_waystone.GetUUID())))
+//		{
+//			_player.sendMessage(Metods.msgC("&cThe waystone isn't valid!"));
+//			_wManager.RemoveWaystone(_waystone.GetUUID());
+//			_player.closeInventory();
+//			return false;
+//		}
+//		return true;
+//	}
 	
+//	private Waystone GetWaystoneFromItemStack(ItemStack currentItem)
+//	{
+//		UUID uuid_ws = UUID.fromString(Metods._ins.getPersistenData(currentItem, "iwm", PersistentDataType.STRING));
+//		Waystone ws = _wManager.GetWaystone(uuid_ws);
+//		return ws;
+//	}
+//	
 	private void Teleporting(ItemStack currentItem) 
 	{
-		UUID uuid_ws = UUID.fromString(Metods._ins.getPersistenData(currentItem, "iwm", PersistentDataType.STRING));
-		Waystone ws = _wManager.GetWaystone(uuid_ws);
+		Waystone ws = GetWaystoneFromButton(currentItem);
 		
 		if(ws == null)
 		{
 			_player.sendMessage(Metods.msgC("&cTarget waystone doesn't exist!"));
-			return;
+			//return;
 		}
 		
 		if(!_wManager.IsValid(ws))
 		{
 			_player.sendMessage(Metods.msgC("&3Target Waystone &4isn't Valid!"));
-			return;
 		}
 		
-		if(!_waystone.HasEnoughExpToTeleport(_player))
-		{
-			_player.sendMessage(Metods.msgC("&3You don't have enough &2xp &3to teleport"));
-			return;
-		}
 		
-		_waystone.StartTeleporting(_player, ws);
+		_player.teleport(ws.GetLoc().add(new Vector(0, 1, 0)));
+		
 	
 	}
 
 	@Override
-	public void openThis() {
+	public void openThis() 
+	{
 		super.openThis();
-		ImusWaystones._instance.GetWaystoneManager().RegisterInv(_waystone, this);
-		if(!CheckIfValid())
-		{
-			new BukkitRunnable() {
-				
-				@Override
-				public void run() 
-				{
-					_player.closeInventory();
-					_wManager.RemoveWaystone(_waystone);					
-				}
-			}.runTaskLater(_main, 1);
-			return;
-		}
-		
-		
+
+		Init();
+	}
+	
+	private void Init()
+	{
 		setupButtons();
 		LoadWaystones();
 	}
@@ -217,7 +176,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 				for(int i = _size-9; i < _size; i++) {setupButton(BUTTON.NONE, Material.CYAN_STAINED_GLASS_PANE, " ", i);}
 				setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, "&b<<", _size-9);
 				setupButton(BUTTON.GO_RIGHT, Material.BIRCH_SIGN, "&b>>", _size-1);
-				setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
+				//setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
 				
 			}
 		}.runTaskAsynchronously(_main);
@@ -245,7 +204,14 @@ public class WaystoneMenuInv extends CustomInvLayout {
 
 					ItemStack stack = ws.GetDisplayItem().clone();
 					Metods.setDisplayName(stack, ws.GetName());
-					Metods._ins.SetLores(stack, new String[] {"&7(&eClick&7)&2 to start &bTeleporting"}, false);
+					String[] lores = new String[5];
+					lores[0] = "&7(&eClick&7)&2 to start &bTeleporting";
+					lores[1] = "&7(&5Shift &bM2&7)&2 to &cRemove";
+					lores[2] = " ";
+					lores[3] = "&eOwner: &b"+ws.GetOwnerName();
+					lores[4] = "&eLocation: &5"+ws.GetLoc().getWorld().getName() + " &2"+ws.GetLoc().getBlockX()+ " "+ ws.GetLoc().getBlockY() + " "+ws.GetLoc().getBlockZ();
+					
+					Metods._ins.SetLores(stack, lores, false);
 					Metods._ins.setPersistenData(stack, "iwm", PersistentDataType.STRING, ws.GetUUID().toString());
 					SetButton(stack, BUTTON.WAYSTONE);
 					_inv.setItem(i, stack);
@@ -258,6 +224,13 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	boolean IsAbleToShow(Waystone waystone)
 	{
 		return true;
+	}
+
+	@Override
+	public void invClosed(InventoryCloseEvent arg0)
+	{
+		super.invClose(arg0);
+		
 	}
 	
 	

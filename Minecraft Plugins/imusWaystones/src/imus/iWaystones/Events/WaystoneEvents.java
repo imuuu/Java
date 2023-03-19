@@ -3,6 +3,7 @@ package imus.iWaystones.Events;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,6 +19,7 @@ import imu.iAPI.Other.Metods;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Main.ImusWaystones;
 import imu.iWaystones.Managers.WaystoneManager;
+import net.md_5.bungee.api.ChatColor;
 
 public class WaystoneEvents implements Listener
 {
@@ -98,6 +100,12 @@ public class WaystoneEvents implements Listener
 		
 		if(!_waystoneManager.IsWaystone(e.getBlock())) return;
 		
+		if(e.getPlayer().getGameMode() == GameMode.CREATIVE)
+		{
+			e.getPlayer().sendMessage(ChatColor.DARK_RED+ "You can't break the waystone on Creative Mode!");
+			e.setCancelled(true);
+			return;
+		}
 		Waystone ws =_waystoneManager.GetWaystone(e.getBlock());
 		ws.SendMessageToOwner("&3Someone has &cDestroyed &3your &ewaystone &3named as "+ws.GetName());
 		Bukkit.getLogger().info("WS: "+e.getPlayer().getName() +" broke "+ws.GetOwnerName()+"'s waystone named "+ws.GetName());

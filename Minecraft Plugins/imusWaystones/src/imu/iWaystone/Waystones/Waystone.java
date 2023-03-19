@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -29,9 +28,6 @@ import imu.iWaystone.Upgrades.BuildUpgrade;
 import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Upgrades.UpgradeBottomBuild;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
-import imu.iWaystone.Upgrades.UpgradeCooldown;
-import imu.iWaystone.Upgrades.UpgradeDimension;
-import imu.iWaystone.Upgrades.UpgradeFoundation;
 import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystones.Main.ImusWaystones;
 
@@ -190,7 +186,7 @@ public class Waystone
 	
 	public Location GetLoc()
 	{
-		return _loc;
+		return _loc.clone();
 	}
 	
 	public String GetName()

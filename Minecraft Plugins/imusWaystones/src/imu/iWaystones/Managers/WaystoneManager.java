@@ -27,6 +27,7 @@ import imu.iWaystone.Upgrades.BuildUpgradeEpic;
 import imu.iWaystone.Upgrades.BuildUpgradeLegendary;
 import imu.iWaystone.Upgrades.BuildUpgradeRare;
 import imu.iWaystone.Waystones.Waystone;
+import imu.iWaystones.Invs.WaystoneListInv;
 import imu.iWaystones.Invs.WaystoneMenuInv;
 import imu.iWaystones.Main.ImusWaystones;
 
@@ -385,6 +386,11 @@ public class WaystoneManager
 	public void OpenWaystone(Player player, Waystone waystone)
 	{
 		new WaystoneMenuInv(waystone, player).openThis();
+	}
+	
+	public void OpenWaystoneList(Player player)
+	{
+		new WaystoneListInv(player).openThis();
 	}
 
 	

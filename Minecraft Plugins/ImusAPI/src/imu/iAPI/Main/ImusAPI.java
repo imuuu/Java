@@ -24,6 +24,7 @@ import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.MySQLHelper;
 import imu.iAPI.Other.ProtocolLibUtil;
+import imu.iAPI.SubCommands.Sub_Cmd_FollowPlayer;
 import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 
 public class ImusAPI extends JavaPlugin
@@ -91,7 +92,13 @@ public class ImusAPI extends JavaPlugin
 		CommandHandler handler = new CommandHandler(this);
 		String cmd1 = "ia";
 		handler.registerCmd(cmd1, new ExampleCmd());
-
+		
+//		String cmd1_sub2 = "follow"; 
+//		String full_sub2 = cmd1 + " " + cmd1_sub2;
+//		_cmdHelper.setCmd(full_sub2, "Follow the player", full_sub2);
+//		handler.registerSubCmd(cmd1, cmd1_sub2, new Sub_Cmd_FollowPlayer(_cmdHelper.getCmdData(full_sub2)));
+//		handler.setPermissionOnLastCmd("ia.follow");
+		
 		String cmd1_sub1 = "inv"; 
 		String full_sub1 = cmd1 + " " + cmd1_sub1;
 		_cmdHelper.setCmd(full_sub1, "Open Custom Invs", full_sub1);
@@ -99,7 +106,10 @@ public class ImusAPI extends JavaPlugin
 		handler.setPermissionOnLastCmd("ia.inv");
 		_fastInvs.SetBaseID(cmd1_sub1); // this needs bc it adds tabcomplete things for it
 		
-		cmd1AndArguments.put(cmd1, new String[] { "inv" });
+		
+		
+		//cmd1AndArguments.put(cmd1, new String[] { "inv", "follow" });
+		cmd1AndArguments.put(cmd1, new String[] { "inv"});
 		//cmd1AndArguments.put("inv", new String[] {"test123"});
 
 		// register cmds

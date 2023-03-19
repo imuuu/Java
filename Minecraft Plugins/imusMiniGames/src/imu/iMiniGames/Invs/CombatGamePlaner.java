@@ -76,6 +76,7 @@ public class CombatGamePlaner extends GamePlaner
 	@Override
 	public void setupButtons() 
 	{
+
 		ItemStack mod;
 		String lore;
 		setupButton(BUTTON.EXIT, Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "EXIT", _size-9);
@@ -551,6 +552,7 @@ public class CombatGamePlaner extends GamePlaner
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
+		super.invClosed(e);
 		saveDataCard();
 		e.getPlayer().sendMessage(ChatColor.GOLD + "Combat plan has saved!");
 	}

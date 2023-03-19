@@ -67,8 +67,9 @@ public class GamePlaner extends CustomInvLayout
 	}
 
 	@Override
-	public void invClosed(InventoryCloseEvent arg0) {
-		
+	public void invClosed(InventoryCloseEvent arg0) 
+	{
+
 	}
 
 	@Override

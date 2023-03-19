@@ -26,7 +26,7 @@ public class Manager_FastInventories
 	}
 	public void OpenFastInv(String fastInv_ID, Player player)
 	{
-		System.out.println("open inv named: "+fastInv_ID);
+		Bukkit.getLogger().info("Opened fast inv named: "+fastInv_ID);
 		if(!_fastInventories.containsKey(fastInv_ID.toLowerCase()))
 		{
 			Bukkit.getLogger().info("Couldnt find inv with named as for open:" +fastInv_ID);

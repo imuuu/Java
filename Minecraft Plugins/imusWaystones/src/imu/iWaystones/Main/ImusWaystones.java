@@ -11,10 +11,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
+import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 import imu.iWaystones.Managers.WaystoneManager;
 import imu.iWaystones.Managers.WaystoneManagerSQL;
 import imu.iWaystones.Other.CmdHelper;
 import imu.iWaystones.SubCmds.CMD;
+import imu.iWaystones.SubCmds.SubCMDWaystoneList;
 import imu.iWaystones.SubCmds.SubWaystoneConfirmationCmd;
 import imus.iWaystones.Events.WaystoneEvents;
 public class ImusWaystones extends JavaPlugin
@@ -91,12 +93,32 @@ public class ImusWaystones extends JavaPlugin
 		String cmd1="iw";
 	    handler.registerCmd(cmd1, new CMD());
 	    
+	    String cmd1_sub2 = "list"; 
+		String full_sub2 = cmd1 + " " + cmd1_sub2;
+		_cmdHelper.setCmd(full_sub2, "Open waystone list", full_sub2);
+		handler.registerSubCmd(cmd1, cmd1_sub2, new SubCMDWaystoneList(_cmdHelper.getCmdData(full_sub2)));
+		handler.setPermissionOnLastCmd("iw.list");
+
+
+	    
 	    String cmd1_sub1 = "confirm";
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
 	    _cmdHelper.setCmd(full_sub1, "Confirm waystone", full_sub1);
 	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubWaystoneConfirmationCmd(_cmdHelper.getCmdData(full_sub1)));
 	    
 	    getCommand(cmd1).setExecutor(handler);
+	    
+	    
+	    cmd1AndArguments.put(cmd1, new String[] { "list", });
+		//cmd1AndArguments.put("inv", new String[] {"test123"});
+
+		// register cmds
+		
+
+		// register tabcompleters
+		_tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments, "iw.tabcompleter");
+
+		getCommand(cmd1).setTabCompleter(_tab_cmd1);
 	}	
 		
 	
