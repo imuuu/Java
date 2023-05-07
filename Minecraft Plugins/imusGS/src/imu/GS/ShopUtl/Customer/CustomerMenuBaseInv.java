@@ -244,7 +244,11 @@ public class CustomerMenuBaseInv extends CustomerInv
 				amount = 64;
 				break;
 			case SHIFT_RIGHT:
-				amount = si.Get_amount(); //all
+				
+				amount = 1;
+				if(si != null) amount = si.Get_amount(); //all
+
+				
 				break;
 		default:
 			break;

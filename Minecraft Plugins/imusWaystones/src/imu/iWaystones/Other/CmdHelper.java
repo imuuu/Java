@@ -2,9 +2,9 @@ package imu.iWaystones.Other;
 
 import java.util.HashMap;
 
-import imu.iWaystones.Main.ImusWaystones;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 
+import imu.iWaystones.Main.ImusWaystones;
 
 public class CmdHelper 
 {

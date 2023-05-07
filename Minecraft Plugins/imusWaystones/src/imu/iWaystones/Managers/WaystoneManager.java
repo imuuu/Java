@@ -3,6 +3,7 @@ package imu.iWaystones.Managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -27,12 +29,14 @@ import imu.iWaystone.Upgrades.BuildUpgradeEpic;
 import imu.iWaystone.Upgrades.BuildUpgradeLegendary;
 import imu.iWaystone.Upgrades.BuildUpgradeRare;
 import imu.iWaystone.Waystones.Waystone;
+import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Invs.WaystoneListInv;
 import imu.iWaystones.Invs.WaystoneMenuInv;
 import imu.iWaystones.Main.ImusWaystones;
 
 public class WaystoneManager 
 {
+	public static WaystoneManager Instance;
 	ImusWaystones _main = ImusWaystones._instance;
 	private Set<Material> _valid_mats = new HashSet<>();
 	
@@ -58,8 +62,11 @@ public class WaystoneManager
 	
 	private WaystoneManagerSQL _waystoneManagersSQL;
 	private BukkitTask _runnable;
+	
+	private final String PD_Upgrade_Item = "iw_upgrade_item";
 	public WaystoneManager()
 	{
+		Instance = this;
 		_waystoneManagersSQL = new WaystoneManagerSQL(this);
 		Runnable();
 	}
@@ -168,6 +175,17 @@ public class WaystoneManager
 		return _waystones;
 	}
 	
+	public ArrayList<UUID> GetWaystonesByVisibility(VISIBILITY_TYPE type)
+	{
+		ArrayList<UUID> array = new ArrayList<>();
+
+		for(Entry<UUID, Waystone> data : GetWaystones().entrySet())
+		{
+			if(data.getValue().GetVisibilityType() == type) array.add(data.getKey());
+		}
+		return array;
+	}
+	
 	public boolean IsTeleporting(Player player)
 	{
 		return _IsTeleporting.contains(player.getUniqueId());
@@ -183,7 +201,16 @@ public class WaystoneManager
 		_IsTeleporting.remove(uuid_player);
 	}
 	
-
+	public ItemStack SetUpgradeItemStackPD(ItemStack stack)
+	{
+		Metods._ins.setPersistenData(stack, PD_Upgrade_Item, PersistentDataType.INTEGER, 0);
+		return stack;
+	}
+	
+	public boolean IsUpgradeItemStack(ItemStack stack)
+	{
+		return Metods._ins.getPersistenData(stack, PD_Upgrade_Item, PersistentDataType.INTEGER) != null;
+	}
 	
 	void SetupValidBlocks()
 	{
@@ -277,6 +304,7 @@ public class WaystoneManager
 		return _discoveredWaystones;
 	}
 	
+	
 	public boolean HasDiscovered(Player player, Waystone waystone)
 	{
 		if(!_discoveredWaystones.containsKey(player.getUniqueId())) return false;
@@ -346,6 +374,10 @@ public class WaystoneManager
 		_location_of_waystones.put(waystone.GetLowBlock().getLocation(), waystone.GetUUID());
 		_location_of_waystones.put(waystone.GetMidBlock().getLocation(), waystone.GetUUID());
 		_location_of_waystones.put(waystone.GetTopBlock().getLocation(), waystone.GetUUID());
+	}
+	public void SaveWaystoneUpgrades(Waystone waystone)
+	{
+		_waystoneManagersSQL.SaveUpgrades(waystone);
 	}
 	public void SaveWaystone(Waystone waystone, boolean saveDatabase)
 	{

@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 
@@ -527,7 +526,7 @@ public class ShopManagerSQL
 		
 	}
 	
-	@SuppressWarnings("deprecation")
+	//@SuppressWarnings("deprecation")
 	void LoadShopItems(ShopNormal shop) throws SQLException
 	{
 		Connection con = _main.GetSQL().GetConnection();
@@ -592,7 +591,7 @@ public class ShopManagerSQL
 				
 				}
 				
-				if(!Strings.isNullOrEmpty(typeData))
+				if(!(typeData == null || typeData == ""))  //!Strings.isNullOrEmpty(typeData)
 					sis.ParseJsonData(new JsonParser().parse(typeData).getAsJsonObject());
 			
 				//_main.getLogger().info("sis: "+sis.GetRealItem().getType()+ " price: "+sis.GetItemPrice());

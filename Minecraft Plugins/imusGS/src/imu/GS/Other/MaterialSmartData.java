@@ -29,10 +29,14 @@ public class MaterialSmartData
 		for(Tuple<ItemStack,Double> info : Metods._ins.GetRecipe(new ItemStack(_mat)))
 		{
 			//System.out.println(info);
-			if(!_mat_multies.containsKey(info.GetKey().getType())) _mat_multies.put(info.GetKey().getType(), 0.0);
+			Material material = info.GetKey().getType();
+			Double amount = info.GetValue();
 			
-			double multi = _mat_multies.get(info.GetKey().getType())+info.GetValue();
-			_mat_multies.put(info.GetKey().getType(), multi);
+			if(!_mat_multies.containsKey(material)) _mat_multies.put(material, 0.0);
+			
+			double multi = _mat_multies.get(material)+amount;
+			
+			_mat_multies.put(material, multi);
 
 		}
 		

@@ -1,5 +1,6 @@
 package imu.GS.Invs;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -8,8 +9,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
-
-import com.google.common.base.Strings;
 
 import imu.GS.Main.Main;
 import imu.GS.Managers.ShopManager;
@@ -20,7 +19,7 @@ import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import net.md_5.bungee.api.ChatColor;
+
 
 public class ShopItemPriceModifyINV extends CustomInvLayout 
 {
@@ -172,8 +171,10 @@ public class ShopItemPriceModifyINV extends CustomInvLayout
 		if(stack == null)
 			return;
 		String bName = getButtonName(stack);
-		if(Strings.isNullOrEmpty(bName))
-			return;
+//		if(Strings.isNullOrEmpty(bName))
+//			return;
+		
+		if(bName == null | bName == "") return;
 		
 		BUTTON button = BUTTON.valueOf(bName);
 		ClickType click = e.getClick();

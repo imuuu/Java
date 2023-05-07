@@ -18,8 +18,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.google.common.base.Strings;
-
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.XpUtil;
@@ -29,6 +27,7 @@ import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Upgrades.UpgradeBottomBuild;
 import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeXPusage;
+import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
 
 public class Waystone 
@@ -39,6 +38,7 @@ public class Waystone
 	private String _owner_name;
 	private UUID _uuid;
 	private Location _loc;
+	private VISIBILITY_TYPE _visibilityType = VISIBILITY_TYPE.BY_TOUCH;
 	private ItemStack _displayItem = new ItemStack(Material.BLACKSTONE_WALL);
 	private ArmorStand _hologram;
 	private HashMap<UUID, PlayerUpgradePanel> _playerUpgradePanel = new HashMap<>();
@@ -136,7 +136,9 @@ public class Waystone
 	boolean IsThisHolo(Entity entity)
 	{
 		String pd = Metods._ins.getPersistenData(entity, ImusWaystones._instance.GetWaystoneManager().pd_waystoneHolo, PersistentDataType.STRING);
-		if(Strings.isNullOrEmpty(pd)) return false;
+		
+		if(pd == null || pd == "") return false;
+		
 		UUID uuid = UUID.fromString(pd);
 		
 		if(uuid.equals(GetUUID())) return true;
@@ -241,6 +243,15 @@ public class Waystone
 		return _owner_name;
 	}
 	
+	public VISIBILITY_TYPE GetVisibilityType()
+	{
+		return _visibilityType;
+	}
+	
+	public void SetVisibilityType(VISIBILITY_TYPE type)
+	{
+		_visibilityType = type;
+	}
 	public void SendMessageToOwner(String str)
 	{
 		new BukkitRunnable() {
@@ -328,6 +339,14 @@ public class Waystone
 	{
 		return _cds.GetCdInReadableTime(player.getUniqueId().toString());
 	}
+	
+	public void RollVisibilityType() 
+	{
+        VISIBILITY_TYPE[] values = VISIBILITY_TYPE.values();
+        int currentIndex = _visibilityType.ordinal();
+        int nextIndex = (currentIndex + 1) % values.length;
+        _visibilityType = values[nextIndex];
+    }
 	
 	public Double GetValue(BaseUpgrade upgrade)
 	{

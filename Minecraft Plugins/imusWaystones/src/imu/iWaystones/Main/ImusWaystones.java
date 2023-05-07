@@ -11,7 +11,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
-import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 import imu.iWaystones.Managers.WaystoneManager;
 import imu.iWaystones.Managers.WaystoneManagerSQL;
 import imu.iWaystones.Other.CmdHelper;

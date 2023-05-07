@@ -1,7 +1,11 @@
 package imu.iWaystones.Invs;
 
+import java.util.ArrayList;
+
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
@@ -49,6 +53,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 		UPGRADE,
 		BACK,
 		SET_NAME,
+		EXTRACT_UPGRADES,
 	}
 //	protected void Rename()
 //	{
@@ -110,18 +115,16 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 		
 		
 	}
-	
 	@Override
-	public void closeThis() 
+	public void closeThis()
 	{
 		_player.closeInventory();
-		
 	}
+	
 	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) {
 		BUTTON button = GetButtonPress(e);
-		
 		switch (button) 
 		{
 		case BACK:
@@ -134,12 +137,26 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 		case UPGRADE:
 			if(!CheckIfValid()) return;
 			if(upgrading) return;
-			UpgradeAsync(_panel.GetUpgrade(UpgradeType.valueOf(Metods._ins.getPersistenData(e.getCurrentItem(),"upgrade" , PersistentDataType.STRING))));			
+			UpgradeAsync(_panel.GetUpgrade(UpgradeType.valueOf(Metods._ins.getPersistenData(e.getCurrentItem(),"upgrade" , PersistentDataType.STRING))), e.getClick());			
 			break;
 		case SET_NAME:
 			if(!CheckIfValid()) return;
 			_player.closeInventory();
 			Metods._ins.ConversationWithPlayer(_player, new ConvUpgrade(ConvUpgradeModData.RENAME, this, "&3Give waystone &2new &3name?"));
+			break;
+		case EXTRACT_UPGRADES:
+			if(e.getClick() != ClickType.SHIFT_RIGHT) return;
+			
+			if(!_panel.HasUpgrade())
+			{
+				_player.sendMessage(Metods.msgC("&cThere isn't any upgrades to extract!"));
+				return;
+			}
+			Metods._ins.InventoryAddItemOrDrop(_panel.GetUpgradeItem(), _player);
+			_player.sendMessage(Metods.msgC("&5Upgrades has been extracted"));
+			_panel.ResetUpgrades();
+			_panel.SaveUpgradesToDatabase(_player.getUniqueId());
+			setupButtons();
 			break;
 
 		}
@@ -157,89 +174,75 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	}
 	@Override
 	public void setupButtons() {
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				
-				for(int i = 0; i < _size; i++) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, " ", i);}
-
-				setupButton(BUTTON.BACK, Material.RED_WOOL, "&bBACK", _size-9);
-				if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())|| _player.isOp()) setupButton(BUTTON.SET_NAME, Material.NAME_TAG, "&2Rename Waystone", _size-6);
-				
-				//setupButton(BUTTON.UPGRADE_CASTTIME, Material.LAPIS_BLOCK, "&bCast Time", 1);
-				LoadUpgradePanel();
-				SetUpgradesAsync();
-			}
-		}.runTaskAsynchronously(_main);
 		
+		for(int i = 0; i < _size; i++) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, " ", i);}
+
+		setupButton(BUTTON.BACK, Material.RED_WOOL, "&bBACK", _size-9);
+		
+		ItemStack stack = new ItemStack(Material.GRINDSTONE);
+		Metods.setDisplayName(stack, "&bExtract Upgrades");
+		ArrayList<String> lores = new ArrayList<>();
+		lores.add("&ePress &5Shift &bM2 &eto Extract");
+		lores.add(" ");
+		lores.add("&9Moves Upgrades to Item");
+		lores.add("&9Which can be inserted other waystone");
+		lores.add("&9to apply items upgrades");
+		Metods._ins.addLore(stack, lores);
+		SetButton(stack, BUTTON.EXTRACT_UPGRADES);
+		SetITEM(_size-5, stack);
+		//setupButton(BUTTON.EXTRACT_UPGRADES, Material.NETHER_STAR, "&bExtract Upgrades", _size-5);
+		
+		if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())|| _player.isOp()) setupButton(BUTTON.SET_NAME, Material.NAME_TAG, "&2Rename Waystone", _size-6);
+		
+		//setupButton(BUTTON.UPGRADE_CASTTIME, Material.LAPIS_BLOCK, "&bCast Time", 1);
+		LoadUpgradePanel();
+		SetUpgradesAsync();
 		
 	}
 	
 	void SetUpgradesAsync()
 	{
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-			
+		String forceStr = "&4===> &e&k#&7(&eSHIFT &bM2&7)&e&k# &eto &6FORCE &5UPGRADE!";
+		
+		ItemStack stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
+		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.CAST_TIME.toString());
+		Metods._ins.addLore(stack, " ", false);
+		Metods._ins.addLore(stack, "&9Cast time: &1"+_waystone.GetValue(_panel.get_castTime()), false);
+		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+		_inv.setItem(1, stack);
+		
+		stack = SetButton(_panel.get_xpUsage()._displayItem.clone(), BUTTON.UPGRADE);
+		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.XP_USAGE.toString());
+		Metods._ins.addLore(stack, " ", false);
+		Metods._ins.addLore(stack, "&9Xp usage: &1"+_waystone.GetValue(_panel.get_xpUsage()), false);
+		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+		_inv.setItem(3,stack);
+		
+		stack = SetButton(_panel.get_dimension()._displayItem.clone(), BUTTON.UPGRADE);
+		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.DIMENSION.toString());
+		Metods._ins.addLore(stack, " ", false);
+		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+		_inv.setItem(5,stack);
+		
+		stack = _panel.get_cooldown()._displayItem.clone();
+		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.COOLDOWN.toString());
+		Metods._ins.addLore(stack, " ", false);
+		Metods._ins.addLore(stack, "&6CD With reduction: "+Metods.FormatTime((long)(_panel.GetCooldown() * 1000)), false);
+		Metods._ins.addLore(stack, "&3Base Cooldown: "+Metods.FormatTime((long)(_panel.get_foundation().GetTier()._value * 1000)), false);
+		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+		_inv.setItem(7,SetButton(stack, BUTTON.UPGRADE));
+		
+		stack = _panel.get_foundation()._displayItem.clone();
+		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.FOUNDATION.toString());
+		Metods._ins.addLore(stack, " ", false);
+		//Metods._ins.addLore(stack, "&9Base foundation: &1"+_panel.get_foundation().GetCombinedValue(0), false);
+		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+		_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
 
-//				ItemStack stack = _waystone.GetUpgradeBottomUpgrade()._displayItem.clone();
-//				Metods._ins.addLore(stack, " ", false);
-//				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.BUILD.toString());
-//				_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
-				
-				ItemStack stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
-				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.CAST_TIME.toString());
-				Metods._ins.addLore(stack, " ", false);
-				Metods._ins.addLore(stack, "&9Cast time: &1"+_waystone.GetValue(_panel.get_castTime()), false);
-				_inv.setItem(1, stack);
-				
-				stack = SetButton(_panel.get_xpUsage()._displayItem.clone(), BUTTON.UPGRADE);
-				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.XP_USAGE.toString());
-				Metods._ins.addLore(stack, " ", false);
-				Metods._ins.addLore(stack, "&9Xp usage: &1"+_waystone.GetValue(_panel.get_xpUsage()), false);
-				_inv.setItem(3,stack);
-				
-				stack = SetButton(_panel.get_dimension()._displayItem.clone(), BUTTON.UPGRADE);
-				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.DIMENSION.toString());
-				Metods._ins.addLore(stack, " ", false);
-				_inv.setItem(5,stack);
-				
-				stack = _panel.get_cooldown()._displayItem.clone();
-				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.COOLDOWN.toString());
-				Metods._ins.addLore(stack, " ", false);
-				Metods._ins.addLore(stack, "&6CD With reduction: "+Metods.FormatTime((long)(_panel.GetCooldown() * 1000)), false);
-				Metods._ins.addLore(stack, "&3Base Cooldown: "+Metods.FormatTime((long)(_panel.get_foundation().GetTier()._value * 1000)), false);
-				
-				_inv.setItem(7,SetButton(stack, BUTTON.UPGRADE));
-				
-				stack = _panel.get_foundation()._displayItem.clone();
-				Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.FOUNDATION.toString());
-				Metods._ins.addLore(stack, " ", false);
-				//Metods._ins.addLore(stack, "&9Base foundation: &1"+_panel.get_foundation().GetCombinedValue(0), false);
-				_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
-				
-//				if(_waystone.GetOwnerUUID().equals(_player.getUniqueId()) || _player.isOp())
-//				{
-//					stack = _panel.get_nameChange()._displayItem.clone();
-//					Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.RENAME.toString());
-//					Metods._ins.addLore(stack, " ", false);
-//					//Metods._ins.addLore(stack, "&9Base foundation: &1"+_panel.get_foundation().GetCombinedValue(0), false);
-//					_inv.setItem(_size-6,SetButton(stack, BUTTON.UPGRADE));
-//				}
-				
-				
-				
-
-			}
-		}.runTaskAsynchronously(_main);
 		
 	}
 	
-	void UpgradeAsync(BaseUpgrade upgrade)
+	void UpgradeAsync(BaseUpgrade upgrade, ClickType clickType)
 	{
 
 		if(upgrading || upgrade.IsMaxTier()) return;
@@ -270,8 +273,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 			@Override
 			public void run() 
 			{
-				
-				if(CheckItems())
+				if(CheckItems() || (clickType == ClickType.SHIFT_RIGHT && _player.getGameMode() == GameMode.CREATIVE))
 				{
 					
 					
@@ -281,7 +283,7 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 						upgrade.ButtonPressUpgradeTier(_player, _waystone, upgrade.GetCurrentTier());
 						upgrade.IncreaseCurrentTier(1);
 						upgrade.Tooltip();
-						_wManager.GetWaystoneManagerSQL().SaveUpgradeAsync(_player.getUniqueId(), _waystone.GetUUID(), upgrade);
+						_wManager.GetWaystoneManagerSQL().SaveUpgradeAsync(_player.getUniqueId(), _waystone.GetUUID(), new BaseUpgrade[] {upgrade} );
 						
 					}else
 					{
@@ -297,6 +299,8 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 			}
 		}.runTaskAsynchronously(_main);
 	}
+
+	
 
 	
 

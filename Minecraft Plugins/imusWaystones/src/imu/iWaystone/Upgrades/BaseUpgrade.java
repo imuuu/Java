@@ -12,7 +12,7 @@ import imu.iWaystones.Enums.UpgradeType;
 
 public abstract class BaseUpgrade 
 {
-	public UpgradeType _id;
+	public UpgradeType _id;	
 	Tier[] _tiers;
 	private int _currentTier = 0;
 	protected String[] _description;

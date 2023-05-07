@@ -19,15 +19,18 @@ import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.SQL_tables;
 import imu.iWaystones.Enums.UpgradeType;
+import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
 
 public class WaystoneManagerSQL 
 {
+	public static WaystoneManagerSQL Instance;
 	ImusWaystones _main = ImusWaystones._instance;
 	WaystoneManager _waystoneManager;
 	
 	public WaystoneManagerSQL(WaystoneManager wm)
 	{
+		Instance = this;
 		_waystoneManager = wm;
 	}
 	
@@ -53,7 +56,13 @@ public class WaystoneManagerSQL
 					+ "display_item TEXT(16000), "
 					+ "PRIMARY KEY(uuid));");
 			ps.executeUpdate();
+			
+			ps = con.prepareStatement("ALTER TABLE "+SQL_tables.waystones.toString()+" "
+			        + "ADD COLUMN IF NOT EXISTS visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH';");
+			ps.executeUpdate();
 			ps.close();
+			
+			
 			_main.getLogger().info("==> Waystones");
 			//_main.GetSQL().GetConnection().close();
 			
@@ -75,7 +84,6 @@ public class WaystoneManagerSQL
 			ps.executeUpdate();
 			ps.close();
 			_main.getLogger().info("==> owners");
-			
 			
 			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS "+SQL_tables.upgrades.toString()+"("
 					+ "id INT NOT NULL AUTO_INCREMENT, "
@@ -127,7 +135,17 @@ public class WaystoneManagerSQL
 	}
 	
 	
-	
+	public void SaveUpgradesAsync(Waystone waystone)
+	{
+		new BukkitRunnable() {
+			
+			@Override
+			public void run()
+			{
+				SaveUpgrades(waystone);
+			}
+		}.runTaskAsynchronously(_main);
+	}
 	void SaveUpgrades(Waystone waystone)
 	{
 		try(PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.upgrades.toString()+" "
@@ -166,7 +184,7 @@ public class WaystoneManagerSQL
 		}		
 	}
 	
-	public void SaveUpgradeAsync(UUID uuid_player,UUID uuid_ws , BaseUpgrade upgrade)
+	public void SaveUpgradeAsync(UUID uuid_player, UUID uuid_ws , BaseUpgrade[] upgrades)
 	{
 		new BukkitRunnable() {
 			
@@ -174,20 +192,35 @@ public class WaystoneManagerSQL
 			public void run() 
 			{
 
-				String str1 = "DELETE FROM upgrades WHERE uuid_ws='"+uuid_ws.toString()+"' AND uuid_player='"+uuid_player.toString()+"' AND upgrade_name='"+upgrade._id.toString()+"';";
-				String str22 = " INSERT INTO upgrades (uuid_ws, uuid_player, upgrade_name, tier) VALUES('"+uuid_ws.toString()+"', '"+uuid_player.toString()+"', '"+upgrade._id.toString()+"', '"+upgrade.GetCurrentTier()+"');";
-
+				
 				try
 				{
 					Connection con = _main.GetSQL().GetConnection();
-					PreparedStatement ps =con.prepareStatement(str1);
-					ps.executeUpdate();
 					
-					ps = con.prepareStatement(str22);
-					ps.executeUpdate();
+					for(BaseUpgrade upgrade : upgrades)
+					{
+						
+						
+						String str1 = "DELETE FROM upgrades WHERE uuid_ws='"+uuid_ws.toString()+"' AND uuid_player='"+uuid_player.toString()+"' AND upgrade_name='"+upgrade._id.toString()+"';";
+						String str22 = " INSERT INTO upgrades (uuid_ws, uuid_player, upgrade_name, tier) VALUES('"+uuid_ws.toString()+"', '"+uuid_player.toString()+"', '"+upgrade._id.toString()+"', '"+upgrade.GetCurrentTier()+"');";
+
+						PreparedStatement ps = con.prepareStatement(str1);
+						ps.executeUpdate();
+						
+						if(upgrade.GetCurrentTier() == 0) 
+						{
+							ps.close();
+							continue;
+						}
+						
+						ps = con.prepareStatement(str22);
+						ps.executeUpdate();
+						ps.close();
+					}
+					
 					
 					con.close();
-					ps.close();
+					
 				} 
 				catch (Exception e) {
 					_main.getLogger().info("===> SAVING ERROR2: SaveUpgradeAsync ===");
@@ -212,7 +245,7 @@ public class WaystoneManagerSQL
 		}
 	}
 	
-	Waystone LoadWaystoneOwner(Waystone waystone)
+	private Waystone LoadWaystoneOwner(Waystone waystone)
 	{
 		try	
 				(
@@ -243,7 +276,7 @@ public class WaystoneManagerSQL
 		return waystone;
 	}
 	
-	void SaveWaystoneOwner(UUID uuid_player, String player_name,UUID uuid_ws)
+	private void SaveWaystoneOwner(UUID uuid_player, String player_name,UUID uuid_ws)
 	{
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_tables.waystone_owners.toString()+" "
 				+ "(uuid_player,player_name,uuid_ws) VALUES (?,?,?);");)
@@ -262,7 +295,7 @@ public class WaystoneManagerSQL
 		}
 	}
 	
-	void RemoveWaystoneOwner(UUID uuid_player, UUID uuid_ws)
+	private void RemoveWaystoneOwner(UUID uuid_player, UUID uuid_ws)
 	{
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.waystone_owners.toString()+" "
 				+ "WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws.toString()+"';");)
@@ -280,7 +313,7 @@ public class WaystoneManagerSQL
 	public void SaveWaystone(Waystone waystone)
 	{
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_tables.waystones.toString()+" "
-				+ "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item) VALUES (?,?,?,?,?,?,?)");)
+				+ "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item, visibility_type) VALUES (?,?,?,?,?,?,?,?)");)
 		{
 			
 			int i = 1;
@@ -291,6 +324,7 @@ public class WaystoneManagerSQL
 			ps.setInt(i++, waystone.GetLoc().getBlockY());
 			ps.setInt(i++, waystone.GetLoc().getBlockZ());
 			ps.setString(i++, ImusAPI._metods.EncodeItemStack(waystone.GetDisplayItem()));
+			ps.setString(i++, waystone.GetVisibilityType().toString());
 			ps.executeUpdate();
 			SaveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetOwnerName(), waystone.GetUUID());
 			SaveUpgrades(waystone);
@@ -347,7 +381,6 @@ public class WaystoneManagerSQL
 	{
 		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_tables.waystones.toString()+";");)
 		{
-			System.out.println("LOADING waystones!: ");
 			_waystoneManager.GetWaystones().clear();
 			
 			ResultSet rs = ps.executeQuery();
@@ -366,11 +399,13 @@ public class WaystoneManagerSQL
 				int y = rs.getInt(i++);
 				int z = rs.getInt(i++);
 				ItemStack displayItem = ImusAPI._metods.DecodeItemStack(rs.getString(i++));
+				String visibilityTypeStr =  rs.getString(i++);
+				
 				Waystone newWaystone = new Waystone(new Location(world,x,y,z));
 				newWaystone.SetName(name);
 				newWaystone.SetDisplayitem(displayItem);
 				newWaystone.SetUUID(uuid);
-				//newWaystone.SetOwner(null);
+				newWaystone.SetVisibilityType(VISIBILITY_TYPE.valueOf(visibilityTypeStr));
 				newWaystone = LoadWaystoneOwner(newWaystone);
 				newWaystone = LoadUpgrades(newWaystone);
 				_waystoneManager.SaveWaystone(newWaystone, false);					

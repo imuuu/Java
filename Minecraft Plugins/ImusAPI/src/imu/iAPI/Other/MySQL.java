@@ -24,6 +24,7 @@ public class MySQL
 	private Connection _connection;
 	private Cooldowns _cds;
 	
+	@SuppressWarnings("unused")
 	private BukkitTask RunnableAsyncTask;
 	public MySQL(Plugin plugin, String dataBaseName) 
 	{

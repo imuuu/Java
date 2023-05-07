@@ -2,8 +2,9 @@ package imu.GS.Other;
 
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
+
 import imu.GS.Main.Main;
-import net.md_5.bungee.api.ChatColor;
 
 public class CmdHelper 
 {

@@ -3,6 +3,7 @@ package imu.iWaystones.Invs;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 
 import org.bukkit.World.Environment;
@@ -20,6 +21,7 @@ import imu.iAPI.Other.Metods;
 
 import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Waystones.Waystone;
+import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
 import imu.iWaystones.Managers.WaystoneManager;
 
@@ -31,6 +33,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	private int _page = 0;
 	private ArrayList<Waystone> _discoveredWaystones = new ArrayList<>();
 	
+	private boolean _visibilityModified = false;
 	public WaystoneMenuInv(Waystone waystone, Player player) 
 	{
 		super(ImusWaystones._instance, player, waystone.GetName()+" "+(waystone.IsCooldown(player) ? "&ccd: "+ waystone.GetCooldown(player): "") , 4 * 9);
@@ -51,39 +54,52 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			return;
 		}
 		
-		PlayerUpgradePanel panel = _waystone.GetPlayerUpgradePanel(_player.getUniqueId());
+		for(UUID uuid_ws : _wManager.GetWaystonesByVisibility(VISIBILITY_TYPE.TO_ALL))
+		{
+			LoadWaystone(uuid_ws);
+		}
+		
 		for(UUID uuid_ws : _wManager.GetDiscovered().get(_player.getUniqueId()))
 		{
-			if(uuid_ws.equals(_waystone.GetUUID())) continue;
-			
-			Waystone ws = _wManager.GetWaystone(uuid_ws);
-			if(ws == null) continue;
-			
-			if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
-			{
-				continue;
-			}
-			
-			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
-			{
-				continue;
-			}
-			
-			
-			
-			if(ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
-			{
-				continue;
-			}
-			
-			if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
-			{
-				continue;
-			}
-			
-			if(!IsAbleToShow(ws)) continue;
-			_discoveredWaystones.add(ws);
+			LoadWaystone(uuid_ws);
 		}
+		
+		
+	}
+	
+	private void LoadWaystone(UUID uuid_ws)
+	{
+		PlayerUpgradePanel panel = _waystone.GetPlayerUpgradePanel(_player.getUniqueId());
+		
+		if(uuid_ws.equals(_waystone.GetUUID())) return;
+		
+		Waystone ws = _wManager.GetWaystone(uuid_ws);
+		if(ws == null) return;
+		
+		if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
+		{
+			return;
+		}
+		
+		if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
+		{
+			return;
+		}
+		
+		
+		
+		if(ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
+		{
+			return;
+		}
+		
+		if(_waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (ws.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
+		{
+			return;
+		}
+		
+		if(!IsAbleToShow(ws)) return;
+		_discoveredWaystones.add(ws);
 	}
 	
 	enum BUTTON implements IButton
@@ -93,6 +109,8 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		GO_RIGHT,
 		UPGRADE,
 		WAYSTONE,
+		REMOVE,
+		VISIBILITY_TYPE,
 	}
 	BUTTON GetButtonPress(InventoryClickEvent e)
 	{
@@ -110,7 +128,10 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
-		super.invClose(e);
+		if(_visibilityModified)
+		{
+			_wManager.SaveWaystone(_wManager.GetWaystone(_waystone.GetUUID()), true);
+		}
 		ImusWaystones._instance.GetWaystoneManager().UnRegisterInv(_waystone, this);
 	}
 
@@ -135,12 +156,27 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			new WaystoneUpgradeMenu(_main, _player, _waystone).openThis();
 			break;
 		case WAYSTONE:
-			
-			
 			Teleporting(e.getCurrentItem());			
 			_player.closeInventory();
 			break;
-		
+		case REMOVE:
+			new BukkitRunnable() {
+				
+				@Override
+				public void run()
+				{
+					_wManager.RemoveWaystone(_waystone);
+				}
+			}.runTaskLater(_main, 5);
+			
+			_player.closeInventory();
+			break;
+		case VISIBILITY_TYPE:
+			
+			_visibilityModified = true;
+			_waystone.RollVisibilityType();
+			setupButtons();
+			break;
 		}
 	}
 	
@@ -209,18 +245,24 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	@Override
 	public void setupButtons() 
 	{
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() 
-			{
-				for(int i = _size-9; i < _size; i++) {setupButton(BUTTON.NONE, Material.CYAN_STAINED_GLASS_PANE, " ", i);}
-				setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, "&b<<", _size-9);
-				setupButton(BUTTON.GO_RIGHT, Material.BIRCH_SIGN, "&b>>", _size-1);
-				setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
-				
-			}
-		}.runTaskAsynchronously(_main);
+		for(int i = _size-9; i < _size; i++) {setupButton(BUTTON.NONE, Material.CYAN_STAINED_GLASS_PANE, " ", i);}
+		setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, "&b<<", _size-9);
+		setupButton(BUTTON.GO_RIGHT, Material.BIRCH_SIGN, "&b>>", _size-1);
+		setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
+		if(_player.getGameMode() == GameMode.CREATIVE)
+		{
+			 setupButton(BUTTON.REMOVE, Material.LAVA_BUCKET, "&eRemove This Waystone", _size-3);
+			 
+			 ItemStack stack = new ItemStack(Material.SPYGLASS);
+			 Metods.setDisplayName(stack, "&eModify Visibility");
+			 ArrayList<String> lores = new ArrayList<String>();
+			 lores.add(" ");
+			 lores.add("&9Current: &2"+_waystone.GetVisibilityType().toString());
+			 _metods.addLore(stack, lores);
+			 
+			 SetButton(stack, BUTTON.VISIBILITY_TYPE);
+			 SetITEM(_size-7, stack);
+		}
 		
 		LoadWaystonesAsync();
 	}

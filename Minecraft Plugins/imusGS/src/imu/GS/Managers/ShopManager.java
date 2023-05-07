@@ -44,6 +44,7 @@ public class ShopManager
 	public final String pd_page="gs.page";
 	public final String pd_slot="gs.slot";
 	public double _durability_penalty = 0.1; // 0.0 => 0%
+	@SuppressWarnings("unused")
 	private Cooldowns _cds;
 	public ShopManager(Main main)
 	{

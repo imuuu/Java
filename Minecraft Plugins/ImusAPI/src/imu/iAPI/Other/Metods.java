@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -26,8 +27,11 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.Conversation.ConversationState;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+//import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
+//import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -189,8 +193,11 @@ public class Metods
     	}
     	return stack;
 	}
-	
 	public ItemStack SetLores(ItemStack stack, String[] lores, boolean removeEmpty)
+	{
+		return SetLores(stack, Arrays.asList(lores), removeEmpty);
+	}
+	public ItemStack SetLores(ItemStack stack, Iterable<String> lores, boolean removeEmpty)
 	{
 
     	if(stack != null && stack.getType() != Material.AIR)
@@ -644,7 +651,7 @@ public class Metods
 		}
 		return false;
 	}
-	
+
 	public boolean isShulkerBox(ItemStack stack)
 	{
 		if(stack == null) return false;
@@ -1545,13 +1552,14 @@ public class Metods
 		NBTTagCompound ntc2 = new NBTTagCompound();
 		targetEntity.a(ntc); //save
 		//targetEntity.a
-		ntc2 = (NBTTagCompound) ntc.h(); //ntc.clone()
+		ntc2 = (NBTTagCompound) ntc.h(); //ntc.clone()katto
 		ntc2.a("x", loc_set.getBlockX());
 		ntc2.a("y", loc_set.getBlockY()); //setInt
 		ntc2.a("z", loc_set.getBlockZ());
 		copyEntity.a(ntc2); //load  ja targetEntity.Getblock()
 		//copyEntity.
-		copyEntity.ae_(); //update
+//		copyEntity.ae_(); //update
+		copyEntity.ar_(); //update
 		
 		return true;
 	}
@@ -1712,12 +1720,13 @@ public class Metods
 				break;
 			}
 			
-			if(recipe instanceof ShapedRecipe)
+			if(recipe instanceof ShapelessRecipe)
 			{
 				ShapelessRecipe shapedRescipe = (ShapelessRecipe)recipe;
 				ingredients = shapedRescipe.getIngredientList();	
 				break;
 			}	
+			
 		}
 		if(ingredients != null)
 		{

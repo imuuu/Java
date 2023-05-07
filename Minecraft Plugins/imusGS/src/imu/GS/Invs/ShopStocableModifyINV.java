@@ -1,5 +1,6 @@
 package imu.GS.Invs;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
@@ -9,23 +10,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.common.base.Strings;
-
 import imu.GS.ENUMs.ModDataShopStockable;
 import imu.GS.Interfaces.IModData;
 import imu.GS.Interfaces.IModDataInv;
 import imu.GS.Main.Main;
 import imu.GS.Prompts.ConvModData;
 import imu.GS.Prompts.ConvPromptModModifyINV;
-import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItemModData;
+import imu.GS.ShopUtl.ShopNormal;
 import imu.GS.ShopUtl.ShopItems.ShopItemSeller;
 import imu.GS.ShopUtl.ShopItems.ShopItemStockable;
 import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import net.md_5.bungee.api.ChatColor;
 
 public class ShopStocableModifyINV extends CustomInvLayout implements IModDataInv
 {
@@ -200,7 +198,8 @@ public class ShopStocableModifyINV extends CustomInvLayout implements IModDataIn
 		if(stack == null) return;
 		String bName = getButtonName(stack);
 		
-		if(Strings.isNullOrEmpty(bName)) return;
+		//if(Strings.isNullOrEmpty(bName)) return;
+		if(bName == null || bName == "") return;
 		
 		BUTTON button = BUTTON.valueOf(bName);
 		

@@ -229,7 +229,6 @@ public class WaystoneListInv extends CustomInvLayout {
 	@Override
 	public void invClosed(InventoryCloseEvent arg0)
 	{
-		super.invClose(arg0);
 		
 	}
 	

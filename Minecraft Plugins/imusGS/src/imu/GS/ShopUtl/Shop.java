@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import imu.GS.Main.Main;
@@ -11,7 +12,6 @@ import imu.GS.ShopUtl.Customer.Customer;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
-import net.md_5.bungee.api.ChatColor;
 
 public abstract class Shop
 {

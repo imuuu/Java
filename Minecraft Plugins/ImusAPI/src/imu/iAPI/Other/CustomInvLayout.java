@@ -1,7 +1,6 @@
 package imu.iAPI.Other;
 
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,11 +15,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
 
 //import chestcleaner.sorting.SortingEvent;
 import imu.iAPI.Interfaces.CustomInv;
@@ -242,6 +236,7 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 			
 			if((e.getRawSlot() == e.getSlot()))
 			{
+				
 				onClickInsideInv(e);
 				return;
 			}

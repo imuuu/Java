@@ -3,6 +3,7 @@ package imus.iWaystones.Events;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -12,14 +13,15 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iWaystone.Waystones.Waystone;
+import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
 import imu.iWaystones.Managers.WaystoneManager;
-import net.md_5.bungee.api.ChatColor;
 
 public class WaystoneEvents implements Listener
 {
@@ -81,12 +83,26 @@ public class WaystoneEvents implements Listener
 		if(!_waystoneManager.HasDiscovered(e.getPlayer(), ws))
 		{
 			_waystoneManager.AddDiscovered(e.getPlayer().getUniqueId(), ws.GetUUID(), true);
-			e.getPlayer().sendMessage(Metods.msgC("&3You have discovered new waystone named as "+ws.GetName()));
-			return;
+			
+			if(ws.GetVisibilityType() == VISIBILITY_TYPE.BY_TOUCH)
+			{
+				e.getPlayer().sendMessage(Metods.msgC("&3You have discovered new waystone named as "+ws.GetName()));
+				return;
+			}
+			
 		}
 		
 		if(ImusAPI._instance.GetOpenedInv(e.getPlayer()) != null) return;
-	
+		
+		ItemStack stack =e.getPlayer().getInventory().getItemInMainHand();
+		if(stack != null && _waystoneManager.IsUpgradeItemStack(stack))
+		{
+			ws.GetPlayerUpgradePanel(e.getPlayer().getUniqueId()).InsertUpgradeItem(stack);
+			stack.setAmount(stack.getAmount()-1);
+			e.getPlayer().sendMessage(Metods.msgC("&6Upgrade data has been &5applied"));
+			ws.GetPlayerUpgradePanel(e.getPlayer().getUniqueId()).SaveUpgradesToDatabase(e.getPlayer().getUniqueId());
+			return;
+		}
 		_waystoneManager.OpenWaystone(e.getPlayer(),ws);
 		
 	

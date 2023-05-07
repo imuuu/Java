@@ -16,7 +16,6 @@ import com.comphenix.protocol.ProtocolManager;
 
 import imu.iAPI.CmdUtil.CmdHelper;
 import imu.iAPI.Commands.ExampleCmd;
-import imu.iAPI.FastInventory.Fast_Inventory;
 import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.CustomInvLayout;
@@ -24,7 +23,6 @@ import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.MySQLHelper;
 import imu.iAPI.Other.ProtocolLibUtil;
-import imu.iAPI.SubCommands.Sub_Cmd_FollowPlayer;
 import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 
 public class ImusAPI extends JavaPlugin

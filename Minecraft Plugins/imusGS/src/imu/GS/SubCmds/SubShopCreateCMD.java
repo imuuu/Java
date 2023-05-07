@@ -3,6 +3,7 @@ package imu.GS.SubCmds;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,7 +11,6 @@ import org.bukkit.entity.Player;
 import imu.GS.Main.Main;
 import imu.GS.Other.CmdData;
 import imu.iAPI.Interfaces.CommandInterface;
-import net.md_5.bungee.api.ChatColor;
 
 public class SubShopCreateCMD implements CommandInterface
 {
