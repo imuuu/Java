@@ -37,17 +37,14 @@ public class WaystoneListInv extends CustomInvLayout {
 		
 	}
 	
-	void LoadWaystones()
+	private void InitWaystones()
 	{
 		_discoveredWaystones.clear();
 		for(UUID uuid_ws : _wManager.GetWaystones().keySet())
 		{
-			
-			
 			Waystone ws = _wManager.GetWaystone(uuid_ws);
 			if(ws == null) continue;
-			
-			
+				
 			_discoveredWaystones.add(ws);
 		}
 	}
@@ -72,7 +69,6 @@ public class WaystoneListInv extends CustomInvLayout {
 		return BUTTON.valueOf(buttonName);
 	}
 	
-	
 	@Override
 	public void onClickInsideInv(InventoryClickEvent e) 
 	{
@@ -85,15 +81,13 @@ public class WaystoneListInv extends CustomInvLayout {
 			break;
 		case GO_LEFT:
 			_page = PageChance(_page, -1, _discoveredWaystones.size(), _size-9);
+			setupButtons();
 			break;
 		case GO_RIGHT:
 			_page = PageChance(_page, 1, _discoveredWaystones.size(), _size-9);
+			setupButtons();
 			break;
-		
-//		case UPGRADE:
-//			_player.closeInventory();
-//			new WaystoneUpgradeMenu(_main, _player, _waystone).openThis();
-//			break;
+
 		case WAYSTONE:
 			
 			if(e.getClick() == ClickType.SHIFT_RIGHT)
@@ -111,25 +105,7 @@ public class WaystoneListInv extends CustomInvLayout {
 		}
 	}
 	
-//	boolean CheckIfValid()
-//	{
-//		if(!_wManager.IsValid(_wManager.GetWaystone(_waystone.GetUUID())))
-//		{
-//			_player.sendMessage(Metods.msgC("&cThe waystone isn't valid!"));
-//			_wManager.RemoveWaystone(_waystone.GetUUID());
-//			_player.closeInventory();
-//			return false;
-//		}
-//		return true;
-//	}
-	
-//	private Waystone GetWaystoneFromItemStack(ItemStack currentItem)
-//	{
-//		UUID uuid_ws = UUID.fromString(Metods._ins.getPersistenData(currentItem, "iwm", PersistentDataType.STRING));
-//		Waystone ws = _wManager.GetWaystone(uuid_ws);
-//		return ws;
-//	}
-//	
+
 	private void Teleporting(ItemStack currentItem) 
 	{
 		Waystone ws = GetWaystoneFromButton(currentItem);
@@ -155,14 +131,15 @@ public class WaystoneListInv extends CustomInvLayout {
 	public void openThis() 
 	{
 		super.openThis();
-
+		
+		InitWaystones();
 		Init();
+		
 	}
 	
 	private void Init()
 	{
 		setupButtons();
-		LoadWaystones();
 	}
 	
 	@Override
@@ -181,43 +158,37 @@ public class WaystoneListInv extends CustomInvLayout {
 			}
 		}.runTaskAsynchronously(_main);
 		
-		LoadWaystonesAsync();
+		LoadWaystones();
 	}
 	
-	Waystone GetWaystoneFromButton(ItemStack stack)
+	private Waystone GetWaystoneFromButton(ItemStack stack)
 	{
 		return _wManager.GetWaystone(UUID.fromString(Metods._ins.getPersistenData(stack, "iwm" ,PersistentDataType.STRING)));
 	}
 	
-	void LoadWaystonesAsync()
+	private void LoadWaystones()
 	{
-		new BukkitRunnable() {
+		for(int i = 0; i < _size-9;i++)
+		{
+			int idx = i + ( _page * (_size-9));
+			if(idx > _discoveredWaystones.size()-1) {_inv.setItem(i, new ItemStack(Material.BLUE_STAINED_GLASS_PANE));continue;}
 			
-			@Override
-			public void run() {
-				for(int i = 0; i < _size-9;i++)
-				{
-					int idx = i + ( _page * (_size-9));
-					if(idx > _discoveredWaystones.size()-1) {_inv.setItem(i, new ItemStack(Material.BLUE_STAINED_GLASS_PANE));continue;}
-					
-					Waystone ws = _discoveredWaystones.get(idx);
+			Waystone ws = _discoveredWaystones.get(idx);
 
-					ItemStack stack = ws.GetDisplayItem().clone();
-					Metods.setDisplayName(stack, ws.GetName());
-					String[] lores = new String[5];
-					lores[0] = "&7(&eClick&7)&2 to start &bTeleporting";
-					lores[1] = "&7(&5Shift &bM2&7)&2 to &cRemove";
-					lores[2] = " ";
-					lores[3] = "&eOwner: &b"+ws.GetOwnerName();
-					lores[4] = "&eLocation: &5"+ws.GetLoc().getWorld().getName() + " &2"+ws.GetLoc().getBlockX()+ " "+ ws.GetLoc().getBlockY() + " "+ws.GetLoc().getBlockZ();
-					
-					Metods._ins.SetLores(stack, lores, false);
-					Metods._ins.setPersistenData(stack, "iwm", PersistentDataType.STRING, ws.GetUUID().toString());
-					SetButton(stack, BUTTON.WAYSTONE);
-					_inv.setItem(i, stack);
-				}
-			}
-		}.runTaskAsynchronously(_main);
+			ItemStack stack = ws.GetDisplayItem().clone();
+			Metods.setDisplayName(stack, ws.GetName());
+			String[] lores = new String[5];
+			lores[0] = "&7(&eClick&7)&2 to start &bTeleporting";
+			lores[1] = "&7(&5Shift &bM2&7)&2 to &cRemove";
+			lores[2] = " ";
+			lores[3] = "&eOwner: &b"+ws.GetOwnerName();
+			lores[4] = "&eLocation: &5"+ws.GetLoc().getWorld().getName() + " &2"+ws.GetLoc().getBlockX()+ " "+ ws.GetLoc().getBlockY() + " "+ws.GetLoc().getBlockZ();
+			
+			Metods._ins.SetLores(stack, lores, false);
+			Metods._ins.setPersistenData(stack, "iwm", PersistentDataType.STRING, ws.GetUUID().toString());
+			SetButton(stack, BUTTON.WAYSTONE);
+			_inv.setItem(i, stack);
+		}
 		
 	}
 	

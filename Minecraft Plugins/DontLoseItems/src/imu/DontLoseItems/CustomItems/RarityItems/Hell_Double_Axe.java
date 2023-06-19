@@ -22,6 +22,7 @@ public class Hell_Double_Axe extends RarityItem
 		
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	private static ItemStack GetBaseItemStack(ITEM_RARITY rarity)
 	{
 		switch (rarity)
@@ -33,6 +34,7 @@ public class Hell_Double_Axe extends RarityItem
 			case Mythic: 	return new ItemStack(Material.DIAMOND_AXE);
 			case Legendary: return new ItemStack(Material.NETHERITE_AXE);
 			case Void: 		return new ItemStack(Material.NETHERITE_AXE);
+
 		}
 		
 		return new ItemStack(Material.STONE);

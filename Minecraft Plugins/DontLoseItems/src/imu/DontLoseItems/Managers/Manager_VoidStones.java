@@ -70,12 +70,12 @@ public class Manager_VoidStones	implements Listener
 	
 	public void SetTestItems()
 	{
-		Fast_Inventory fastInv= new Fast_Inventory("Void_Stones", "&5VoidStones", null);
+		Fast_Inventory fastInv = new Fast_Inventory("Void_Stones", "&5VoidStones", null).Register();
 		fastInv.AddStack(new Unstable_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
 		fastInv.AddStack(new Unstable_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.RARE));
 		fastInv.AddStack(new Reforge_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
 		fastInv.AddStack(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL));
-		Manager_FastInventories.Instance.RegisterFastInventory(fastInv);
+
 	}
 	
 	public static boolean IsVoidStone(ItemStack stack)

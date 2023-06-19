@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -19,6 +20,8 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+
+import com.magmaguy.betterstructures.api.ChestFillEvent;
 
 import imu.DontLoseItems.CustomEnd.UnstableEnd;
 import imu.DontLoseItems.CustomItems.VoidStones.Reforge_Void_Stone;
@@ -164,7 +167,8 @@ public class EndChestLootEvents implements Listener
 		_lootTable_leg_upgrades.Add(Manager_LegendaryUpgrades.Instance.Get_UpgradeHellSword(), 1);
 
 	}
-
+	
+	
 	public LinkedList<ItemStack> GenerateEndLoot(int baseRollAmount,int rollIncrease, int rollChances)
 	{
 		LinkedList<ItemStack> stacks = new LinkedList<>();
@@ -428,7 +432,30 @@ public class EndChestLootEvents implements Listener
 		}
 
 	}
+	
+	
+	//if better structure is enabled on the server this will be triggered
+	@EventHandler
+	public void OnBetterStructureLoot(ChestFillEvent e)
+	{
+		if (!(DontLoseItems.IsEnd(e.getContainer().getWorld())))
+			return;
 
+		if (e.isCancelled())
+			return;
+		
+		//System.out.println("For betterstructures has generated end loot ");
+		Bukkit.getLogger().info("For betterstructures has generated end loot ");
+		Inventory inv = e.getContainer().getInventory();
+		inv = e.getContainer().getSnapshotInventory();
+		List<ItemStack> stacks = GenerateEndLoot(1, 2, _chestRollMaxAmount);
+		
+		for (ItemStack stack : stacks)
+		{
+			inv.addItem(stack);
+		}
+	}
+	
 	@EventHandler
 	public void OnInventoryOpen(LootGenerateEvent e)
 	{
@@ -441,7 +468,6 @@ public class EndChestLootEvents implements Listener
 
 		Inventory inv = e.getInventoryHolder().getInventory();
 
-		//System.out.println("End Player: " + e.getEntity() + " Generated loot by opened  chest");
 		List<ItemStack> stacks = null;
 		
 		if(e.getEntity() instanceof Player)
@@ -454,8 +480,7 @@ public class EndChestLootEvents implements Listener
 			stacks = GenerateEndLoot(0, 2,_chestRollMaxAmount);
 		}
 		
-		System.out.println("Player: "+e.getEntity()+ " Generated loot by opened  chest");
-		
+		Bukkit.getLogger().info("Player: "+e.getEntity()+ " Generated loot by opened  chest");
 		
 		for (ItemStack stack : stacks)
 		{
@@ -500,6 +525,8 @@ public class EndChestLootEvents implements Listener
 		}
 
 	}
+	
+	
 
 	void GetSettings()
 	{

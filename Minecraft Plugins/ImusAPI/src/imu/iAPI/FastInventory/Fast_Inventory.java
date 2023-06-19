@@ -45,4 +45,10 @@ public class Fast_Inventory
 		_stacks.add(stack);
 	}
 	
+	public Fast_Inventory Register()
+	{
+		Manager_FastInventories.Instance.RegisterFastInventory(this);
+		return this;
+	}
+	
 }

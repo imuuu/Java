@@ -99,13 +99,12 @@ public class Click_Get_Inv extends CustomInvLayout
 	@Override
 	public void setupButtons()
 	{
-
 		ItemStack empty = Metods.setDisplayName(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE), " ");
-		boolean needPages = _stacks.size() >= _size - 9;
-
-		for (int i = 0; i < _size-9; i++)
+		boolean needPages = _stacks.size() >= 6*9-9 && _stacks.size() > 9;
+		int theSize = needPages ? 6*9-9 : _size;
+		for (int i = 0; i < theSize; i++)
 		{
-			int index = i+(_currentPage*(_size-9));
+			int index = i+(_currentPage*(theSize));
 			if (index >= _stacks.size())
 			{
 
@@ -126,6 +125,9 @@ public class Click_Get_Inv extends CustomInvLayout
 			SetButton(redLine, BUTTON.NONE);
 			SetITEM(_size-i-1, redLine);
 		}
+		
+		int indicator = _currentPage % (9-2);
+		setupButton(BUTTON.NONE, Material.END_CRYSTAL, " ", _size-8+indicator);
 		setupButton(BUTTON.GO_LEFT, Material.DARK_OAK_SIGN, Metods.msgC("&9<< Next"), _size-9);
 		setupButton(BUTTON.GO_RIGHT, Material.DARK_OAK_SIGN, Metods.msgC("&9Next >>"), _size-1);
 	}

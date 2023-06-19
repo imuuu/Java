@@ -1,6 +1,7 @@
 package imu.DontLoseItems.Events;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -22,6 +23,8 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+
+import com.magmaguy.betterstructures.api.ChestFillEvent;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
@@ -518,6 +521,28 @@ public class ChestLootEvents implements Listener
 	}
 	
 	
+	//if better structure is enabled on the server this will be triggered
+	@EventHandler
+	public void OnBetterStructureLoot(ChestFillEvent e)
+	{
+		if (!(IsNether(e.getContainer().getWorld())))
+			return;
+
+		if (e.isCancelled())
+			return;
+		
+		Bukkit.getLogger().info("For betterstructures has generated nether loot ");
+		
+		Inventory inv = e.getContainer().getInventory();
+		inv = e.getContainer().getSnapshotInventory();
+		List<ItemStack> stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
+		
+		for (ItemStack stack : stacks)
+		{
+			inv.addItem(stack);
+		}
+	}
+	
 	@EventHandler
 	public void OnInventoryOpen(LootGenerateEvent e)
 	{
@@ -535,7 +560,7 @@ public class ChestLootEvents implements Listener
 //		if(!isDouble) System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened chest");
 //		else System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened DOUBLE chest");
 		
-		System.out.println("Player: "+e.getEntity()+ " Generated loot by opened  chest");
+		Bukkit.getLogger().info("Player: "+e.getEntity()+ " Generated loot by opened  chest");
 		
 		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) { inv.addItem(stack); }
 		

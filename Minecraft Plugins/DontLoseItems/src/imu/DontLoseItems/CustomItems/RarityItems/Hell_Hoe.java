@@ -29,6 +29,8 @@ public class Hell_Hoe extends RarityItem
 			case Mythic: 	return new ItemStack(Material.DIAMOND_HOE);
 			case Legendary: return new ItemStack(Material.NETHERITE_HOE);
 			case Void: 		return new ItemStack(Material.NETHERITE_HOE);
+		default:
+			break;
 		}
 		
 		return new ItemStack(Material.STONE);

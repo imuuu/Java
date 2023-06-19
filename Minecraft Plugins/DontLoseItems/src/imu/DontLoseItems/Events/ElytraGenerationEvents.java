@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -23,7 +24,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Other.Metods;
-import net.md_5.bungee.api.ChatColor;
 
 public class ElytraGenerationEvents implements Listener
 {

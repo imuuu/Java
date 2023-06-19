@@ -1,11 +1,7 @@
 package imu.DontLoseItems.CustomItems.RarityItems;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Particle.DustOptions;
 import org.bukkit.inventory.ItemStack;
 
 import imu.DontLoseItems.Enums.ITEM_RARITY;
@@ -21,7 +17,6 @@ public class Hell_Pickaxe extends RarityItem
 		
 	}
 
-	private int _durabilityHealByLava = 4;
 	private static ItemStack GetBaseItemStack(ITEM_RARITY rarity)
 	{
 		switch (rarity)
@@ -33,6 +28,8 @@ public class Hell_Pickaxe extends RarityItem
 			case Mythic: 	return new ItemStack(Material.DIAMOND_PICKAXE);
 			case Legendary: return new ItemStack(Material.NETHERITE_PICKAXE);
 			case Void: 		return new ItemStack(Material.NETHERITE_PICKAXE);
+		default:
+			break;
 		}
 		
 		return new ItemStack(Material.STONE);

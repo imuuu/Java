@@ -29,6 +29,8 @@ public class Hell_Triple_Sword extends RarityItem
 			case Mythic: 	return new ItemStack(Material.DIAMOND_SWORD);
 			case Legendary: return new ItemStack(Material.NETHERITE_SWORD);
 			case Void: 		return new ItemStack(Material.NETHERITE_SWORD);
+		default:
+			break;
 		}
 		
 		return new ItemStack(Material.STONE);

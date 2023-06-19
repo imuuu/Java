@@ -38,6 +38,7 @@ public class RarityItem extends CustomItem
 		return stack;
 	}
 	
+
 	public RarityItem AddToTestInventory(CATEGORY category)
 	{
 		boolean hasCat = Manager_FastInventories.Instance.HasFastInv(category.toString());
