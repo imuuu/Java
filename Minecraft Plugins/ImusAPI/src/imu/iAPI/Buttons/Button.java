@@ -64,7 +64,6 @@ public class Button implements IBUTTONN
         }
 	}
 
-	
 	@Override
 	public ItemStack GetItemStack()
 	{

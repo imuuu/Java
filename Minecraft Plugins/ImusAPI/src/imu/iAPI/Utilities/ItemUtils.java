@@ -2,12 +2,17 @@ package imu.iAPI.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -276,6 +281,8 @@ public class ItemUtils
 		}
 		return dName;
 	}
+	
+	///DISPLAY NAME
 	public static ItemStack RemoveDisplayName(ItemStack stack, String name)
 	{
 		if (!IsValid(stack))  return stack;
@@ -315,6 +322,95 @@ public class ItemUtils
 		return stack;
 	}
 	
+	
+	
+	///ENCHANT
+	public static Set<Enchantment> GetEnchants(ItemStack stack)
+	{
+		if (!IsValid(stack))  return new HashSet<>();
+		
+		if(stack.getType() != Material.ENCHANTED_BOOK) return stack.getEnchantments().keySet();
+		
+		Set<Enchantment> enchs = new HashSet<>();
+		enchs.addAll(stack.getEnchantments().keySet());
+		enchs.addAll(((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchants().keySet());
+		
+
+		return enchs;
+	}
+	
+	public static boolean HasEnchant(ItemStack stack, Enchantment ench)
+	{
+		if (!IsValid(stack)) return false;
+		
+		if(!stack.hasItemMeta()) return false;
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(meta.hasEnchant(ench)) return true;
+		
+		return false;
+	}
+	
+	public static int GetEnchantLevel(ItemStack stack, Enchantment ench)
+	{
+		if (!IsValid(stack)) return 0;
+		
+		if(!stack.hasItemMeta()) return 0;
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		if(meta.hasEnchant(ench)) 
+		{
+			return meta.getEnchantLevel(ench);
+		}
+		
+		return 0;
+	}
+	
+	@SuppressWarnings("unused")
+	public static HashMap<Enchantment, Integer> GetEnchantsWithLevels(ItemStack stack)
+	{
+		if (!IsValid(stack)) return new HashMap<>();
+		
+		HashMap<Enchantment, Integer> map = new HashMap<>();
+		for(Enchantment ench : GetEnchants(stack))
+		{
+			if(stack.getType() != Material.ENCHANTED_BOOK)
+			{
+				map.put(ench, stack.getEnchantmentLevel(ench));
+				continue;
+			}
+			
+			Integer bookLvl = ((EnchantmentStorageMeta)stack.getItemMeta()).getStoredEnchantLevel(ench);
+			Integer stackLvl = stack.getEnchantmentLevel(ench);
+			if(bookLvl == null) 
+				bookLvl = 0;
+			if(stackLvl == null) 
+				stackLvl = 0;
+			
+			if(bookLvl > stackLvl)
+			{
+				map.put(ench, bookLvl);
+				continue;
+			}
+			map.put(ench, stackLvl);
+				
+		}
+		return map;
+	}
+	
+	public static void CloneEnchantments(ItemStack item1, ItemStack item2) 
+	{
+	    item2.getEnchantments().keySet().forEach(enchantment -> item2.removeEnchantment(enchantment));
+	    item1.getEnchantments().forEach((enchantment, level) -> item2.addUnsafeEnchantment(enchantment, level));
+	}
+	public static void RemoveEnchantments(ItemStack stack) {
+
+		stack.getEnchantments().keySet().forEach(enchantment -> stack.removeEnchantment(enchantment));
+	}
+	
+	///< PERSISTENT DATA
 	public static <T> ItemStack SetPersistenData(ItemStack stack, String keyName, PersistentDataType<T, T> type, T data)
 	{
 		if (!IsValid(stack))  return stack;

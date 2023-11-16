@@ -16,7 +16,7 @@ import imu.imusEnchants.main.CONSTANTS;
 public class EnchantedItem
 {
 	private ManagerEnchants _managerEnchants = ManagerEnchants.Instance;
-	private Node[][] _nodes;
+	private INode[][] _nodes;
 	private int _slots = 0;
 	private boolean _isReveaveled = false;
 	private ItemStack _stack;
@@ -25,6 +25,7 @@ public class EnchantedItem
 	
 	private final String PD_REVEALED = "pd_revealed";
 	private final String PD_SLOTS = "pd_slots";
+	private int _totalUnlocked = 0;
 	
 	public EnchantedItem(ItemStack stack)
 	{		
@@ -40,86 +41,40 @@ public class EnchantedItem
         if(slots > 0) _slots = slots;
         else SetSlots(ManagerEnchants.GetMaterialSlotsRange(_stack).GetRandomSlots());
         
+
     }
 	
-	private int _totalUnlocked = 0;
+	public void Reveal(boolean force)
+	{
+		if(force || !LoadUnlockedNodes(_stack))
+	    {
+	    	GenerateNodes();
+	    	SaveUnlockedNodes(_stack);
+	    }
+		
+		_isReveaveled = true;
+	}
+	
+	public ItemStack GetItemStack() 
+	{
+		return _stack;
+	}
 	
 	public void GenerateNodes()
 	{
-		System.out.println("||||||||||| GENEslots now: "+_slots);
-		_nodes = new Node[CONSTANTS.ENCHANT_ROWS][CONSTANTS.ENCHANT_COLUMNS];
 		_totalUnlocked = 0;
-	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
-	    {
-	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
-	        {
-	            _nodes[i][j] = new Node(i,j);
-	        }
-	    }
-	    
-	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
-	    {
-	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
-	        {
-	            Node node = _nodes[i][j];
-	            node._nearNodes[0] = (j > 0) ? _nodes[i][j - 1] : null; // LEFT
-	            node._nearNodes[1] = (j < CONSTANTS.ENCHANT_COLUMNS - 1) ? _nodes[i][j + 1] : null; // RIGHT
-	            node._nearNodes[2] = (i > 0) ? _nodes[i - 1][j] : null; // UP
-	            node._nearNodes[3] = (i < CONSTANTS.ENCHANT_ROWS - 1) ? _nodes[i + 1][j] : null; // DOWN
-	        }
-	    }
-
-//	    int unlocked = 0;
-//	    while (unlocked < _slots) 
-//	    {
-//	        int row = random.nextInt(CONSTANTS.ENCHANT_ROWS);
-//	        int column = random.nextInt(CONSTANTS.ENCHANT_COLUMNS);
-//	        
-//	        if (_nodes[row][column].isLock && !ManagerEnchants.REDSTRICTED_SLOTS.contains(row * CONSTANTS.ENCHANT_COLUMNS + column)) 
-//	        {
-//	            _nodes[row][column].isLock = false;
-//	            unlocked++;   
-//	        }     
-//	    }
-
-//	    while (unlocked < _slots) {
-//	        int row = random.nextInt(CONSTANTS.ENCHANT_ROWS);
-//	        int column = random.nextInt(CONSTANTS.ENCHANT_COLUMNS);
-//	        
-//	        // Check and unlock the current node
-//	        if (_nodes[row][column].isLock && !ManagerEnchants.REDSTRICTED_SLOTS.contains(row * CONSTANTS.ENCHANT_COLUMNS + column)) {
-//	            _nodes[row][column].isLock = false;
-//	            unlocked++;  
-//
-//	            // 20% chance to unlock a neighbor
-//	            if (random.nextDouble() < 0.50) {
-//	                List<Node> neighbors = new ArrayList<>(Arrays.asList(_nodes[row][column]._nearNodes));
-//	                neighbors.removeIf(Objects::isNull); // Remove null entries (no neighbor)
-//	                neighbors.removeIf(node -> !node.isLock); // Remove already unlocked neighbors
-//	                neighbors.removeIf(node -> ManagerEnchants.REDSTRICTED_SLOTS.contains(node.slotX * CONSTANTS.ENCHANT_COLUMNS + node.slotY)); // Remove restricted slots
-//
-//	                if (!neighbors.isEmpty()) {
-//	                    Node randomNeighbor = neighbors.get(random.nextInt(neighbors.size()));
-//	                    randomNeighbor.isLock = false;
-//	                    unlocked++;
-//	                }
-//	            }
-//	        }
-//	        
-//	        // Ensure that we don't exceed the slot limit
-//	        if (unlocked > _slots) {
-//	            unlocked = _slots;
-//	        }
-//	    }
-	    
+		System.out.println("||||||||||| GENEslots now: "+_slots);
+		
+		GenenrateEmptyNodeArray();
+		
 	    while (_totalUnlocked < _slots) 
 	    {
 	        int row = random.nextInt(CONSTANTS.ENCHANT_ROWS);
 	        int column = random.nextInt(CONSTANTS.ENCHANT_COLUMNS);
 
-	        if (_nodes[row][column].isLock && !ManagerEnchants.REDSTRICTED_SLOTS.contains(row * CONSTANTS.ENCHANT_COLUMNS + column)) 
+	        if (_nodes[row][column].IsLocked() && !ManagerEnchants.REDSTRICTED_SLOTS.contains(row * CONSTANTS.ENCHANT_COLUMNS + column)) 
 	        {
-	            _nodes[row][column].isLock = false;
+	            _nodes[row][column].SetLock(false);
 	            _totalUnlocked++;
 
 	            TryUnlockNeighbors(_nodes[row][column], 0.20,1);
@@ -127,27 +82,45 @@ public class EnchantedItem
 	    } 
 
 	}
-
-	private void TryUnlockNeighbors(Node node, double chance, int depth) 
+	
+	private void GenenrateEmptyNodeArray()
+	{
+		_nodes = new Node[CONSTANTS.ENCHANT_ROWS][CONSTANTS.ENCHANT_COLUMNS];
+		
+	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
+	    {
+	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+	        {
+	            Node node = new Node(i,j);
+	            node.GetNeighbors()[0] = (j > 0) ? _nodes[i][j - 1] : null; // LEFT
+	            node.GetNeighbors()[1] = (j < CONSTANTS.ENCHANT_COLUMNS - 1) ? _nodes[i][j + 1] : null; // RIGHT
+	            node.GetNeighbors()[2] = (i > 0) ? _nodes[i - 1][j] : null; // UP
+	            node.GetNeighbors()[3] = (i < CONSTANTS.ENCHANT_ROWS - 1) ? _nodes[i + 1][j] : null; // DOWN
+	            _nodes[i][j] = node;
+	        }
+	    }
+	    
+	}
+	private void TryUnlockNeighbors(INode node, double chance, int depth) 
 	{
 	    if (depth > 5 || _totalUnlocked >= _slots) 
 	    {
 	        return;
 	    }
 
-	    for (Node neighbor : node._nearNodes) 
+	    for (INode neighbor : node.GetNeighbors()) 
 	    {
 	    	if (_totalUnlocked >= _slots) continue;
 	    	 
 	    	if(neighbor == null) continue;
 	    	
-	    	if(!neighbor.isLock) continue;
+	    	if(!neighbor.IsLocked()) continue;
 	    	
-	    	if(ManagerEnchants.REDSTRICTED_SLOTS.contains(neighbor.slotX * CONSTANTS.ENCHANT_COLUMNS + neighbor.slotY)) continue;
+	    	if(ManagerEnchants.REDSTRICTED_SLOTS.contains(neighbor.GetX() * CONSTANTS.ENCHANT_COLUMNS + neighbor.GetY())) continue;
 	    	
 	    	if (random.nextDouble() > chance) continue;
 	        
-	    	neighbor.isLock = false;
+	    	neighbor.SetLock(false);
             _totalUnlocked++;
             
             if (_totalUnlocked < _slots) 
@@ -158,7 +131,7 @@ public class EnchantedItem
 	    }
 	}
 	
-	public Node GetNodeBySlot(int slot) 
+	public INode GetNodeBySlot(int slot) 
 	{
 	    int row = slot / CONSTANTS.ENCHANT_COLUMNS;
 	    int column = slot % CONSTANTS.ENCHANT_COLUMNS;
@@ -171,23 +144,37 @@ public class EnchantedItem
 	    return null;
 	}
 	
-	public Node[] GetUnlockedNodes() 
+	public void SetNode(INode node, int position) 
 	{
-	    Node[] unlockedNodes = new Node[_slots];
+	    int row = position / CONSTANTS.ENCHANT_COLUMNS;
+	    int column = position % CONSTANTS.ENCHANT_COLUMNS;
+
+	    if (row >= 0 && row < CONSTANTS.ENCHANT_ROWS && column >= 0 && column < CONSTANTS.ENCHANT_COLUMNS) 
+	    {
+	    	System.out.println("Position " + position + " to row: "+row + " col: "+column);
+	    	node.SetPosition(row, column);
+	        _nodes[row][column] = node;
+	    } 
+	    else 
+	    {
+	        System.out.println("Position " + position + " is out of the valid range for nodes.");
+	    }
+	}
+
+	
+	public INode[] GetUnlockedNodes() 
+	{
+	    INode[] unlockedNodes = new INode[_slots];
 	    int index = 0;
 
 	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
 	    {
 	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
 	        {
-	            if (_nodes[i][j].isLock) continue;
+	            if (_nodes[i][j].IsLocked()) continue;
 	            
 	            unlockedNodes[index++] = _nodes[i][j];
-                
-//	            if (index >= _slots) 
-//                {
-//                    return unlockedNodes;
-//                }
+
 	        }
 	    }
 
@@ -226,11 +213,11 @@ public class EnchantedItem
 	
 	private boolean IsRevealed(ItemStack stack)
 	{
-		Integer i = ItemUtils.GetPersistenData(stack, PD_REVEALED, PersistentDataType.INTEGER);
-		return  i != null && i != 0;
+		String data = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+		return  data != null;
 	}
 	
-	public Node[][] Get_nodes()
+	public INode[][] Get_nodes()
 	{
 		if(_nodes == null) _nodes = new Node[CONSTANTS.ENCHANT_ROWS][CONSTANTS.ENCHANT_COLUMNS];
 		return _nodes;
@@ -250,6 +237,149 @@ public class EnchantedItem
 	{
 		this._slots = _slots;
 	}
+	
+	public void SaveUnlockedNodes() 
+	{
+		SaveUnlockedNodes(_stack);
+	}
+	
+	public void SaveUnlockedNodes(ItemStack stack) 
+	{
+	    StringBuilder serializedData = new StringBuilder();
+
+	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
+	    {
+	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+	        {
+	            INode node = _nodes[i][j];
+	            if (!node.IsLocked()) 
+	            {
+	                if (serializedData.length() > 0) serializedData.append(";");
+	                
+	                serializedData.append(node.Serialize());
+	            }
+	        }
+	    }
+
+	    ItemUtils.SetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING, serializedData.toString());
+	    
+	    System.out.println("item SAVED: "+stack);
+	}
+	
+	public boolean LoadUnlockedNodes() 
+	{
+		return LoadUnlockedNodes(_stack);
+	}
+	public boolean LoadUnlockedNodes(ItemStack stack) 
+	{
+	    String serializedData = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+	    
+	    if (serializedData == null || serializedData.isEmpty()) return false;
+	    
+	    GenenrateEmptyNodeArray();
+	    
+	    String[] nodeDataArray = serializedData.split(";");
+	    for (String nodeData : nodeDataArray) 
+	    {
+	        String[] parts = nodeData.split(":");
+	        String type = parts[0];
+	        INode node = null;
+
+	        switch (type) 
+	        {
+	            case "NodeBooster":
+	                node = new NodeBooster();
+	                break;
+	            case "NodeEnchant":
+	                node = new NodeEnchant();
+	                break;
+	            default:
+	                node = new Node();
+	                break;
+	        }
+
+	        if (node != null) 
+	        {
+	            node.Deserialize(nodeData);
+	            node.SetLock(false);
+	            _nodes[node.GetX()][node.GetY()] = node;
+	        }
+	    }
+	    
+	    return true;
+	}
+	
+//	public boolean LoadUnlockedNodes(ItemStack stack) 
+//	{
+//	    String serializedData = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+//	    
+//	    if (serializedData == null || serializedData.isEmpty()) return false;
+//
+//	    String[] nodeDataArray = serializedData.split(";");
+//
+//	    try 
+//        {
+//	    	for (String nodeData : nodeDataArray) 
+//	 	    {
+//	 	        String[] parts = nodeData.split(":");
+//	 	        String className = parts[0];
+//
+//	 	        Class<?> clazz = Class.forName("imu.imusEnchants.Enchants." + className);
+//	            if (INode.class.isAssignableFrom(clazz)) 
+//	            {
+//	                INode node = (INode) clazz.getDeclaredConstructor().newInstance();
+//	                node.Deserialize(nodeData);
+//	                _nodes[node.GetX()][node.GetY()] = node;
+//	            }
+//	 	    }
+//        }
+//	    catch (Exception e) 
+//        {
+//            e.printStackTrace(); // Handle exceptions appropriately
+//            return false;
+//        }
+//	   
+//	    
+//	    return true;
+//	}
+	
+	//WORKING
+//	public void SaveUnlockedNodes(ItemStack stack) 
+//	{
+//	    Node[] unlockedNodes = GetUnlockedNodes();
+//	    StringBuilder serializedData = new StringBuilder();
+//
+//	    for (Node node : unlockedNodes) 
+//	    {
+//	        if (serializedData.length() > 0)
+//	            serializedData.append(","); // delimiter
+//	        serializedData.append(node.GetFlatIndex());
+//	    }
+//
+//	    ItemUtils.SetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING, serializedData.toString());
+//	}
+//	
+//	public boolean LoadUnlockedNodes(ItemStack stack) 
+//	{
+//		
+//	    String serializedData = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+//	    if (serializedData == null || serializedData.isEmpty()) return false;
+//	    
+//	    GenenrateEmptyNodeArray();
+//	    
+//	    String[] nodeIndices = serializedData.split(",");
+//	    for (String indexStr : nodeIndices) {
+//	        int index = Integer.parseInt(indexStr);
+//	        int row = index / CONSTANTS.ENCHANT_COLUMNS;
+//	        int column = index % CONSTANTS.ENCHANT_COLUMNS;
+//
+//	        if (row >= 0 && row < CONSTANTS.ENCHANT_ROWS && column >= 0 && column < CONSTANTS.ENCHANT_COLUMNS) {
+//	            _nodes[row][column].SetLock(false);
+//	        }
+//	    }
+//	    
+//	    return true;
+//	}
 
 	
 }

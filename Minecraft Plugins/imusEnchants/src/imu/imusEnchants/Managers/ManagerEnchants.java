@@ -11,6 +11,7 @@ import imu.imusEnchants.Enums.MATERIAL_SLOT_RANGE;
 import imu.imusEnchants.Inventories.InventoryEnchanting;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
+import net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal;
 
 public class ManagerEnchants
 {
@@ -29,6 +30,16 @@ public class ManagerEnchants
             CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS - 6,
             CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS - 4,
             CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS - 5
+            
+        )
+    );
+	 
+	 public static final HashSet<Material> VALID_INVENTORY_MATERIALS = new HashSet<>
+	 (
+        Arrays.asList
+        (
+            CONSTANTS.BOOSTER_MATERIAL,
+            CONSTANTS.ENCHANT_MATERIAL
             
         )
     );

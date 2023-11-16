@@ -146,28 +146,43 @@ public class ButtonHandler implements Listener
                  
                  return;
              }
+             case MOVE_TO_OTHER_INVENTORY:
              case PICKUP_ALL:
              {
-            	 boolean onPickUpAll = _customInventory.OnPickupAll(button, event.getSlot());
+//            	 boolean onPickUpAll = _customInventory.OnPickupAll(button, event.getSlot());
+//            	 
+//            	 if(!onPickUpAll)
+//            	 {
+//            		 event.setCancelled(true);
+//            	 }
+//            	 
+//            	 if(button == null) break;
+//            	 
+//            	 if(!button.IsPositionLocked()) 
+//        		 {
+//            		 RemoveButton(button);
+//        		 }
             	 
-            	 if(!onPickUpAll)
-            	 {
-            		 event.setCancelled(true);
-            	 }
-            	 
-            	 if(button == null) break;
-            	 
-            	 if(!button.IsPositionLocked()) 
-        		 {
-            		 RemoveButton(button);
-        		 }
+            	 HandlePickupAll(event, button);
+            	 break;
+             }
+             case PICKUP_HALF:
+             {
+            	ItemStack itemInSlot = _customInventory.GetInventory().getItem(event.getSlot());
+        	    if (itemInSlot != null && itemInSlot.getType().getMaxStackSize() == 1) 
+        	    {
+        	    	HandlePickupAll(event, button);
+        	    } 
+        	    else 
+        	    {
+        	        System.out.println("this isnt supported yet pickup type:  "+event.getAction());
+        	    }
+        	    break;
              }
 			default:
 				break;
         	 }
         }
-        
-        
         
         if(button == null) return;
         
@@ -217,10 +232,32 @@ public class ButtonHandler implements Listener
             if (slot < _customInventory.GetSize()) 
             { 
                 ItemStack draggedItem = event.getOldCursor();
-                CreateButtonForSlot(INV_ACTION.DRAG, draggedItem, slot);   
+                boolean success = CreateButtonForSlot(INV_ACTION.DRAG, draggedItem, slot);  
+                
+                if(success)
+                {
+                	event.setCancelled(true);
+                	return;
+                }
             }
         }
     	
+    }
+    
+    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) {
+        
+    	int slot = event.getSlot();
+    	boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
+
+        if (!onPickUpAll) 
+        {
+            event.setCancelled(true);
+        }
+
+        if (button != null && !button.IsPositionLocked()) 
+        {
+            RemoveButton(button);
+        }
     }
     
     private boolean CreateButtonForSlot(INV_ACTION inv_action, ItemStack item, int slot) {
