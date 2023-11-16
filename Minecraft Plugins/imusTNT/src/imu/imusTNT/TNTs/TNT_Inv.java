@@ -11,7 +11,6 @@ import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
 import imu.imusTNT.main.ImusTNT;
-import net.minecraft.advancements.AdvancementProgress.a;
 
 public class TNT_Inv extends CustomInvLayout
 {
@@ -30,7 +29,7 @@ public class TNT_Inv extends CustomInvLayout
 	@Override
 	public void invClosed(InventoryCloseEvent e)
 	{
-
+		
 	}
 
 	@Override

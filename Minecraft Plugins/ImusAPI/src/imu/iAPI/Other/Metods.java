@@ -1,5 +1,6 @@
 package imu.iAPI.Other;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -30,8 +32,10 @@ import org.bukkit.conversations.StringPrompt;
 //import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 //import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+//import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+//import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+
+import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -59,20 +63,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import com.google.common.base.Strings;
-
 import imu.iAPI.Interfaces.DelaySendable;
 import imu.iAPI.Main.ImusAPI;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.item.ItemArmor;
-import net.minecraft.world.item.ItemElytra;
-import net.minecraft.world.item.ItemPotion;
-import net.minecraft.world.item.ItemShield;
-import net.minecraft.world.item.ItemTool;
 import net.minecraft.world.level.block.entity.TileEntity;
 
 public class Metods 
@@ -204,22 +200,7 @@ public class Metods
     	{
 			ItemMeta meta = stack.getItemMeta();
 			ArrayList<String> metaLores = new ArrayList<>();
-//			if(!meta.hasLore())
-//			{
-//				metaLores = new ArrayList<>();	
-//			}else
-//			{
-//				metaLores = (ArrayList<String>)meta.getLore();
-//			}
-			
-//			int size = metaLores.size();
-//    		if(size < lores.length)
-//    		{			
-//    			for(int i = 0; i < lores.length-size; ++i)
-//    			{
-//    				metaLores.add(msgC(lores[size+i]));
-//    			}
-//    		}
+
     		for(String lore : lores)
     		{
     			metaLores.add(msgC(lore));
@@ -230,7 +211,7 @@ public class Metods
     			for(int i = metaLores.size()-1; i >= 0 ; i--)
     			{
     				//System.out.println("==> empty? "+metaLores.get(i)+ "is it? "+Strings.isNullOrEmpty(metaLores.get(i)));
-    				if(Strings.isNullOrEmpty(metaLores.get(i)))
+    				if(IsStringNullOrEmpty(metaLores.get(i)))
     				{
     					metaLores.remove(i);
     				}
@@ -643,13 +624,52 @@ public class Metods
 		return false;
 		
 	}
-	public boolean isArmor(ItemStack stack)
+//	public boolean isArmor(ItemStack stack)
+//	{
+//		
+//		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).c() instanceof ItemElytra)
+//		{
+//			return true;
+//		}
+//		return false;
+//	}
+	
+	public boolean isArmor(ItemStack stack) 
 	{
-		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemArmor || CraftItemStack.asNMSCopy(stack).c() instanceof ItemElytra)
-		{
-			return true;
-		}
-		return false;
+	    
+		if (stack == null || stack.getType() == Material.AIR) 
+	    {
+	        return false;
+	    }
+
+	    switch (stack.getType()) 
+	    {
+	        case LEATHER_HELMET:
+	        case LEATHER_CHESTPLATE:
+	        case LEATHER_LEGGINGS:
+	        case LEATHER_BOOTS:
+	        case IRON_HELMET:
+	        case IRON_CHESTPLATE:
+	        case IRON_LEGGINGS:
+	        case IRON_BOOTS:
+	        case GOLDEN_HELMET:
+	        case GOLDEN_CHESTPLATE:
+	        case GOLDEN_LEGGINGS:
+	        case GOLDEN_BOOTS:
+	        case DIAMOND_HELMET:
+	        case DIAMOND_CHESTPLATE:
+	        case DIAMOND_LEGGINGS:
+	        case DIAMOND_BOOTS:
+	        case NETHERITE_HELMET:
+	        case NETHERITE_CHESTPLATE:
+	        case NETHERITE_LEGGINGS:
+	        case NETHERITE_BOOTS:
+	        case TURTLE_HELMET:
+	        case ELYTRA:
+	            return true;
+	        default:
+	            return false;
+	    }
 	}
 
 	public boolean isShulkerBox(ItemStack stack)
@@ -667,31 +687,33 @@ public class Metods
 		return false;
 	}
 	
-	public boolean isShield(ItemStack stack)
-	{
-		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemShield)
-		{
-			return true;
-		}
-		return false;
-	}
+//	public boolean isShield(ItemStack stack)
+//	{
+//		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemShield)
+//		{
+//			return true;
+//		}
+//		return false;
+//	}
+//	
+//	public boolean IsPotion(ItemStack stack)
+//	{
+//		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemPotion) return true;
+//		return false;
+//		
+//	}
 	
-	public boolean IsPotion(ItemStack stack)
-	{
-		if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemPotion) return true;
-		return false;
-		
-	}
+	
 	
 	public boolean isTool(ItemStack stack) 
 	{
 		if(stack != null && stack.getType()!= Material.AIR)
 		{
-			if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemTool)
-			{
-				//System.out.println("Checking if works: stack");
-				return true;
-			}
+//			if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemTool)
+//			{
+//				//System.out.println("Checking if works: stack");
+//				return true;
+//			}
 			
 			switch(stack.getType()) 
 			{
@@ -1272,15 +1294,15 @@ public class Metods
 	public void sendYesNoConfirm(Player player, String yesCommandStr, String noCommandStr)
 	{
 		TextComponent msgYes = new TextComponent("         YES");
-		msgYes.setColor(ChatColor.GREEN);
+		msgYes.setColor( net.md_5.bungee.api.ChatColor.GREEN);
 		msgYes.setBold(true);
 		msgYes.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, yesCommandStr));
 		
 		TextComponent msgSlash = new TextComponent(" / ");
-		msgSlash.setColor(ChatColor.DARK_GREEN);
+		msgSlash.setColor(net.md_5.bungee.api.ChatColor.DARK_GREEN);
 		
 		TextComponent msgNo = new TextComponent("NO");
-		msgNo.setColor(ChatColor.RED);
+		msgNo.setColor(net.md_5.bungee.api.ChatColor.RED);
 		msgNo.setBold(true);
 		msgNo.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, noCommandStr));
 		
@@ -1289,6 +1311,8 @@ public class Metods
 		msgYes.addExtra(msgNo);
 		player.spigot().sendMessage(msgYes);
 	}
+	
+	
 	
 	
 	/**
@@ -1311,7 +1335,7 @@ public class Metods
 		    msg.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd_str));
 		    
 		    TextComponent msgSlash = new TextComponent(" "+seperator+" ");
-			msgSlash.setColor(ChatColor.DARK_GREEN);
+			msgSlash.setColor(net.md_5.bungee.api.ChatColor.DARK_GREEN);
 		    
 		    main_msg.addExtra(msg);
 		    main_msg.addExtra(msgSlash);
@@ -1405,7 +1429,7 @@ public class Metods
 		String displayName = stack.getType().name();
 		if(stack.hasItemMeta())
 		{
-			if(!Strings.isNullOrEmpty(stack.getItemMeta().getDisplayName()))
+			if(!IsStringNullOrEmpty(stack.getItemMeta().getDisplayName()))
 				displayName = stack.getItemMeta().getDisplayName();
 		}
 			
@@ -1559,7 +1583,8 @@ public class Metods
 		copyEntity.a(ntc2); //load  ja targetEntity.Getblock()
 		//copyEntity.
 //		copyEntity.ae_(); //update
-		copyEntity.ar_(); //update
+		//copyEntity.ar_(); //update
+		copyEntity.at_();
 		
 		return true;
 	}
@@ -1667,6 +1692,11 @@ public class Metods
    
 	    stack.setAmount(xx);
 	    return stack;
+	}
+	
+	public static boolean IsStringNullOrEmpty(String value) 
+	{
+	    return value == null || value.isEmpty();
 	}
 	
 	public static void SetSmithingRecipe(String id, Material mat1, Material mat2, ItemStack resultStack)

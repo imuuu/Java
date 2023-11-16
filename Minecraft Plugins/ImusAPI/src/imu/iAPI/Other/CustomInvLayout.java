@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitTask;
 //import chestcleaner.sorting.SortingEvent;
 import imu.iAPI.Interfaces.CustomInv;
 import imu.iAPI.Interfaces.IButton;
+import imu.iAPI.Interfaces.ICustomInventory;
 import imu.iAPI.Main.ImusAPI;
 
 public abstract class CustomInvLayout implements Listener, CustomInv
@@ -236,7 +237,6 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 			
 			if((e.getRawSlot() == e.getSlot()))
 			{
-				
 				onClickInsideInv(e);
 				return;
 			}
@@ -299,9 +299,6 @@ public abstract class CustomInvLayout implements Listener, CustomInv
 		
 		return null;
 	}
-	
-	
-	
 	
 	@Override
 	public ItemStack setupButton(IButton b, Material material, String displayName, Integer itemSlot)

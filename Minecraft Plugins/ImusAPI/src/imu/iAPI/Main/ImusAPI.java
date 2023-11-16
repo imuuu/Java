@@ -18,6 +18,7 @@ import imu.iAPI.CmdUtil.CmdHelper;
 import imu.iAPI.Commands.ExampleCmd;
 import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Handelers.CommandHandler;
+import imu.iAPI.Interfaces.ICustomInventory;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.Metods;
@@ -31,7 +32,11 @@ public class ImusAPI extends JavaPlugin
 	public static Metods _metods;
 	public static MySQLHelper _sqlHelper;
 	private Manager_FastInventories _fastInvs;
+	
+	//depricated
 	private HashMap<UUID, CustomInvLayout> _openedInvs = new HashMap<>();
+	private HashMap<UUID, ICustomInventory> _openedCustomInventories= new HashMap<>();
+	
 	private ProtocolManager _protocolManager;
 	private ProtocolLibUtil _protocolLibUtil;
 
@@ -79,6 +84,13 @@ public class ImusAPI extends JavaPlugin
 		{
 			inv.GetPlayer().closeInventory();
 		}
+		
+		for (ICustomInventory inv : _openedCustomInventories.values())
+		{
+			inv.GetPlayer().closeInventory();
+		}
+		
+		_openedCustomInventories.clear();
 		_openedInvs.clear();
 	}
 
@@ -130,10 +142,20 @@ public class ImusAPI extends JavaPlugin
 	{
 		_openedInvs.put(inv.GetPlayer().getUniqueId(), inv);
 	}
-
+	
 	public void UnregisterInv(CustomInvLayout inv)
 	{
 		_openedInvs.remove(inv.GetPlayer().getUniqueId());
+	}
+	
+	public void RegisterCustomInventory(ICustomInventory inv)
+	{
+		_openedCustomInventories.put(inv.GetPlayer().getUniqueId(), inv);
+	}
+
+	public void UnregisterCustomInventory(ICustomInventory inv)
+	{
+		_openedCustomInventories.remove(inv.GetPlayer().getUniqueId());
 	}
 
 	public CustomInvLayout GetOpenedInv(Player player)

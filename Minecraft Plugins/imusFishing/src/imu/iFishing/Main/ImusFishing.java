@@ -7,12 +7,12 @@ import imus.iFishing.Events.FishingEvents;
 
 public class ImusFishing extends JavaPlugin
 {
-	public static ImusFishing _instance;
+	public static ImusFishing Instance;
 	public final String _pluginNamePrefix = "&4[&b"+getName()+"&4]&r";
 	@Override
 	public void onEnable() 
 	{
-		_instance = this;
+		Instance = this;
 		new FishingEvents();
 		
 		getServer().getConsoleSender().sendMessage(Metods.msgC(_pluginNamePrefix+" &2has been activated!"));

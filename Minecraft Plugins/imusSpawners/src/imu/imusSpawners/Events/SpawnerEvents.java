@@ -122,8 +122,7 @@ public class SpawnerEvents implements Listener
 			return;
 		
 		boolean playerSpawner = Manager_Spawners.Instance.HasSpawner(e.getBlock().getLocation());
-		ItemStack playerCustomSpawner = Manager_Spawners.Instance.GetCustomSpawner(e.getBlock().getLocation()).GetSpawnerItemStack();
-		
+
 		Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
 		
 		Player player = e.getPlayer();
@@ -133,13 +132,12 @@ public class SpawnerEvents implements Listener
 		CreatureSpawner spawner = (CreatureSpawner) block.getState();
 		EntityType entityType = spawner.getSpawnedType();
 
-		//boolean playerSpawner = !block.getState().getMetadata(METADATA_OWNER_ID).isEmpty();
-		
-
 		if (playerSpawner)
 		{
 			e.setDropItems(false);
 			e.setExpToDrop(0);
+			
+			ItemStack playerCustomSpawner = Manager_Spawners.Instance.GetCustomSpawner(e.getBlock().getLocation()).GetSpawnerItemStack();
 			
 			if(playerCustomSpawner == null) return;
 			

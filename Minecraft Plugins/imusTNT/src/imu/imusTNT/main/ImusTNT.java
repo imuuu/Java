@@ -6,9 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.iAPI.CmdUtil.CmdHelper;
+import imu.iAPI.Commands.ExampleCmd;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
-import imu.imusTNT.Commands.ExampleCmd;
 import imu.imusTNT.Events.imusTNT_events;
 import imu.imusTNT.SubCommands.SubOpenTNT_InvCmd;
 import imu.imusTNT.TNTs.TNT_Mananger;
@@ -29,7 +29,7 @@ public class ImusTNT extends JavaPlugin
 		_managerTNT = new TNT_Mananger();
 		
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + _pluginName+" is Activated");
-		getServer().getPluginManager().registerEvents(new imusTNT_events(), this);
+		///getServer().getPluginManager().registerEvents(new imusTNT_events(), this);
 		
 		RegisterCommands();
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);

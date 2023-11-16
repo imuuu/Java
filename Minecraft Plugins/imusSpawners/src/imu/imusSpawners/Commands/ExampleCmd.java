@@ -1,6 +1,6 @@
 package imu.imusSpawners.Commands;
 
-//Imports for the base command class.
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -20,7 +20,6 @@ public class ExampleCmd implements CommandInterface
 
 	@Override
 	public void FailedMsg(CommandSender arg0, String arg1) {
-		// TODO Auto-generated method stub
 		
 	}
  
