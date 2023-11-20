@@ -11,11 +11,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -33,6 +35,7 @@ import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.LootTables.ImusLootTable;
 import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Utilities.ItemUtils;
 
 public class ChestLootEvents implements Listener
 {
@@ -108,29 +111,42 @@ public class ChestLootEvents implements Listener
 		int epic = 73;
 		int mythic = 34;
 		int lege = 20;
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
+		
+		_lootTable_hellArmor.Add(new ItemStack(Material.GREEN_WOOL), common);
+		_lootTable_hellArmor.Add(new ItemStack(Material.LIME_WOOL), unCommon);
+		
+		_lootTable_hellArmor.Add(new ItemStack(Material.LAPIS_ORE), common);
+		_lootTable_hellArmor.Add(new ItemStack(Material.BLACK_WOOL), unCommon);
+		
+		_lootTable_hellArmor.Add(new ItemStack(Material.BLUE_WOOL), common);
+		_lootTable_hellArmor.Add(new ItemStack(Material.CYAN_WOOL), unCommon);
+		
+		_lootTable_hellArmor.Add(new ItemStack(Material.BROWN_WOOL), common);
+		_lootTable_hellArmor.Add(new ItemStack(Material.CYAN_WOOL), unCommon);
+		
+		//_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
+		//_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Rare), rare);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Epic), epic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Mythic), mythic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Legendary), lege);
 		
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Common), common);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Uncommon), unCommon);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Uncommon), unCommon);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Rare), rare);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Epic), epic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Mythic), mythic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Legendary), lege);
 		
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Common), common);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Uncommon), unCommon);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Uncommon), unCommon);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Rare), rare);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Epic), epic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Mythic), mythic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Legendary), lege);
 		
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Common), common);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Uncommon), unCommon);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Uncommon), unCommon);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Rare), rare);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Epic), epic);
 		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Mythic), mythic);
@@ -525,22 +541,59 @@ public class ChestLootEvents implements Listener
 	@EventHandler
 	public void OnBetterStructureLoot(ChestFillEvent e)
 	{
-		if (!(IsNether(e.getContainer().getWorld())))
+//		if (!(IsNether(e.getContainer().getWorld())))
+//			return;
+		
+		World world = e.getContainer().getWorld();
+		if ((DontLoseItems.IsEnd(world)))
 			return;
 
 		if (e.isCancelled())
 			return;
-		
-		Bukkit.getLogger().info("For betterstructures has generated nether loot ");
-		
+				
+		Location chestLocation = e.getContainer().getLocation();
+	    double closeByDistance = 500; 
+	    StringBuilder closeByPlayerNames = new StringBuilder();
+
+	    for (Player player : world.getPlayers()) 
+	    {
+	        if (player.getLocation().distance(chestLocation) <= closeByDistance) 
+	        {
+	            if (closeByPlayerNames.length() > 0) {
+	                closeByPlayerNames.append(", ");
+	            }
+	            closeByPlayerNames.append(player.getName());
+	        }
+	    }
+
+	    String closeByPlayersStr = String.join(", ", closeByPlayerNames);
+
 		Inventory inv = e.getContainer().getInventory();
 		inv = e.getContainer().getSnapshotInventory();
-		List<ItemStack> stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
+		List<ItemStack> stacks;
 		
-		for (ItemStack stack : stacks)
-		{
-			inv.addItem(stack);
-		}
+		if(world.getEnvironment() == Environment.NETHER) stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
+		else stacks = GenerateNetherLoot(1, (int)(_chestRollMaxAmount));
+		
+		StringBuilder itemNames = new StringBuilder();
+	    for (ItemStack stack : stacks) 
+	    {
+	        if (Manager_HellArmor.Instance.IsVoidOrHellItem(stack)) 
+	        { 
+	            if (itemNames.length() > 0) 
+	            {
+	                itemNames.append(", ");
+	            }
+	            
+	            String displayName = ItemUtils.GetDisplayName(stack); 
+	            itemNames.append(displayName);
+	            
+	        }
+	        
+	        inv.addItem(stack);
+	    }
+
+	    Bukkit.getLogger().info("[bs] has gen w:" + world.getEnvironment() + " loot {i: " + itemNames + "} {cbp: " + closeByPlayersStr + "}");
 	}
 	
 	@EventHandler

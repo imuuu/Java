@@ -303,6 +303,7 @@ public class MainEvents implements Listener
 				return;
 			}
 			Player p =(Player) event.getEntity();
+			
 			setInCombat(p, ((Entity)pr.getShooter()));
 		}
 		
@@ -441,10 +442,11 @@ public class MainEvents implements Listener
 		ItemStack[] content = inv.getContents();
 		ItemStack[] save_items = new ItemStack[content.length];
 
-		if(player.getKiller() instanceof Player)
+		if(player.getKiller() instanceof Player && player.getUniqueId() != player.getKiller().getUniqueId())
 		{
 			died_pvp.put(player.getUniqueId(), true);
-		}else
+		}
+		else
 		{
 			died_pvp.put(player.getUniqueId(), false);
 		}

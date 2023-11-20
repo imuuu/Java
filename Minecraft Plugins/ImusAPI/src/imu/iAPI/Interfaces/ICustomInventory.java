@@ -24,7 +24,11 @@ public interface ICustomInventory
 	
 	public Plugin GetPlugin();
 	
-	public boolean OnDropitem(ItemStack item, int slot);
-	public boolean OnDragitem(ItemStack item, int slot);
+	public boolean OnDropItem(ItemStack stack, int slot);
+	public void OnDropItemSet(ItemStack stack, int slot);
+	
+	public boolean OnDragItem(ItemStack stack, int slot);
+	public void OnDragItemSet(ItemStack stack, int slot);
+	
 	public boolean OnPickupAll(IBUTTONN button, int slot);
 }

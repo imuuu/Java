@@ -1,5 +1,8 @@
 package imu.imusEnchants.Enchants;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
 import imu.imusEnchants.main.CONSTANTS;
 
 public class Node implements INode
@@ -8,7 +11,7 @@ public class Node implements INode
 	protected int _y;
 	
 	// 0 LEFT, 1 RIGHT, 2 UP, 3 DOWN
-	private INode[] _neighbors = new Node[4];
+	private INode[] _neighbors;
 	
 	private boolean _isLock = true;
 	
@@ -85,6 +88,19 @@ public class Node implements INode
         _y = Integer.parseInt(parts[2]);
        
     }
+
+	@Override
+	public ItemStack GetItemStack()
+	{
+		return new ItemStack(Material.AIR);
+	}
+	
+	@Override
+	public String toString()
+	{
+		
+		return Serialize();
+	}
 
 	
 

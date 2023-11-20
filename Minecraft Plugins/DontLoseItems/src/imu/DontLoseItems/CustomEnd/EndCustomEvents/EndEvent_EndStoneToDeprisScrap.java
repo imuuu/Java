@@ -14,7 +14,7 @@ public class EndEvent_EndStoneToDeprisScrap extends EndEvent
 
 	public EndEvent_EndStoneToDeprisScrap()
 	{
-		super("Endstone to nether Scrap!", 3);
+		super("Endstone to nether Scrap!", 8);
 		ChestLootAmount = 1;
 	}
 

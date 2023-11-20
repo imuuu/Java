@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Material;
@@ -24,6 +25,8 @@ public class ItemUtils
 {
 	private static ImusAPI _main = ImusAPI._instance;
 	
+	private static final int SIMILARITY_THRESHOLD = 30; // Percentage
+	
 	public static boolean IsValid(ItemStack stack) 
 	{ 
 		return stack != null && stack.getType() != Material.AIR;
@@ -39,22 +42,27 @@ public class ItemUtils
 	        case LEATHER_CHESTPLATE:
 	        case LEATHER_LEGGINGS:
 	        case LEATHER_BOOTS:
+	        
 	        case IRON_HELMET:
 	        case IRON_CHESTPLATE:
 	        case IRON_LEGGINGS:
 	        case IRON_BOOTS:
+	        
 	        case GOLDEN_HELMET:
 	        case GOLDEN_CHESTPLATE:
 	        case GOLDEN_LEGGINGS:
 	        case GOLDEN_BOOTS:
+	        
 	        case DIAMOND_HELMET:
 	        case DIAMOND_CHESTPLATE:
 	        case DIAMOND_LEGGINGS:
 	        case DIAMOND_BOOTS:
+	        
 	        case NETHERITE_HELMET:
 	        case NETHERITE_CHESTPLATE:
 	        case NETHERITE_LEGGINGS:
 	        case NETHERITE_BOOTS:
+	        
 	        case TURTLE_HELMET:
 	        case ELYTRA:
 	            return true;
@@ -118,6 +126,8 @@ public class ItemUtils
 			case NETHERITE_SHOVEL: return true;
 			case NETHERITE_AXE: return true;
 			case NETHERITE_SWORD: return true;
+			case NETHERITE_HOE: return true;
+			
 			
 			case SHIELD: return true;
 			
@@ -132,6 +142,42 @@ public class ItemUtils
 		}
 		
 	}
+	
+	private static int CalculateSimilarity(String x, String y) 
+	{
+        int maxLength = Math.max(x.length(), y.length());
+        if (maxLength == 0) return 100; // Both strings are empty
+        return (int) ((1 - ((double) ImusUtilities.LevenshteinDistance(x, y) / maxLength)) * 100);
+    }
+
+    public static ItemStack AddOrReplaceLore(ItemStack stack, String newLore) 
+    {
+        if (!IsValid(stack)) return stack;
+
+        ItemMeta meta = stack.getItemMeta();
+        List<String> lores = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+
+        boolean loreExists = false;
+        for (int i = 0; i < lores.size(); i++) 
+        {
+        	String existingLore = lores.get(i);
+            if (CalculateSimilarity(existingLore, Metods.msgC(newLore)) >= SIMILARITY_THRESHOLD) 
+            {
+                lores.set(i, Metods.msgC(newLore)); // Replace similar lore
+                loreExists = true;
+                break;
+            }
+        }
+
+        if (!loreExists) 
+        {
+            lores.add(Metods.msgC(newLore)); 
+        }
+
+        meta.setLore(lores);
+        stack.setItemMeta(meta);
+        return stack;
+    }
 	
 	public static  ItemStack AddLore(ItemStack stack, String lore, boolean addLast)
 	{
@@ -158,6 +204,27 @@ public class ItemUtils
 		
     	return stack;
 	}
+	
+	public static ItemStack RemoveSimilarLore(ItemStack stack, String loreToRemove) 
+	{
+        if (!IsValid(stack)) return stack;
+
+        ItemMeta meta = stack.getItemMeta();
+        List<String> lores = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+
+        for (int i = 0; i < lores.size(); i++) 
+        {
+            String existingLore = lores.get(i);
+            if (CalculateSimilarity(existingLore, loreToRemove) >= SIMILARITY_THRESHOLD) 
+            {
+                lores.remove(i); 
+                break;
+            }
+        }
+        meta.setLore(lores);
+        stack.setItemMeta(meta);
+        return stack;
+    }
 	
 	public static  ItemStack RemoveLores(ItemStack stack)
 	{

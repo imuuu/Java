@@ -144,14 +144,37 @@ public abstract class CustomInventory implements ICustomInventory
 	}
 	
 	@Override
-	public boolean OnDropitem(ItemStack item, int slot)
+	public boolean OnDropItem(ItemStack stack, int slot)
+	{
+		if (GetButton(slot) != null) return false;
+
+		Button button = new Button(slot, stack);
+        AddButton(button);
+         
+        return true;
+	}
+	
+	@Override
+	public void OnDropItemSet(ItemStack stack, int slot)
+	{	
+		
+	}
+	
+	@Override
+	public boolean OnDragItem(ItemStack stack, int slot)
 	{
 		if (GetButton(slot) != null) return false;
 		
-		SetButton(item, slot);
-        item.setAmount(0);
+		Button button = new Button(slot, stack);
+        AddButton(button);
          
         return true;
+	}
+	
+	@Override
+	public void OnDragItemSet(ItemStack stack, int slot)
+	{
+		
 	}
 	
 	@Override
@@ -160,19 +183,11 @@ public abstract class CustomInventory implements ICustomInventory
 		return false;
 	}
 	
-	@Override
-	public boolean OnDragitem(ItemStack item, int slot)
-	{
-		if (GetButton(slot) != null) return false;
-		
-		SetButton(item, slot);
-         
-        return true;
-	}
+	
 	
 	protected IBUTTONN SetButton(ItemStack stack, int slot)
 	{
-		 IBUTTONN button = new Button(slot, stack);
+		 IBUTTONN button = new Button(slot, stack.clone());
          _buttonHandler.AddButton(button); 
          UpdateButton(slot);
          return button;

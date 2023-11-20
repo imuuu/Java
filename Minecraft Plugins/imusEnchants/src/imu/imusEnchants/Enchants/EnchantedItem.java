@@ -1,14 +1,15 @@
 package imu.imusEnchants.Enchants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ItemUtils;
 import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.main.CONSTANTS;
@@ -48,11 +49,12 @@ public class EnchantedItem
 	{
 		if(force || !LoadUnlockedNodes(_stack))
 	    {
+			System.out.println(" STACK IS NOT LOADED, GENERATING NODES, force: "+force);
 	    	GenerateNodes();
 	    	SaveUnlockedNodes(_stack);
+
 	    }
-		
-		_isReveaveled = true;
+
 	}
 	
 	public ItemStack GetItemStack() 
@@ -92,14 +94,48 @@ public class EnchantedItem
 	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
 	        {
 	            Node node = new Node(i,j);
-	            node.GetNeighbors()[0] = (j > 0) ? _nodes[i][j - 1] : null; // LEFT
-	            node.GetNeighbors()[1] = (j < CONSTANTS.ENCHANT_COLUMNS - 1) ? _nodes[i][j + 1] : null; // RIGHT
-	            node.GetNeighbors()[2] = (i > 0) ? _nodes[i - 1][j] : null; // UP
-	            node.GetNeighbors()[3] = (i < CONSTANTS.ENCHANT_ROWS - 1) ? _nodes[i + 1][j] : null; // DOWN
 	            _nodes[i][j] = node;
 	        }
 	    }
 	    
+	}
+	
+	public INode[] GetNeighbors(INode node) 
+	{
+		return GetNeighbors(node.GetX(),node.GetY());
+	}
+	
+	public INode[] GetNeighbors(int x, int y) 
+	{
+	    INode[] neighbors = new INode[4]; 
+	    neighbors[0] = (y > 0) ? _nodes[x][y - 1] : null;
+	    
+	    neighbors[1] = (y < CONSTANTS.ENCHANT_COLUMNS - 1) ? _nodes[x][y + 1] : null;
+
+	    neighbors[2] = (x > 0) ? _nodes[x - 1][y] : null;
+
+	    neighbors[3] = (x < CONSTANTS.ENCHANT_ROWS - 1) ? _nodes[x + 1][y] : null;
+
+	    return neighbors;
+	}
+	
+	public void PrintNodes() {
+	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) {
+	            INode node = _nodes[i][j];
+	            if (node != null) 
+	            {
+	            	if(node.IsLocked()) continue;
+
+	                System.out.println("Node at [" + i + "," + j + "]: " +
+	                                   (node.IsLocked() ? "Locked" : "Unlocked") +
+	                                   ", Details: " + node.toString());
+
+	            } else {
+	                System.out.println("Node at [" + i + "," + j + "]: null");
+	            }
+	        }
+	    }
 	}
 	private void TryUnlockNeighbors(INode node, double chance, int depth) 
 	{
@@ -108,7 +144,7 @@ public class EnchantedItem
 	        return;
 	    }
 
-	    for (INode neighbor : node.GetNeighbors()) 
+	    for (INode neighbor : GetNeighbors(node)) 
 	    {
 	    	if (_totalUnlocked >= _slots) continue;
 	    	 
@@ -151,14 +187,11 @@ public class EnchantedItem
 
 	    if (row >= 0 && row < CONSTANTS.ENCHANT_ROWS && column >= 0 && column < CONSTANTS.ENCHANT_COLUMNS) 
 	    {
-	    	System.out.println("Position " + position + " to row: "+row + " col: "+column);
+
 	    	node.SetPosition(row, column);
 	        _nodes[row][column] = node;
 	    } 
-	    else 
-	    {
-	        System.out.println("Position " + position + " is out of the valid range for nodes.");
-	    }
+	    
 	}
 
 	
@@ -181,10 +214,124 @@ public class EnchantedItem
 	    return unlockedNodes;
 	}
 	
+//	@SuppressWarnings("unused")
+//	public void ApplyEnchantsToItem() 
+//	{
+//	    Map<Enchantment, Integer> allEnchants = new HashMap<>();
+//
+//	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
+//	    {
+//	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+//	        {
+//	            INode node = _nodes[i][j];
+//	            if (node instanceof NodeEnchant) 
+//	            {
+//	                NodeEnchant nodeEnchant = (NodeEnchant) node;
+//	                nodeEnchant.GetEnchantments().forEach((enchant, level) -> 
+//	                {
+//	                    if (CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS && allEnchants.containsKey(enchant)) 
+//	                    {
+//	                        allEnchants.put(enchant, allEnchants.get(enchant) + level);
+//	                    } 
+//	                    else 
+//	                    {
+//	                        allEnchants.put(enchant, Math.max(allEnchants.getOrDefault(enchant, 0), level));
+//	                    }
+//	                });
+//	            }
+//	        }
+//	    }
+//
+//
+//	    if (!_stack.getType().equals(Material.AIR)) 
+//	    {
+//	        _stack.getEnchantments().keySet().forEach(_stack::removeEnchantment);
+//	        allEnchants.forEach((enchant, level) -> _stack.addUnsafeEnchantment(enchant, level));
+//	    }
+//	}
+	
+	@SuppressWarnings("unused")
+	public void ApplyEnchantsToItem() 
+	{
+	    Map<Enchantment, Integer> allEnchants = new HashMap<>();
+
+	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+	        {
+	            INode node = _nodes[i][j];
+	            if (node instanceof NodeEnchant) 
+	            {
+	                NodeEnchant nodeEnchant = (NodeEnchant) node;
+	                int totalBoost = 0;
+
+	                for (INode neighbor : GetNeighbors(node)) 
+	                {
+	                	System.out.println("Neigbor: "+neighbor);
+	                    if (neighbor instanceof NodeBooster) 
+	                    {
+	                        NodeBooster booster = (NodeBooster) neighbor;
+	                        totalBoost += booster.Power;
+	                    }
+	                }
+	                final int boost = totalBoost;
+	                nodeEnchant.GetEnchantments().forEach((enchant, level) -> 
+	                {
+	                    int boostedLevel = CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS ? 
+	                        allEnchants.getOrDefault(enchant, 0) + level + totalBoost : 
+	                        Math.max(allEnchants.getOrDefault(enchant, 0), level + boost);
+	                    allEnchants.put(enchant, boostedLevel);
+	                });
+	            }
+	        }
+	    }
+
+	    if (!_stack.getType().equals(Material.AIR)) {
+	        _stack.getEnchantments().keySet().forEach(_stack::removeEnchantment);
+	        allEnchants.forEach((enchant, level) -> _stack.addUnsafeEnchantment(enchant, level));
+	    }
+	}
+
+
+	
+	public boolean ContainsEnchant(ItemStack itemStack) 
+	{
+	    if (itemStack == null) 
+	    {
+	        return false;
+	    }
+
+	    Map<Enchantment, Integer> itemEnchants = ItemUtils.GetEnchantsWithLevels(itemStack);
+	    
+	    Metods._ins.printEnchants(itemStack);
+	    
+	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
+	    {
+	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+	        {
+	            INode node = _nodes[i][j];
+	            if (node instanceof NodeEnchant) 
+	            {
+	            	
+	                NodeEnchant nodeEnchant = (NodeEnchant) node;
+	                for (Enchantment enchant : nodeEnchant.GetEnchantments().keySet()) 
+	                {
+	                	System.out.println("checking enchant: "+enchant);
+	                    if (itemEnchants.containsKey(enchant)) 
+	                    {
+	                        return true;
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    return false;
+	}
+	
 	public ItemStack SetTooltip()
 	{
-		ItemUtils.AddLore(_stack, "&6Slots: &a"+_slots, false);
-		
+		System.out.println("Adding lore");
+		ItemUtils.AddOrReplaceLore(_stack, "&6Slots: &a"+_slots);
 		return _stack;
 	}
 	
@@ -273,6 +420,8 @@ public class EnchantedItem
 	public boolean LoadUnlockedNodes(ItemStack stack) 
 	{
 	    String serializedData = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+	    
+	    System.out.println("LOADING DATA: "+stack + " =========> DATA: "+serializedData);
 	    
 	    if (serializedData == null || serializedData.isEmpty()) return false;
 	    

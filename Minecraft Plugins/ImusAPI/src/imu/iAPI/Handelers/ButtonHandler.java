@@ -2,6 +2,7 @@ package imu.iAPI.Handelers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -15,9 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.INVENTORY_AREA;
-import imu.iAPI.Enums.INV_ACTION;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
 
@@ -112,9 +111,7 @@ public class ButtonHandler implements Listener
         {
         	 event.setCancelled(true);
         }
-        
-        System.out.println("event action: "+event.getAction() + " AREA: "+ area);
-        
+
         if(area == INVENTORY_AREA.LOWER_INV)
         {
         	if(event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) 
@@ -124,8 +121,10 @@ public class ButtonHandler implements Listener
         	}
         }
         
+        System.out.println("event action: "+event.getAction() + " AREA: "+ area);
         if(area == INVENTORY_AREA.UPPER_INV)
         {
+        	 System.out.println("====== > event action: "+event.getAction() + " AREA: "+ area);
         	 switch (event.getAction()) 
         	 {
              case PLACE_ALL:
@@ -133,36 +132,37 @@ public class ButtonHandler implements Listener
              case PLACE_SOME:
              case SWAP_WITH_CURSOR:
              {
+            	 event.setCancelled(true);
             	 if(button != null)
             	 {
-            		 event.setCancelled(true);
             		 return;
             	 }
-            	 
+            	             	 
             	 ItemStack droppedItem = event.getCursor();
-                 boolean success = CreateButtonForSlot(INV_ACTION.DROP, droppedItem, event.getSlot());
 
-                 if(success) event.setCancelled(true);
+                 boolean cancel = _customInventory.OnDropItem(droppedItem, event.getSlot());
+                                
+                 if(!cancel) 
+                 {
+                	return;
+                 }
+                 
+                 final ItemStack newItem = event.getCursor().clone();
+                 event.getCursor().setAmount(0);
+                
+                 //next frame
+                 _plugin.getServer().getScheduler().runTask(_plugin, () -> 
+                 {
+                     _customInventory.GetInventory().setItem(event.getSlot(), newItem);
+                     _customInventory.OnDropItemSet(
+                    		 newItem, event.getSlot());
+                 });
                  
                  return;
              }
              case MOVE_TO_OTHER_INVENTORY:
              case PICKUP_ALL:
              {
-//            	 boolean onPickUpAll = _customInventory.OnPickupAll(button, event.getSlot());
-//            	 
-//            	 if(!onPickUpAll)
-//            	 {
-//            		 event.setCancelled(true);
-//            	 }
-//            	 
-//            	 if(button == null) break;
-//            	 
-//            	 if(!button.IsPositionLocked()) 
-//        		 {
-//            		 RemoveButton(button);
-//        		 }
-            	 
             	 HandlePickupAll(event, button);
             	 break;
              }
@@ -179,6 +179,15 @@ public class ButtonHandler implements Listener
         	    }
         	    break;
              }
+             case DROP_ONE_SLOT:
+             case DROP_ALL_SLOT:
+             case HOTBAR_SWAP:
+             {
+            	 System.out.println("EVENT CANCELED");
+            	 event.setCancelled(true);
+            	 return;
+             }
+             
 			default:
 				break;
         	 }
@@ -231,53 +240,141 @@ public class ButtonHandler implements Listener
     	{
             if (slot < _customInventory.GetSize()) 
             { 
-                ItemStack draggedItem = event.getOldCursor();
-                boolean success = CreateButtonForSlot(INV_ACTION.DRAG, draggedItem, slot);  
+//                ItemStack draggedItem = event.getOldCursor();
+//                boolean success = CreateButtonForSlot(INV_ACTION.DRAG, draggedItem, slot);  
+//                
+//                if(success)
+//                {
+//                	event.setCancelled(true);
+//                	return;
+//                }
                 
-                if(success)
+            	event.setCancelled(true);
+            	
+                ItemStack draggedItem = event.getOldCursor();
+                boolean cancel = _customInventory.OnDragItem(draggedItem, slot);
+                               
+                if(!cancel) 
                 {
-                	event.setCancelled(true);
                 	return;
                 }
+                event.setCancelled(false);
+                final ItemStack newItem = event.getOldCursor().clone();
+                event.getOldCursor().setAmount(0);
+               
+                //next frame
+                _plugin.getServer().getScheduler().runTask(_plugin, () -> 
+                {
+                    _customInventory.GetInventory().setItem(slot, newItem);
+                    _customInventory.OnDragItemSet(newItem,slot);
+                });
             }
         }
     	
     }
     
-    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) {
-        
-    	int slot = event.getSlot();
-    	boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
+//    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) {
+//        
+//    	int slot = event.getSlot();
+//    	//button.SetItemStack(_customInventory.GetInventory().getItem(slot));
+//    	boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
+//
+//        if (!onPickUpAll) 
+//        {
+//            event.setCancelled(true);
+//        }
+//
+//        if (button != null && !button.IsPositionLocked()) 
+//        {
+//            RemoveButton(button);
+//        }
+//    }
+    
+//    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) 
+//    {
+//        int slot = event.getSlot();
+//        ItemStack itemBefore = _customInventory.GetInventory().getItem(slot);
+//        System.out.println("item before" + itemBefore.getType());
+//        // Custom logic to handle the pickup
+//        boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
+//        
+//        
+//        // Check if the slot is refilled immediately after picking up
+//        ItemStack itemAfter = _customInventory.GetInventory().getItem(slot);
+//        System.out.println("item after" + itemAfter.getType());
+//        if (!itemBefore.isSimilar(itemAfter)) 
+//        {
+//            // Cancel the event if the slot is refilled with a different item
+//        	System.out.println("cansel");
+//            event.setCancelled(true);
+//            return;
+//        }
+//
+//        if (!onPickUpAll) {
+//            event.setCancelled(true);
+//        }
+//
+//        if (button != null && !button.IsPositionLocked()) {
+//            RemoveButton(button);
+//        }
+//    }
+    
+    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) 
+    {
+        int slot = event.getSlot();
+        boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
 
         if (!onPickUpAll) 
         {
             event.setCancelled(true);
+            return;
         }
-
-        if (button != null && !button.IsPositionLocked()) 
-        {
-            RemoveButton(button);
-        }
-    }
-    
-    private boolean CreateButtonForSlot(INV_ACTION inv_action, ItemStack item, int slot) {
-
-    	System.out.println(" "+inv_action+" "+item + " slot: "+slot + " Created: "+ (GetButton(slot) == null ? "true" : "false"));
-    	
-    	if(inv_action == INV_ACTION.DROP)
-    	{
-    		return _customInventory.OnDropitem(item, slot);
-    	}
-    	
-    	if(inv_action == INV_ACTION.DRAG)
-    	{
-    		return _customInventory.OnDragitem(item, slot);
-    	}
-    	
-    	return false;
         
-     
+        IBUTTONN b = GetButton(slot);
+        
+        if (b != null && b.GetItemStack().getType() == Material.AIR) 
+        {
+            RemoveButton(slot);
+            return;
+        }
+
+        if(b == null) return;
+        
+        _plugin.getServer().getScheduler().runTask(_plugin, () -> 
+        {
+        	//System.out.println("Delay set item: "+slot + " ITEM: "+b.GetItemStack());
+            _customInventory.GetInventory().setItem(slot, b.GetItemStack());
+            _customInventory.GetPlayer().updateInventory();
+        });
     }
+
+
+    
+    
+//    private boolean CreateButtonForSlot(INV_ACTION inv_action, ItemStack item, int slot) {
+//        System.out.println("CreateButtonForSlot called with action: " + inv_action + ", item: " + item + ", slot: " + slot);
+//
+//        boolean result = false;
+//
+//        if (inv_action == INV_ACTION.DROP) {
+//            result = _customInventory.OnDropitem(item, slot);
+//            System.out.println("After OnDropitem - item: " + item + ", result: " + result);
+//        } else if (inv_action == INV_ACTION.DRAG) {
+//            result = _customInventory.OnDragitem(item, slot);
+//            System.out.println("After OnDragitem - item: " + item + ", result: " + result);
+//        } else {
+//            System.out.println("Action not recognized. Returning false.");
+//        }
+//
+//        IBUTTONN button = GetButton(slot);
+//        if (button != null) {
+//            System.out.println("Button exists after operation - ItemStack: " + button.GetItemStack());
+//        } else {
+//            System.out.println("No button found at slot " + slot);
+//        }
+//
+//        return result;
+//    }
     
     private INVENTORY_AREA GetInventoryArea(InventoryClickEvent e)
     {
@@ -296,11 +393,14 @@ public class ButtonHandler implements Listener
     
     public void UpdateButtons(boolean clearEmpties)
     {
+
     	if(clearEmpties)
     	{
     		Inventory inv = _customInventory.GetInventory();
         	for(int i = 0; i < _customInventory.GetSize(); i++)
         	{
+        		if(GetButton(i) != null) continue;
+        		
         		inv.setItem(i, new ItemStack(Material.AIR));	
         	}
     	}
@@ -314,12 +414,58 @@ public class ButtonHandler implements Listener
     
     public void UpdateButton(int position)
     {
+    	
     	IBUTTONN button = GetButton(position);
     	button.OnUpdate();
     	
     	_customInventory.
     	GetInventory().
     	setItem(button.GetPosition(), button.GetItemStack());
+    }
+    
+    
+    //SNAPSHOT SYSTEM
+    private Map<String, Map<Integer, IBUTTONN>> _snapshots = new HashMap<>();
+
+    public void TakeSnapshot(String snapshotName) 
+    {
+        Map<Integer, IBUTTONN> currentButtons = new HashMap<>(_buttons);
+        _snapshots.put(snapshotName, currentButtons);
+    }
+
+    public void RestoreSnapshot(String snapshotName) 
+    {
+        Map<Integer, IBUTTONN> snapshot = _snapshots.get(snapshotName);
+        if (snapshot != null) {
+            _buttons.clear();
+            _buttons.putAll(snapshot);
+            UpdateButtons(true);
+        }
+    }
+    
+    public IBUTTONN GetButtonFromSnapshot(String snapshotName, int slotId) 
+    {
+        Map<Integer, IBUTTONN> snapshot = _snapshots.get(snapshotName);
+        if (snapshot != null) 
+        {
+            return snapshot.get(slotId);
+        }
+        return null;
+    }
+
+    public Set<String> ListSnapshots() 
+    {
+        return _snapshots.keySet();
+    }
+    
+    public boolean SnapshotExists(String snapshotName) 
+    {
+        return _snapshots.containsKey(snapshotName);
+    }
+
+    public void DeleteSnapshot(String snapshotName) 
+    {
+        _snapshots.remove(snapshotName);
     }
 }
 

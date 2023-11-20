@@ -1,5 +1,6 @@
 package imu.HomeTele.Commands;
 
+import java.awt.TextComponent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,10 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import imu.HomeTele.Other.ConfigMaker;
 import imu.HomeTele.Other.Cooldowns;
 import imu.HomeTele.Other.TeleChecks;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+
 public class Commands implements CommandExecutor
 {
 

@@ -2,11 +2,12 @@ package imu.imusEnchants.Inventories;
 
 import java.util.Arrays;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.INVENTORY_AREA;
@@ -17,6 +18,7 @@ import imu.iAPI.Utilities.ItemUtils;
 import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enchants.INode;
 import imu.imusEnchants.Enchants.Node;
+import imu.imusEnchants.Enchants.NodeBooster;
 import imu.imusEnchants.Enchants.NodeEnchant;
 import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.main.CONSTANTS;
@@ -30,6 +32,9 @@ public class InventoryEnchanting extends CustomInventory
 	private EnchantedItem _enchantedItem;
 	
 	private final ItemStack EMPTY_BLACK_SLOT;
+	
+	private BukkitRunnable monitoringTask;
+
 	public InventoryEnchanting()
 	{
 		super(ImusEnchants.Instance, "Enchanting 2v", 6 * 9);
@@ -38,6 +43,43 @@ public class InventoryEnchanting extends CustomInventory
 		ItemUtils.SetDisplayNameEmpty(EMPTY_BLACK_SLOT);
 	}
 	
+	  private void startMonitoring() {
+	        monitoringTask = new BukkitRunnable() {
+	            @Override
+	            public void run() {
+	                if (_enchantedItem == null) 
+	                {
+	                    System.out.println("EnchantedItem is null");
+	                } else 
+	                {
+	                    System.out.println("EnchantedItem is not null");
+	                    ItemStack stack = _enchantedItem.GetItemStack();
+	                    if (stack == null) 
+	                    {
+	                        System.out.println("EnchantedItem's ItemStack is null");
+	                    } else 
+	                    {
+	                        System.out.println("EnchantedItem's ItemStack is not null: " + stack.getType());
+	                    }
+	                }
+	                
+	                if(GetButton(_enchantSlot) != null)
+	                {
+	                	System.out.println("Enchant button is "+GetButton(_enchantSlot).GetItemStack().getType());
+	                	return;
+	                }
+	                
+	                System.out.println("Enchant button is NULL");
+	            }
+	        };
+	        monitoringTask.runTaskTimer(_main, 0L, 10L); // Schedule to run every tick
+	    }
+
+	    private void stopMonitoring() {
+	        if (monitoringTask != null) {
+	            monitoringTask.cancel();
+	        }
+	    }
 	@Override
 	public INVENTORY_AREA SetInventoryLock()
 	{
@@ -48,12 +90,14 @@ public class InventoryEnchanting extends CustomInventory
 	public void OnOpen()
 	{
 		super.OnOpen();
+		//startMonitoring();
 		InitButtons();
 		
 	}
 	@Override
 	public void OnClose()
 	{
+		//stopMonitoring();
 		super.OnClose();
 	}
 	
@@ -136,96 +180,174 @@ public class InventoryEnchanting extends CustomInventory
 	
 
 	@Override
-	public boolean OnDragitem(ItemStack item, int slot)
+	public boolean OnDragItem(ItemStack item, int slot)
 	{
 		System.out.println("OnDrag: "+slot);
-		return OnDropitem(item, slot);
+		return OnDropItem(item, slot);
 	}
 	
 	@Override
-	public boolean OnDropitem(ItemStack item, int slot)
+	public void OnDragItemSet(ItemStack stack, int slot)
+	{
+		OnDropItemSet(stack, slot);
+	}
+	
+	
+	@SuppressWarnings("unused")
+	@Override
+	public boolean OnDropItem(ItemStack stack, int slot)
 	{
 		if (slot == _enchantSlot) 
 		{
-			System.out.println("Looking valid item");
-			if(!ItemUtils.IsTool(item)) 
-			{
-				System.out.println("its not tool: "+item);
-				return true;
-			}
+			if(!ItemUtils.IsTool(stack)) { return false; }
 			
-			Button button = new Button(slot, item);
-			LoadItem(button, false);
-			button.SetLockPosition(false);
-			AddButton(button);
-			
-	        //item.setAmount(0);
-	        return false;
+	        return true;
 		}
 		
 		if(GetButton(slot) == null)
 		{
-			System.out.println("Empty slot");
-			Material material = item.getType();
+			
+			Material material = stack.getType();
 			if(!ManagerEnchants.VALID_INVENTORY_MATERIALS.contains(material)) 
 			{
-				System.out.println("its not valid: "+item);
+				return false;
+			}
+			
+			if(material == CONSTANTS.ENCHANT_MATERIAL)
+			{
+				if(!CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS && _enchantedItem.ContainsEnchant(stack)) 
+				{
+					GetPlayer().sendMessage(Metods.msgC("&2Item has already that enchant!"));
+					return false;
+				}
+				
 				return true;
 			}
 			
-			if(material == CONSTANTS.BOOSTER_MATERIAL) LoadBooster(item, slot);
-			if(material == CONSTANTS.ENCHANT_MATERIAL) LoadEnchant(item, slot);
+			if(material == CONSTANTS.BOOSTER_MATERIAL)
+			{
+				System.out.println("Booster");
+				return true;
+			}
 			
 			
 			return false;
 		}
 		
-		System.out.println("Default slot");
-         
+//		System.out.println("Default slot");
+//         
+//        
+//        if (GetButton(slot) != null) return false;
+//		
+//		SetButton(stack, slot);
+//        stack.setAmount(0);
         
-        if (GetButton(slot) != null) return false;
-		
-		SetButton(item, slot);
-        item.setAmount(0);
-        
-        return true;
+        return false;
 	}
+	
+	@Override
+	public void OnDropItemSet(ItemStack stack, int slot)
+	{
+		System.out.println("DropItemSet: "+stack.getType());
+		if (slot == _enchantSlot) 
+		{
+			Button button = new Button(slot, stack);
+			button.SetLockPosition(false);
+			AddButton(button);
+			LoadItem(button, false);
+		}
+		
+
+		if(GetButton(slot) == null)
+		{
+			LoadNode(stack, slot);
+		}
+	}
+	
 	
 	private void LoadItem(IBUTTONN button, boolean forceReveal)
 	{
 		ItemStack stack = button.GetItemStack();
 		
-		System.out.println("=====> LOADING ITEM: "+stack.getType());
 		
+		System.out.println("=====> LOADING ITEM: "+stack.getType());
+		System.out.println("=====> LOADING ITEM: "+stack.getType());
+		System.out.println("=====> LOADING ITEM: "+stack.getType());
+		System.out.println("ARE SIMILAR: "+stack.isSimilar(GetEnchantItem()) +" stack: "+stack + " ================ stackEnch: "+ GetEnchantItem());
 		_enchantedItem = new EnchantedItem(stack);
+		_enchantedItem.SetTooltip();
+		if(!_enchantedItem.IsRevealed())
+		{
+			
+		}
 		_enchantedItem.Reveal(forceReveal);
 		
+		LoadNodes(_enchantedItem);
+		
+		System.out.println("<======= LOADED: "+_enchantedItem.GetItemStack().getType());
+		System.out.println("<======= LOADED: "+stack.getType());
+		System.out.println("<======= LOADED: "+stack.getType());
+		System.out.println("     ");
+		System.out.println("     ");
+		System.out.println("     ");
+
+		
+	}
+	
+	private boolean LoadNode(INode node)
+	{
+		return LoadNode(node.GetItemStack(), node.GetFlatIndex());
+	}
+	
+	private boolean LoadNode(ItemStack stack, int slot)
+	{
+		Material material = stack.getType();
+		
+		if(material == CONSTANTS.BOOSTER_MATERIAL) return LoadBooster(stack, slot);
+		if(material == CONSTANTS.ENCHANT_MATERIAL) return LoadEnchant(stack, slot);
+		
+		return false;
+	}
+	
+	private void LoadNodes(EnchantedItem enchantedItem)
+	{
 		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
 		{
 		    for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
 		    {
-		        INode node = _enchantedItem.Get_nodes()[i][j];
+		        INode node = enchantedItem.Get_nodes()[i][j];
 		        int flatIndex = i * CONSTANTS.ENCHANT_COLUMNS + j;
-
-		        if(node.IsLocked())  continue;
-
-		        RemoveButton(flatIndex);
+		        
+		        //black glass
+		        if(node.IsLocked()) continue;
+		        
+		        if(node.GetItemStack().getType().isAir()) 
+		        {
+		        	RemoveButton(flatIndex);
+		        	continue;
+		        }
+		        
+		        if(!LoadNode(node))
+		        {
+		        	Bukkit.getLogger().info("Couldn't load Node: "+node);
+		        	RemoveButton(flatIndex);
+		        	continue;
+		        }
 		    }
 		}
-
-		UpdateButtons(true);
 		
+		UpdateButtons(true);
 	}
-
+	@SuppressWarnings("unused")
 	@Override
 	public boolean OnPickupAll(IBUTTONN button, int slot)
 	{
-		
+		System.out.println("On pickup: "+button.GetItemStack().getType());
 		if(slot == _enchantSlot)
 		{
 			EnchantedItem item = _enchantedItem;
 			_enchantedItem = null;
-			System.out.println("picking the enchant item");
+			
 			
 			for (INode node : item.GetUnlockedNodes())
 			{
@@ -236,29 +358,54 @@ public class InventoryEnchanting extends CustomInventory
 				UpdateButton(nodeSlot);
 			}
 			
-			//UpdateButtons(true);
+			button.SetItemStack(new ItemStack(Material.AIR));
+			return true;
 		}
+		
+		if(button != null)
+		{
+			
+			Material material = GetInventory().getItem(slot).getType();
+			
+			if(!ManagerEnchants.VALID_INVENTORY_MATERIALS.contains(material)) 
+			{
+				System.out.println("not valid material: "+material);
+				return false;
+			}
+			
+			System.out.println("SETTING NODE: "+material);
+			Node node = new Node();
+			node.SetLock(false);
+			_enchantedItem.SetNode(node, slot);
+			
+			button.SetItemStack(new ItemStack(Material.AIR)); //removes button
+			return true;
+		}
+		
+		
+		return false;
+	}
+	
+	private boolean LoadEnchant(ItemStack stack, int slot)
+	{
+		NodeEnchant nodeEnchant = new NodeEnchant(stack);	
+		_enchantedItem.SetNode(nodeEnchant, slot);
+
+		Button button = new Button(slot, stack);
+		button.SetLockPosition(false);
+		AddButton(button);		
 		return true;
 	}
 	
-	private void LoadEnchant(ItemStack stack, int slot)
+	private boolean LoadBooster(ItemStack stack, int slot)
 	{
-		Enchantment enchant = ItemUtils.GetEnchants(stack).iterator().next();
-		NodeEnchant nodeEnchant = new NodeEnchant(enchant);
-		
-		_enchantedItem.SetNode(nodeEnchant, slot);
-		_enchantedItem.SaveUnlockedNodes(GetEnchantItem());
+		NodeBooster nodeBooster = new NodeBooster();
+		_enchantedItem.SetNode(nodeBooster, slot);
 		
 		Button button = new Button(slot, stack);
 		button.SetLockPosition(false);
 		AddButton(button);
-	}
-	
-	private void LoadBooster(ItemStack stack, int slot)
-	{
-		Button button = new Button(slot, stack);
-		button.SetLockPosition(false);
-		AddButton(button);
+		return true;		
 	}
 	private void ButtonOPreroll(Button button, InventoryClickEvent event)
 	{
@@ -289,14 +436,27 @@ public class InventoryEnchanting extends CustomInventory
 	
 	private void ButtonEnchantItem(Button button, InventoryClickEvent event)
 	{
-		ItemStack stack = button.GetItemStack();
+		_enchantedItem.SaveUnlockedNodes();
 		
-		ItemUtils.AddLore(stack,Arrays.asList("davai"));
+		IBUTTONN b = GetButton(_enchantSlot);
+		_enchantedItem.ApplyEnchantsToItem();
+		b.SetItemStack(_enchantedItem.GetItemStack());
+		UpdateButton(b);
 		
-		Player player = (Player) event.getWhoClicked();
-		player.sendMessage("ExamplePress v4");
+		System.out.println("     ");
+		_enchantedItem.PrintNodes();
+		System.out.println("     ");
+		System.out.println("  _enchantedItem   :"+_enchantedItem.GetItemStack());
+		System.out.println("     ");
+		System.out.println("     ");
+		System.out.println("     ");
+		Bukkit.getLogger().info("Enchanting the item: " + GetEnchantItem());
+		System.out.println("     ");
+		System.out.println("     ");
+		System.out.println("     ");
 		
-		UpdateButton(button);
+		ClearTable();
+		UpdateButtons(false);
 	}
 
 }

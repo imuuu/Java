@@ -1,5 +1,7 @@
 package imu.imusEnchants.Enchants;
 
+import org.bukkit.inventory.ItemStack;
+
 public interface INode
 {
 	public int GetX();
@@ -19,4 +21,6 @@ public interface INode
 	public void Deserialize(String data);
 	
 	public int GetFlatIndex();
+	
+	public ItemStack GetItemStack();
 }

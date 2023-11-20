@@ -34,6 +34,7 @@ public class UnstableEnd implements Listener
 	public static UnstableEnd Instance;
 	private double _state = 0;
 	private final double MAX_STATE = 1000;
+	private final int START_DELAY_EVENT = 20 * 10;
 	public BossBar BOSS_BAR;
 	private LinkedList<EndEvent> _allEvents;
 	private LinkedList<EndEvent> _activeEvents;
@@ -226,7 +227,6 @@ public class UnstableEnd implements Listener
 
 	private void AllTimeEventsHasBeenEnded()
 	{
-		System.out.println("All done");
 		isEventActive = false;
 		SetState(0);
 		RefreshPorgress();
@@ -261,7 +261,12 @@ public class UnstableEnd implements Listener
 		event.UnRegisterBukkitEvents();
 
 	}
-
+	
+	public boolean IsEventRuning()
+	{
+		return GetCurrentEvent() != null;
+	}
+	
 	public EndEvent GetCurrentEvent()
 	{
 		if (_activeEvents.size() == 0)
@@ -296,26 +301,45 @@ public class UnstableEnd implements Listener
 			return;
 
 		isEventActive = true;
-		EndEvent[] events = _allEvents.toArray(new EndEvent[_allEvents.size()]);
-
-		ImusUtilities.ShuffleArray(events);
-
-		for (int i = 0; i < events.length; i++)
-		{
-
-			if (i >= _totalRolls)
-				break;
-
-			EndEvent event = events[i];
-			_activeEvents.add(event);
-		}
 		
-		if (_activeEvents.size() == 0)
-		{
-			AllTimeEventsHasBeenEnded();
-			return;
-		}
-		OnTriggerEvent(_activeEvents.getFirst());
+		
+	    for (Player player : Bukkit.getServer().getOnlinePlayers()) 
+	    {
+	    	if(!EndEvents.Instance.IsPlayerUnstableArea(player)) continue;
+	    	
+	    	System.out.println("Send title");
+	        player.sendTitle(ChatColor.GREEN + "Event Starting in 10s!", ChatColor.YELLOW + "Prepare yourself...", 10, 70, 20);
+	    }
+
+	    Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, new Runnable() 
+	    {
+	        @Override
+	        public void run() 
+	        {
+	        	EndEvent[] events = _allEvents.toArray(new EndEvent[_allEvents.size()]);
+
+	    		ImusUtilities.ShuffleArray(events);
+
+	    		for (int i = 0; i < events.length; i++)
+	    		{
+
+	    			if (i >= _totalRolls)
+	    				break;
+
+	    			EndEvent event = events[i];
+	    			_activeEvents.add(event);
+	    		}
+	    		
+	    		if (_activeEvents.size() == 0)
+	    		{
+	    			AllTimeEventsHasBeenEnded();
+	    			return;
+	    		}
+	    		
+	            OnTriggerEvent(_activeEvents.getFirst());
+	        }
+	    }, START_DELAY_EVENT); 
+		//OnTriggerEvent(_activeEvents.getFirst());
 
 	}
 }

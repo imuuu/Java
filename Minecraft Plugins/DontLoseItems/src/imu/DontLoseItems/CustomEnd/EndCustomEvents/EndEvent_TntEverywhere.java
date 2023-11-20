@@ -90,12 +90,15 @@ public class EndEvent_TntEverywhere extends EndEvent
 
 	private void SpawnEntityAround(Player player)
 	{
+		
 		Chunk[] chunks = ImusUtilities.Get9ChunksAround(player.getLocation());
 
 		int player_y = player.getLocation().getBlockY();
 		Chunk chunk = chunks[ThreadLocalRandom.current().nextInt(chunks.length)];
 		int x = ThreadLocalRandom.current().nextInt(16);
 		int z = ThreadLocalRandom.current().nextInt(16);
+		
+		if(player_y < 0 || player_y > 255) return;
 		
 		Block b = chunk.getBlock(x, player_y + 15, z);
 		

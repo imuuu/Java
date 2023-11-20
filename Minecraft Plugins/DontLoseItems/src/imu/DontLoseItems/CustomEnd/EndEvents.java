@@ -30,6 +30,7 @@ import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -37,6 +38,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -47,6 +50,7 @@ import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.ConfigMaker;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 
@@ -80,6 +84,13 @@ public class EndEvents implements Listener
 	private final int _ghastFireBall_radius = 3;
 	
 	private Set<Location> _mutationBlock;
+	
+	private Cooldowns _cd = new Cooldowns();
+	
+	private int _playerReduceAmount = 0;
+	private double _entityUnstableDamage = 0;
+	private final int _entityUnstableDamageCD = 1;
+	
 	public EndEvents()
 	{
 		Instance = this;
@@ -125,7 +136,8 @@ public class EndEvents implements Listener
 		BREAKING_OTHER_BLOCKS,
 		ON_ENTITY_DAMAGE, 
 		ON_ENTITY_DEATH,
-		ON_OPEN_CHEST
+		ON_OPEN_CHEST,
+		ON_USE_FIREWORK
 	}
 	public void InitIncrease()
 	{
@@ -133,13 +145,16 @@ public class EndEvents implements Listener
 		
 		_increases.put(INC_ID.BREAKING_OTHER_BLOCKS, new  UnstableIncrease(8));
 		_increases.put(INC_ID.PLACING_OTHER_BLOCKS, new  UnstableIncrease(15)); //
+		
+		//remember _entityUnstableDamageCD = 1 which means maximum damage is ON_ENTITY_DAMAGE on 1 second
 		_increases.put(INC_ID.ON_ENTITY_DAMAGE, new  UnstableIncrease(5));
 		_increases.put(INC_ID.ON_ENTITY_DEATH, new  UnstableIncrease(8));
 		_increases.put(INC_ID.ON_OPEN_CHEST, new  UnstableIncrease(100));
+		_increases.put(INC_ID.ON_USE_FIREWORK, new  UnstableIncrease(30));
 	}
 	public UnstableIncrease GetIncrease(INC_ID id)
 	{
-		if(!_increases.containsKey(id)) return null;
+		if(!_increases.containsKey(id)) return new UnstableIncrease(0);
 		
 		return _increases.get(id);
 	}
@@ -200,7 +215,7 @@ public class EndEvents implements Listener
 				}.runTask(DontLoseItems.Instance);
 				
 			}
-		}.runTaskTimerAsynchronously(DontLoseItems.Instance, 0, 20);	
+		}.runTaskTimerAsynchronously(DontLoseItems.Instance, 0, 20*5);	
 	}
 	
 	public void AddUnstablePlayer(Player player)
@@ -256,6 +271,46 @@ public class EndEvents implements Listener
 	{
 		UpdateUnstapleVoid(GetIncrease(id));
 	}
+	
+	
+	private int GetPlayerReduceAmount()
+	{
+		if(!_cd.isCooldownReady("_playerReduceAmount")) return _playerReduceAmount;
+		
+		_cd.setCooldownInSeconds("_playerReduceAmount", 5);
+		
+		Iterator<UnstableEnd_Player> it = _players.values().iterator();
+        int _playerReduceAmount = 0;
+		while (it.hasNext())
+		{
+			
+			UnstableEnd_Player uPlayer = it.next();
+			Player player = uPlayer.Player;
+			if(player == null || !IsPlayerUnstableArea(player))
+			{
+				it.remove();
+				continue;
+			}
+			
+			if(player.getGameMode() == GameMode.SURVIVAL)
+			{
+				_playerReduceAmount++;
+			}
+
+		}
+		
+		if(_playerReduceAmount <= 0) _playerReduceAmount = 1;
+		
+		return _playerReduceAmount;
+	}
+	
+	private double GetUnstableIncreaseWithPlayers(UnstableIncrease increase)
+	{
+		if(_players.size() > 1) return increase.Amount / GetPlayerReduceAmount();
+		
+		return increase.Amount;
+	}
+	
 	private void UpdateUnstapleVoid(UnstableIncrease increase)
 	{		
 		if(increase == null) return;
@@ -349,6 +404,16 @@ public class EndEvents implements Listener
 	{
 		if(!IsPlayerUnstableArea(e.getEntity())) return;
 		
+		if(!_cd.isCooldownReady("_entityUnstableDamage")) return;
+		
+		_entityUnstableDamage += GetUnstableIncreaseWithPlayers(GetIncrease(INC_ID.ON_ENTITY_DAMAGE));
+		
+		if(_entityUnstableDamage >= GetIncrease(INC_ID.ON_ENTITY_DAMAGE).Amount) 
+		{
+			_cd.setCooldownInSeconds("_entityUnstableDamage", _entityUnstableDamageCD);
+			_entityUnstableDamage = 0;
+		}
+		
 		UpdateUnstapleVoid(INC_ID.ON_ENTITY_DAMAGE);
 		
 	}
@@ -387,13 +452,9 @@ public class EndEvents implements Listener
 			{
 				i.setAmount(1);
 			}
-			
-
-			
 		}
 	}
-	
-	
+		
 	@EventHandler
 	public void OnProtectileHit(ProjectileHitEvent e)
 	{
@@ -441,6 +502,42 @@ public class EndEvents implements Listener
 		
 	}
 	
+	@EventHandler
+	public void OnPlayerMove(PlayerMoveEvent event) 
+	{
+		if(!UnstableEnd.IsEventRuning()) return;
+		
+		if(!IsPlayerUnstableArea(event.getPlayer())) return;
+		
+	    Player player = event.getPlayer();
+
+	    if (player.getGameMode() == GameMode.SURVIVAL && player.isGliding()) 
+	    {
+	       
+	        player.setGliding(false);
+	        player.sendMessage(Metods.msgC("&9Elytra &3flying &cis not allowed during &5EVENTS!"));
+	    }
+	}
+
+	
+	@EventHandler
+	public void OnPlayerInteractEvent(PlayerInteractEvent e) 
+	{
+		
+	    if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) 
+	    {
+	        return;
+	    }
+	    
+	    if(!IsPlayerUnstableArea(e.getPlayer())) return;
+	    
+	    if(!e.getPlayer().isGliding()) return;
+	    
+	    if (e.getItem() != null && e.getItem().getType() == Material.FIREWORK_ROCKET) 
+	    {
+	        UpdateUnstapleVoid(INC_ID.ON_USE_FIREWORK);
+	    }
+	}
 	
 	public void CreateUnstableFallingBlocks(Location loc, double pullforce, int lastTicks, int range, boolean useEndblocks, boolean removeBlocks)
 	{

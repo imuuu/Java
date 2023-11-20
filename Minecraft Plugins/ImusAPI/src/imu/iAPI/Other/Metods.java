@@ -648,22 +648,27 @@ public class Metods
 	        case LEATHER_CHESTPLATE:
 	        case LEATHER_LEGGINGS:
 	        case LEATHER_BOOTS:
+	        
 	        case IRON_HELMET:
 	        case IRON_CHESTPLATE:
 	        case IRON_LEGGINGS:
 	        case IRON_BOOTS:
+	        
 	        case GOLDEN_HELMET:
 	        case GOLDEN_CHESTPLATE:
 	        case GOLDEN_LEGGINGS:
 	        case GOLDEN_BOOTS:
+	        
 	        case DIAMOND_HELMET:
 	        case DIAMOND_CHESTPLATE:
 	        case DIAMOND_LEGGINGS:
 	        case DIAMOND_BOOTS:
+	        
 	        case NETHERITE_HELMET:
 	        case NETHERITE_CHESTPLATE:
 	        case NETHERITE_LEGGINGS:
 	        case NETHERITE_BOOTS:
+	        
 	        case TURTLE_HELMET:
 	        case ELYTRA:
 	            return true;
@@ -751,6 +756,7 @@ public class Metods
 				case NETHERITE_SHOVEL: return true;
 				case NETHERITE_AXE: return true;
 				case NETHERITE_SWORD: return true;
+				case NETHERITE_HOE: return true;
 				
 				case SHIELD: return true;
 				

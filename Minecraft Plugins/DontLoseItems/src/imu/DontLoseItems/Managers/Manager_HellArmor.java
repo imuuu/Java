@@ -1103,6 +1103,21 @@ public class Manager_HellArmor implements Listener
 		return false;
 	}
 	
+	public boolean IsHellItem(ItemStack stack) 
+	{
+	    return IsHellBoots(stack) || IsHellLeggins(stack) || IsHellChestplate(stack) || IsHellHelmet(stack);
+	}
+	
+	public boolean IsVoidItem(ItemStack stack) 
+	{
+	    return IsVoidBoots(stack) || IsVoidLeggins(stack) || IsVoidChestplate(stack) || IsVoidHelmet(stack);
+	}
+	
+	public boolean IsVoidOrHellItem(ItemStack stack) 
+	{
+	    return IsVoidItem(stack) || IsHellItem(stack);
+	}
+	
 	@EventHandler
 	public void Smithing(PrepareSmithingEvent e)
 	{
