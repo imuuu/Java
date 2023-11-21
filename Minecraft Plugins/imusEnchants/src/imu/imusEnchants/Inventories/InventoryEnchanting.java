@@ -23,6 +23,7 @@ import imu.imusEnchants.Enchants.NodeEnchant;
 import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
+import net.minecraft.world.item.enchantment.EnchantmentManager;
 
 public class InventoryEnchanting extends CustomInventory
 {
@@ -105,6 +106,7 @@ public class InventoryEnchanting extends CustomInventory
 	{
 		return GetInventory().getItem(_enchantSlot);
 	}
+	
 	private void ClearTable()
 	{
 		for(int i = 0; i < GetSize(); i++)
@@ -115,6 +117,7 @@ public class InventoryEnchanting extends CustomInventory
 			AddButton(button);
 		}
 	}
+	
 	private void InitButtons()
 	{
 		ItemStack stack; 
@@ -199,7 +202,11 @@ public class InventoryEnchanting extends CustomInventory
 	{
 		if (slot == _enchantSlot) 
 		{
-			if(!ItemUtils.IsTool(stack)) { return false; }
+			if(!ManagerEnchants.Instance.IsValidToEnchant(stack))
+			{
+				GetPlayer().sendMessage(Metods.msgC("&cNot valid item to enchant!"));
+				return false;
+			}
 			
 	        return true;
 		}
@@ -254,12 +261,14 @@ public class InventoryEnchanting extends CustomInventory
 			Button button = new Button(slot, stack);
 			button.SetLockPosition(false);
 			AddButton(button);
+			AddTouch(slot);
 			LoadItem(button, false);
 		}
 		
 
 		if(GetButton(slot) == null)
 		{
+			AddTouch(slot);
 			LoadNode(stack, slot);
 		}
 	}
@@ -302,7 +311,10 @@ public class InventoryEnchanting extends CustomInventory
 	private boolean LoadNode(ItemStack stack, int slot)
 	{
 		Material material = stack.getType();
-		
+//		if(_enchantedItem.ContainsEnchant(stack)) 
+//		{
+//			AddTouch(slot);
+//		}
 		if(material == CONSTANTS.BOOSTER_MATERIAL) return LoadBooster(stack, slot);
 		if(material == CONSTANTS.ENCHANT_MATERIAL) return LoadEnchant(stack, slot);
 		
@@ -382,7 +394,6 @@ public class InventoryEnchanting extends CustomInventory
 			return true;
 		}
 		
-		
 		return false;
 	}
 	
@@ -412,26 +423,21 @@ public class InventoryEnchanting extends CustomInventory
 		if(_enchantedItem == null) return;
 		
 		IBUTTONN enchantItemButton = GetButton(_enchantSlot);
-		//ItemStack stack = enchantItemButton.GetItemStack().clone();
 		RemoveButton(_enchantSlot);
 		Button newButton = new Button(_enchantSlot, enchantItemButton.GetItemStack());
 		newButton.SetLockPosition(false);
 		AddButton(newButton);
 		
 		ClearTable();
+		ClearTouches();
+		AddTouch(_enchantSlot);
 		LoadItem(newButton, true);
 		
 	}
 	private void ButtonOpenEnchantbuy(Button button, InventoryClickEvent event)
 	{
-		ItemStack stack = button.GetItemStack();
-		
-		ItemUtils.AddLore(stack,Arrays.asList("davai"));
-		
-		Player player = (Player) event.getWhoClicked();
-		player.sendMessage("ExamplePress v4");
-		
-		UpdateButton(button);
+		System.out.println("Open new inv");
+		OpenPage(new InventoryBuyEnchants());
 	}
 	
 	private void ButtonEnchantItem(Button button, InventoryClickEvent event)
@@ -446,16 +452,19 @@ public class InventoryEnchanting extends CustomInventory
 		System.out.println("     ");
 		_enchantedItem.PrintNodes();
 		System.out.println("     ");
-		System.out.println("  _enchantedItem   :"+_enchantedItem.GetItemStack());
-		System.out.println("     ");
-		System.out.println("     ");
-		System.out.println("     ");
-		Bukkit.getLogger().info("Enchanting the item: " + GetEnchantItem());
-		System.out.println("     ");
-		System.out.println("     ");
-		System.out.println("     ");
+//		System.out.println("  _enchantedItem   :"+_enchantedItem.GetItemStack());
+//		System.out.println("     ");
+//		System.out.println("     ");
+//		System.out.println("     ");
+//		Bukkit.getLogger().info("Enchanting the item: " + GetEnchantItem());
+//		System.out.println("     ");
+//		System.out.println("     ");
+//		System.out.println("     ");
 		
 		ClearTable();
+		ClearTouches();
+		
+		AddTouch(_enchantSlot);
 		UpdateButtons(false);
 	}
 

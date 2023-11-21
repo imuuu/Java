@@ -25,7 +25,7 @@ public class EnchantedItem
 	private Random random = new Random();
 	
 	private final String PD_REVEALED = "pd_revealed";
-	private final String PD_SLOTS = "pd_slots";
+	private final static String PD_SLOTS = "pd_slots";
 	private int _totalUnlocked = 0;
 	
 	public EnchantedItem(ItemStack stack)
@@ -341,10 +341,15 @@ public class EnchantedItem
         ItemUtils.SetPersistenData(_stack, PD_SLOTS, PersistentDataType.INTEGER, slots);
     }
     
-    private int GetSlots(ItemStack stack) 
+    private static Integer GetSlots(ItemStack stack) 
     {
         Integer slots = ItemUtils.GetPersistenData(stack, PD_SLOTS, PersistentDataType.INTEGER);
         return (slots != null) ? slots : 0; 
+    }
+    
+    public static boolean HasSlots(ItemStack stack) 
+    {
+    	return GetSlots(stack) > 0;
     }
 	
 	public boolean IsRevealed()

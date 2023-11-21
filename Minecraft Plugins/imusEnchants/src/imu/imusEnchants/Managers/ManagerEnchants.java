@@ -1,17 +1,26 @@
 package imu.imusEnchants.Managers;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iAPI.Enums.ENCHANTMENT_TIER;
+import imu.iAPI.Enums.ITEM_CATEGORY;
+import imu.iAPI.Utilities.ImusUtilities;
+import imu.iAPI.Utilities.ItemUtils;
+import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enums.MATERIAL_SLOT_RANGE;
 import imu.imusEnchants.Inventories.InventoryEnchanting;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
-import net.minecraft.world.entity.ai.goal.ClimbOnTopOfPowderSnowGoal;
 
 public class ManagerEnchants
 {
@@ -58,6 +67,15 @@ public class ManagerEnchants
 		return GetMaterialSlotsRange(stack.getType());
 	}
 	
+	public boolean IsValidToEnchant(ItemStack stack)
+	{
+		if(!ItemUtils.IsTool(stack)) { return false; }
+		
+		if(!EnchantedItem.HasSlots(stack) && stack.getEnchantments().size() > 0) return false;
+		
+		return true;
+	}
+	
 	public static MATERIAL_SLOT_RANGE GetMaterialSlotsRange(Material material) 
 	{
 	    if (material.name().contains("DIAMOND_")) 
@@ -81,4 +99,7 @@ public class ManagerEnchants
 	        return MATERIAL_SLOT_RANGE.WOOD;
 	    }
 	}
+	
+	
+
 }

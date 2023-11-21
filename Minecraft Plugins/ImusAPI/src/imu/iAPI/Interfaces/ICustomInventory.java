@@ -1,5 +1,7 @@
 package imu.iAPI.Interfaces;
 
+import java.util.Stack;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -31,4 +33,9 @@ public interface ICustomInventory
 	public void OnDragItemSet(ItemStack stack, int slot);
 	
 	public boolean OnPickupAll(IBUTTONN button, int slot);
+	
+	public void Back();
+	
+	public void SetPageStack(Stack<ICustomInventory> pageStack);
+	public Stack<ICustomInventory> GetPageStack();
 }

@@ -1,40 +1,330 @@
 package imu.imusEnchants.Inventories;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.plugin.Plugin;
+import java.util.Random;
 
-import imu.iAPI.Other.CustomInvLayout;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 
-public class InventoryBuyEnchants extends CustomInvLayout
+import imu.iAPI.Buttons.Button;
+import imu.iAPI.Enums.ENCHANTMENT_TIER;
+import imu.iAPI.Enums.INVENTORY_AREA;
+import imu.iAPI.Enums.ITEM_CATEGORY;
+import imu.iAPI.InvUtil.CustomInventory;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.XpUtil;
+import imu.iAPI.Utilities.EnchantUtil;
+import imu.iAPI.Utilities.InvUtil;
+import imu.iAPI.Utilities.ItemUtils;
+import imu.imusEnchants.main.CONSTANTS;
+import imu.imusEnchants.main.ImusEnchants;
+
+public class InventoryBuyEnchants extends CustomInventory
 {
-
-	public InventoryBuyEnchants(Plugin main, Player player, String name, int size)
+	private final ItemStack EMPTY_BLACK_SLOT;
+	private Random _random = new Random();
+	
+	public InventoryBuyEnchants()
 	{
-		super(main, player, name, size);
-		// TODO Auto-generated constructor stub
+		super(ImusEnchants.Instance, "Buy Enchants", 6*9);
+		EMPTY_BLACK_SLOT = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+		ItemUtils.SetDisplayNameEmpty(EMPTY_BLACK_SLOT);
+	}
+	
+	@Override
+	public INVENTORY_AREA SetInventoryLock()
+	{
+		return null;
 	}
 
+	
 	@Override
-	public void invClosed(InventoryCloseEvent arg0)
+	public void OnOpen()
 	{
-		// TODO Auto-generated method stub
+		super.OnOpen();
+		InitButtons();
 		
 	}
-
-	@Override
-	public void onClickInsideInv(InventoryClickEvent arg0)
+	
+	private void ClearTable()
 	{
-		// TODO Auto-generated method stub
+		for(int i = 0; i < GetSize(); i++)
+		{
+			Button button = new Button(i, EMPTY_BLACK_SLOT);
+			AddButton(button);
+		}
+	}
+	
+	private void InitButtons()
+	{
+		ItemStack stack; 
+		Button button;
 		
+		ClearTable();
+		
+		AddDefaultBackButton(GetSize()-9);
+		final String color1 = "&e";
+		final String color2 = "&b";
+		
+		final String[] tier1_enchant_desc = new String[] 
+		{
+			"&3Guaranteed &eTier &91 &3Enchant",
+			"&9Low &3chance to &eTier &d2",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_1_ENCHANTS+"L"
+		};
+		
+		final String[] tier2_enchant_desc = new String[] 
+		{
+			"&3Guaranteed &eTier &91 &3Enchant",
+			"&6Higher &3chance to &eTier &d2",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_2_ENCHANTS+"L"
+		};
+		
+		final String[] tier3_enchant_desc = new String[] 
+		{
+			"&3Guaranteed  &eTier &d2 &3Enchant",
+			"&6Higher &3chance to &eTier &63",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_3_ENCHANTS+"L"
+		};
+		
+		//===============================================================
+		
+		//>>> COLUMN 1
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Tools"+color1+")");
+		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		button = new Button(0, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyTool(ENCHANTMENT_TIER.TIER_1);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Tools"+color1+")");
+		ItemUtils.AddLore(stack, tier2_enchant_desc);
+		button = new Button(9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyTool(ENCHANTMENT_TIER.TIER_2);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Tools"+color1+")");
+		ItemUtils.AddLore(stack, tier3_enchant_desc);
+		button = new Button(9+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyTool(ENCHANTMENT_TIER.TIER_3);
+	    });
+		AddButton(button);
+		//<<< COLUMN 1
+		
+		//===============================================================
+		
+		//>>> COLUMN 2
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Combat"+color1+")");
+		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		button = new Button(2, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyWeapon(ENCHANTMENT_TIER.TIER_1);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Combat"+color1+")");
+		ItemUtils.AddLore(stack, tier2_enchant_desc);
+		button = new Button(2+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyWeapon(ENCHANTMENT_TIER.TIER_2);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Combat"+color1+")");
+		ItemUtils.AddLore(stack, tier3_enchant_desc);
+		button = new Button(2+9+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyWeapon(ENCHANTMENT_TIER.TIER_3);
+	    });
+		AddButton(button);
+		//<<< COLUMN 2
+		
+		//===============================================================
+		
+		//>>> COLUMN 3
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Armor"+color1+")");
+		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		button = new Button(4, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyArmor(ENCHANTMENT_TIER.TIER_1);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Armor"+color1+")");
+		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		button = new Button(4+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyArmor(ENCHANTMENT_TIER.TIER_2);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Armor"+color1+")");
+		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		button = new Button(4+9+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyArmor(ENCHANTMENT_TIER.TIER_3);
+	    });
+		AddButton(button);
+		//<<< COLUMN 3
+		
+		//===============================================================
+		
+		//>>> COLUMN 4
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+		//ItemUtils.AddLore(stack, tier1_desc);
+		button = new Button(6, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyAll(ENCHANTMENT_TIER.TIER_1);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+		//ItemUtils.AddLore(stack, tier1_desc);
+		button = new Button(6+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyAll(ENCHANTMENT_TIER.TIER_2);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+		//ItemUtils.AddLore(stack, tier1_desc);
+		button = new Button(6+9+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyAll(ENCHANTMENT_TIER.TIER_3);
+	    });
+		AddButton(button);
+		//<<< COLUMN 4
+		
+		//===============================================================
+		
+		//>>> COLUMN 5
+		stack = new ItemStack(CONSTANTS.BOOSTER_MATERIAL);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Booster");
+		button = new Button(8+9+9, stack, inventoryClickEvent -> 
+		{
+			//ButtonBuyArmor(ENCHANTMENT_TIER.TIER_3);
+	    });
+		AddButton(button);
+		//<<< COLUMN 5
+		
+		
+		UpdateButtons(true);
+	}
+	
+	private void ReducePlayerLevel(int reduce)
+	{
+		if(GetPlayer().getLevel() <= 0)
+		{
+			XpUtil.SetPlayerLevel(GetPlayer(), 0);
+			return;
+		}
+		XpUtil.SetPlayerLevel(GetPlayer(), GetPlayer().getLevel()-reduce);
+	}
+	
+	private boolean PlayerHasEnoughLevels(ENCHANTMENT_TIER tier) 
+	{
+		if(GetPlayer().getGameMode() == GameMode.CREATIVE) return true;
+		
+	    int requiredLevel = CONSTANTS.GetCapEnchant(tier);
+	    
+	    boolean hasEnough = GetPlayer().getLevel() >= requiredLevel;
+	    
+	    if(!hasEnough)
+	    {
+	    	GetPlayer().sendMessage(Metods.msgC("&7Not Enough Levels"));
+	    }
+	    return hasEnough;
+	}
+	
+	
+	private ENCHANTMENT_TIER GetEnchantTier(ENCHANTMENT_TIER bookTier) 
+	{
+	    switch (bookTier) {
+	        case TIER_1:
+	            return (RollChance(CONSTANTS.NORMAL_CHANCE_1_TO_BE_TIER_2)) ? ENCHANTMENT_TIER.TIER_2 : ENCHANTMENT_TIER.TIER_1;
+	        
+	        case TIER_2:
+	            return (RollChance(CONSTANTS.HIGH_CHANCE_1_TO_BE_TIER_2)) ? ENCHANTMENT_TIER.TIER_2 : ENCHANTMENT_TIER.TIER_1;
+	        case TIER_3:
+	            return (RollChance(CONSTANTS.HIGH_CHANCE_2_TO_BE_TIER_3)) ? ENCHANTMENT_TIER.TIER_3 : ENCHANTMENT_TIER.TIER_2;
+
+	        default:
+	            return bookTier;
+	    }
 	}
 
-	@Override
-	public void setupButtons()
+	private boolean RollChance(double chance) 
 	{
-		// TODO Auto-generated method stub
+	    return _random.nextDouble() * 100 < chance;
+	}
+
+	private void ButtonBuyTool(ENCHANTMENT_TIER bookTier) 
+	{
+		if(!PlayerHasEnoughLevels(bookTier)) return;
+	    
+		ReducePlayerLevel(CONSTANTS.GetCostEnchant(bookTier));
+		
+		ENCHANTMENT_TIER enchantTier = GetEnchantTier(bookTier);
+		
+		Enchantment enchant = EnchantUtil.GetRandomEnchantment(ITEM_CATEGORY.TOOL, enchantTier);
+		ItemStack book = EnchantUtil.GetEnchantedBook(enchant);
+		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), book);
+		 
+	}
+	
+	private void ButtonBuyWeapon(ENCHANTMENT_TIER bookTier)
+	{
+		if(!PlayerHasEnoughLevels(bookTier)) return;
+		
+		ReducePlayerLevel(CONSTANTS.GetCostEnchant(bookTier));
+		
+		ENCHANTMENT_TIER enchantTier = GetEnchantTier(bookTier);
+		
+		Enchantment enchant = EnchantUtil.GetRandomEnchantment(ITEM_CATEGORY.WEAPON, enchantTier);
+		ItemStack book = EnchantUtil.GetEnchantedBook(enchant);
+		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), book);
+	}
+	
+	private void ButtonBuyArmor(ENCHANTMENT_TIER bookTier)
+	{
+		if(!PlayerHasEnoughLevels(bookTier)) return;
+		
+		ReducePlayerLevel(CONSTANTS.GetCostEnchant(bookTier));
+		
+		ENCHANTMENT_TIER enchantTier = GetEnchantTier(bookTier);
+		
+		Enchantment enchant = EnchantUtil.GetRandomEnchantment(ITEM_CATEGORY.ARMOR,enchantTier);
+		ItemStack book = EnchantUtil.GetEnchantedBook(enchant);
+		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), book);
+	}
+	
+	private void ButtonBuyAll(ENCHANTMENT_TIER bookTier)
+	{
+		if(!PlayerHasEnoughLevels(bookTier)) return;
+		
+		ReducePlayerLevel(CONSTANTS.GetCostEnchant(bookTier));
+		
 		
 	}
+	
+	
+	
 
 }

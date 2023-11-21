@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -20,6 +22,8 @@ import imu.iAPI.Main.ImusAPI;
 
 public  class ImusUtilities
 {
+	private static Random _random = new Random();
+	
 	public static int LevenshteinDistance(String a, String b) 
 	{
         int[][] dp = new int[a.length() + 1][b.length() + 1];
@@ -90,6 +94,21 @@ public  class ImusUtilities
 	    System.arraycopy(array, index + 1, new_array, index, array.length - index - 1);
 	    return new_array;
 	}
+	
+	public static <T> T GetRandomElement(Set<T> set) 
+    {
+        int size = set.size();
+        if (size == 0) return null;
+        int item = _random.nextInt(size);
+        int i = 0;
+        for(T obj : set) 
+        {
+            if (i == item)
+                return obj;
+            i++;
+        }
+        return null;
+    }
 	
 	public static LinkedList<Location> CreateSphere(Location center, int radius, HashSet<Material> ignoreSet, HashSet<Material> includeSet) 
 	{

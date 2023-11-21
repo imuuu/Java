@@ -1,7 +1,8 @@
 package imu.iAPI.InvUtil;
 
-import java.util.Optional;
+import java.util.Stack;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -10,11 +11,11 @@ import org.bukkit.plugin.Plugin;
 
 import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.INVENTORY_AREA;
-import imu.iAPI.Enums.INV_ACTION;
 import imu.iAPI.Handelers.ButtonHandler;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Utilities.ItemUtils;
 
 public abstract class CustomInventory implements ICustomInventory
 {
@@ -36,40 +37,7 @@ public abstract class CustomInventory implements ICustomInventory
 		_inv =  _plugin.getServer().createInventory(null, _size, _name);
 	}
 	
-	protected void AddButton(IBUTTONN button)
-	{
-		_buttonHandler.AddButton(button);
-	}
 	
-	protected IBUTTONN GetButton(int position)
-	{
-		return _buttonHandler.GetButton(position);
-	}
-	
-	protected IBUTTONN RemoveButton(IBUTTONN button)
-	{
-		return _buttonHandler.RemoveButton(button.GetPosition());
-	}
-	
-	protected IBUTTONN RemoveButton(int position)
-	{
-		return _buttonHandler.RemoveButton(position);
-	}
-	
-	protected void UpdateButtons(boolean clearEmpties)
-	{
-		_buttonHandler.UpdateButtons(clearEmpties);
-	}
-	
-	protected void UpdateButton(int position)
-	{
-		_buttonHandler.UpdateButton(position);
-	}
-	
-	protected void UpdateButton(IBUTTONN button)
-	{
-		_buttonHandler.UpdateButton(button.GetPosition());
-	}
 	
 	@Override
 	public void OnClick(InventoryClickEvent e, IBUTTONN button)
@@ -88,7 +56,6 @@ public abstract class CustomInventory implements ICustomInventory
 	@Override
 	public void OnClose()
 	{
-		_buttonHandler.OnHandlerClose();
 		ImusAPI._instance.UnregisterCustomInventory(this);
 		
 	}
@@ -183,8 +150,6 @@ public abstract class CustomInventory implements ICustomInventory
 		return false;
 	}
 	
-	
-	
 	protected IBUTTONN SetButton(ItemStack stack, int slot)
 	{
 		 IBUTTONN button = new Button(slot, stack.clone());
@@ -193,6 +158,131 @@ public abstract class CustomInventory implements ICustomInventory
          return button;
 	}
 	
+	//>>>> Page System
+	private Stack<ICustomInventory> _pageStack = new Stack<>();
+	
+	@Override
+	public void SetPageStack(Stack<ICustomInventory> pageStack)
+	{
+		_pageStack = pageStack;
+	}
+	
+	@Override
+	public Stack<ICustomInventory> GetPageStack()
+	{
+		return _pageStack;
+	}
+	
+    public void OpenPage(ICustomInventory newPage) 
+    {
+        if (this != newPage) 
+        {
+            _pageStack.push(this);
+            CloseCurrentAndOpenNewPage(newPage);
+        }
+    }
+
+    public void Back() 
+    {
+        if (!_pageStack.isEmpty()) 
+        {
+            ICustomInventory previousPage = _pageStack.pop();
+            CloseCurrentAndOpenNewPage(previousPage);
+        }
+    }
+    
+    private void CloseCurrentAndOpenNewPage(ICustomInventory newPage) 
+    {
+        newPage.SetPageStack(_pageStack);
+        newPage.Open(GetPlayer());
+    }   
+    
+    protected void AddDefaultBackButton(int slot)
+    {
+    	ItemStack stack = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+    	ItemUtils.SetDisplayName(stack, "&bGo Back");
+    	Button button = new Button(GetSize()-9, stack, inventoryClickEvent -> 
+		{
+			Back();
+	    });
+		AddButton(button);
+    }
+    //<<<< Page System
+	
+	//BUTTON HANDLING
+	protected void AddButton(IBUTTONN button)
+	{
+		_buttonHandler.AddButton(button);
+	}
+	
+	protected IBUTTONN GetButton(int position)
+	{
+		return _buttonHandler.GetButton(position);
+	}
+	
+	protected IBUTTONN RemoveButton(IBUTTONN button)
+	{
+		return _buttonHandler.RemoveButton(button.GetPosition());
+	}
+	
+	protected IBUTTONN RemoveButton(int position)
+	{
+		return _buttonHandler.RemoveButton(position);
+	}
+	
+	protected void UpdateButtons(boolean clearEmpties)
+	{
+		_buttonHandler.UpdateButtons(clearEmpties);
+	}
+	
+	protected void UpdateButton(int position)
+	{
+		_buttonHandler.UpdateButton(position);
+	}
+	
+	protected void UpdateButton(IBUTTONN button)
+	{
+		_buttonHandler.UpdateButton(button.GetPosition());
+	}
+	
+	//>>>> TOUCH HANDLING
+	protected void AddTouch(int position) 
+	{
+        _buttonHandler.AddTouch(position);
+    }
+
+    protected void AddTouch(IBUTTONN button) 
+    {
+    	 _buttonHandler.AddTouch(button);
+    }
+
+    protected void RemoveTouch(int position) 
+    {
+        _buttonHandler.RemoveTouch(position);
+    }
+    
+    protected void RemoveTouch(IBUTTONN button) 
+    {
+        _buttonHandler.RemoveTouch(button);
+    }
+
+    protected boolean IsTouched(int position) 
+    {
+        return _buttonHandler.IsTouched(position);
+    }
+    
+    protected boolean IsTouched(IBUTTONN button) 
+    {
+        return _buttonHandler.IsTouched(button);
+    }
+    
+    protected void ClearTouches() 
+    {
+    	_buttonHandler.ClearTouches();
+    }
+    //<<<< TOUCH SYSTEM
+    
+    
 	//EXAMPLE
 //	private void InitButtons()
 //	{

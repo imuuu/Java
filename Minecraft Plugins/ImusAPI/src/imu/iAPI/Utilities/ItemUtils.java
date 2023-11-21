@@ -237,6 +237,11 @@ public class ItemUtils
     	return stack;
 	}
 	
+	public static ItemStack AddLore(ItemStack stack, String[] lores)
+	{
+		return AddLore(stack, Arrays.asList(lores));
+	}
+	
 	public static  ItemStack AddLore(ItemStack stack, Iterable<String> lores)
 	{
 		if (!IsValid(stack))  return stack;

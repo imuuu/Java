@@ -1,6 +1,7 @@
 package imu.iAPI.Handelers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.bukkit.plugin.Plugin;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
+import imu.iAPI.Utilities.InvUtil;
 
 
 public class ButtonHandler implements Listener 
@@ -59,6 +61,7 @@ public class ButtonHandler implements Listener
     
     public IBUTTONN RemoveButton(int position)
     {
+    	RemoveTouch(position);
     	return _buttons.remove(position);
     }
     
@@ -92,7 +95,15 @@ public class ButtonHandler implements Listener
          	return;
          }
     	 
+    	 for (Integer position : _touchedButtons) 
+    	 {
+             IBUTTONN button = GetButton(position);
+             if (button == null)  continue;
+             
+             InvUtil.AddItemToInventoryOrDrop(_customInventory.GetPlayer(), button.GetItemStack());
+         }
     	 _customInventory.OnClose();
+    	 OnHandlerClose();
 	}
    
     @EventHandler
@@ -240,15 +251,7 @@ public class ButtonHandler implements Listener
     	{
             if (slot < _customInventory.GetSize()) 
             { 
-//                ItemStack draggedItem = event.getOldCursor();
-//                boolean success = CreateButtonForSlot(INV_ACTION.DRAG, draggedItem, slot);  
-//                
-//                if(success)
-//                {
-//                	event.setCancelled(true);
-//                	return;
-//                }
-                
+
             	event.setCancelled(true);
             	
                 ItemStack draggedItem = event.getOldCursor();
@@ -272,23 +275,7 @@ public class ButtonHandler implements Listener
         }
     	
     }
-    
-//    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) {
-//        
-//    	int slot = event.getSlot();
-//    	//button.SetItemStack(_customInventory.GetInventory().getItem(slot));
-//    	boolean onPickUpAll = _customInventory.OnPickupAll(button, slot);
-//
-//        if (!onPickUpAll) 
-//        {
-//            event.setCancelled(true);
-//        }
-//
-//        if (button != null && !button.IsPositionLocked()) 
-//        {
-//            RemoveButton(button);
-//        }
-//    }
+
     
 //    private void HandlePickupAll(InventoryClickEvent event, IBUTTONN button) 
 //    {
@@ -349,33 +336,6 @@ public class ButtonHandler implements Listener
     }
 
 
-    
-    
-//    private boolean CreateButtonForSlot(INV_ACTION inv_action, ItemStack item, int slot) {
-//        System.out.println("CreateButtonForSlot called with action: " + inv_action + ", item: " + item + ", slot: " + slot);
-//
-//        boolean result = false;
-//
-//        if (inv_action == INV_ACTION.DROP) {
-//            result = _customInventory.OnDropitem(item, slot);
-//            System.out.println("After OnDropitem - item: " + item + ", result: " + result);
-//        } else if (inv_action == INV_ACTION.DRAG) {
-//            result = _customInventory.OnDragitem(item, slot);
-//            System.out.println("After OnDragitem - item: " + item + ", result: " + result);
-//        } else {
-//            System.out.println("Action not recognized. Returning false.");
-//        }
-//
-//        IBUTTONN button = GetButton(slot);
-//        if (button != null) {
-//            System.out.println("Button exists after operation - ItemStack: " + button.GetItemStack());
-//        } else {
-//            System.out.println("No button found at slot " + slot);
-//        }
-//
-//        return result;
-//    }
-    
     private INVENTORY_AREA GetInventoryArea(InventoryClickEvent e)
     {
     	if(e.getRawSlot() != e.getSlot())
@@ -423,8 +383,49 @@ public class ButtonHandler implements Listener
     	setItem(button.GetPosition(), button.GetItemStack());
     }
     
+    //TOUCH SYSTEM
+    private Set<Integer> _touchedButtons = new HashSet<>();
+
+    public void AddTouch(int position) 
+    {
+        _touchedButtons.add(position);
+    }
     
-    //SNAPSHOT SYSTEM
+    public void AddTouch(IBUTTONN button) 
+    {
+        if (button == null) return;
+        AddTouch(button.GetPosition());
+    }
+
+    public void RemoveTouch(int position) 
+    {
+        _touchedButtons.remove(position);
+    }
+    
+    public void RemoveTouch(IBUTTONN button) 
+    {
+    	if (button == null) return;
+    	RemoveTouch(button.GetPosition());
+    }
+
+    public boolean IsTouched(int position) 
+    {
+        return _touchedButtons.contains(position);
+    }
+    
+    public boolean IsTouched(IBUTTONN button) 
+    {
+    	if (button == null) return false;
+    	return IsTouched(button.GetPosition());
+    }
+    
+    public void ClearTouches() 
+    {
+    	_touchedButtons.clear();
+    }
+
+    
+    //SNAPSHOT SYSTEM, not tested
     private Map<String, Map<Integer, IBUTTONN>> _snapshots = new HashMap<>();
 
     public void TakeSnapshot(String snapshotName) 
