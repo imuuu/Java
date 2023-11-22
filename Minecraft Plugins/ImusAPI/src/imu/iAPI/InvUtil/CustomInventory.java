@@ -138,9 +138,9 @@ public abstract class CustomInventory implements ICustomInventory
 	}
 	
 	@Override
-	public void OnDragItemSet(ItemStack stack, int slot)
+	public IBUTTONN OnDragItemSet(ItemStack stack, int slot)
 	{
-		
+		return null;
 	}
 	
 	@Override

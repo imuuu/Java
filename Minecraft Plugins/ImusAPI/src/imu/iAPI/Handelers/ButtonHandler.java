@@ -20,7 +20,9 @@ import org.bukkit.plugin.Plugin;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.InvUtil;
+import imu.iAPI.Utilities.ItemUtils;
 
 
 public class ButtonHandler implements Listener 
@@ -34,7 +36,9 @@ public class ButtonHandler implements Listener
 	
 	private long _lastClickTime = 0;
 	private final long COOLDOWN_IN_MILLIS = 100; // milliseconds
-
+	
+	private boolean _blockDrag = false;
+	private boolean _blockDrop = false;
     
     public ButtonHandler(Plugin plugin, ICustomInventory customInventory) 
     {
@@ -148,7 +152,7 @@ public class ButtonHandler implements Listener
              case SWAP_WITH_CURSOR:
              {
             	 event.setCancelled(true);
-            	 if(button != null)
+            	 if(button != null || _blockDrop)
             	 {
             		 return;
             	 }
@@ -163,7 +167,7 @@ public class ButtonHandler implements Listener
                  }
                  
                  final ItemStack newItem = event.getCursor().clone();
-                 event.getCursor().setAmount(0);
+                 //event.getCursor().setAmount(0);
                 
                  //next frame
                  _plugin.getServer().getScheduler().runTask(_plugin, () -> 
@@ -172,14 +176,18 @@ public class ButtonHandler implements Listener
                      IBUTTONN newButton = _customInventory.OnDropItemSet(
                     		 newItem, event.getSlot());
                      
-                     System.out.println("Is there button: " + newButton);
-//                     if(newItem.getAmount() > newButton.GetMaxStackAmount())
-//                     {
-//                    	 System.out.println("====> amount exeeeds");
-//                    	 newItem.setAmount(newButton.GetMaxStackAmount());
-//                    	 newButton.GetItemStack().setAmount(0);
-//                     }
+                     if(newItem.getAmount() > newButton.GetMaxStackAmount())
+                     {
+                    	 newButton.GetItemStack().setAmount(newButton.GetMaxStackAmount());
+                         UpdateButton(newButton);
+                         droppedItem.setAmount(droppedItem.getAmount() - newButton.GetMaxStackAmount());
+                     }
+                     else
+                     {
+                    	 droppedItem.setAmount(0);
+                     }
                  });
+                 
                  
                  return;
              }
@@ -205,6 +213,7 @@ public class ButtonHandler implements Listener
              case DROP_ONE_SLOT:
              case DROP_ALL_SLOT:
              case HOTBAR_SWAP:
+             case COLLECT_TO_CURSOR:
              {
             	 event.setCancelled(true);
             	 return;
@@ -239,13 +248,19 @@ public class ButtonHandler implements Listener
     }
     
     @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) 
+    public void OnInventoryDrag(InventoryDragEvent event) 
     {
     	if(!event.getInventory().equals(_customInventory.GetInventory()))
         {
         	return;
         }
-
+    	
+    	if(_blockDrag)
+    	{
+    		event.setCancelled(true);
+    		return;
+    	}
+    	
     	for (Integer slot : event.getRawSlots()) 
     	{
             if (slot < _customInventory.GetSize()) 
@@ -262,10 +277,9 @@ public class ButtonHandler implements Listener
     	{
             if (slot < _customInventory.GetSize()) 
             { 
-
             	event.setCancelled(true);
             	
-                ItemStack draggedItem = event.getOldCursor();
+                final ItemStack draggedItem = event.getOldCursor();
                 boolean cancel = _customInventory.OnDragItem(draggedItem, slot);
                                
                 if(!cancel) 
@@ -275,12 +289,24 @@ public class ButtonHandler implements Listener
                 event.setCancelled(false);
                 final ItemStack newItem = event.getOldCursor().clone();
                 event.getOldCursor().setAmount(0);
-               
+                final ItemStack currentDrag = event.getNewItems().get(slot);
+                
                 //next frame
                 _plugin.getServer().getScheduler().runTask(_plugin, () -> 
                 {
                     _customInventory.GetInventory().setItem(slot, newItem);
-                    _customInventory.OnDragItemSet(newItem,slot);
+                    IBUTTONN newButton = _customInventory.OnDragItemSet(newItem,slot);
+
+                    if(newItem.getAmount() > newButton.GetMaxStackAmount())
+                    {
+	                   	newButton.GetItemStack().setAmount(newButton.GetMaxStackAmount());
+	                    UpdateButton(newButton);
+	                    
+	                    int amount = currentDrag.getAmount() - newButton.GetMaxStackAmount();
+	                    draggedItem.setAmount(amount);
+	                    InvUtil.AddItemToInventoryOrDrop(_customInventory.GetPlayer(), draggedItem);
+                    }
+                    
                 });
             }
         }
@@ -383,16 +409,18 @@ public class ButtonHandler implements Listener
     	}
     }
     
-    public void UpdateButton(int position)
+    public void UpdateButton(IBUTTONN button)
     {
-    	
-    	IBUTTONN button = GetButton(position);
-    	
-    	
     	_customInventory.
     	GetInventory().
     	setItem(button.GetPosition(), button.GetItemStack());
     	button.OnUpdate();
+    }
+    
+    public void UpdateButton(int position)
+    {
+    	IBUTTONN button = GetButton(position);
+    	UpdateButton(button);
     }
     
     //TOUCH SYSTEM

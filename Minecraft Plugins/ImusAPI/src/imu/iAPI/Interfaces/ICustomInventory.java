@@ -28,7 +28,7 @@ public interface ICustomInventory
 	public IBUTTONN OnDropItemSet(ItemStack stack, int slot);
 	
 	public boolean OnDragItem(ItemStack stack, int slot);
-	public void OnDragItemSet(ItemStack stack, int slot);
+	public IBUTTONN OnDragItemSet(ItemStack stack, int slot);
 	
 	public boolean OnPickupAll(IBUTTONN button, int slot);
 	
