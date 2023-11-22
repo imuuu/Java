@@ -1,10 +1,12 @@
 package imu.iAPI.InvUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -36,14 +38,6 @@ public abstract class CustomInventory implements ICustomInventory
 		_buttonHandler = new ButtonHandler(_plugin, this);
 		_inv =  _plugin.getServer().createInventory(null, _size, _name);
 	}
-	
-	
-	
-	@Override
-	public void OnClick(InventoryClickEvent e, IBUTTONN button)
-	{
-		
-	}
 
 	@Override
 	public void OnOpen()
@@ -61,6 +55,11 @@ public abstract class CustomInventory implements ICustomInventory
 	}
 	
 	public abstract INVENTORY_AREA SetInventoryLock();
+	
+	public ButtonHandler GetButtonHandler()
+	{
+		return _buttonHandler;
+	}
 	
 	@Override
 	public Inventory GetInventory()
@@ -122,9 +121,9 @@ public abstract class CustomInventory implements ICustomInventory
 	}
 	
 	@Override
-	public void OnDropItemSet(ItemStack stack, int slot)
+	public IBUTTONN OnDropItemSet(ItemStack stack, int slot)
 	{	
-		
+		return null;
 	}
 	
 	@Override
@@ -152,10 +151,10 @@ public abstract class CustomInventory implements ICustomInventory
 	
 	protected IBUTTONN SetButton(ItemStack stack, int slot)
 	{
-		 IBUTTONN button = new Button(slot, stack.clone());
-         _buttonHandler.AddButton(button); 
-         UpdateButton(slot);
-         return button;
+	    IBUTTONN button = new Button(slot, stack.clone());
+	    _buttonHandler.AddButton(button); 
+	    UpdateButton(slot);
+	    return button;
 	}
 	
 	//>>>> Page System
@@ -230,6 +229,10 @@ public abstract class CustomInventory implements ICustomInventory
 		return _buttonHandler.RemoveButton(position);
 	}
 	
+	protected void ClearButtons()
+	{
+		_buttonHandler.ClearButtons();
+	}
 	protected void UpdateButtons(boolean clearEmpties)
 	{
 		_buttonHandler.UpdateButtons(clearEmpties);
@@ -282,7 +285,38 @@ public abstract class CustomInventory implements ICustomInventory
     }
     //<<<< TOUCH SYSTEM
     
+    //>>>> SnapShot system
     
+    protected void TakeSnapshot(String snapshotName) 
+    {
+       _buttonHandler.TakeSnapshot(snapshotName);
+    }
+
+    protected void RestoreSnapshot(String snapshotName) 
+    {
+        _buttonHandler.RestoreSnapshot(snapshotName);
+    }
+    
+    protected IBUTTONN GetButtonFromSnapshot(String snapshotName, int slotId) 
+    {
+    	return _buttonHandler.GetButtonFromSnapshot(snapshotName, slotId);
+    }
+
+    protected Set<String> ListSnapshots() 
+    {
+        return _buttonHandler.ListSnapshots();
+    }
+    
+    protected boolean HasSnapshot(String snapshotName) 
+    {
+        return _buttonHandler.HasSnapshot(snapshotName);
+    }
+
+    protected void RemoveSnapshot(String snapshotName) 
+    {
+        _buttonHandler.RemoveSnapshot(snapshotName);
+    }
+    //<<<< SnapShot system
 	//EXAMPLE
 //	private void InitButtons()
 //	{

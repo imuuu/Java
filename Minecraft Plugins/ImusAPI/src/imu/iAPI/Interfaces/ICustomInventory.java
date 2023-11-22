@@ -9,9 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public interface ICustomInventory
-{
-	public void OnClick(InventoryClickEvent e, IBUTTONN button);
-	
+{	
 	public void OnOpen();
 	
 	public void OnClose();
@@ -27,7 +25,7 @@ public interface ICustomInventory
 	public Plugin GetPlugin();
 	
 	public boolean OnDropItem(ItemStack stack, int slot);
-	public void OnDropItemSet(ItemStack stack, int slot);
+	public IBUTTONN OnDropItemSet(ItemStack stack, int slot);
 	
 	public boolean OnDragItem(ItemStack stack, int slot);
 	public void OnDragItemSet(ItemStack stack, int slot);

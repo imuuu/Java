@@ -49,6 +49,11 @@ public class ButtonHandler implements Listener
     	_inventoryLock = lock;
     }
     
+    public void ClearButtons()
+    {
+    	_buttons.clear();
+    }
+    
     public void AddButton(IBUTTONN button) 
     {
         _buttons.put(button.GetPosition(), button);
@@ -135,7 +140,6 @@ public class ButtonHandler implements Listener
         System.out.println("event action: "+event.getAction() + " AREA: "+ area);
         if(area == INVENTORY_AREA.UPPER_INV)
         {
-        	 System.out.println("====== > event action: "+event.getAction() + " AREA: "+ area);
         	 switch (event.getAction()) 
         	 {
              case PLACE_ALL:
@@ -149,7 +153,7 @@ public class ButtonHandler implements Listener
             		 return;
             	 }
             	             	 
-            	 ItemStack droppedItem = event.getCursor();
+            	 final ItemStack droppedItem = event.getCursor();
 
                  boolean cancel = _customInventory.OnDropItem(droppedItem, event.getSlot());
                                 
@@ -165,8 +169,16 @@ public class ButtonHandler implements Listener
                  _plugin.getServer().getScheduler().runTask(_plugin, () -> 
                  {
                      _customInventory.GetInventory().setItem(event.getSlot(), newItem);
-                     _customInventory.OnDropItemSet(
+                     IBUTTONN newButton = _customInventory.OnDropItemSet(
                     		 newItem, event.getSlot());
+                     
+                     System.out.println("Is there button: " + newButton);
+//                     if(newItem.getAmount() > newButton.GetMaxStackAmount())
+//                     {
+//                    	 System.out.println("====> amount exeeeds");
+//                    	 newItem.setAmount(newButton.GetMaxStackAmount());
+//                    	 newButton.GetItemStack().setAmount(0);
+//                     }
                  });
                  
                  return;
@@ -194,7 +206,6 @@ public class ButtonHandler implements Listener
              case DROP_ALL_SLOT:
              case HOTBAR_SWAP:
              {
-            	 System.out.println("EVENT CANCELED");
             	 event.setCancelled(true);
             	 return;
              }
@@ -376,11 +387,12 @@ public class ButtonHandler implements Listener
     {
     	
     	IBUTTONN button = GetButton(position);
-    	button.OnUpdate();
+    	
     	
     	_customInventory.
     	GetInventory().
     	setItem(button.GetPosition(), button.GetItemStack());
+    	button.OnUpdate();
     }
     
     //TOUCH SYSTEM
@@ -459,12 +471,12 @@ public class ButtonHandler implements Listener
         return _snapshots.keySet();
     }
     
-    public boolean SnapshotExists(String snapshotName) 
+    public boolean HasSnapshot(String snapshotName) 
     {
         return _snapshots.containsKey(snapshotName);
     }
 
-    public void DeleteSnapshot(String snapshotName) 
+    public void RemoveSnapshot(String snapshotName) 
     {
         _snapshots.remove(snapshotName);
     }
