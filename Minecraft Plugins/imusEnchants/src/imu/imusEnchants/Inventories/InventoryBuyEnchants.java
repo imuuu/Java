@@ -5,18 +5,22 @@ import java.util.Random;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.ENCHANTMENT_TIER;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Enums.ITEM_CATEGORY;
+import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.InvUtil.CustomInventory;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.XpUtil;
 import imu.iAPI.Utilities.EnchantUtil;
 import imu.iAPI.Utilities.InvUtil;
 import imu.iAPI.Utilities.ItemUtils;
+import imu.imusEnchants.Enchants.NodeBooster;
+import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
 
@@ -56,10 +60,11 @@ public class InventoryBuyEnchants extends CustomInventory
 		}
 	}
 	
+	
+	
 	private void InitButtons()
 	{
 		ItemStack stack; 
-		Button button;
 		
 		ClearTable();
 		
@@ -88,8 +93,15 @@ public class InventoryBuyEnchants extends CustomInventory
 			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_3_ENCHANTS+"L"
 		};
 		
-		//===============================================================
+		final String[] tier1_booster_desc = new String[] 
+				{
+					"&3Guaranteed &6Booster",
+					"&3Buyable at &2"+CONSTANTS.CAP_FIRST_1_BOOSTER+"L",
+					"&cCost &2"+CONSTANTS.COST_FIRST_1_BOOSTER+"L"
+				};
 		
+		//===============================================================
+		Button button;
 		//>>> COLUMN 1
 		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
 		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Tools"+color1+")");
@@ -184,42 +196,44 @@ public class InventoryBuyEnchants extends CustomInventory
 		//===============================================================
 		
 		//>>> COLUMN 4
-		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
-		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
-		//ItemUtils.AddLore(stack, tier1_desc);
-		button = new Button(6, stack, inventoryClickEvent -> 
-		{
-			ButtonBuyAll(ENCHANTMENT_TIER.TIER_1);
-	    });
-		AddButton(button);
-		
-		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
-		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
-		//ItemUtils.AddLore(stack, tier1_desc);
-		button = new Button(6+9, stack, inventoryClickEvent -> 
-		{
-			ButtonBuyAll(ENCHANTMENT_TIER.TIER_2);
-	    });
-		AddButton(button);
-		
-		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
-		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
-		//ItemUtils.AddLore(stack, tier1_desc);
-		button = new Button(6+9+9, stack, inventoryClickEvent -> 
-		{
-			ButtonBuyAll(ENCHANTMENT_TIER.TIER_3);
-	    });
-		AddButton(button);
+//		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+//		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+//		//ItemUtils.AddLore(stack, tier1_desc);
+//		button = new Button(6, stack, inventoryClickEvent -> 
+//		{
+//			ButtonBuyAll(ENCHANTMENT_TIER.TIER_1);
+//	    });
+//		AddButton(button);
+//		
+//		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+//		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+//		//ItemUtils.AddLore(stack, tier1_desc);
+//		button = new Button(6+9, stack, inventoryClickEvent -> 
+//		{
+//			ButtonBuyAll(ENCHANTMENT_TIER.TIER_2);
+//	    });
+//		AddButton(button);
+//		
+//		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
+//		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"All"+color1+")");
+//		//ItemUtils.AddLore(stack, tier1_desc);
+//		button = new Button(6+9+9, stack, inventoryClickEvent -> 
+//		{
+//			ButtonBuyAll(ENCHANTMENT_TIER.TIER_3);
+//	    });
+//		AddButton(button);
 		//<<< COLUMN 4
 		
 		//===============================================================
 		
 		//>>> COLUMN 5
-		stack = new ItemStack(CONSTANTS.BOOSTER_MATERIAL);
+		stack = NodeBooster.GetBoosterStack(1);
+		
 		ItemUtils.SetDisplayName(stack, color1+"Buy Booster");
-		button = new Button(8+9+9, stack, inventoryClickEvent -> 
+		ItemUtils.SetLores(stack, tier1_booster_desc, false);
+		button = new Button(8, stack, inventoryClickEvent -> 
 		{
-			//ButtonBuyArmor(ENCHANTMENT_TIER.TIER_3);
+			ButtonBuyBooster(ENCHANTMENT_TIER.TIER_1);
 	    });
 		AddButton(button);
 		//<<< COLUMN 5
@@ -228,6 +242,14 @@ public class InventoryBuyEnchants extends CustomInventory
 		UpdateButtons(true);
 	}
 	
+	private void ButtonBuyBooster(ENCHANTMENT_TIER bookTier)
+	{
+		if(!PlayerHasEnoughLevelsBooster(bookTier)) return;
+	    
+		ItemStack booster = ManagerEnchants.GetBooster(1);
+		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), booster);
+	}
+
 	private void ReducePlayerLevel(int reduce)
 	{
 		if(GetPlayer().getLevel() <= 0)
@@ -243,6 +265,21 @@ public class InventoryBuyEnchants extends CustomInventory
 		if(GetPlayer().getGameMode() == GameMode.CREATIVE) return true;
 		
 	    int requiredLevel = CONSTANTS.GetCapEnchant(tier);
+	    
+	    boolean hasEnough = GetPlayer().getLevel() >= requiredLevel;
+	    
+	    if(!hasEnough)
+	    {
+	    	GetPlayer().sendMessage(Metods.msgC("&7Not Enough Levels"));
+	    }
+	    return hasEnough;
+	}
+	
+	private boolean PlayerHasEnoughLevelsBooster(ENCHANTMENT_TIER tier) 
+	{
+		if(GetPlayer().getGameMode() == GameMode.CREATIVE) return true;
+		
+	    int requiredLevel = CONSTANTS.CAP_FIRST_1_BOOSTER;
 	    
 	    boolean hasEnough = GetPlayer().getLevel() >= requiredLevel;
 	    
@@ -323,6 +360,7 @@ public class InventoryBuyEnchants extends CustomInventory
 		
 		
 	}
+
 	
 	
 	

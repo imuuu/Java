@@ -8,7 +8,8 @@ public enum MATERIAL_SLOT_RANGE
 	DIAMOND(4, 16),
     IRON(2, 14),
     GOLD(2, 14),
-    WOOD(1, 10);
+    STONE(1,10),
+    WOOD(1, 8);
 
     private final int minSlots;
     private final int maxSlots;

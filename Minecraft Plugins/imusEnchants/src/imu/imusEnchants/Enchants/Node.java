@@ -102,6 +102,30 @@ public class Node implements INode
 		return Serialize();
 	}
 
+	@Override
+	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack)
+	{
+		return false;
+	}
+
+	@Override
+	public void Activate(EnchantedItem enchantedItem)
+	{
+		
+	}
+
+	@Override
+	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem)
+	{
+		return new ItemStack(Material.AIR);
+	}
+
+	@Override
+	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem)
+	{
+		return new ItemStack(Material.AIR);
+	}
+
 	
 
 	

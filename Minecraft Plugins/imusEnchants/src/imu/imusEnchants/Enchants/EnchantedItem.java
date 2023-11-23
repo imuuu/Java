@@ -197,6 +197,8 @@ public class EnchantedItem
 	
 	public INode[] GetUnlockedNodes() 
 	{
+		System.out.println("SLOTS: "+_slots +" _nodes: "+_nodes);
+		PrintNodes();
 	    INode[] unlockedNodes = new INode[_slots];
 	    int index = 0;
 
@@ -214,51 +216,53 @@ public class EnchantedItem
 	    return unlockedNodes;
 	}
 	
-//	@SuppressWarnings("unused")
-//	public void ApplyEnchantsToItem() 
-//	{
-//	    Map<Enchantment, Integer> allEnchants = new HashMap<>();
-//
-//	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
-//	    {
-//	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
-//	        {
-//	            INode node = _nodes[i][j];
-//	            if (node instanceof NodeEnchant) 
-//	            {
-//	                NodeEnchant nodeEnchant = (NodeEnchant) node;
-//	                nodeEnchant.GetEnchantments().forEach((enchant, level) -> 
-//	                {
-//	                    if (CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS && allEnchants.containsKey(enchant)) 
-//	                    {
-//	                        allEnchants.put(enchant, allEnchants.get(enchant) + level);
-//	                    } 
-//	                    else 
-//	                    {
-//	                        allEnchants.put(enchant, Math.max(allEnchants.getOrDefault(enchant, 0), level));
-//	                    }
-//	                });
-//	            }
-//	        }
-//	    }
-//
-//
-//	    if (!_stack.getType().equals(Material.AIR)) 
-//	    {
-//	        _stack.getEnchantments().keySet().forEach(_stack::removeEnchantment);
-//	        allEnchants.forEach((enchant, level) -> _stack.addUnsafeEnchantment(enchant, level));
-//	    }
-//	}
+	public void SwapNode(INode node1, INode node2) 
+	{
+
+        if (node1 == null || node2 == null) 
+        {
+            System.out.println("Cannot swap null nodes");
+            return;
+        }
+
+        int x1 = node1.GetX();
+        int y1 = node1.GetY();
+        int x2 = node2.GetX();
+        int y2 = node2.GetY();
+
+        // Swapping nodes in the array
+        INode temp = _nodes[x1][y1];
+        _nodes[x1][y1] = _nodes[x2][y2];
+        _nodes[x2][y2] = temp;
+
+        node1.SetPosition(x2, y2);
+        node2.SetPosition(x1, y1);
+    }
+
 	
 	@SuppressWarnings("unused")
 	public void ApplyEnchantsToItem() 
 	{
 	    Map<Enchantment, Integer> allEnchants = new HashMap<>();
-
+	    
+//	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+//	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+//	        {
+//	        	INode node = _nodes[i][j];
+//	        	if (node instanceof NodeDirectional) 
+//		        {
+//		            ((NodeDirectional) node).Activate(this);
+//		        }
+//	        }
+//	    }
+	    
+	    
 	    for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
 	        for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
 	        {
 	            INode node = _nodes[i][j];
+	            node.Activate(this);
+	            
 	            if (node instanceof NodeEnchant) 
 	            {
 	                NodeEnchant nodeEnchant = (NodeEnchant) node;
@@ -270,7 +274,7 @@ public class EnchantedItem
 	                    if (neighbor instanceof NodeBooster) 
 	                    {
 	                        NodeBooster booster = (NodeBooster) neighbor;
-	                        totalBoost += booster.Power;
+	                        totalBoost += booster.GetPower();
 	                    }
 	                }
 	                final int boost = totalBoost;
@@ -371,6 +375,7 @@ public class EnchantedItem
 	
 	public INode[][] Get_nodes()
 	{
+		System.out.println("GETTIN NODE: "+_nodes);
 		if(_nodes == null) _nodes = new Node[CONSTANTS.ENCHANT_ROWS][CONSTANTS.ENCHANT_COLUMNS];
 		return _nodes;
 	}
@@ -447,6 +452,9 @@ public class EnchantedItem
 	            case "NodeEnchant":
 	                node = new NodeEnchant();
 	                break;
+	            case "NodeDirectional":
+	            	node = new NodeDirectional();
+	            	break;
 	            default:
 	                node = new Node();
 	                break;

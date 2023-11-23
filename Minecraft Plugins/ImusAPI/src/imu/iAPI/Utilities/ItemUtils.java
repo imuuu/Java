@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -143,6 +144,174 @@ public class ItemUtils
 		
 	}
 	
+	public static boolean IsWoodenTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsWoodenTool(stack.getType());
+	}
+
+	public static boolean IsWoodenTool(Material material) 
+	{
+	    switch(material) 
+	    {
+	        case WOODEN_PICKAXE:
+	        case WOODEN_SHOVEL:
+	        case WOODEN_AXE:
+	        case WOODEN_HOE:
+	        case WOODEN_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	public static boolean IsStoneTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsStoneTool(stack.getType());
+	}
+
+	public static boolean IsStoneTool(Material material) 
+	{
+	    switch(material) {
+	        case STONE_PICKAXE:
+	        case STONE_SHOVEL:
+	        case STONE_AXE:
+	        case STONE_HOE:
+	        case STONE_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	
+	public static boolean IsIronTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsIronTool(stack.getType());
+	}
+
+	public static boolean IsIronTool(Material material) 
+	{
+	    switch(material) {
+	        case IRON_PICKAXE:
+	        case IRON_SHOVEL:
+	        case IRON_AXE:
+	        case IRON_HOE:
+	        case IRON_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	
+	public static boolean IsGoldenTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsGoldenTool(stack.getType());
+	}
+
+	public static boolean IsGoldenTool(Material material) 
+	{
+	    switch(material) {
+	        case GOLDEN_PICKAXE:
+	        case GOLDEN_SHOVEL:
+	        case GOLDEN_AXE:
+	        case GOLDEN_HOE:
+	        case GOLDEN_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	
+	public static boolean IsDiamondTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsDiamondTool(stack.getType());
+	}
+
+	public static boolean IsDiamondTool(Material material) 
+	{
+	    switch(material) {
+	        case DIAMOND_PICKAXE:
+	        case DIAMOND_SHOVEL:
+	        case DIAMOND_AXE:
+	        case DIAMOND_HOE:
+	        case DIAMOND_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	
+	public static boolean IsNetheriteTool(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return false;
+	    return IsNetheriteTool(stack.getType());
+	}
+
+	public static boolean IsNetheriteTool(Material material) 
+	{
+	    switch(material) {
+	        case NETHERITE_PICKAXE:
+	        case NETHERITE_SHOVEL:
+	        case NETHERITE_AXE:
+	        case NETHERITE_HOE:
+	        case NETHERITE_SWORD:
+	            return true;
+	        default:
+	            return false;
+	    }
+	}
+
+	
+	public enum ToolMaterial 
+	{
+	    WOODEN, STONE, IRON, GOLDEN, DIAMOND, NETHERITE, OTHER
+	}
+	
+	public static ToolMaterial GetToolMaterial(ItemStack stack) 
+	{
+	    if (!IsValid(stack)) return ToolMaterial.OTHER;
+	    return GetToolMaterial(stack.getType());
+	}
+
+	public static ToolMaterial GetToolMaterial(Material material) 
+	{
+	    if(IsNetheriteTool(material)) return ToolMaterial.NETHERITE;
+	    if(IsDiamondTool(material)) return ToolMaterial.DIAMOND;
+	    if(IsIronTool(material)) return ToolMaterial.IRON;
+	    if(IsGoldenTool(material)) return ToolMaterial.GOLDEN;
+	    if(IsStoneTool(material)) return ToolMaterial.STONE;
+	    if(IsWoodenTool(material)) return ToolMaterial.WOODEN;
+
+	    return ToolMaterial.OTHER;   
+	}
+	
+	public static Material GetToolMainMaterial(ItemStack stack) 
+	{
+		switch (GetToolMaterial(stack))
+		{
+		case DIAMOND: return Material.DIAMOND;
+		case GOLDEN: return Material.GOLD_INGOT;
+		case IRON: return Material.IRON_INGOT;
+		case NETHERITE: return Material.NETHERITE_INGOT;
+		case STONE: return Material.STONE;
+		case WOODEN: return Material.OAK_WOOD;
+		case OTHER: return Material.AIR;
+		default:
+			return Material.AIR;
+		
+		}
+	}
+
+
+	
 	private static int CalculateSimilarity(String x, String y) 
 	{
         int maxLength = Math.max(x.length(), y.length());
@@ -264,6 +433,12 @@ public class ItemUtils
     	
 		return stack;
 	}
+	
+	public static  ItemStack SetLore(ItemStack stack, String lore, boolean removeEmpty)
+	{
+		return SetLores(stack, Arrays.asList(lore), removeEmpty);
+	}
+	
 	public static  ItemStack SetLores(ItemStack stack, String[] lores, boolean removeEmpty)
 	{
 		return SetLores(stack, Arrays.asList(lores), removeEmpty);
@@ -394,7 +569,13 @@ public class ItemUtils
 		return stack;
 	}
 	
-	
+	public static ItemStack HideFlag(ItemStack stack, ItemFlag flag )
+	{
+    	ItemMeta meta = stack.getItemMeta();
+        meta.addItemFlags(flag);
+        stack.setItemMeta(meta);
+        return stack;
+	}
 	
 	///ENCHANT
 	public static Set<Enchantment> GetEnchants(ItemStack stack)

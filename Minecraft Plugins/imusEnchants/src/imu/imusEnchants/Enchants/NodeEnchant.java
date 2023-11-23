@@ -23,6 +23,20 @@ public class NodeEnchant extends Node
 		LoadEnchantsFromStack(stack);
 	}
 	
+	 @Override
+	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack)
+	{
+    	if(CONSTANTS.ENCHANT_MATERIAL != stack.getType()) return false;
+    	
+    	return true;
+	}
+    
+    @Override
+	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem)
+	{
+		return GetItemStack();
+	}
+	
 	public void LoadEnchantsFromStack(ItemStack stack)
 	{
 		_enchants.clear();

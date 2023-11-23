@@ -194,6 +194,7 @@ public abstract class CustomInventory implements ICustomInventory
     {
         newPage.SetPageStack(_pageStack);
         newPage.Open(GetPlayer());
+        ClearTouches();
     }   
     
     protected void AddDefaultBackButton(int slot)

@@ -1,8 +1,10 @@
 package imu.imusEnchants.main;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Enums.ENCHANTMENT_TIER;
+import imu.imusEnchants.Enchants.NodeDirectional;
 
 public class CONSTANTS
 {
@@ -13,6 +15,9 @@ public class CONSTANTS
 	public static final Material ENCHANT_MATERIAL = Material.ENCHANTED_BOOK;
 	
 	public static final boolean ENABLE_MULTIPLE_SAME_ENCHANTS = false;
+	
+	public static final int COST_FIRST_1_BOOSTER = 15;
+	public static final int CAP_FIRST_1_BOOSTER = 30;
 	
 	public static final int COST_FIRST_1_ENCHANTS = 5;
 	public static final int CAP_FIRST_1_ENCHANTS = 20;
@@ -33,6 +38,11 @@ public class CONSTANTS
 	//public static final double MEDIUM_CHANCE_2_TO_BE_TIER_3 = 28;
 	public static final double HIGH_CHANCE_2_TO_BE_TIER_3 = 60;
 	
+	public static NodeDirectional GetDirectionalNode(ItemStack stack)
+	{
+		
+        return null;
+    }
 	
 	public static int GetCostEnchant(ENCHANTMENT_TIER tier)
 	{
@@ -55,4 +65,9 @@ public class CONSTANTS
 		}
         return 0;
 	}
+	
+//	public static Material GetToolMainMaterial(ItemStack stack)
+//	{
+//		
+//	}
 }

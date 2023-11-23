@@ -23,4 +23,12 @@ public interface INode
 	public int GetFlatIndex();
 	
 	public ItemStack GetItemStack();
+	
+	//Manangerii
+	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack);
+	
+	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem);
+	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem);
+	
+	public void Activate(EnchantedItem enchantedItem);
 }

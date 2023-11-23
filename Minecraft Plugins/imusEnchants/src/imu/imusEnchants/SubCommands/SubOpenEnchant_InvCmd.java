@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import imu.iAPI.CmdUtil.CmdData;
 import imu.iAPI.Interfaces.CommandInterface;
+import imu.imusEnchants.Inventories.TestINv;
 import imu.imusEnchants.Managers.ManagerEnchants;
 
 public class SubOpenEnchant_InvCmd implements CommandInterface
@@ -23,7 +24,9 @@ public class SubOpenEnchant_InvCmd implements CommandInterface
     {
     	//CardManager.Instance.OpenCreateCardInv((Player)sender);
 
-    	ManagerEnchants.Instance.OpenEnchantingInventory((Player)sender);
+    	//ManagerEnchants.Instance.OpenEnchantingInventory((Player)sender);
+    	
+    	new TestINv().Open((Player)sender);
 		sender.sendMessage("Opening INV");
         return false;
     }
