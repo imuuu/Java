@@ -5,11 +5,13 @@ import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Enums.ENCHANTMENT_TIER;
 import imu.imusEnchants.Enchants.NodeDirectional;
+import imu.imusEnchants.Enums.CALCULATION_MODE;
 
 public class CONSTANTS
 {
 	public static final int ENCHANT_ROWS = 6;
 	public static final int ENCHANT_COLUMNS = 9;
+	public static final int MAX_SLOTS = 40;
 	
 	public static final Material BOOSTER_MATERIAL = Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE;
 	public static final Material ENCHANT_MATERIAL = Material.ENCHANTED_BOOK;
@@ -37,6 +39,13 @@ public class CONSTANTS
 	//public static final double NORMAL_CHANCE_2_TO_BE_TIER_3 = 10;
 	//public static final double MEDIUM_CHANCE_2_TO_BE_TIER_3 = 28;
 	public static final double HIGH_CHANCE_2_TO_BE_TIER_3 = 60;
+	
+	public static final CALCULATION_MODE CRAFTING_SLOT_CALCULATION = CALCULATION_MODE.AVERAGE;
+	
+	public static final int BOOSTER_MIN_DIRECTIONS = 2;
+	public static final int BOOSTER_MAX_DIRECTIONS = 4;
+	
+	public static final boolean CROSSBOW_CONSUME_ARROW_WITH_INFINITY = false;
 	
 	public static NodeDirectional GetDirectionalNode(ItemStack stack)
 	{

@@ -1,5 +1,6 @@
 package imu.iAPI.Interfaces;
 
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -17,4 +18,7 @@ public interface IBUTTONN
 	
 	public void OnUpdate();
 	public void Action(InventoryClickEvent event);
+	
+	public void SetLastClickType(ClickType clickType);
+	public ClickType GetLastClickType();
 }

@@ -63,6 +63,8 @@ public class XpUtil
 	
 	public static void SetPlayerLevel(Player player, double level)
 	{
+		if(level < 0) level = 0;
+		
 		player.setLevel(0);
 		player.setExp(0);
 		

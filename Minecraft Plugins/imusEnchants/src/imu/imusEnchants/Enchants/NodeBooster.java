@@ -1,15 +1,15 @@
 package imu.imusEnchants.Enchants;
 
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Utilities.ItemUtils;
+import imu.imusEnchants.Enums.DIRECTION;
+import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.main.CONSTANTS;
 
-public class NodeBooster extends Node
+public class NodeBooster extends NodeDirectional
 {
 	private int _power = 1;
 	
@@ -31,9 +31,14 @@ public class NodeBooster extends Node
 	}
 	
 	@Override
-	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack)
+	public int InitDirectionAmount()
 	{
-		System.out.println("checking stack: "+stack);
+		 return _random.nextInt(CONSTANTS.BOOSTER_MAX_DIRECTIONS-1) + CONSTANTS.BOOSTER_MIN_DIRECTIONS;
+	}
+	
+	@Override
+	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack)
+	{
 		if(stack.getType() != CONSTANTS.BOOSTER_MATERIAL) return false;
 		
 		if(!IsBooster(stack)) return false;
@@ -47,11 +52,12 @@ public class NodeBooster extends Node
 		return GetBoosterStack(_power);
 	}
 	
-    @Override
-    public ItemStack GetItemStack()
-    {
-    	return GetBoosterStack(_power);
-    }
+	@Override
+	public ItemStack GetGUIitemUnLoad(EnchantedItem enchantedItem, ItemStack stack)
+	{
+		return GetBoosterStack(_power);
+	}
+	
     
     public static ItemStack GetBoosterStack(int power)
     {
@@ -76,6 +82,18 @@ public class NodeBooster extends Node
     	return ItemUtils.GetPersistenData(stack, PD_BOOSTER, PersistentDataType.INTEGER) != null;
     }
     
+    private String StrDirection()
+    {
+    	String str = "";
+    	
+    	for(DIRECTION dir : _directions)
+    	{
+    		
+    	}
+    	
+    	return str;
+    }
+    
     @Override
     public String Serialize() 
  	{
@@ -93,4 +111,6 @@ public class NodeBooster extends Node
         _y = Integer.parseInt(parts[2]);
         _power = Integer.parseInt(parts[3]);
     }
+
+	
 }

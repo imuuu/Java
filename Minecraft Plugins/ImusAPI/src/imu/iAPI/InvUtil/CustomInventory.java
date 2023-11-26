@@ -284,6 +284,11 @@ public abstract class CustomInventory implements ICustomInventory
     {
     	_buttonHandler.ClearTouches();
     }
+    
+    protected void DropTouches()
+    {
+    	_buttonHandler.DropTouches();
+    }
     //<<<< TOUCH SYSTEM
     
     //>>>> SnapShot system

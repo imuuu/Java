@@ -1,8 +1,11 @@
 package imu.imusEnchants.Enchants;
 
+import java.util.Random;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.main.CONSTANTS;
 
 public class Node implements INode
@@ -13,7 +16,8 @@ public class Node implements INode
 	// 0 LEFT, 1 RIGHT, 2 UP, 3 DOWN
 	private INode[] _neighbors;
 	
-	private boolean _isLock = true;
+	private boolean _isLock = false;
+	protected static Random _random = new Random();
 	
 	public Node() {}
 	
@@ -34,7 +38,12 @@ public class Node implements INode
 	{
 		return _x * CONSTANTS.ENCHANT_COLUMNS + _y;
 	}
-
+	
+	public static int GetFlatIndex(int x, int y)
+	{
+		return x * CONSTANTS.ENCHANT_COLUMNS + y;
+	}
+	
 	@Override
 	public int GetX()
 	{
@@ -90,12 +99,6 @@ public class Node implements INode
     }
 
 	@Override
-	public ItemStack GetItemStack()
-	{
-		return new ItemStack(Material.AIR);
-	}
-	
-	@Override
 	public String toString()
 	{
 		
@@ -103,7 +106,7 @@ public class Node implements INode
 	}
 
 	@Override
-	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack)
+	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack)
 	{
 		return false;
 	}
@@ -114,14 +117,20 @@ public class Node implements INode
 		
 	}
 
-	@Override
-	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem)
-	{
-		return new ItemStack(Material.AIR);
-	}
+//	@Override
+//	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem)
+//	{
+//		return new ItemStack(Material.AIR);
+//	}
 
 	@Override
 	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem)
+	{
+		return new ItemStack(Material.AIR);
+	}
+	
+	@Override
+	public ItemStack GetGUIitemUnLoad(EnchantedItem enchantedItem, ItemStack stack)
 	{
 		return new ItemStack(Material.AIR);
 	}

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -20,9 +21,7 @@ import org.bukkit.plugin.Plugin;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
-import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.InvUtil;
-import imu.iAPI.Utilities.ItemUtils;
 
 
 public class ButtonHandler implements Listener 
@@ -71,6 +70,8 @@ public class ButtonHandler implements Listener
     public IBUTTONN RemoveButton(int position)
     {
     	RemoveTouch(position);
+//    	IBUTTONN button = _buttons.remove(position);
+//    	UpdateButton(position);
     	return _buttons.remove(position);
     }
     
@@ -104,18 +105,14 @@ public class ButtonHandler implements Listener
          	return;
          }
     	 
-    	 for (Integer position : _touchedButtons) 
-    	 {
-             IBUTTONN button = GetButton(position);
-             if (button == null)  continue;
-             
-             InvUtil.AddItemToInventoryOrDrop(_customInventory.GetPlayer(), button.GetItemStack());
-         }
+    	 DropTouches();
     	 _customInventory.OnClose();
     	 OnHandlerClose();
 	}
    
-    @EventHandler
+    
+
+	@EventHandler
     public void OnInventoryClickEvent(InventoryClickEvent event) 
     {
         if(!event.getInventory().equals(_customInventory.GetInventory()))
@@ -124,6 +121,10 @@ public class ButtonHandler implements Listener
         }
         
         IBUTTONN button = _buttons.get(event.getRawSlot());
+        if(button != null)
+        {
+        	button.SetLastClickType(event.getClick());
+        }
         
         INVENTORY_AREA area = GetInventoryArea(event);
         if(_inventoryLock == INVENTORY_AREA.UPPER_LOWER_INV 
@@ -160,7 +161,7 @@ public class ButtonHandler implements Listener
             	 final ItemStack droppedItem = event.getCursor();
 
                  boolean cancel = _customInventory.OnDropItem(droppedItem, event.getSlot());
-                                
+                 
                  if(!cancel) 
                  {
                 	return;
@@ -168,24 +169,28 @@ public class ButtonHandler implements Listener
                  
                  final ItemStack newItem = event.getCursor().clone();
                  //event.getCursor().setAmount(0);
-                
+                 
                  //next frame
                  _plugin.getServer().getScheduler().runTask(_plugin, () -> 
                  {
                      _customInventory.GetInventory().setItem(event.getSlot(), newItem);
                      IBUTTONN newButton = _customInventory.OnDropItemSet(
                     		 newItem, event.getSlot());
-                     
-                     if(newItem.getAmount() > newButton.GetMaxStackAmount())
+                    
+
+                     if(newButton != null && newItem.getAmount() > newButton.GetMaxStackAmount())
                      {
-                    	 newButton.GetItemStack().setAmount(newButton.GetMaxStackAmount());
-                         UpdateButton(newButton);
+                    	 newButton.GetItemStack().setAmount(newButton.GetMaxStackAmount()); 
                          droppedItem.setAmount(droppedItem.getAmount() - newButton.GetMaxStackAmount());
                      }
                      else
                      {
                     	 droppedItem.setAmount(0);
                      }
+                     
+                     
+                     if(newButton != null) UpdateButton(newButton);
+                     
                  });
                  
                  
@@ -200,13 +205,15 @@ public class ButtonHandler implements Listener
              case PICKUP_HALF:
              {
             	ItemStack itemInSlot = _customInventory.GetInventory().getItem(event.getSlot());
-        	    if (itemInSlot != null && itemInSlot.getType().getMaxStackSize() == 1) 
+        	    if (itemInSlot != null)  //&& itemInSlot.getType().getMaxStackSize() == 1
         	    {
         	    	HandlePickupAll(event, button);
         	    } 
         	    else 
         	    {
         	        System.out.println("this isnt supported yet pickup type:  "+event.getAction());
+        	        event.setCancelled(true);
+        	        return;
         	    }
         	    break;
              }
@@ -214,6 +221,8 @@ public class ButtonHandler implements Listener
              case DROP_ALL_SLOT:
              case HOTBAR_SWAP:
              case COLLECT_TO_CURSOR:
+             case CLONE_STACK:
+             case HOTBAR_MOVE_AND_READD:
              {
             	 event.setCancelled(true);
             	 return;
@@ -300,12 +309,14 @@ public class ButtonHandler implements Listener
                     if(newItem.getAmount() > newButton.GetMaxStackAmount())
                     {
 	                   	newButton.GetItemStack().setAmount(newButton.GetMaxStackAmount());
-	                    UpdateButton(newButton);
+	                    //UpdateButton(newButton);
 	                    
 	                    int amount = currentDrag.getAmount() - newButton.GetMaxStackAmount();
 	                    draggedItem.setAmount(amount);
 	                    InvUtil.AddItemToInventoryOrDrop(_customInventory.GetPlayer(), draggedItem);
                     }
+                    
+                    if(newButton != null) UpdateButton(newButton);
                     
                 });
             }
@@ -420,8 +431,17 @@ public class ButtonHandler implements Listener
     public void UpdateButton(int position)
     {
     	IBUTTONN button = GetButton(position);
+    	if(button == null)
+    	{
+    		_customInventory.
+    		GetInventory().
+        	setItem(position, new ItemStack(Material.AIR));
+    		return;
+    	}
     	UpdateButton(button);
     }
+    
+    
     
     //TOUCH SYSTEM
     private Set<Integer> _touchedButtons = new HashSet<>();
@@ -463,6 +483,17 @@ public class ButtonHandler implements Listener
     {
     	_touchedButtons.clear();
     }
+    
+    public void DropTouches()
+	{
+    	for (Integer position : _touchedButtons) 
+   	 	{
+            IBUTTONN button = GetButton(position);
+            if (button == null)  continue;
+            
+            InvUtil.AddItemToInventoryOrDrop(_customInventory.GetPlayer(), button.GetItemStack());
+        }
+	}
 
     
     //SNAPSHOT SYSTEM, not tested

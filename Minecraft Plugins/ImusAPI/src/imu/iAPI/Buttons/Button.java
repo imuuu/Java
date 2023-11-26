@@ -2,6 +2,7 @@ package imu.iAPI.Buttons;
 
 import java.util.function.Consumer;
 
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,6 +15,8 @@ public class Button implements IBUTTONN
 	private boolean _lockPosition = true;
 	private int _maxStackAmount = 1;
 	private Consumer<InventoryClickEvent> _onClickAction;
+	
+	private ClickType _lastClickType = ClickType.UNKNOWN;
 	
 	public Button(int position, ItemStack stack, Consumer<InventoryClickEvent> onClickAction)
 	{
@@ -93,6 +96,18 @@ public class Button implements IBUTTONN
 	{
 		
 		
+	}
+
+	@Override
+	public void SetLastClickType(ClickType clickType)
+	{
+		_lastClickType = clickType;
+	}
+
+	@Override
+	public ClickType GetLastClickType()
+	{
+		return _lastClickType;
 	}
 
 	

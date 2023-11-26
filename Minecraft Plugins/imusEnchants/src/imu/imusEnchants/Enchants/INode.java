@@ -2,6 +2,8 @@ package imu.imusEnchants.Enchants;
 
 import org.bukkit.inventory.ItemStack;
 
+import imu.imusEnchants.Enums.TOUCH_TYPE;
+
 public interface INode
 {
 	public int GetX();
@@ -22,13 +24,14 @@ public interface INode
 	
 	public int GetFlatIndex();
 	
-	public ItemStack GetItemStack();
+	//public ItemStack GetItemStack();
 	
 	//Manangerii
-	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack);
+	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack);
 	
-	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem);
+	//public ItemStack GetGUIitemSet(EnchantedItem enchantedItem);
 	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem);
+	public ItemStack GetGUIitemUnLoad(EnchantedItem enchantedItem, ItemStack stack);
 	
 	public void Activate(EnchantedItem enchantedItem);
 }

@@ -1,21 +1,26 @@
 package imu.imusEnchants.Managers;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import imu.iAPI.Other.Metods;
+import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Utilities.ItemUtils;
+import imu.iAPI.Utilities.ItemUtils.ArmorMaterial;
 import imu.iAPI.Utilities.ItemUtils.ToolMaterial;
 import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enchants.INode;
 import imu.imusEnchants.Enchants.NodeBooster;
-import imu.imusEnchants.Enchants.NodeDirectional;
 import imu.imusEnchants.Enchants.NodeEnchant;
+import imu.imusEnchants.Enchants.NodeSwapper;
 import imu.imusEnchants.Enums.MATERIAL_SLOT_RANGE;
+import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.Inventories.InventoryEnchanting;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
@@ -37,17 +42,23 @@ public class ManagerEnchants
 					CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS - 5
 
 			));
-
-//	public static final HashSet<Material> VALID_INVENTORY_MATERIALS = new HashSet<>(
-//			Arrays.asList(CONSTANTS.BOOSTER_MATERIAL, CONSTANTS.ENCHANT_MATERIAL
-//
-//			));
 	
+	public static final Map<Enchantment, Integer> MAX_ENCHANT_LEVEL_CAP = new HashMap<>();
+
+    static 
+    {
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.LOOT_BONUS_BLOCKS, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.LOOT_BONUS_MOBS, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.DURABILITY, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.ARROW_INFINITE, 1);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.SILK_TOUCH, 1);
+    }
+
 	public static final INode[] VALID_NODES = new INode[]
 			{
 			   new NodeBooster(),
 			   new NodeEnchant(),
-			   new NodeDirectional()
+			   new NodeSwapper()
 			};
 
 	public ManagerEnchants()
@@ -60,60 +71,50 @@ public class ManagerEnchants
 		new InventoryEnchanting().Open(player);
 	}
 
+	public static int GetEnchantMaxLevelCap(Enchantment enchantment) 
+	{
+        return MAX_ENCHANT_LEVEL_CAP.getOrDefault(enchantment, -1);
+    }
+	
 	public static MATERIAL_SLOT_RANGE GetMaterialSlotsRange(ItemStack stack)
 	{
 		return GetMaterialSlotsRange(stack.getType());
 	}
-
+	
 	public static ItemStack GetBooster(int power)
 	{
 		return NodeBooster.GetBoosterStack(power);
 	}
-
+	
 	public INode GetNode(ItemStack stack, EnchantedItem enchantedItem)
 	{
 		for(INode node : VALID_NODES)
 		{
-			if(node.IsValidGUIitem(enchantedItem, stack))
+			if(node.IsValidGUIitem(TOUCH_TYPE.NONE, enchantedItem, stack))
 			{
 				if(node instanceof NodeBooster) return new NodeBooster();
 				if(node instanceof NodeEnchant) return new NodeEnchant();
-				if(node instanceof NodeDirectional) return new NodeDirectional();
+				if(node instanceof NodeSwapper) return new NodeSwapper();
 			}
 		}
 		return null;
 	}
-	public boolean IsValidGUIitem(Player player, EnchantedItem enchantedItem, ItemStack stack)
+	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, IBUTTONN button)
 	{
-		
-		Material material = stack.getType();
+		return IsValidGUIitem(touchType, enchantedItem, button.GetItemStack());
+	}
+	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack)
+	{
+		if(stack == null || stack.getType().isAir()) return false;
 		
 		for(INode node : VALID_NODES)
 		{
-			System.out.println("Checking valid nodes: "+node);
-			if(node.IsValidGUIitem(enchantedItem, stack))
+			if(node.IsValidGUIitem(touchType, enchantedItem, stack))
 			{
 				return true;
 			}
 		}
-		
-		
-		if (material == CONSTANTS.ENCHANT_MATERIAL)
-		{
-			if (!CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS && enchantedItem.ContainsEnchant(stack))
-			{
-				if (player != null)
-					player.sendMessage(Metods.msgC("&2Item has already that enchant!"));
-				return false;
-			}
 
-			return true;
-		}
-
-//		if (material == CONSTANTS.BOOSTER_MATERIAL)
-//		{
-//			return NodeBooster.IsBooster(stack);
-//		}
 		return false;
 
 	}
@@ -131,10 +132,12 @@ public class ManagerEnchants
 		return true;
 	}
 
+	@SuppressWarnings("incomplete-switch")
 	public static MATERIAL_SLOT_RANGE GetMaterialSlotsRange(Material material)
 	{
 		ToolMaterial toolMat = ItemUtils.GetToolMaterial(material);
-
+		
+		
 		switch (toolMat)
 		{
 		case DIAMOND:
@@ -145,14 +148,48 @@ public class ManagerEnchants
 			return MATERIAL_SLOT_RANGE.IRON;
 		case NETHERITE:
 			return MATERIAL_SLOT_RANGE.NETHERITE;
-		case OTHER:
 		case STONE:
 			return MATERIAL_SLOT_RANGE.STONE;
 		case WOODEN:
 			return MATERIAL_SLOT_RANGE.WOOD;
 		}
+		
+		ArmorMaterial armorMat = ItemUtils.GetArmorMaterial(material);
+		
+		switch (armorMat) 
+		{
+        case DIAMOND:
+            return MATERIAL_SLOT_RANGE.DIAMOND;
+        case GOLDEN:
+            return MATERIAL_SLOT_RANGE.GOLD;
+        case IRON:
+            return MATERIAL_SLOT_RANGE.IRON;
+        case NETHERITE:
+            return MATERIAL_SLOT_RANGE.NETHERITE;
+        case LEATHER:
+            return MATERIAL_SLOT_RANGE.LEATHER;
+        default:
+            break;
+		}
+		
+		switch (material) 
+		{
+        case TRIDENT:
+            return MATERIAL_SLOT_RANGE.TRIDEN;
+        case BOW:
+            return MATERIAL_SLOT_RANGE.BOW;
+        case CROSSBOW:
+            return MATERIAL_SLOT_RANGE.CROSSBOW;
+        case SHIELD:
+            return MATERIAL_SLOT_RANGE.SHIELD;
+        case FISHING_ROD:
+            return MATERIAL_SLOT_RANGE.FISH_ROD;
+        case ELYTRA:
+            return MATERIAL_SLOT_RANGE.ELYTRA;
+		}
+		
 		return MATERIAL_SLOT_RANGE.WOOD;
-
+		
 	}
 
 }
