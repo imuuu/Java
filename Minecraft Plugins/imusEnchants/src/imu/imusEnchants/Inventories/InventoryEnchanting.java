@@ -19,7 +19,6 @@ import imu.iAPI.Utilities.ItemUtils.DisplayNamePosition;
 import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enchants.INode;
 import imu.imusEnchants.Enchants.Node;
-import imu.imusEnchants.Enchants.NodeBooster;
 import imu.imusEnchants.Enchants.NodeEnchant;
 import imu.imusEnchants.Enchants.NodeSwapper;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
@@ -41,8 +40,8 @@ public class InventoryEnchanting extends CustomInventory
 	private final String PD_LOCKED = "locked";
 	public static final String PD_SWAPPER = "swapper";
 
-	private boolean _firstTimeOpened = false;
-
+	private long _timeID = 0;
+	
 	public InventoryEnchanting()
 	{
 		super(ImusEnchants.Instance, "Enchanting 2v", 6 * 9);
@@ -248,7 +247,7 @@ public class InventoryEnchanting extends CustomInventory
 		{
 
 			AddTouch(slot);
-			IBUTTONN button = LoadNode(stack, slot);
+			IBUTTONN button = LoadNode(stack, slot, true);
 
 			return button;
 		}
@@ -277,39 +276,25 @@ public class InventoryEnchanting extends CustomInventory
 
 	}
 
-	private IBUTTONN LoadNode(INode node)
+	private IBUTTONN LoadNode(INode node, boolean insertNode)
 	{
-		return LoadNode(node.GetGUIitemLoad(_enchantedItem), node.GetFlatIndex());
+		return LoadNode(node.GetGUIitemLoad(_enchantedItem), node.GetFlatIndex(), insertNode);
 	}
 
-	private IBUTTONN LoadNode(ItemStack stack, int slot)
+	private IBUTTONN LoadNode(ItemStack stack, int slot, boolean insertNode)
 	{
-		Material material = stack.getType();
 		IBUTTONN button = null;
-		if (material == CONSTANTS.BOOSTER_MATERIAL)
-			button = LoadBooster(stack, slot);
-		if (material == CONSTANTS.ENCHANT_MATERIAL)
-			button = LoadEnchant(stack, slot);
+		
+//		//TODO should be moved to use LoadGUIButton
+//		if (material == CONSTANTS.ENCHANT_MATERIAL)
+//			button = LoadEnchant(stack, slot);
 
 		if (button == null)
 		{
 			INode nodee = ManagerEnchants.Instance.GetNode(stack, _enchantedItem);
+			
 			if (nodee != null)
-				button = LoadGUIButton(nodee, stack, slot);
-		}
-
-		if (button != null)
-		{
-			System.out.println("GOING HERERERER");
-			System.out.println("GOING HERERERER");
-			System.out.println("GOING HERERERER");
-			System.out.println("GOING HERERERER");
-			INode node = _enchantedItem.GetNodeBySlot(slot);
-//			if(!node.GetGUIitemSet(_enchantedItem).getType().isAir())
-//			{
-//				System.out.println("setting Button itemStack");
-//				button.SetItemStack(node.GetGUIitemSet(_enchantedItem));
-//			}
+				button = LoadGUIButton(nodee, stack, slot, insertNode);
 		}
 
 		return button;
@@ -328,27 +313,32 @@ public class InventoryEnchanting extends CustomInventory
 				if (node.IsLocked())
 					continue;
 
-				if (node.GetGUIitemLoad(enchantedItem).getType().isAir())
-				{
-					RemoveButton(flatIndex);
-					continue;
-				}
+//				if (node.GetGUIitemLoad(enchantedItem).getType().isAir())
+//				{
+//					RemoveButton(flatIndex);
+//					continue;
+//				}
 
-				if (LoadNode(node) == null)
+				if (LoadNode(node, false) == null)
 				{
 					Bukkit.getLogger().info("Couldn't load Node: " + node);
 					RemoveButton(flatIndex);
 					continue;
 				}
 
-				if (!_firstTimeOpened)
-					LockingButton(GetButton(flatIndex));
+//				if (!_firstTimeOpened)
+//					LockingButton(GetButton(flatIndex));
+				
+				if(node.IsFrozen())
+				{
+					LockingButto(GetButton(flatIndex));
+				}
 
 			}
 		}
-
+		
 		UpdateButtons(true);
-		_firstTimeOpened = true;
+		
 //		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
 //		{
 //		    for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
@@ -368,19 +358,42 @@ public class InventoryEnchanting extends CustomInventory
 //		
 
 	}
-
+	
+	private void HanddleDropTouches()
+	{
+		if(_enchantedItem == null) return;
+		
+		for (INode node : _enchantedItem.GetUnlockedNodes())
+		{
+			if(node.IsFrozen()) continue;
+			
+			if(!IsTouched(node.GetFlatIndex())) continue;
+			
+//			Bukkit.getLogger().info("=====> DROP NODE"+node + " is it touched: "+IsTouched(node.GetFlatIndex()));	
+			IBUTTONN button = GetButton(node.GetFlatIndex());
+			
+			if( button == null) continue;
+			
+			ItemStack stack = node.GetGUIitemUnLoad(_enchantedItem, button.GetItemStack());
+			
+			button.SetItemStack(stack);
+			UpdateButton(button);
+			
+		}
+		DropTouches();
+	}
 	@SuppressWarnings("unused")
 	@Override
 	public boolean OnPickupAll(IBUTTONN button, int slot)
 	{
-		
-		// System.out.println("On pickup: "+button.GetItemStack().getType());
+
 		if (slot == _enchantSlot)
 		{
 			EnchantedItem item = _enchantedItem;
-			_enchantedItem = null;
+			
 			RemoveTouch(_enchantSlot);
-			DropTouches();
+			HanddleDropTouches();
+			_enchantedItem = null;
 			
 			for (INode node : item.GetUnlockedNodes())
 			{
@@ -390,10 +403,10 @@ public class InventoryEnchanting extends CustomInventory
 				AddButton(b);
 				UpdateButton(nodeSlot);
 			}
-			_firstTimeOpened = false;
+			
 			button.SetItemStack(new ItemStack(Material.AIR));
 			
-			
+			RefreshTimeID();
 			return true;
 		}
 		
@@ -415,17 +428,7 @@ public class InventoryEnchanting extends CustomInventory
 
 				if (ItemUtils.HasTag(button.GetItemStack(), PD_SWAPPER))
 				{
-					INode node = _enchantedItem.GetNodeBySlot(slot);
-					node.Activate(_enchantedItem);
-
-					UpdateEnchantedItem(false);
-					List<INode> detachedNodes = _enchantedItem.DetachNodes(NodeSwapper.class, null);
-
-					ClearTable();
-					UpdateButtons(false);
-					LoadItem(GetButton(_enchantSlot), false);
-					_enchantedItem.ReattachNodes(detachedNodes);
-					LoadItem(GetButton(_enchantSlot), false);
+					ActivateSwapper(slot);				
 					return false;
 				}
 
@@ -447,7 +450,6 @@ public class InventoryEnchanting extends CustomInventory
 			ItemStack stack = currentNode.GetGUIitemUnLoad(_enchantedItem, GetInventory().getItem(slot));
 			GetInventory().setItem(slot, stack);
 
-			System.out.println("|||||||| UNLOAD : " + currentNode);
 
 			INode node = new Node();
 			node.SetLock(false);
@@ -471,9 +473,9 @@ public class InventoryEnchanting extends CustomInventory
 		UpdateButton(button.GetPosition());
 	}
 
-	private void LockingButton(IBUTTONN button)
+	private void LockingButto(IBUTTONN button)
 	{
-		Bukkit.getLogger().info("LOCKING BUTTON: "+button);
+		
 		if (button == null)
 			return;
 
@@ -482,12 +484,13 @@ public class InventoryEnchanting extends CustomInventory
 		// ItemUtils.AddLore(stack, "&c==== LOCKED ==== ", false);
 
 		ItemUtils.AddTextToDisplayName(stack, " &e(&cLOCKED&e)", DisplayNamePosition.BACK);
-		ItemUtils.AddLore(stack, "&cRemove by &eM2", true);
 		ItemUtils.AddLore(stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
+		ItemUtils.AddLore(stack, "&cRemove by &eM2", true);
+		
 		button.SetLockPosition(true);
 	}
 
-	private IBUTTONN LoadGUIButton(INode node, ItemStack stack, int slot)
+	private IBUTTONN LoadGUIButton(INode node, ItemStack stack, int slot, boolean insertNode)
 	{
 		ItemStack loadedStack = node.GetGUIitemLoad(_enchantedItem);
 
@@ -496,7 +499,8 @@ public class InventoryEnchanting extends CustomInventory
 			stack = loadedStack;
 		}
 
-		_enchantedItem.SetNode(node, slot);
+		if(insertNode) _enchantedItem.SetNode(node, slot);
+		
 		Button button = new Button(slot, stack);
 		button.SetLockPosition(false);
 		AddButton(button);
@@ -514,26 +518,86 @@ public class InventoryEnchanting extends CustomInventory
 //		return button;
 //	}
 //	
-	private IBUTTONN LoadEnchant(ItemStack stack, int slot)
+//	private IBUTTONN LoadEnchant(ItemStack stack, int slot)
+//	{
+//		NodeEnchant nodeEnchant = new NodeEnchant(stack);
+//		_enchantedItem.SetNode(nodeEnchant, slot);
+//
+//		Button button = new Button(slot, stack);
+//		button.SetLockPosition(false);
+//		AddButton(button);
+//		return button;
+//	}
+
+//	private IBUTTONN LoadBooster(ItemStack stack, int slot)
+//	{
+//		NodeBooster nodeBooster = new NodeBooster();
+//		_enchantedItem.SetNode(nodeBooster, slot);
+//
+//		Button button = new Button(slot, stack);
+//		button.SetLockPosition(false);
+//		AddButton(button);
+//		return button;
+//	}
+	
+	private void ActivateSwapper(int slot)
 	{
-		NodeEnchant nodeEnchant = new NodeEnchant(stack);
-		_enchantedItem.SetNode(nodeEnchant, slot);
+		final long id = _timeID;
+		NodeSwapper node = (NodeSwapper)_enchantedItem.GetNodeBySlot(slot);
+		node.Activate(_enchantedItem);
+		
+		INode swapped = node.GetSwappedNode();
+		List<INode> detachedNodes = _enchantedItem.DetachNodes(
+				nodee -> (!nodee.IsFrozen() && nodee.getClass() != Node.class), null);
+		
+		UpdateEnchantedItem(false);		
+		ClearTable();
+		
+		UpdateButtons(false);
+		_enchantedItem.ReattachNodes(detachedNodes);
+		LoadNodes(_enchantedItem);
+		
+		if(swapped != null && CONSTANTS.SWAPPER_ANIMATION)
+		{
+			ItemStack redMark = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+			ItemUtils.SetDisplayNameEmpty(redMark);
+			final int swappedSlot = Node.GetFlatIndex(swapped.GetX(), swapped.GetY());
+			
+			IBUTTONN swappedButton = GetButton(swappedSlot);
+			ItemStack originalItem = null;
+			if(swappedButton == null)
+			{
+				IBUTTONN b = new Button(swappedSlot, redMark);
+				originalItem = new ItemStack(Material.AIR);
+				AddButton(b);
+				UpdateButton(b);
+			}
+			else
+			{
+				originalItem = swappedButton.GetItemStack();
+				swappedButton.SetItemStack(redMark);
+				UpdateButton(swappedButton);
+			}
 
-		Button button = new Button(slot, stack);
-		button.SetLockPosition(false);
-		AddButton(button);
-		return button;
-	}
-
-	private IBUTTONN LoadBooster(ItemStack stack, int slot)
-	{
-		NodeBooster nodeBooster = new NodeBooster();
-		_enchantedItem.SetNode(nodeBooster, slot);
-
-		Button button = new Button(slot, stack);
-		button.SetLockPosition(false);
-		AddButton(button);
-		return button;
+	        final ItemStack org = originalItem;
+	        Bukkit.getScheduler().scheduleSyncDelayedTask(ImusEnchants.Instance, () -> 
+	        {
+	        	if(id != _timeID) 
+	        	{
+	        		Bukkit.getLogger().info("NOT SAME INV");
+	        		return;
+	        	}
+	        	
+	            IBUTTONN swapButton = GetButton(swappedSlot);
+	            swapButton.SetItemStack(org);
+	            
+	            UpdateButton(swapButton);
+	            if(org.getType().isAir())
+	            {
+	            	RemoveButton(swapButton);
+	            }
+	        }, CONSTANTS.DELAY_SWAPPER_ANIMATION); 
+		}
 	}
 
 	private void ButtonOPreroll(Button button, InventoryClickEvent event)
@@ -557,6 +621,8 @@ public class InventoryEnchanting extends CustomInventory
 	private void ButtonOpenEnchantbuy(Button button, InventoryClickEvent event)
 	{
 		// System.out.println("Open new inv");
+		HanddleDropTouches();
+		ClearTouches();
 		OpenPage(new InventoryBuyEnchants());
 	}
 
@@ -573,6 +639,7 @@ public class InventoryEnchanting extends CustomInventory
 		{
 			_enchantedItem.SaveUnlockedNodes();
 			_enchantedItem.ApplyEnchantsToItem();
+			RefreshTimeID();
 		}
 
 		_enchantedItem.SaveUnlockedNodes();
@@ -590,21 +657,20 @@ public class InventoryEnchanting extends CustomInventory
 		UpdateEnchantedItem(true);
 
 		System.out.println("     ");
-//		System.out.println("  _enchantedItem   :"+_enchantedItem.GetItemStack());
-//		System.out.println("     ");
-//		System.out.println("     ");
-//		System.out.println("     ");
-//		Bukkit.getLogger().info("Enchanting the item: " + GetEnchantItem());
-//		System.out.println("     ");
-//		System.out.println("     ");
-//		System.out.println("     ");
+
 
 		ClearTable();
 		ClearTouches();
 
 		AddTouch(_enchantSlot);
 		UpdateButtons(false);
-		_firstTimeOpened = false;
+
+		RefreshTimeID();
+	}
+	
+	private void RefreshTimeID()
+	{
+		_timeID = System.currentTimeMillis();
 	}
 
 }

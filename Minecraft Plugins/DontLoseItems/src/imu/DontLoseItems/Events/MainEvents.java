@@ -49,6 +49,7 @@ import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.DateParser;
 import imu.iAPI.Other.Metods;
+import net.minecraft.advancements.AdvancementRequirements.a;
 
 
 
@@ -258,7 +259,12 @@ public class MainEvents implements Listener
 	public void MendingXp(PlayerItemMendEvent e)
 	{
 		e.setCancelled(true);
-		ImusAPI._metods.giveDamage(e.getItem(), (int)(e.getRepairAmount() * -1 * _mendNerf), false);
+		
+		int amount = (int)(e.getRepairAmount() * -1 * _mendNerf);
+		
+		if(amount <= 0) amount = -1;
+		
+		ImusAPI._metods.giveDamage(e.getItem(), amount, false);
 		
 	}
 	

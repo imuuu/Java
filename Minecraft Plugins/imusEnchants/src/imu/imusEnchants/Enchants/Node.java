@@ -5,6 +5,7 @@ import java.util.Random;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iAPI.Enums.DEFAULT_FONT_INFO;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.main.CONSTANTS;
 
@@ -17,6 +18,7 @@ public class Node implements INode
 	private INode[] _neighbors;
 	
 	private boolean _isLock = false;
+	private boolean _isFrozen = false;
 	protected static Random _random = new Random();
 	
 	public Node() {}
@@ -79,13 +81,27 @@ public class Node implements INode
 	{
 		_isLock = lock;
 	}
+	
+
+	@Override
+	public boolean IsFrozen()
+	{
+		return _isFrozen;
+	}
+
+	@Override
+	public void SetFrozen(boolean frozen)
+	{
+		_isFrozen = frozen;
+	}
 
 	@Override
     public String Serialize() 
 	{
         return this.getClass().getSimpleName() + 
         		":" + GetX() + 
-        		":" + GetY();
+        		":" + GetY() +
+        		":" + _isFrozen;
         		
     }
 
@@ -95,6 +111,7 @@ public class Node implements INode
         String[] parts = data.split(":");
         _x = Integer.parseInt(parts[1]);
         _y = Integer.parseInt(parts[2]);
+        _isFrozen = Boolean.parseBoolean(parts[3]);
        
     }
 
@@ -117,12 +134,6 @@ public class Node implements INode
 		
 	}
 
-//	@Override
-//	public ItemStack GetGUIitemSet(EnchantedItem enchantedItem)
-//	{
-//		return new ItemStack(Material.AIR);
-//	}
-
 	@Override
 	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem)
 	{
@@ -134,6 +145,7 @@ public class Node implements INode
 	{
 		return new ItemStack(Material.AIR);
 	}
+
 
 	
 

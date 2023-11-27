@@ -18,8 +18,14 @@ public class CONSTANTS
 	
 	public static final boolean ENABLE_MULTIPLE_SAME_ENCHANTS = false;
 	
-	public static final int COST_FIRST_1_BOOSTER = 15;
-	public static final int CAP_FIRST_1_BOOSTER = 30;
+	public static final int COST_FIRST_1_BOOSTER = 10;
+	public static final int CAP_FIRST_1_BOOSTER = 15;
+	
+	public static final int COST_FIRST_2_BOOSTER = 10;
+	public static final int CAP_FIRST_2_BOOSTER = 30;
+	
+	public static final int COST_FIRST_3_BOOSTER = 10;
+	public static final int CAP_FIRST_3_BOOSTER = 40;
 	
 	public static final int COST_FIRST_1_ENCHANTS = 5;
 	public static final int CAP_FIRST_1_ENCHANTS = 20;
@@ -46,6 +52,9 @@ public class CONSTANTS
 	public static final int BOOSTER_MAX_DIRECTIONS = 4;
 	
 	public static final boolean CROSSBOW_CONSUME_ARROW_WITH_INFINITY = false;
+	
+	public static final boolean SWAPPER_ANIMATION = true;
+	public static final int DELAY_SWAPPER_ANIMATION = 12; //ticks
 	
 	public static NodeDirectional GetDirectionalNode(ItemStack stack)
 	{

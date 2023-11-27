@@ -81,10 +81,10 @@ public class ManagerEnchants
 		return GetMaterialSlotsRange(stack.getType());
 	}
 	
-	public static ItemStack GetBooster(int power)
-	{
-		return NodeBooster.GetBoosterStack(power);
-	}
+//	public static ItemStack GetBooster(int power)
+//	{
+//		return NodeBooster.GetBoosterStack(power);
+//	}
 	
 	public INode GetNode(ItemStack stack, EnchantedItem enchantedItem)
 	{
@@ -92,8 +92,8 @@ public class ManagerEnchants
 		{
 			if(node.IsValidGUIitem(TOUCH_TYPE.NONE, enchantedItem, stack))
 			{
-				if(node instanceof NodeBooster) return new NodeBooster();
-				if(node instanceof NodeEnchant) return new NodeEnchant();
+				if(node instanceof NodeBooster) return new NodeBooster(stack);
+				if(node instanceof NodeEnchant) return new NodeEnchant(stack);
 				if(node instanceof NodeSwapper) return new NodeSwapper();
 			}
 		}
@@ -118,7 +118,17 @@ public class ManagerEnchants
 		return false;
 
 	}
-
+	
+	public static boolean IsInBounds(int x, int y) 
+	{
+        return x >= 0 && y >= 0 && x < CONSTANTS.ENCHANT_ROWS && y < CONSTANTS.ENCHANT_COLUMNS;
+    }
+	
+	public static boolean IsInBounds(INode node) 
+	{
+		return IsInBounds(node.GetX(), node.GetY());
+	}
+	
 	public boolean IsValidToEnchant(ItemStack stack)
 	{
 		if (!ItemUtils.IsTool(stack))

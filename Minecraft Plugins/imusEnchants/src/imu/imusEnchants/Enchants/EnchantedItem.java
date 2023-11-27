@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Predicate;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -251,6 +252,11 @@ public class EnchantedItem
 
 		return null;
 	}
+	
+	public INode GetNode(int x, int y)
+	{
+		return _nodes[x][y];
+	}
 
 	public void SetNode(INode node)
 	{
@@ -366,10 +372,13 @@ public class EnchantedItem
 					for (INode neighbor : GetNeighbors(node))
 					{
 						if (neighbor instanceof NodeBooster)
-						{
-							NodeBooster booster = (NodeBooster) neighbor;
-							totalBoost += booster.GetPower();
-						}
+	                    {
+	                        NodeBooster booster = (NodeBooster) neighbor;
+	                        if (booster.IsBoostingThis(node)) 
+	                        {
+	                            totalBoost += booster.GetPower();
+	                        }
+	                    }
 					}
 
 					final int boost = totalBoost;
@@ -388,6 +397,10 @@ public class EnchantedItem
 						allEnchants.put(enchant, boostedLevel);
 					});
 				}
+				
+				if(node.getClass() == Node.class) continue;
+				
+				node.SetFrozen(true);
 			}
 		}
 
@@ -398,6 +411,37 @@ public class EnchantedItem
 		}
 
 	}
+	
+//	private boolean IsDirectionApplicable(NodeBooster booster, NodeEnchant nodeEnchant) {
+//	    int deltaX = nodeEnchant.GetX() - booster.GetX();
+//	    int deltaY = nodeEnchant.GetY() - booster.GetY();
+//
+//	    // Check if the booster is adjacent to the nodeEnchant
+//	    if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+//	        return false; // Not adjacent
+//	    }
+//
+//	    // Check if the booster's direction applies to the nodeEnchant based on their relative position
+//	    for (DIRECTION direction : booster.GetDirections()) {
+//	        switch (direction) {
+//	            case UP:
+//	                if (deltaY == -1 && deltaX == 0) return true;
+//	                break;
+//	            case DOWN:
+//	                if (deltaY == 1 && deltaX == 0) return true;
+//	                break;
+//	            case LEFT:
+//	                if (deltaX == -1 && deltaY == 0) return true;
+//	                break;
+//	            case RIGHT:
+//	                if (deltaX == 1 && deltaY == 0) return true;
+//	                break;
+//	            // Include cases for other directions if applicable
+//	        }
+//	    }
+//
+//	    return false;
+//	}
 
 	public int ContainsEnchant(ItemStack itemStack)
 	{
@@ -562,6 +606,29 @@ public class EnchantedItem
 
 		return detachedNodes;
 	}
+	
+	public List<INode> DetachNodes(Predicate<INode> detachCondition, List<INode> exceptionNodes) 
+	{
+        List<INode> detachedNodes = new ArrayList<>();
+
+        for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) 
+        {
+            for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) 
+            {
+                INode node = _nodes[i][j];
+
+                if (detachCondition.test(node) && (exceptionNodes == null || !exceptionNodes.contains(node))) 
+                {
+                    detachedNodes.add(node);
+                    INode newNode = new Node(i, j);
+                    newNode.SetLock(node.IsLocked());
+                    _nodes[i][j] = newNode;
+                }
+            }
+        }
+
+        return detachedNodes;
+    }
 
 	public void ReattachNodes(List<INode> nodesToReattach)
 	{
@@ -584,6 +651,7 @@ public class EnchantedItem
 
 	public void SaveUnlockedNodes(ItemStack stack)
 	{
+		PrintNodes();
 		StringBuilder serializedData = new StringBuilder();
 
 		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++)

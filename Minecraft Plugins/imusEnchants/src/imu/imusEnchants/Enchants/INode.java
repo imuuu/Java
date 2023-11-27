@@ -17,6 +17,9 @@ public interface INode
 	
 	public boolean IsLocked();
 	
+	public boolean IsFrozen();
+	
+	public void SetFrozen(boolean frozen);
 	public void SetLock(boolean lock);
 	
 	public String Serialize();

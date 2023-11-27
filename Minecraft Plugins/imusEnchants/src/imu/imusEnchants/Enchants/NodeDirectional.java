@@ -4,6 +4,10 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
+
+import imu.iAPI.Utilities.ItemUtils;
 import imu.imusEnchants.Enums.DIRECTION;
 
 public abstract class NodeDirectional extends Node
@@ -24,6 +28,11 @@ public abstract class NodeDirectional extends Node
 		SetLock(false);
 	}
 	public abstract int InitDirectionAmount();
+	
+	public DIRECTION[] GetDirections()
+	{
+		return _directions;
+	}
 
 	public void RandomizeDirection(int amount) 
 	{
@@ -46,6 +55,27 @@ public abstract class NodeDirectional extends Node
 
 	    _directions = selectedDirections;
 	}
+	
+	public ItemStack SetDirectionsPD(ItemStack stack)
+	{
+		_directions = DIRECTION.GetSortedDirections(_directions);
+		String serializedDirections = GetSerializedDirections();
+		ItemUtils.SetPersistenData(stack, "node_direction_directions", PersistentDataType.STRING, serializedDirections);
+		
+		return stack;
+	}
+	
+	public DIRECTION[] GetDirectionsPD(ItemStack stack) 
+	{
+	    String serializedDirections = 
+	    		ItemUtils.GetPersistenData(stack, "node_direction_directions", PersistentDataType.STRING);
+	    if (serializedDirections != null && !serializedDirections.isEmpty()) 
+	    {
+	        return GetDeserializedDirections(serializedDirections); 
+	    }
+	    return new DIRECTION[0]; 
+	}
+
 	
 	protected String GetSerializedDirections()
 	{

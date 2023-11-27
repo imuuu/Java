@@ -12,7 +12,7 @@ import imu.imusEnchants.main.CONSTANTS;
 
 public class NodeSwapper extends NodeDirectional
 {
-	
+	private INode _swapped;
 	@Override
 	public int InitDirectionAmount()
 	{
@@ -45,7 +45,8 @@ public class NodeSwapper extends NodeDirectional
 		ItemUtils.AddTextToDisplayName(stack, " &8(&9Swapper&8)", DisplayNamePosition.BACK);
 		ItemUtils.AddLore(stack, "&6Activate by &bM2", true);
 		ItemUtils.AddLore(stack, "&9Swaps place random direction", true);
-		ItemUtils.AddLore(stack, "&cDestorys &9Swapped slot", true);
+		ItemUtils.AddLore(stack, "&9Swapped &6slot &9is cover to", true);
+		ItemUtils.AddLore(stack, "&cempty &6slot!", true);
 		ItemUtils.SetTag(stack, InventoryEnchanting.PD_SWAPPER);
 		
 		return stack;
@@ -90,13 +91,22 @@ public class NodeSwapper extends NodeDirectional
 				|| !enchantedItem.GetNodeBySlot(Node.GetFlatIndex(currentX, currentY)).IsLocked())
 				
 		{
+			_swapped = ManagerEnchants.IsInBounds(currentX,currentY) ? 
+					enchantedItem.GetNode(currentX, currentY) : null;
+			
 			enchantedItem.SetSlots(enchantedItem.Get_slots() - 1);
 			return;
 		}
 		node = new Node(currentX, currentY); 
 		node.SetLock(false);
+		_swapped = node;
 		enchantedItem.SetNode(node);
 
+	}
+	
+	public INode GetSwappedNode()
+	{
+		return _swapped;
 	}
 
 	

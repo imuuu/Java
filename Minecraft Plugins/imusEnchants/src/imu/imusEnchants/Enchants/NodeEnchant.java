@@ -9,7 +9,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ItemUtils;
+import imu.iAPI.Utilities.ItemUtils.DisplayNamePosition;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.main.CONSTANTS;
 
@@ -27,18 +29,6 @@ public class NodeEnchant extends Node
 		LoadEnchantsFromStack(stack);
 	}
 
-//	 @Override
-//	public boolean IsValidGUIitem(EnchantedItem enchantedItem, ItemStack stack)
-//	{
-//    	if(CONSTANTS.ENCHANT_MATERIAL != stack.getType()) return false;
-//
-//    	if (!CONSTANTS.ENABLE_MULTIPLE_SAME_ENCHANTS && enchantedItem.ContainsEnchant(stack) > 1)
-//		{
-//			return false;
-//		}
-//    	
-//    	return true;
-//	}
 	@Override
 	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack)
 	{
@@ -72,7 +62,7 @@ public class NodeEnchant extends Node
 	@Override
 	public ItemStack GetGUIitemUnLoad(EnchantedItem enchantedItem, ItemStack stack)
 	{
-		return GetItemStack();
+		return stack;
 	}
 
 	public void LoadEnchantsFromStack(ItemStack stack)
@@ -102,17 +92,14 @@ public class NodeEnchant extends Node
 	public ItemStack GetItemStack()
 	{
 		ItemStack itemStack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
-
-		if (itemStack != null && itemStack.getType() == Material.ENCHANTED_BOOK)
+		ItemUtils.AddTextToDisplayName(itemStack, "&b", DisplayNamePosition.FRONT);
+		EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
+		
+		for (Map.Entry<Enchantment, Integer> enchantEntry : _enchants.entrySet())
 		{
-			EnchantmentStorageMeta meta = (EnchantmentStorageMeta) itemStack.getItemMeta();
-
-			for (Map.Entry<Enchantment, Integer> enchantEntry : _enchants.entrySet())
-			{
-				meta.addStoredEnchant(enchantEntry.getKey(), enchantEntry.getValue(), true);
-			}
-			itemStack.setItemMeta(meta);
+			meta.addStoredEnchant(enchantEntry.getKey(), enchantEntry.getValue(), true);
 		}
+		itemStack.setItemMeta(meta);
 
 		return itemStack;
 	}
@@ -124,6 +111,7 @@ public class NodeEnchant extends Node
 		sb.append(this.getClass().getSimpleName());
 		sb.append(":").append(GetX());
 		sb.append(":").append(GetY());
+		sb.append(":").append(IsFrozen());
 		for (Map.Entry<Enchantment, Integer> entry : _enchants.entrySet())
 		{
 			sb.append(":").append(entry.getKey().getKey().toString()).append(",").append(entry.getValue());
@@ -137,8 +125,8 @@ public class NodeEnchant extends Node
 		String[] parts = data.split(":");
 		_x = Integer.parseInt(parts[1]);
 		_y = Integer.parseInt(parts[2]);
-
-		for (int i = 3; i < parts.length; i++)
+		SetFrozen(Boolean.parseBoolean(parts[3]));
+		for (int i = 4; i < parts.length; i++)
 		{
 			String[] enchantParts = parts[i].split(",");
 			if (enchantParts.length < 2)

@@ -2,8 +2,10 @@ package imu.imusEnchants.Events;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -13,6 +15,7 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.ItemStack;
@@ -90,6 +93,33 @@ public class Events implements Listener
 			event.setResult(new ItemStack(Material.AIR));
 		}
 	}
+	
+	@EventHandler(priority = EventPriority.LOW)
+    public void onItemMend(PlayerItemMendEvent event) 
+	{
+        int mendingLevel = event.getItem().getEnchantmentLevel(Enchantment.MENDING);
+        System.out.println("MEDING");
+        if (mendingLevel > 0) {
+            // Modify the repair amount based on the mending level
+            // Assuming level 5 Mending is equivalent to normal MC Mending
+            float repairFactor = 0.2f * mendingLevel;
+
+            int repairAmount = (int) (event.getRepairAmount() * repairFactor);
+            event.setRepairAmount(repairAmount);
+            System.out.println("SET AMOUNT: "+repairAmount);
+
+//            // Adjust the amount of XP consumed for the repair
+//            int xpConsumed = calculateXpConsumed(repairAmount);
+            
+        }
+    }
+
+    private int calculateXpConsumed(int repairAmount) {
+        // Implement logic to calculate how much XP should be consumed
+        // based on the repairAmount and your custom rules
+        // This is a placeholder and should be replaced with actual logic
+        return repairAmount / 2; // Example calculation
+    }
 	
 	@EventHandler
 	public void OnSmithing(PrepareSmithingEvent event)

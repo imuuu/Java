@@ -1,7 +1,6 @@
 package imu.imusEnchants.SubCommands;
 
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -29,10 +28,13 @@ public class SubOpenEnchant_InvCmd implements CommandInterface
     	
     	//new TestINv().Open((Player)sender);
     	
+    	Player player = ((Player)sender);
     	
-    	
-    	ImusUtilities.SetFakeBlock(((Player)sender), Material.BEDROCK, ((Player)sender).getLocation().add(0, 3, 0));
+    	ImusUtilities.SetFakeBlock(player, Material.BEDROCK, ((Player)sender).getLocation().add(0, 3, 0));
 		sender.sendMessage("Opening INV");
+		
+		ImusUtilities.SendCenteredMessage(player, "======== HERE IS NICE DAY ========");
+		
         return false;
     }
     

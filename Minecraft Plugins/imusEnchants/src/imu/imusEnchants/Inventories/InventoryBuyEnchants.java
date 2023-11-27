@@ -5,14 +5,13 @@ import java.util.Random;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.ENCHANTMENT_TIER;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Enums.ITEM_CATEGORY;
-import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.InvUtil.CustomInventory;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Other.XpUtil;
@@ -20,14 +19,13 @@ import imu.iAPI.Utilities.EnchantUtil;
 import imu.iAPI.Utilities.InvUtil;
 import imu.iAPI.Utilities.ItemUtils;
 import imu.imusEnchants.Enchants.NodeBooster;
-import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.main.CONSTANTS;
 import imu.imusEnchants.main.ImusEnchants;
 
 public class InventoryBuyEnchants extends CustomInventory
 {
 	private final ItemStack EMPTY_BLACK_SLOT;
-	private Random _random = new Random();
+	private static Random _random = new Random();
 	
 	public InventoryBuyEnchants()
 	{
@@ -82,23 +80,40 @@ public class InventoryBuyEnchants extends CustomInventory
 		final String[] tier2_enchant_desc = new String[] 
 		{
 			"&3Guaranteed &eTier &91 &3Enchant",
-			"&6Higher &3chance to &eTier &d2",
+			"&6High &3chance to &eTier &d2",
 			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_2_ENCHANTS+"L"
 		};
 		
 		final String[] tier3_enchant_desc = new String[] 
 		{
 			"&3Guaranteed  &eTier &d2 &3Enchant",
-			"&6Higher &3chance to &eTier &63",
+			"&6High &3chance to &eTier &63",
 			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_3_ENCHANTS+"L"
 		};
 		
 		final String[] tier1_booster_desc = new String[] 
-				{
-					"&3Guaranteed &6Booster",
-					"&3Buyable at &2"+CONSTANTS.CAP_FIRST_1_BOOSTER+"L",
-					"&cCost &2"+CONSTANTS.COST_FIRST_1_BOOSTER+"L"
-				};
+		{
+			"&3Guaranteed &6Booster",
+			"&3Booster has &5one &3power direcion",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_1_BOOSTER+"L",
+			"&cCost &2"+CONSTANTS.COST_FIRST_1_BOOSTER+"L"
+		};
+		
+		final String[] tier2_booster_desc = new String[] 
+		{
+			"&3Guaranteed &6Booster",
+			"&3Booster has &5two &3or &5more &3power direcion",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_2_BOOSTER+"L",
+			"&cCost &2"+CONSTANTS.COST_FIRST_2_BOOSTER+"L"
+		};
+		
+		final String[] tier3_booster_desc = new String[] 
+		{
+			"&3Guaranteed &6Booster",
+			"&3Booster has &5four &3power direcion",
+			"&3Buyable at &2"+CONSTANTS.CAP_FIRST_3_BOOSTER+"L",
+			"&cCost &2"+CONSTANTS.COST_FIRST_3_BOOSTER+"L"
+		};
 		
 		//===============================================================
 		Button button;
@@ -227,13 +242,37 @@ public class InventoryBuyEnchants extends CustomInventory
 		//===============================================================
 		
 		//>>> COLUMN 5
-		stack = NodeBooster.GetBoosterStack(1);
 		
+		stack = new ItemStack(CONSTANTS.BOOSTER_MATERIAL);
+		ItemUtils.HideFlag(stack, ItemFlag.HIDE_POTION_EFFECTS);
+		ItemUtils.AddGlow(stack);
 		ItemUtils.SetDisplayName(stack, color1+"Buy Booster");
 		ItemUtils.SetLores(stack, tier1_booster_desc, false);
 		button = new Button(8, stack, inventoryClickEvent -> 
 		{
 			ButtonBuyBooster(ENCHANTMENT_TIER.TIER_1);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.BOOSTER_MATERIAL);
+		ItemUtils.HideFlag(stack, ItemFlag.HIDE_POTION_EFFECTS);
+		ItemUtils.AddGlow(stack);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Booster");
+		ItemUtils.SetLores(stack, tier2_booster_desc, false);
+		button = new Button(8+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyBooster(ENCHANTMENT_TIER.TIER_2);
+	    });
+		AddButton(button);
+		
+		stack = new ItemStack(CONSTANTS.BOOSTER_MATERIAL);
+		ItemUtils.HideFlag(stack, ItemFlag.HIDE_POTION_EFFECTS);
+		ItemUtils.AddGlow(stack);
+		ItemUtils.SetDisplayName(stack, color1+"Buy Booster");
+		ItemUtils.SetLores(stack, tier3_booster_desc, false);
+		button = new Button(8+9+9, stack, inventoryClickEvent -> 
+		{
+			ButtonBuyBooster(ENCHANTMENT_TIER.TIER_3);
 	    });
 		AddButton(button);
 		//<<< COLUMN 5
@@ -246,8 +285,21 @@ public class InventoryBuyEnchants extends CustomInventory
 	{
 		if(!PlayerHasEnoughLevelsBooster(bookTier)) return;
 	    
-		ItemStack booster = ManagerEnchants.GetBooster(1);
-		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), booster);
+		NodeBooster booster = null;
+		
+		switch(bookTier)
+		{
+		case TIER_1: booster = new NodeBooster(1,1);
+			break;
+		case TIER_2: booster = new NodeBooster(1,2 + _random.nextInt(3));
+			break;
+		case TIER_3: booster = new NodeBooster(1,4);
+			break;
+		default:
+			break;
+		
+		}
+		InvUtil.AddItemToInventoryOrDrop(GetPlayer(), booster.GetItemStack());
 	}
 
 	private void ReducePlayerLevel(int reduce)
