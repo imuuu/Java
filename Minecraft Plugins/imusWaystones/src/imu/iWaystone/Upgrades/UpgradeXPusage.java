@@ -9,7 +9,12 @@ import imu.iWaystones.Enums.UpgradeType;
 
 public class UpgradeXPusage extends BaseUpgrade
 {
-
+	@Override
+	public boolean IsEnabled()
+	{
+		return false;
+	}
+	
 	@Override
 	Tier[] SetTiers() 
 	{

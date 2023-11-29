@@ -37,8 +37,7 @@ public abstract class NodeDirectional extends Node
 	public void RandomizeDirection(int amount) 
 	{
 	    DIRECTION[] directions = DIRECTION.values();
-	    Random random = new Random();
-
+	   
 	    DIRECTION[] selectedDirections = new DIRECTION[amount];
 
 	    for (int i = 0; i < amount; i++) 
@@ -46,7 +45,7 @@ public abstract class NodeDirectional extends Node
 	        DIRECTION randomDirection;
 	        do 
 	        {
-	            randomDirection = directions[random.nextInt(directions.length)];
+	            randomDirection = directions[_random.nextInt(directions.length)];
 	        } 
 	        while (Arrays.asList(selectedDirections).contains(randomDirection));
 
@@ -55,6 +54,13 @@ public abstract class NodeDirectional extends Node
 
 	    _directions = selectedDirections;
 	}
+	
+	public void RandomizeDirectionMax(int maxAmount) 
+	{
+        maxAmount = Math.max(1, maxAmount);
+        int amount = (_random.nextBoolean() ? 1 : maxAmount);
+        RandomizeDirection(amount);
+    }
 	
 	public ItemStack SetDirectionsPD(ItemStack stack)
 	{

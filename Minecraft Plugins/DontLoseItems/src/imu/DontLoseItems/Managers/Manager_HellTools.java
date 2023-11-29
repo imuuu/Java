@@ -12,8 +12,10 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -127,6 +129,29 @@ public class Manager_HellTools implements Listener
 		return HellHoe_Controller.IsTier(stack, rarity);
 	}
 	
+	public ITEM_RARITY GetRarity(ItemStack stack)
+	{
+	    if(HellHoe_Controller.IsHellHoe(stack)) 
+	        return HellHoe_Controller.GetRarity(stack);
+
+	    if(HellPickController.IsHellPickaxe(stack)) 
+	        return HellPickController.GetRarity(stack);
+
+	    if(HellSword_Controller.IsHellSword(stack)) 
+	        return HellSword_Controller.GetRarity(stack);
+
+	    if(HellAxe_Controller.IsHellAxe(stack)) 
+	        return HellAxe_Controller.GetRarity(stack);
+
+	    if(Hell_ReflectShield_Controller.IsHellReflectShield(stack)) 
+	        return Hell_ReflectShield_Controller.GetRarity(stack);
+
+	    // Optionally, handle the case where the item is not a Hell tool
+	    // return some default rarity or null
+
+	    return null; // or any default value you want to return if none of the conditions above are met
+	}
+
 	
 	public void OnDisable()
 	{
@@ -233,12 +258,10 @@ public class Manager_HellTools implements Listener
 	}
 	
 	@EventHandler
-	public void Smithing(PrepareSmithingEvent e)
+	public void Smithing(PrepareAnvilEvent e)
 	{
 
-		//if(_workInProgress) return; 
-		
-		SmithingInventory inv = e.getInventory();
+		AnvilInventory inv = e.getInventory();
 		
 		ItemStack stack1 = inv.getItem(0);
 		ItemStack stack2 = inv.getItem(1);
@@ -296,16 +319,16 @@ public class Manager_HellTools implements Listener
 	}
 	
 	@EventHandler
-	public void SmithingClick(InventoryClickEvent e)
+	public void AnvilClick(InventoryClickEvent e)
 	{
 		
 		if(e.isCancelled()) return;
 		
-		if(!(e.getInventory() instanceof SmithingInventory)) return;
+		if(!(e.getInventory() instanceof AnvilInventory)) return;
 		
 		if(e.getSlotType() != SlotType.RESULT) return;
 		
-		SmithingInventory inv = (SmithingInventory)e.getInventory();
+		AnvilInventory inv = (AnvilInventory)e.getInventory();
 				
 		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
 		

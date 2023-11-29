@@ -11,6 +11,7 @@ import imu.iAPI.Commands.ExampleCmd;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.imusEnchants.Events.Events;
+import imu.imusEnchants.Events.VillagerEvents;
 import imu.imusEnchants.Managers.ManagerEnchants;
 import imu.imusEnchants.SubCommands.SubOpenEnchant_InvCmd;
 
@@ -33,6 +34,7 @@ public class ImusEnchants extends JavaPlugin
 		getServer().getConsoleSender().sendMessage(ChatColor.GREEN + _pluginName+" is Activated");
 		
 		getServer().getPluginManager().registerEvents(new Events(), this);
+		getServer().getPluginManager().registerEvents(new VillagerEvents(), this);
 		RegisterCommands();
 	}
 

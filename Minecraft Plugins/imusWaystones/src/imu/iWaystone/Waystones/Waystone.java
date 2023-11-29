@@ -29,6 +29,7 @@ import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
+import imu.iWaystones.Managers.WaystoneManager;
 
 public class Waystone 
 {
@@ -367,9 +368,14 @@ public class Waystone
 		return null;
 	}
 	
+	
 	public boolean HasEnoughExpToTeleport(Player player)
 	{
-		double neededXP = _playerUpgradePanel.get(player.getUniqueId()).get_xpUsage().GetCombinedValue(base_xpUsage);
+		PlayerUpgradePanel panel = _playerUpgradePanel.get(player.getUniqueId());
+		
+		if(!panel.get_xpUsage().IsEnabled()) return true;
+		
+		double neededXP = panel.get_xpUsage().GetCombinedValue(base_xpUsage);
 
 		if((XpUtil.GetPlayerLevel(player) - neededXP) >= 0)
 		{
@@ -393,16 +399,17 @@ public class Waystone
 		UUID uuid_player = player.getUniqueId();
 		Location startLoc = player.getLocation().clone();
 		_main.GetWaystoneManager().SetTeleporting(player);
+		
 		new BukkitRunnable() 
 		{
-			
-			int seconds = (int)panel.get_castTime().GetCombinedValue(base_casttime);
+			int seconds =  player.isOp() ? 1 : (int)panel.get_castTime().GetCombinedValue(base_casttime);
+					
 			void TeleCancel()
 			{
 				ImusWaystones._instance.GetWaystoneManager().RemoveTeleportin(uuid_player);
 				if(player != null)
 				{
-					player.sendTitle(Metods.msgC("&4Teleporting Canceled!"), "", 1, 15, 1);
+					player.sendTitle(Metods.msgC("&4Teleporting Canceled!"), "", 1, 20, 1);
 				}
 			}
 			
@@ -462,7 +469,7 @@ public class Waystone
 					return;
 				}
 				
-				player.sendTitle(Metods.msgC("&2Teleporting in &5"+seconds+" &2s"), Metods.msgC("&4Don't move"), 1, 21, 1);
+				player.sendTitle(Metods.msgC("&2Teleporting in &5"+seconds+" &2s"), Metods.msgC("&4Don't move"), 0, 22, 0);
 				player.playSound(_loc, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 0.1f);
 				seconds--;
 			}

@@ -65,6 +65,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import imu.iAPI.Interfaces.DelaySendable;
 import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Utilities.ItemUtilToolsArmors;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.BlockPosition;
@@ -635,46 +636,8 @@ public class Metods
 //	}
 	
 	public boolean isArmor(ItemStack stack) 
-	{
-	    
-		if (stack == null || stack.getType() == Material.AIR) 
-	    {
-	        return false;
-	    }
-
-	    switch (stack.getType()) 
-	    {
-	        case LEATHER_HELMET:
-	        case LEATHER_CHESTPLATE:
-	        case LEATHER_LEGGINGS:
-	        case LEATHER_BOOTS:
-	        
-	        case IRON_HELMET:
-	        case IRON_CHESTPLATE:
-	        case IRON_LEGGINGS:
-	        case IRON_BOOTS:
-	        
-	        case GOLDEN_HELMET:
-	        case GOLDEN_CHESTPLATE:
-	        case GOLDEN_LEGGINGS:
-	        case GOLDEN_BOOTS:
-	        
-	        case DIAMOND_HELMET:
-	        case DIAMOND_CHESTPLATE:
-	        case DIAMOND_LEGGINGS:
-	        case DIAMOND_BOOTS:
-	        
-	        case NETHERITE_HELMET:
-	        case NETHERITE_CHESTPLATE:
-	        case NETHERITE_LEGGINGS:
-	        case NETHERITE_BOOTS:
-	        
-	        case TURTLE_HELMET:
-	        case ELYTRA:
-	            return true;
-	        default:
-	            return false;
-	    }
+	{ 
+		return ItemUtilToolsArmors.IsArmor(stack);
 	}
 
 	public boolean isShulkerBox(ItemStack stack)
@@ -712,66 +675,7 @@ public class Metods
 	
 	public boolean isTool(ItemStack stack) 
 	{
-		if(stack != null && stack.getType()!= Material.AIR)
-		{
-//			if(CraftItemStack.asNMSCopy(stack).c() instanceof ItemTool)
-//			{
-//				//System.out.println("Checking if works: stack");
-//				return true;
-//			}
-			
-			switch(stack.getType()) 
-			{
-				case WOODEN_PICKAXE: return true;
-				case WOODEN_SHOVEL: return true;
-				case WOODEN_AXE: return true;
-				case WOODEN_HOE: return true;
-				case WOODEN_SWORD: return true;
-				
-				case STONE_PICKAXE: return true;
-				case STONE_SHOVEL: return true;
-				case STONE_AXE: return true;
-				case STONE_HOE: return true;
-				case STONE_SWORD: return true;
-				
-				case IRON_PICKAXE: return true;
-				case IRON_SHOVEL: return true;
-				case IRON_AXE: return true;
-				case IRON_HOE: return true;
-				case IRON_SWORD: return true;
-				
-				case GOLDEN_PICKAXE: return true;
-				case GOLDEN_SHOVEL: return true;
-				case GOLDEN_AXE: return true;
-				case GOLDEN_HOE: return true;
-				case GOLDEN_SWORD: return true;
-				
-				case DIAMOND_PICKAXE: return true;
-				case DIAMOND_SHOVEL: return true;
-				case DIAMOND_AXE: return true;
-				case DIAMOND_HOE: return true;
-				case DIAMOND_SWORD: return true;
-				
-				case NETHERITE_PICKAXE: return true;
-				case NETHERITE_SHOVEL: return true;
-				case NETHERITE_AXE: return true;
-				case NETHERITE_SWORD: return true;
-				case NETHERITE_HOE: return true;
-				
-				case SHIELD: return true;
-				
-				case BOW: return true;
-				case CROSSBOW: return true;
-				
-				case TRIDENT: return true;
-				
-				case FISHING_ROD: return true;
-				
-				default: return false;
-			}
-		}
-		return false;
-		
+		return ItemUtilToolsArmors.IsTool(stack);	
 	}
 	
 	

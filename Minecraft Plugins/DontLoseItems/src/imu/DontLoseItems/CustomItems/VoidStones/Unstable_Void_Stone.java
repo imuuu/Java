@@ -55,13 +55,13 @@ public class Unstable_Void_Stone extends Void_Stone
 		lores.add("&9This unstable stone is able to enchant two random enchants");
 		lores.add("&9with either a &2+"+power+" &9 or &4-"+power+"&9 level.");
 		lores.add("");
-		lores.add("&9Combine it in a &7Smithing Table");
+		lores.add("&9Combine it in a &7Anvil");
 		lores.add("&9with an enchanted item to apply the effect");
 		lores.add("");
 		lores.add("&9Item needs to have at least 3 enchants");
 		lores.add("");
 		lores.add("&9After use the item will be");
-		lores.add("&4unenchantable &9and &4Smitable");
+		lores.add("&4unenchantable &9and &4Anvil'able");
 		Metods._ins.addLore(stack, lores);
 		return stack;
 

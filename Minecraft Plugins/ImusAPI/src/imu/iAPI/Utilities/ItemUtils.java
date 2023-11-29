@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.Material;
@@ -28,163 +29,20 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 
+
+
 public class ItemUtils
 {
 	private static ImusAPI _main = ImusAPI._instance;
 	
-	private static final int SIMILARITY_THRESHOLD = 30; // Percentage
+	private static final int SIMILARITY_THRESHOLD = 50; // Percentage
+	
+	private static Random _random = new Random();
+	
 	
 	public static boolean IsValid(ItemStack stack) 
 	{ 
 		return stack != null && stack.getType() != Material.AIR;
-	}
-	
-	public static boolean IsArmor(ItemStack stack) 
-	{   
-		if (!IsValid(stack))  return false;
-
-	    switch (stack.getType()) 
-	    {
-	        case LEATHER_HELMET:
-	        case LEATHER_CHESTPLATE:
-	        case LEATHER_LEGGINGS:
-	        case LEATHER_BOOTS:
-	        
-	        case IRON_HELMET:
-	        case IRON_CHESTPLATE:
-	        case IRON_LEGGINGS:
-	        case IRON_BOOTS:
-	        
-	        case GOLDEN_HELMET:
-	        case GOLDEN_CHESTPLATE:
-	        case GOLDEN_LEGGINGS:
-	        case GOLDEN_BOOTS:
-	        
-	        case DIAMOND_HELMET:
-	        case DIAMOND_CHESTPLATE:
-	        case DIAMOND_LEGGINGS:
-	        case DIAMOND_BOOTS:
-	        
-	        case NETHERITE_HELMET:
-	        case NETHERITE_CHESTPLATE:
-	        case NETHERITE_LEGGINGS:
-	        case NETHERITE_BOOTS:
-	        
-	        case TURTLE_HELMET:
-	        case ELYTRA:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-	
-	public enum ArmorMaterial 
-	{
-	    LEATHER, IRON, GOLDEN, DIAMOND, NETHERITE, TURTLE, OTHER
-	}
-	
-	public static ArmorMaterial GetArmorMaterial(ItemStack stack) {
-	    if (!IsValid(stack)) return ArmorMaterial.OTHER;
-	    return GetArmorMaterial(stack.getType());
-	}
-
-	public static ArmorMaterial GetArmorMaterial(Material material) {
-	    if (IsNetheriteArmor(material)) return ArmorMaterial.NETHERITE;
-	    if (IsDiamondArmor(material)) return ArmorMaterial.DIAMOND;
-	    if (IsIronArmor(material)) return ArmorMaterial.IRON;
-	    if (IsGoldenArmor(material)) return ArmorMaterial.GOLDEN;
-	    if (IsLeatherArmor(material)) return ArmorMaterial.LEATHER;
-	    if (IsTurtleArmor(material)) return ArmorMaterial.TURTLE;
-
-	    return ArmorMaterial.OTHER;   
-	}
-
-	public static Material GetArmorMainMaterial(ItemStack stack) {
-	    switch (GetArmorMaterial(stack)) {
-	        case DIAMOND: return Material.DIAMOND;
-	        case GOLDEN: return Material.GOLD_INGOT;
-	        case IRON: return Material.IRON_INGOT;
-	        case NETHERITE: return Material.NETHERITE_INGOT;
-	        case LEATHER: return Material.LEATHER;
-	        case TURTLE: return Material.SCUTE;
-	        case OTHER: return Material.AIR;
-	        default:
-	            return Material.AIR;
-	    }
-	}
-	
-	public static boolean IsLeatherArmor(ItemStack stack) {
-	    if (!IsValid(stack)) return false;
-	    return IsLeatherArmor(stack.getType());
-	}
-
-	public static boolean IsLeatherArmor(Material material) {
-	    switch (material) {
-	        case LEATHER_HELMET:
-	        case LEATHER_CHESTPLATE:
-	        case LEATHER_LEGGINGS:
-	        case LEATHER_BOOTS:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-	
-	public static boolean IsIronArmor(Material material) {
-	    switch (material) {
-	        case IRON_HELMET:
-	        case IRON_CHESTPLATE:
-	        case IRON_LEGGINGS:
-	        case IRON_BOOTS:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	public static boolean IsGoldenArmor(Material material) {
-	    switch (material) {
-	        case GOLDEN_HELMET:
-	        case GOLDEN_CHESTPLATE:
-	        case GOLDEN_LEGGINGS:
-	        case GOLDEN_BOOTS:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	public static boolean IsDiamondArmor(Material material) {
-	    switch (material) {
-	        case DIAMOND_HELMET:
-	        case DIAMOND_CHESTPLATE:
-	        case DIAMOND_LEGGINGS:
-	        case DIAMOND_BOOTS:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	public static boolean IsNetheriteArmor(Material material) {
-	    switch (material) {
-	        case NETHERITE_HELMET:
-	        case NETHERITE_CHESTPLATE:
-	        case NETHERITE_LEGGINGS:
-	        case NETHERITE_BOOTS:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	public static boolean IsTurtleArmor(Material material) {
-	    switch (material) {
-	        case TURTLE_HELMET:
-	            return true;
-	        default:
-	            return false;
-	    }
 	}
 
 	public static boolean IsShulkerBox(ItemStack stack)
@@ -202,229 +60,18 @@ public class ItemUtils
 		return false;
 	}
 
+	public static boolean IsArmor(ItemStack stack) 
+	{   
+		return ItemUtilToolsArmors.IsArmor(stack);
+	}
+	
 	public static boolean IsTool(ItemStack stack) 
 	{
-		if (!IsValid(stack))  return false;
-		
-		switch(stack.getType()) 
-		{
-			case WOODEN_PICKAXE: return true;
-			case WOODEN_SHOVEL: return true;
-			case WOODEN_AXE: return true;
-			case WOODEN_HOE: return true;
-			case WOODEN_SWORD: return true;
-			
-			case STONE_PICKAXE: return true;
-			case STONE_SHOVEL: return true;
-			case STONE_AXE: return true;
-			case STONE_HOE: return true;
-			case STONE_SWORD: return true;
-			
-			case IRON_PICKAXE: return true;
-			case IRON_SHOVEL: return true;
-			case IRON_AXE: return true;
-			case IRON_HOE: return true;
-			case IRON_SWORD: return true;
-			
-			case GOLDEN_PICKAXE: return true;
-			case GOLDEN_SHOVEL: return true;
-			case GOLDEN_AXE: return true;
-			case GOLDEN_HOE: return true;
-			case GOLDEN_SWORD: return true;
-			
-			case DIAMOND_PICKAXE: return true;
-			case DIAMOND_SHOVEL: return true;
-			case DIAMOND_AXE: return true;
-			case DIAMOND_HOE: return true;
-			case DIAMOND_SWORD: return true;
-			
-			case NETHERITE_PICKAXE: return true;
-			case NETHERITE_SHOVEL: return true;
-			case NETHERITE_AXE: return true;
-			case NETHERITE_SWORD: return true;
-			case NETHERITE_HOE: return true;
-			
-			
-			case SHIELD: return true;
-			
-			case BOW: return true;
-			case CROSSBOW: return true;
-			
-			case TRIDENT: return true;
-			
-			case FISHING_ROD: return true;
-			
-			default: return false;
-		}
+		return ItemUtilToolsArmors.IsTool(stack);
 		
 	}
 	
-	public static boolean IsWoodenTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsWoodenTool(stack.getType());
-	}
-
-	public static boolean IsWoodenTool(Material material) 
-	{
-	    switch(material) 
-	    {
-	        case WOODEN_PICKAXE:
-	        case WOODEN_SHOVEL:
-	        case WOODEN_AXE:
-	        case WOODEN_HOE:
-	        case WOODEN_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	public static boolean IsStoneTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsStoneTool(stack.getType());
-	}
-
-	public static boolean IsStoneTool(Material material) 
-	{
-	    switch(material) {
-	        case STONE_PICKAXE:
-	        case STONE_SHOVEL:
-	        case STONE_AXE:
-	        case STONE_HOE:
-	        case STONE_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
 	
-	public static boolean IsIronTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsIronTool(stack.getType());
-	}
-
-	public static boolean IsIronTool(Material material) 
-	{
-	    switch(material) {
-	        case IRON_PICKAXE:
-	        case IRON_SHOVEL:
-	        case IRON_AXE:
-	        case IRON_HOE:
-	        case IRON_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	
-	public static boolean IsGoldenTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsGoldenTool(stack.getType());
-	}
-
-	public static boolean IsGoldenTool(Material material) 
-	{
-	    switch(material) {
-	        case GOLDEN_PICKAXE:
-	        case GOLDEN_SHOVEL:
-	        case GOLDEN_AXE:
-	        case GOLDEN_HOE:
-	        case GOLDEN_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	
-	public static boolean IsDiamondTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsDiamondTool(stack.getType());
-	}
-
-	public static boolean IsDiamondTool(Material material) 
-	{
-	    switch(material) {
-	        case DIAMOND_PICKAXE:
-	        case DIAMOND_SHOVEL:
-	        case DIAMOND_AXE:
-	        case DIAMOND_HOE:
-	        case DIAMOND_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	
-	public static boolean IsNetheriteTool(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return false;
-	    return IsNetheriteTool(stack.getType());
-	}
-
-	public static boolean IsNetheriteTool(Material material) 
-	{
-	    switch(material) {
-	        case NETHERITE_PICKAXE:
-	        case NETHERITE_SHOVEL:
-	        case NETHERITE_AXE:
-	        case NETHERITE_HOE:
-	        case NETHERITE_SWORD:
-	            return true;
-	        default:
-	            return false;
-	    }
-	}
-
-	
-	public enum ToolMaterial 
-	{
-	    WOODEN, STONE, IRON, GOLDEN, DIAMOND, NETHERITE, OTHER
-	}
-	
-	public static ToolMaterial GetToolMaterial(ItemStack stack) 
-	{
-	    if (!IsValid(stack)) return ToolMaterial.OTHER;
-	    return GetToolMaterial(stack.getType());
-	}
-
-	public static ToolMaterial GetToolMaterial(Material material) 
-	{
-	    if(IsNetheriteTool(material)) return ToolMaterial.NETHERITE;
-	    if(IsDiamondTool(material)) return ToolMaterial.DIAMOND;
-	    if(IsIronTool(material)) return ToolMaterial.IRON;
-	    if(IsGoldenTool(material)) return ToolMaterial.GOLDEN;
-	    if(IsStoneTool(material)) return ToolMaterial.STONE;
-	    if(IsWoodenTool(material)) return ToolMaterial.WOODEN;
-
-	    return ToolMaterial.OTHER;   
-	}
-	
-	public static Material GetToolMainMaterial(ItemStack stack) 
-	{
-		switch (GetToolMaterial(stack))
-		{
-		case DIAMOND: return Material.DIAMOND;
-		case GOLDEN: return Material.GOLD_INGOT;
-		case IRON: return Material.IRON_INGOT;
-		case NETHERITE: return Material.NETHERITE_INGOT;
-		case STONE: return Material.STONE;
-		case WOODEN: return Material.OAK_WOOD;
-		case OTHER: return Material.AIR;
-		default:
-			return Material.AIR;
-		
-		}
-	}
-
 
 	
 	private static int CalculateSimilarity(String x, String y) 
@@ -829,13 +476,8 @@ public class ItemUtils
 	{
 		if (!IsValid(stack)) return false;
 		
-		if(!stack.hasItemMeta()) return false;
-		
-		ItemMeta meta = stack.getItemMeta();
-		
-		if(meta.hasEnchant(ench)) return true;
-		
-		return false;
+		return GetEnchants(stack).contains(ench);
+
 	}
 	
 	public static int GetEnchantLevel(ItemStack stack, Enchantment ench)

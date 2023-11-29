@@ -31,6 +31,8 @@ public class EnchantedItem
 	private final String PD_REVEALED = "ie_pd_revealed";
 	private final static String PD_UPRADED = "ie_pd_upgraded";
 	private final static String PD_SLOTS = "ie_pd_slots";
+	private static final String PD_PRECRAFTER = "ie_precrafted";
+	
 	private int _totalUnlocked = 0;
 
 	private Player _player;
@@ -120,7 +122,8 @@ public class EnchantedItem
 				_nodes[row][column].SetLock(false);
 				_totalUnlocked++;
 
-				TryUnlockNeighbors(_nodes[row][column], 0.20, 1);
+				//TryUnlockNeighbors(_nodes[row][column], 0.20, 1);
+				TryUnlockNeighbors(_nodes[row][column], CONSTANTS.UNLOCKING_NODES_RECURSIVE_START_CHANCE, 1);
 			}
 		}
 
@@ -206,7 +209,7 @@ public class EnchantedItem
 
 	private void TryUnlockNeighbors(INode node, double chance, int depth)
 	{
-		if (depth > 5 || _totalUnlocked >= _slots)
+		if (depth > CONSTANTS.UNLOCKING_NODES_RECURSIVE_DEPTH || _totalUnlocked >= _slots)
 		{
 			return;
 		}
@@ -234,7 +237,8 @@ public class EnchantedItem
 
 			if (_totalUnlocked < _slots)
 			{
-				TryUnlockNeighbors(neighbor, chance * 0.8, depth + 1); // Reduce chance by 20% in each recursive call
+				//TryUnlockNeighbors(neighbor, chance * 0.8, depth + 1); 
+				TryUnlockNeighbors(neighbor, chance * CONSTANTS.UNLOCKING_NODES_RECURSIVE_REDUCE, depth + 1); // Reduce chance by 20% in each recursive call
 			}
 
 		}
@@ -478,7 +482,6 @@ public class EnchantedItem
 
 	public ItemStack SetTooltip()
 	{
-		System.out.println("Adding lore");
 		final String str_revealed = IsRevealed() ? "" : "&a&k#";
 		final String str_upgrade = IsUpgraded(_stack) ? "&e+ &5&k##" : "";
 		// ■
@@ -488,6 +491,15 @@ public class EnchantedItem
 				"&6░ ► " + str_revealed + "&r&a" + _slots + "&r" + str_revealed + str_upgrade);
 
 		return _stack;
+	}
+	
+	public static ItemStack SetPrecraftTooltip(ItemStack stack)
+	{
+		ItemUtils.AddOrReplaceLore(stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		ItemUtils.AddOrReplaceLore(stack,
+				"&6░ ► &r&a &k##");
+		SetPrecraftedEnchantablePD(stack);
+		return stack;
 	}
 
 	public void SetSlots(int slots)
@@ -562,7 +574,20 @@ public class EnchantedItem
 		String data = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
 		return data != null;
 	}
-
+	public static boolean IsPrecraftedEnchatable(ItemStack stack)
+	{
+		return ItemUtils.HasTag(stack, PD_PRECRAFTER);
+	}
+	
+	public static void RemovePrecraftedEnchatable(ItemStack stack)
+	{
+		ItemUtils.RemoveTag(stack, PD_PRECRAFTER);
+	}
+	
+	public static void SetPrecraftedEnchantablePD(ItemStack stack)
+	{
+		ItemUtils.SetTag(stack, PD_PRECRAFTER);
+	}
 	public INode[][] Get_nodes()
 	{
 		if (_nodes == null)
@@ -651,7 +676,7 @@ public class EnchantedItem
 
 	public void SaveUnlockedNodes(ItemStack stack)
 	{
-		PrintNodes();
+		//PrintNodes();
 		StringBuilder serializedData = new StringBuilder();
 
 		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++)
@@ -669,9 +694,9 @@ public class EnchantedItem
 			}
 		}
 
-		ItemUtils.SetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING, serializedData.toString());
+		ItemUtils.SetPersistenData(stack, "ie_unlocked_nodes", PersistentDataType.STRING, serializedData.toString());
 
-		System.out.println("item SAVED: " + stack);
+		//System.out.println("item SAVED: " + stack);
 	}
 
 	public boolean LoadUnlockedNodes()
@@ -681,9 +706,9 @@ public class EnchantedItem
 
 	public boolean LoadUnlockedNodes(ItemStack stack)
 	{
-		String serializedData = ItemUtils.GetPersistenData(stack, "unlocked_nodes", PersistentDataType.STRING);
+		String serializedData = ItemUtils.GetPersistenData(stack, "ie_unlocked_nodes", PersistentDataType.STRING);
 
-		System.out.println("LOADING DATA: " + stack + " =========> DATA: " + serializedData);
+		//System.out.println("LOADING DATA: " + stack + " =========> DATA: " + serializedData);
 
 		if (serializedData == null || serializedData.isEmpty())
 			return false;

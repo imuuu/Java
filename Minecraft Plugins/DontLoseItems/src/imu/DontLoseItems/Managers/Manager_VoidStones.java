@@ -36,7 +36,7 @@ public class Manager_VoidStones	implements Listener
 //	UNANOINTMENT, // removes one and adds new one not exist
 	
 	//public Unstable_Void_Stone VoidStone;
-	public final String PD_UNENCANTABLE = "UNENCHANTABLE";
+	public final String PD_UNENCANTABLE = "VOID_UNENCHANTABLE";
 	
 	public static final String PD_VOID_STONE_TYPE = "VOID_STONE_TYPE";
 	public static final String PD_VOID_STONE_TIER = "VOID_STONE_TIER";
@@ -169,10 +169,10 @@ public class Manager_VoidStones	implements Listener
 		
 	}
 	@EventHandler
-	public void Smithing(PrepareSmithingEvent e)
+	public void AnvilEvent(PrepareAnvilEvent e)
 	{
 
-		SmithingInventory inv = e.getInventory();
+		AnvilInventory inv = e.getInventory();
 		
 		ItemStack stack1 = inv.getItem(0);
 		ItemStack voidStone = inv.getItem(1);
@@ -240,20 +240,18 @@ public class Manager_VoidStones	implements Listener
 		
 
 	}
-	
-	
-	
+		
 	@EventHandler
-	public void SmithingClick(InventoryClickEvent e)
+	public void AnvilClick(InventoryClickEvent e)
 	{
 		
 		if(e.isCancelled()) return;
 		
-		if(!(e.getInventory() instanceof SmithingInventory)) return;
+		if(!(e.getInventory() instanceof AnvilInventory)) return;
 		
 		if(e.getSlotType() != SlotType.RESULT) return;
 		
-		SmithingInventory inv = (SmithingInventory)e.getInventory();
+		AnvilInventory inv = (AnvilInventory)e.getInventory();
 				
 		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
 		

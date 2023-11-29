@@ -191,7 +191,7 @@ public class InventoryBuyEnchants extends CustomInventory
 		
 		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
 		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Armor"+color1+")");
-		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		ItemUtils.AddLore(stack, tier2_enchant_desc);
 		button = new Button(4+9, stack, inventoryClickEvent -> 
 		{
 			ButtonBuyArmor(ENCHANTMENT_TIER.TIER_2);
@@ -200,7 +200,7 @@ public class InventoryBuyEnchants extends CustomInventory
 		
 		stack = new ItemStack(CONSTANTS.ENCHANT_MATERIAL);
 		ItemUtils.SetDisplayName(stack, color1+"Buy Enchant ("+color2+"Armor"+color1+")");
-		ItemUtils.AddLore(stack, tier1_enchant_desc);
+		ItemUtils.AddLore(stack, tier3_enchant_desc);
 		button = new Button(4+9+9, stack, inventoryClickEvent -> 
 		{
 			ButtonBuyArmor(ENCHANTMENT_TIER.TIER_3);

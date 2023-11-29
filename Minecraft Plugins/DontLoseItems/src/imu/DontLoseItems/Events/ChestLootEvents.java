@@ -39,6 +39,7 @@ import imu.iAPI.Utilities.ItemUtils;
 
 public class ChestLootEvents implements Listener
 {
+	private static final double BETTER_STRUCTURE_LOOT_NERF = 0.5f; // 0-1
 	public static ChestLootEvents Instance;
 	private Random _rand;
 
@@ -62,7 +63,7 @@ public class ChestLootEvents implements Listener
 	
 	private ImusLootTable<Integer> _lootTable_stackMaxAmounts;
 	
-	private int _chestRollMaxAmount = 10;
+	private int _chestRollMaxAmount = 9;
 	
 	private boolean _chestDEBUG = false;
 	private boolean _lootBoost = false;
@@ -105,12 +106,12 @@ public class ChestLootEvents implements Listener
 		
 		
 		
-		int common = 90;
+		int common = 100;
 		int unCommon = 90;
 		int rare = 80;
-		int epic = 73;
-		int mythic = 34;
-		int lege = 20;
+		int epic = 70;
+		int mythic = 32;
+		int lege = 14; //20
 		
 		_lootTable_hellArmor.Add(new ItemStack(Material.GREEN_WOOL), common);
 		_lootTable_hellArmor.Add(new ItemStack(Material.LIME_WOOL), unCommon);
@@ -314,7 +315,7 @@ public class ChestLootEvents implements Listener
 		int valuableChance = 36;
 		int hellArrowChance = 11; //11
 		int foodChance = 2; //2
-		int hellArmorChance = 4;
+		int hellArmorChance = 5;
 		int enchantedBook = 3;
 		int toolGear = 5; //4
 		
@@ -328,6 +329,7 @@ public class ChestLootEvents implements Listener
 			enchantedBook = 80;
 			toolGear = 80; //4
 		}
+		boolean hasHellItem = false;
 		for(int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
@@ -354,19 +356,22 @@ public class ChestLootEvents implements Listener
 				stacks.add(stack);
 			}
 			
-			if(ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
+			if(!hasHellItem && ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
 			{
+				hasHellItem = true;
 				stack = GetValidAmountStack(_lootTable_hellArmor.GetLoot().clone());
 				stacks.add(stack);
 			}
+			
 			if(ThreadLocalRandom.current().nextInt(100) < enchantedBook)
 			{
 				stack = EnchantBook(2);
 				stacks.add(stack);
 			}
 			
-			if(ThreadLocalRandom.current().nextInt(100) < toolGear)
+			if(!hasHellItem && ThreadLocalRandom.current().nextInt(100) < toolGear)
 			{
+				hasHellItem = true;
 				stack = GetValidAmountStack(_lootTable_hellTools.GetLoot().clone());
 				stacks.add(stack);
 			}
@@ -570,27 +575,44 @@ public class ChestLootEvents implements Listener
 
 		Inventory inv = e.getContainer().getInventory();
 		inv = e.getContainer().getSnapshotInventory();
-		List<ItemStack> stacks;
+		List<ItemStack> stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
 		
-		if(world.getEnvironment() == Environment.NETHER) stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
-		else stacks = GenerateNetherLoot(1, (int)(_chestRollMaxAmount));
+		double betterStructureNerf = stacks.size() * BETTER_STRUCTURE_LOOT_NERF;
 		
+//		if(world.getEnvironment() == Environment.NETHER)
+//		else stacks = GenerateNetherLoot(2, (int)(_chestRollMaxAmount));
+//		
 		StringBuilder itemNames = new StringBuilder();
+		int counter = 0;
 	    for (ItemStack stack : stacks) 
 	    {
-	        if (Manager_HellArmor.Instance.IsVoidOrHellItem(stack)) 
+	    	if(world.getEnvironment() != Environment.NETHER)
+	    	{
+	    		if(counter > betterStructureNerf)
+	    			break;
+	    	}
+	    	
+	        if (Manager_HellArmor.Instance.IsVoidOrHellItem(stack) || Manager_HellTools.Instance.IsHellTool(stack)) 
 	        { 
 	            if (itemNames.length() > 0) 
 	            {
 	                itemNames.append(", ");
 	            }
 	            
+	           
 	            String displayName = ItemUtils.GetDisplayName(stack); 
 	            itemNames.append(displayName);
+
+	            if(Manager_HellArmor.Instance.GetRarity(stack) == ITEM_RARITY.Legendary || Manager_HellTools.Instance.GetRarity(stack) == ITEM_RARITY.Legendary)
+	            {
+	            	
+	            	continue;
+	            }
 	            
 	        }
 	        
 	        inv.addItem(stack);
+	        counter++;
 	    }
 
 	    Bukkit.getLogger().info("[bs] has gen w:" + world.getEnvironment() + " loot {i: " + itemNames + "} {cbp: " + closeByPlayersStr + "}");
@@ -609,13 +631,19 @@ public class ChestLootEvents implements Listener
 		
 		
 		Inventory inv = e.getInventoryHolder().getInventory();
+		//var inv = e.getLoot();
+		//inv.add
 		
 //		if(!isDouble) System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened chest");
 //		else System.out.println("Player: "+e.getPlayer().getName()+ " Generated loot by opened DOUBLE chest");
 		
 		Bukkit.getLogger().info("Player: "+e.getEntity()+ " Generated loot by opened  chest");
 		
-		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) { inv.addItem(stack); }
+		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) 
+		{ 
+			inv.addItem(stack); 
+			//e.getLoot().add(stack);
+		}
 		
 		//if(isDouble) for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount+2)) { inv.addItem(stack); }
 		//GenerateNetherLoot(chestInventory);

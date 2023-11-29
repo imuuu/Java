@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.iAPI.Buttons.Button;
 import imu.iAPI.Enums.INVENTORY_AREA;
@@ -19,7 +18,6 @@ import imu.iAPI.Utilities.ItemUtils.DisplayNamePosition;
 import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enchants.INode;
 import imu.imusEnchants.Enchants.Node;
-import imu.imusEnchants.Enchants.NodeEnchant;
 import imu.imusEnchants.Enchants.NodeSwapper;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.Managers.ManagerEnchants;
@@ -28,14 +26,14 @@ import imu.imusEnchants.main.ImusEnchants;
 
 public class InventoryEnchanting extends CustomInventory
 {
-	private ImusEnchants _main = ImusEnchants.Instance;
+	//private ImusEnchants _main = ImusEnchants.Instance;
 
 	private int _enchantSlot = GetSize() - 5;
 	private EnchantedItem _enchantedItem;
 
 	private final ItemStack EMPTY_BLACK_SLOT;
 
-	private BukkitRunnable monitoringTask;
+	//private BukkitRunnable monitoringTask;
 
 	private final String PD_LOCKED = "locked";
 	public static final String PD_SWAPPER = "swapper";
@@ -44,53 +42,53 @@ public class InventoryEnchanting extends CustomInventory
 	
 	public InventoryEnchanting()
 	{
-		super(ImusEnchants.Instance, "Enchanting 2v", 6 * 9);
+		super(ImusEnchants.Instance, "&4==== &bEnchanting Table &4====", 6 * 9);
 
 		EMPTY_BLACK_SLOT = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 		ItemUtils.SetDisplayNameEmpty(EMPTY_BLACK_SLOT);
 	}
 
-	private void startMonitoring()
-	{
-		monitoringTask = new BukkitRunnable() {
-			@Override
-			public void run()
-			{
-				if (_enchantedItem == null)
-				{
-					System.out.println("EnchantedItem is null");
-				} else
-				{
-					System.out.println("EnchantedItem is not null");
-					ItemStack stack = _enchantedItem.GetItemStack();
-					if (stack == null)
-					{
-						System.out.println("EnchantedItem's ItemStack is null");
-					} else
-					{
-						System.out.println("EnchantedItem's ItemStack is not null: " + stack.getType());
-					}
-				}
-
-				if (GetButton(_enchantSlot) != null)
-				{
-					System.out.println("Enchant button is " + GetButton(_enchantSlot).GetItemStack().getType());
-					return;
-				}
-
-				System.out.println("Enchant button is NULL");
-			}
-		};
-		monitoringTask.runTaskTimer(_main, 0L, 10L); // Schedule to run every tick
-	}
-
-	private void stopMonitoring()
-	{
-		if (monitoringTask != null)
-		{
-			monitoringTask.cancel();
-		}
-	}
+//	private void startMonitoring()
+//	{
+//		monitoringTask = new BukkitRunnable() {
+//			@Override
+//			public void run()
+//			{
+//				if (_enchantedItem == null)
+//				{
+//					System.out.println("EnchantedItem is null");
+//				} else
+//				{
+//					System.out.println("EnchantedItem is not null");
+//					ItemStack stack = _enchantedItem.GetItemStack();
+//					if (stack == null)
+//					{
+//						System.out.println("EnchantedItem's ItemStack is null");
+//					} else
+//					{
+//						System.out.println("EnchantedItem's ItemStack is not null: " + stack.getType());
+//					}
+//				}
+//
+//				if (GetButton(_enchantSlot) != null)
+//				{
+//					System.out.println("Enchant button is " + GetButton(_enchantSlot).GetItemStack().getType());
+//					return;
+//				}
+//
+//				System.out.println("Enchant button is NULL");
+//			}
+//		};
+//		monitoringTask.runTaskTimer(_main, 0L, 10L); // Schedule to run every tick
+//	}
+//
+//	private void stopMonitoring()
+//	{
+//		if (monitoringTask != null)
+//		{
+//			monitoringTask.cancel();
+//		}
+//	}
 
 	@Override
 	public INVENTORY_AREA SetInventoryLock()
@@ -210,7 +208,7 @@ public class InventoryEnchanting extends CustomInventory
 	{
 		if (slot == _enchantSlot)
 		{
-			if (!ManagerEnchants.Instance.IsValidToEnchant(stack))
+			if (!ManagerEnchants.IsValidToEnchant(stack))
 			{
 				GetPlayer().sendMessage(Metods.msgC("&cNot valid item to enchant!"));
 				return false;
@@ -313,22 +311,14 @@ public class InventoryEnchanting extends CustomInventory
 				if (node.IsLocked())
 					continue;
 
-//				if (node.GetGUIitemLoad(enchantedItem).getType().isAir())
-//				{
-//					RemoveButton(flatIndex);
-//					continue;
-//				}
-
 				if (LoadNode(node, false) == null)
 				{
-					Bukkit.getLogger().info("Couldn't load Node: " + node);
+					//Bukkit.getLogger().info("Couldn't load Node: " + node);
 					RemoveButton(flatIndex);
 					continue;
 				}
 
-//				if (!_firstTimeOpened)
-//					LockingButton(GetButton(flatIndex));
-				
+
 				if(node.IsFrozen())
 				{
 					LockingButto(GetButton(flatIndex));

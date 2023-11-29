@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -26,6 +28,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Shulker;
 import org.bukkit.entity.Wither;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -37,7 +40,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -49,7 +52,7 @@ import imu.iAPI.Other.ConfigMaker;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.DateParser;
 import imu.iAPI.Other.Metods;
-import net.minecraft.advancements.AdvancementRequirements.a;
+import imu.iAPI.Other.XpUtil;
 
 
 
@@ -58,6 +61,7 @@ public class MainEvents implements Listener
 		
 	HashMap<UUID, ItemStack[]> saved_items = new HashMap<UUID, ItemStack[]>();
 	HashMap<UUID, Boolean> died_pvp = new HashMap<UUID,Boolean>();
+	HashMap<UUID, Integer> _saved_xp = new HashMap<>();
 
 	final String[] tools = {"PICKAXE", "AXE", "HOE", "SHOVEL","ROD","ELYTRA"};
 	final String[] weapons = {"SWORD","BOW","TRIDENT","SHIELD","CROSSBOW"};
@@ -66,12 +70,14 @@ public class MainEvents implements Listener
 	boolean saveHotBar = true;
 	boolean saveTools = false;
 	boolean saveWeapons = false;
+	boolean _saveXp = true;
 	
 	private boolean _disableElytraOnPVP = true;
 	
 	double durability_penalty_pve = 0.25;
 	double durability_penalty_pvp = 0.6;
 	double durability_penalty_mob = 0.1;
+	double _death_xp_multiplier = 0.5; // if 0 doesnt give xp back
 	double _mendNerf = 1.0f;  // => 60%
 	Plugin _plugin;
 	Metods _itemM = null;
@@ -158,6 +164,7 @@ public class MainEvents implements Listener
 		((Player)e.getEntity()).sendMessage(" ");
 		((Player)e.getEntity()).sendMessage(ChatColor.BLUE+_joker.GetTotemJoke());
 	}
+	
 	@EventHandler
 	public void ProjectileLaunch(ProjectileHitEvent e)
 	{
@@ -497,6 +504,9 @@ public class MainEvents implements Listener
 			}
 			
 		}
+		System.out.println("level: "+player.getLevel()+ " multi: "+_death_xp_multiplier);
+		if(_saveXp) _saved_xp.put(player.getUniqueId(), player.getLevel());
+		
 		saved_items.put(player.getUniqueId(), save_items);
 	}
 	
@@ -544,6 +554,53 @@ public class MainEvents implements Listener
 		
 	}
 	
+	@EventHandler
+	public void onRespawnXpSet(PlayerRespawnEvent e)
+	{
+		if(!_saveXp) return;
+		
+		Player player = e.getPlayer();
+		Integer xpLevel = _saved_xp.get(player.getUniqueId());
+		if(xpLevel != null && xpLevel > 0)
+		{
+			final int newLevel =  (int)(xpLevel * _death_xp_multiplier);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(_plugin, () -> 
+			{		
+	            XpUtil.SetPlayerLevel(player, newLevel < 1 ? 0 : newLevel);
+	            _saved_xp.remove(player.getUniqueId());
+	        });
+
+	       
+		}
+	}
+	
+	
+	
+	//reason that treasure map lags the server at 1.20.2!
+	@EventHandler
+	public void OnLootGenerateRemoveMAP(LootGenerateEvent event) 
+	{
+		if (event.getWorld().getEnvironment() != World.Environment.NORMAL) return;
+		
+	    List<ItemStack> loot = event.getLoot();
+	    for (int i = 0; i < loot.size(); i++) 
+	    {
+	        ItemStack item = loot.get(i);
+
+	        if (item != null && item.getType() == Material.FILLED_MAP) 
+	        {
+
+	            if (Math.random() < 0.1) {
+	                loot.set(i, new ItemStack(Material.HEART_OF_THE_SEA));
+	            } else {
+	                // Remove the item
+	                loot.remove(i);
+	            }
+	            break; // Assuming only one map per loot
+	        }
+	    }
+	}
+
 	
 	void getSettings()
 	{
@@ -554,10 +611,13 @@ public class MainEvents implements Listener
 		String t_path = "settings.saveTools";
 		String w_path = "settings.saveWeapons";
 		String h_path = "settings.saveHotbar";
+		String xp_path = "settings.saveXp";
+		
 		String dpvp_path = "settings.pvp_damage_penalty";
 		String dpve_path = "settings.pve_damage_penalty";
 		String dmob_path = "settings.mob_damage_penalty";
 		String dcombat_cd_path = "settings.mob_comabt_cd";
+		String xp_multiplier_path = "settings.xp_back_on_death_multiplier";
 				
 		String endOpenDate_path = "settings.end_open_date";
 		String netherOpenDate_path = "settings.nether_open_date";
@@ -575,6 +635,9 @@ public class MainEvents implements Listener
 			config.set(dpve_path,durability_penalty_pve);		
 			config.set(dmob_path,durability_penalty_mob);		
 			config.set(dcombat_cd_path,_cd_in_combat_cooldown);		
+			
+			config.set(xp_path, _saveXp);
+			config.set(xp_multiplier_path, _death_xp_multiplier);
 //			
 	
 			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
@@ -593,6 +656,19 @@ public class MainEvents implements Listener
 		{
 			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
 		}
+		
+		if(!config.contains(xp_path)) 
+		{
+			config.set(xp_path, _saveXp);
+		}
+		
+		if(!config.contains(xp_multiplier_path)) 
+		{
+			config.set(xp_multiplier_path, _death_xp_multiplier);
+		}
+		
+		
+		
 		cm.saveConfig();
 		String jokeTotemChance = "jokes.jokeTotemChance";
 		
@@ -612,9 +688,11 @@ public class MainEvents implements Listener
 		durability_penalty_mob = config.getDouble(dmob_path);
 		_cd_in_combat_cooldown = config.getInt(dcombat_cd_path);
 		
-
 		_endOpenDate = DateParser.ParseDate(config.getString(endOpenDate_path));
 		_netherOpenDate = DateParser.ParseDate(config.getString(netherOpenDate_path));
+		
+		_saveXp = config.getBoolean(xp_path);
+		_death_xp_multiplier = config.getDouble(xp_multiplier_path);
 		
 		_totemJokeChance = config.getInt(jokeTotemChance);
 			

@@ -1,6 +1,15 @@
 package imu.imusEnchants.Events;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -16,11 +25,18 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
+import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.GrindstoneInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.SmithingInventory;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.Plugin;
+
+import com.magmaguy.betterstructures.api.ChestFillEvent;
 
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ItemUtils;
@@ -44,20 +60,65 @@ public class Events implements Listener
 	@EventHandler
 	public void OnCraftItem(CraftItemEvent event)
 	{
-		System.out.println("crafting");
+
 		ItemStack result = event.getCurrentItem();
+		
 		if (result == null)
 			return;
-
-		System.out.println("crafting: " + result);
-		if (!ItemUtils.IsTool(result))
+		
+		if (!ManagerEnchants.IsValidToEnchant(result))
 			return;
+		
+		if(!(event.getViewers().get(0) instanceof Player)) return;
+		
+		if (event.isShiftClick())
+		{
+			Player player = (Player) event.getViewers().get(0);
+			Inventory playerInv = player.getInventory();
+			Bukkit.getScheduler().runTaskLater(ImusEnchants.Instance, new Runnable() {
+	            @Override
+	            public void run() {
+	                for (ItemStack stack : playerInv.getContents()) 
+	                {
+	                    if (!EnchantedItem.IsPrecraftedEnchatable(stack)) continue;
 
-		System.out.println("enchant item: ");
+	                    EnchantedItem.RemovePrecraftedEnchatable(stack);
+	                    EnchantedItem eItem = new EnchantedItem(stack);
+	                    eItem.SetTooltip();
+	                }
+	            }
+	        }, 1L); // Delay of 1 tick
+		}
+		EnchantedItem.RemovePrecraftedEnchatable(result);
 		EnchantedItem eItem = new EnchantedItem(result);
 		eItem.SetTooltip();
+		
+
 	}
 	
+	@EventHandler
+	public void OnCraftItem(PrepareItemCraftEvent event) 
+	{
+		
+		
+		if(!(event.getInventory() instanceof CraftingInventory)) return;
+		
+		Recipe recipe = event.getRecipe();
+		
+		if(recipe == null) return;
+		
+		
+		if (!ManagerEnchants.IsValidToEnchant(recipe.getResult()))
+			return;
+		
+		ItemStack stack = recipe.getResult();
+		EnchantedItem.SetPrecraftTooltip(stack);
+		CraftingInventory inv = event.getInventory();
+		inv.setItem(0, stack);
+		
+		
+	}
+
 	@EventHandler
 	public void OnPlayerInteract(PlayerInteractEvent event)
 	{
@@ -77,6 +138,7 @@ public class Events implements Listener
 	@EventHandler
 	public void OnPrepareAnvil(PrepareAnvilEvent event)
 	{
+
 		AnvilInventory inv = event.getInventory();
 
 		if (!ItemUtils.IsTool(inv.getItem(0)))
@@ -93,34 +155,20 @@ public class Events implements Listener
 			event.setResult(new ItemStack(Material.AIR));
 		}
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOW)
-    public void onItemMend(PlayerItemMendEvent event) 
+	public void onItemMend(PlayerItemMendEvent event)
 	{
-        int mendingLevel = event.getItem().getEnchantmentLevel(Enchantment.MENDING);
-        System.out.println("MEDING");
-        if (mendingLevel > 0) {
-            // Modify the repair amount based on the mending level
-            // Assuming level 5 Mending is equivalent to normal MC Mending
-            float repairFactor = 0.2f * mendingLevel;
+		int mendingLevel = event.getItem().getEnchantmentLevel(Enchantment.MENDING);
+		if (mendingLevel > 0)
+		{
+			double repairFactor = CONSTANTS.MENDING_INCREASE_BY_LEVEL * mendingLevel;
 
-            int repairAmount = (int) (event.getRepairAmount() * repairFactor);
-            event.setRepairAmount(repairAmount);
-            System.out.println("SET AMOUNT: "+repairAmount);
+			int repairAmount = (int) (event.getRepairAmount() * repairFactor);
+			event.setRepairAmount(repairAmount);
+		}
+	}
 
-//            // Adjust the amount of XP consumed for the repair
-//            int xpConsumed = calculateXpConsumed(repairAmount);
-            
-        }
-    }
-
-    private int calculateXpConsumed(int repairAmount) {
-        // Implement logic to calculate how much XP should be consumed
-        // based on the repairAmount and your custom rules
-        // This is a placeholder and should be replaced with actual logic
-        return repairAmount / 2; // Example calculation
-    }
-	
 	@EventHandler
 	public void OnSmithing(PrepareSmithingEvent event)
 	{
@@ -181,6 +229,79 @@ public class Events implements Listener
 		event.setConsumeItem(false);
 	}
 	
+	@SuppressWarnings("unused")
+	@EventHandler(priority = EventPriority.HIGH)
+	public void OnLootGenerate(LootGenerateEvent event) 
+	{
+		if(!CONSTANTS.ENABLE_MENDING_FOUND_ONLY_END && CONSTANTS.SET_FOUND_ENCHANTED_BOOKS_LEVEL_ONE) return;
+		
+	    List<ItemStack> loot = event.getLoot();
+	    ProcessFoundItems(loot, event.getWorld());
+
+	    Inventory inventory = event.getInventoryHolder().getInventory();
+	    ProcessFoundItems(Arrays.asList(inventory.getContents()), event.getWorld());
+	}
+	
+		//if better structure is enabled on the server this will be triggered
+	@SuppressWarnings("unused")
+	@EventHandler(priority = EventPriority.HIGH)
+	public void OnBetterStructureLoot(ChestFillEvent e)
+	{
+		if(!CONSTANTS.ENABLE_MENDING_FOUND_ONLY_END && CONSTANTS.SET_FOUND_ENCHANTED_BOOKS_LEVEL_ONE) return;
+
+		Inventory inv = e.getContainer().getInventory();
+		inv = e.getContainer().getSnapshotInventory();
+	
+		ProcessFoundItems(Arrays.asList(inv.getContents()), e.getContainer().getWorld());
+
+	}
+	
+	private void ProcessFoundItems(List<ItemStack> items, World world) 
+	{
+	    for (ItemStack item : items) 
+	    {
+	        if(item == null) continue;
+	        
+	        if(ManagerEnchants.IsValidToEnchant(item))
+	        {
+	        	EnchantedItem eItem = new EnchantedItem(item);
+	        	eItem.SetTooltip();
+	        }
+	        
+	        if (item.getType() == Material.ENCHANTED_BOOK) 
+	        {
+	        	System.out.println("enchanted book found: "+item);
+	        	if(CONSTANTS.ENABLE_MENDING_FOUND_ONLY_END && ItemUtils.HasEnchant( item, Enchantment.MENDING) && world.getEnvironment() != Environment.THE_END )
+	        	{
+	        		item.setType(Material.DIAMOND);
+	        		item.setAmount(3);
+	        		continue;
+	        	}
+	        	
+	        	if(!CONSTANTS.SET_FOUND_ENCHANTED_BOOKS_LEVEL_ONE) continue;
+	        	
+	        	EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+	            if (meta != null) 
+	            {
+
+	                Map<Enchantment, Integer> newEnchantments = new HashMap<>();
+	                
+	                //keep them one level
+	                for (Map.Entry<Enchantment, Integer> entry : meta.getStoredEnchants().entrySet()) {
+	                    newEnchantments.put(entry.getKey(), 1);
+	                }
+
+	                meta.getStoredEnchants().keySet().forEach(meta::removeStoredEnchant);
+	                newEnchantments.forEach((enchant, level) -> meta.addStoredEnchant(enchant, level, true));
+
+	                item.setItemMeta(meta);
+	            }
+	        }
+	    }
+	}
+
+
+	
 	@EventHandler
 	public void OnCraftItemTool(PrepareItemCraftEvent event)
 	{
@@ -207,8 +328,7 @@ public class Events implements Listener
 			{
 				firstItem = item;
 				sameMaterialCount++;
-			} 
-			else if (item.getType() == firstItem.getType())
+			} else if (item.getType() == firstItem.getType())
 			{
 				sameMaterialCount++;
 			}

@@ -17,11 +17,17 @@ import imu.iAPI.Interfaces.IButton;
 import imu.iAPI.InvUtil.InventoryReaderStack;
 import imu.iAPI.Other.CustomInvLayout;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Utilities.ItemUtils;
 import imu.iWaystone.Interfaces.IModDataInv;
 import imu.iWaystone.Interfaces.IModDataValues;
 import imu.iWaystone.Upgrades.BaseUpgrade;
 import imu.iWaystone.Upgrades.PlayerUpgradePanel;
 import imu.iWaystone.Upgrades.UpgradeBottomBuild;
+import imu.iWaystone.Upgrades.UpgradeCastTime;
+import imu.iWaystone.Upgrades.UpgradeCooldown;
+import imu.iWaystone.Upgrades.UpgradeDimension;
+import imu.iWaystone.Upgrades.UpgradeFoundation;
+import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystone.Waystones.Waystone;
 import imu.iWaystones.Enums.ConvUpgradeModData;
 import imu.iWaystones.Enums.UpgradeType;
@@ -203,41 +209,94 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	void SetUpgradesAsync()
 	{
 		String forceStr = "&4===> &e&k#&7(&eSHIFT &bM2&7)&e&k# &eto &6FORCE &5UPGRADE!";
+		ItemStack stack = null;
 		
-		ItemStack stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
-		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.CAST_TIME.toString());
-		Metods._ins.addLore(stack, " ", false);
-		Metods._ins.addLore(stack, "&9Cast time: &1"+_waystone.GetValue(_panel.get_castTime()), false);
-		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
-		_inv.setItem(1, stack);
+		if(new UpgradeCastTime().IsEnabled())
+		{
+			stack = SetButton(_panel.get_castTime()._displayItem.clone(), BUTTON.UPGRADE);
+			Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.CAST_TIME.toString());
+			Metods._ins.addLore(stack, " ", false);
+			Metods._ins.addLore(stack, "&9Cast time: &1"+_waystone.GetValue(_panel.get_castTime()), false);
+			if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+			_inv.setItem(1, stack);
+		}
+		else
+		{
+			stack = new ItemStack(Material.BARRIER);
+			ItemUtils.SetDisplayName(stack, "&9Disabled");
+			SetButton(stack, BUTTON.NONE);
+			_inv.setItem(1,stack);
+		}
 		
-		stack = SetButton(_panel.get_xpUsage()._displayItem.clone(), BUTTON.UPGRADE);
-		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.XP_USAGE.toString());
-		Metods._ins.addLore(stack, " ", false);
-		Metods._ins.addLore(stack, "&9Xp usage: &1"+_waystone.GetValue(_panel.get_xpUsage()), false);
-		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
-		_inv.setItem(3,stack);
 		
-		stack = SetButton(_panel.get_dimension()._displayItem.clone(), BUTTON.UPGRADE);
-		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.DIMENSION.toString());
-		Metods._ins.addLore(stack, " ", false);
-		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
-		_inv.setItem(5,stack);
+		if(new UpgradeXPusage().IsEnabled())
+		{
+			stack = SetButton(_panel.get_xpUsage()._displayItem.clone(), BUTTON.UPGRADE);
+			Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.XP_USAGE.toString());
+			Metods._ins.addLore(stack, " ", false);
+			Metods._ins.addLore(stack, "&9Xp usage: &1"+_waystone.GetValue(_panel.get_xpUsage()), false);
+			if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+			_inv.setItem(3,stack);
+		}
+		else
+		{
+			stack = new ItemStack(Material.BARRIER);
+			ItemUtils.SetDisplayName(stack, "&9Disabled");
+			SetButton(stack, BUTTON.NONE);
+			_inv.setItem(3,stack);
+		}
 		
-		stack = _panel.get_cooldown()._displayItem.clone();
-		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.COOLDOWN.toString());
-		Metods._ins.addLore(stack, " ", false);
-		Metods._ins.addLore(stack, "&6CD With reduction: "+Metods.FormatTime((long)(_panel.GetCooldown() * 1000)), false);
-		Metods._ins.addLore(stack, "&3Base Cooldown: "+Metods.FormatTime((long)(_panel.get_foundation().GetTier()._value * 1000)), false);
-		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
-		_inv.setItem(7,SetButton(stack, BUTTON.UPGRADE));
+		if(new UpgradeDimension().IsEnabled())
+		{
+			stack = SetButton(_panel.get_dimension()._displayItem.clone(), BUTTON.UPGRADE);
+			Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.DIMENSION.toString());
+			Metods._ins.addLore(stack, " ", false);
+			if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+			_inv.setItem(5,stack);
+		}
+		else
+		{
+			stack = new ItemStack(Material.BARRIER);
+			ItemUtils.SetDisplayName(stack, "&9Disabled");
+			SetButton(stack, BUTTON.NONE);
+			_inv.setItem(5,stack);
+		}
 		
-		stack = _panel.get_foundation()._displayItem.clone();
-		Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.FOUNDATION.toString());
-		Metods._ins.addLore(stack, " ", false);
-		//Metods._ins.addLore(stack, "&9Base foundation: &1"+_panel.get_foundation().GetCombinedValue(0), false);
-		if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
-		_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
+		if(new UpgradeCooldown().IsEnabled())
+		{
+			stack = _panel.get_cooldown()._displayItem.clone();
+			Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.COOLDOWN.toString());
+			Metods._ins.addLore(stack, " ", false);
+			Metods._ins.addLore(stack, "&6CD With reduction: "+Metods.FormatTime((long)(_panel.GetCooldown() * 1000)), false);
+			Metods._ins.addLore(stack, "&3Base Cooldown: "+Metods.FormatTime((long)(_panel.get_foundation().GetTier()._value * 1000)), false);
+			if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+			_inv.setItem(7,SetButton(stack, BUTTON.UPGRADE));
+			
+		}else
+		{
+			stack = new ItemStack(Material.BARRIER);
+			ItemUtils.SetDisplayName(stack, "&9Disabled");
+			SetButton(stack, BUTTON.NONE);
+			_inv.setItem(7,stack);
+		}
+		
+		if(new UpgradeFoundation().IsEnabled())
+		{
+			stack = _panel.get_foundation()._displayItem.clone();
+			Metods._ins.setPersistenData(stack, "upgrade", PersistentDataType.STRING, UpgradeType.FOUNDATION.toString());
+			Metods._ins.addLore(stack, " ", false);
+			//Metods._ins.addLore(stack, "&9Base foundation: &1"+_panel.get_foundation().GetCombinedValue(0), false);
+			if(_player.getGameMode() == GameMode.CREATIVE) Metods._ins.addLore(stack, forceStr, true);
+			_inv.setItem(_size-4,SetButton(stack, BUTTON.UPGRADE));
+		}
+		else
+		{
+			stack = new ItemStack(Material.BARRIER);
+			ItemUtils.SetDisplayName(stack, "&9Disabled");
+			SetButton(stack, BUTTON.NONE);
+			_inv.setItem(_size-4,stack);
+		}
+		
 
 		
 	}

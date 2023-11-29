@@ -19,6 +19,7 @@ public abstract class BaseUpgrade
 	public double _tierReduceValue = 0.0;
 	public ItemStack _displayItem;
 	protected boolean _refreshDescWithToolTip = false;
+
 	public BaseUpgrade()
 	{
 		_id = GetType();
@@ -35,10 +36,17 @@ public abstract class BaseUpgrade
 	public abstract String[] GetDescription();
 	public abstract double GetTierReduceValue();
 	public abstract String GetDisplayName();
+	
 	public abstract Material GetMaterial();
 	public abstract UpgradeType GetType();
 	public abstract double GetCombinedValue(double value);
 	public abstract void ButtonPressUpgradeTier(Player player, Waystone ws,int tierBeforeUpgrade);
+	
+	
+	public boolean IsEnabled()
+	{
+		return true;
+	}
 	
 	public void Tooltip()
 	{

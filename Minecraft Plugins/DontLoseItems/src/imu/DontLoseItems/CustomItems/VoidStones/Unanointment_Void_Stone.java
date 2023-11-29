@@ -69,7 +69,7 @@ public class Unanointment_Void_Stone extends Void_Stone
 //		lores.add("&9The item must have at least two enchantments.");
 		lores.add("");
 		lores.add("&9To apply the effect, combine the stone with an item");
-		lores.add("&9in a &7Smithing Table");
+		lores.add("&9in a &7Anvil");
 		lores.add("");
 
 		Metods._ins.addLore(stack, lores);

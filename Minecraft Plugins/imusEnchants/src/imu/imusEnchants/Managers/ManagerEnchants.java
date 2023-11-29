@@ -9,11 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import imu.iAPI.Interfaces.IBUTTONN;
+import imu.iAPI.Utilities.ItemUtilToolsArmors;
+import imu.iAPI.Utilities.ItemUtilToolsArmors.ArmorMaterial;
+import imu.iAPI.Utilities.ItemUtilToolsArmors.ToolMaterial;
 import imu.iAPI.Utilities.ItemUtils;
-import imu.iAPI.Utilities.ItemUtils.ArmorMaterial;
-import imu.iAPI.Utilities.ItemUtils.ToolMaterial;
 import imu.imusEnchants.Enchants.EnchantedItem;
 import imu.imusEnchants.Enchants.INode;
 import imu.imusEnchants.Enchants.NodeBooster;
@@ -23,12 +25,11 @@ import imu.imusEnchants.Enums.MATERIAL_SLOT_RANGE;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
 import imu.imusEnchants.Inventories.InventoryEnchanting;
 import imu.imusEnchants.main.CONSTANTS;
-import imu.imusEnchants.main.ImusEnchants;
 
 public class ManagerEnchants
 {
 	public static ManagerEnchants Instance;
-	private ImusEnchants _main = ImusEnchants.Instance;
+	//private ImusEnchants _main = ImusEnchants.Instance;
 
 	public static final HashSet<Integer> REDSTRICTED_SLOTS = new HashSet<>(
 			Arrays.asList(
@@ -52,6 +53,10 @@ public class ManagerEnchants
         MAX_ENCHANT_LEVEL_CAP.put(Enchantment.DURABILITY, 4);
         MAX_ENCHANT_LEVEL_CAP.put(Enchantment.ARROW_INFINITE, 1);
         MAX_ENCHANT_LEVEL_CAP.put(Enchantment.SILK_TOUCH, 1);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.PROTECTION_EXPLOSIONS, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.PROTECTION_FIRE, 4);
+        MAX_ENCHANT_LEVEL_CAP.put(Enchantment.PROTECTION_PROJECTILE, 4);
     }
 
 	public static final INode[] VALID_NODES = new INode[]
@@ -99,6 +104,14 @@ public class ManagerEnchants
 		}
 		return null;
 	}
+	
+	public INode GetNode(Class<?> nodeClass)
+	{
+		if(nodeClass.isInstance(NodeBooster.class)) return new NodeBooster();
+		if(nodeClass.isInstance(NodeEnchant.class)) return new NodeEnchant();
+		if(nodeClass.isInstance(NodeSwapper.class)) return new NodeSwapper();
+		return null;
+	}
 	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, IBUTTONN button)
 	{
 		return IsValidGUIitem(touchType, enchantedItem, button.GetItemStack());
@@ -129,23 +142,31 @@ public class ManagerEnchants
 		return IsInBounds(node.GetX(), node.GetY());
 	}
 	
-	public boolean IsValidToEnchant(ItemStack stack)
+	public static boolean IsValidToEnchant(ItemStack stack)
 	{
-		if (!ItemUtils.IsTool(stack))
+		if (!(ItemUtils.IsTool(stack) || ItemUtils.IsArmor(stack)))
 		{
 			return false;
 		}
 
 		if (!EnchantedItem.HasSlots(stack) && stack.getEnchantments().size() > 0)
 			return false;
+		
+		if(IsVoidUnenchantable(stack)) return false;
 
 		return true;
+	}
+	
+	//Void stone support from imusVoidStones
+	private static boolean IsVoidUnenchantable(ItemStack stack)
+	{	
+		return ItemUtils.GetPersistenData(stack, "VOID_UNENCHANTABLE", PersistentDataType.INTEGER) != null;
 	}
 
 	@SuppressWarnings("incomplete-switch")
 	public static MATERIAL_SLOT_RANGE GetMaterialSlotsRange(Material material)
 	{
-		ToolMaterial toolMat = ItemUtils.GetToolMaterial(material);
+		ToolMaterial toolMat = ItemUtilToolsArmors.GetToolMaterial(material);
 		
 		
 		switch (toolMat)
@@ -164,7 +185,7 @@ public class ManagerEnchants
 			return MATERIAL_SLOT_RANGE.WOOD;
 		}
 		
-		ArmorMaterial armorMat = ItemUtils.GetArmorMaterial(material);
+		ArmorMaterial armorMat = ItemUtilToolsArmors.GetArmorMaterial(material);
 		
 		switch (armorMat) 
 		{

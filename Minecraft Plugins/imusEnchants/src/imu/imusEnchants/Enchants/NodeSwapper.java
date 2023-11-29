@@ -3,6 +3,7 @@ package imu.imusEnchants.Enchants;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import imu.iAPI.Utilities.ItemUtilToolsArmors;
 import imu.iAPI.Utilities.ItemUtils;
 import imu.iAPI.Utilities.ItemUtils.DisplayNamePosition;
 import imu.imusEnchants.Enums.TOUCH_TYPE;
@@ -25,7 +26,7 @@ public class NodeSwapper extends NodeDirectional
 		if (enchantedItem == null)
 			return false;
 
-		Material toolMateril = ItemUtils.GetToolMainMaterial(enchantedItem.GetItemStack());
+		Material toolMateril = ItemUtilToolsArmors.GetToolMainMaterial(enchantedItem.GetItemStack());
 		
 		if (toolMateril.isAir())
 			return false;
@@ -41,7 +42,7 @@ public class NodeSwapper extends NodeDirectional
 	@Override
 	public ItemStack GetGUIitemLoad(EnchantedItem enchantedItem)
 	{
-		ItemStack stack = new ItemStack(ItemUtils.GetToolMainMaterial(enchantedItem.GetItemStack()));
+		ItemStack stack = new ItemStack(ItemUtilToolsArmors.GetToolMainMaterial(enchantedItem.GetItemStack()));
 		ItemUtils.AddTextToDisplayName(stack, " &8(&9Swapper&8)", DisplayNamePosition.BACK);
 		ItemUtils.AddLore(stack, "&6Activate by &bM2", true);
 		ItemUtils.AddLore(stack, "&9Swaps place random direction", true);
@@ -55,7 +56,7 @@ public class NodeSwapper extends NodeDirectional
 	@Override
 	public ItemStack GetGUIitemUnLoad(EnchantedItem enchantedItem, ItemStack stack)
 	{
-		return new ItemStack(ItemUtils.GetToolMainMaterial(enchantedItem.GetItemStack()));
+		return new ItemStack(ItemUtilToolsArmors.GetToolMainMaterial(enchantedItem.GetItemStack()));
 	}
 	
 	@Override

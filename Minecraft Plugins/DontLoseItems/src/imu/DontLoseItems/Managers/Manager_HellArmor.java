@@ -32,9 +32,11 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmithingInventory;
@@ -850,7 +852,7 @@ public class Manager_HellArmor implements Listener
 
         if(arrowItemStack == null) return;
         
-        SetHellArrow(arrowItemStack,arrow, player.getGameMode() != GameMode.CREATIVE);
+        SetHellArrow(arrowItemStack,arrow, player,player.getGameMode() != GameMode.CREATIVE);
         //e.getProjectile().remove();
 
     }
@@ -1119,17 +1121,18 @@ public class Manager_HellArmor implements Listener
 	}
 	
 	@EventHandler
-	public void Smithing(PrepareSmithingEvent e)
+	public void Anvil(PrepareAnvilEvent e)
 	{
-
-		if(_workInProgress) return; 
-		
-		SmithingInventory inv = e.getInventory();
-		
+		AnvilInventory inv = e.getInventory();
 		ItemStack stack1 = inv.getItem(0);
 		ItemStack stack2 = inv.getItem(1);
 		if(stack1 == null || stack2 == null) return;
+			
+		if(GetRarity(stack1) != ITEM_RARITY.Legendary) return;
+		
 		ItemStack result = null;
+		
+		//ARMORS
 		if(IsHellHelmet(stack1) && Manager_LegendaryUpgrades.Instance.IsUpgradeHellHelmet(stack2))
 		{
 			result = CreateVOIDHelmet();
@@ -1161,27 +1164,20 @@ public class Manager_HellArmor implements Listener
 			e.setResult(result);
 			return;
 		}
-		
 
 	}
 	
-	private void GiveVoidArmor(Player player, ItemStack baseStack,ItemStack stack)
-	{
-		Metods.CloneEnchantments(baseStack, stack);
-		Metods._ins.InventoryAddItemOrDrop(stack, player );
-	}
-	
 	@EventHandler
-	public void SmithingClick(InventoryClickEvent e)
+	public void AnvilClick(InventoryClickEvent e)
 	{
 		
 		if(e.isCancelled()) return;
 		
-		if(!(e.getInventory() instanceof SmithingInventory)) return;
+		if(!(e.getInventory() instanceof AnvilInventory)) return;
 		
 		if(e.getSlotType() != SlotType.RESULT) return;
 		
-		SmithingInventory inv = (SmithingInventory)e.getInventory();
+		AnvilInventory inv = (AnvilInventory)e.getInventory();
 				
 		if(inv.getItem(0) == null || inv.getItem(1) == null) return;
 		
@@ -1198,6 +1194,12 @@ public class Manager_HellArmor implements Listener
 
 		inv.setItem(0, new ItemStack(Material.AIR));
 		inv.setItem(1, new ItemStack(Material.AIR));
+	}
+	
+	private void GiveVoidArmor(Player player, ItemStack baseStack,ItemStack stack)
+	{
+		Metods.CloneEnchantments(baseStack, stack);
+		Metods._ins.InventoryAddItemOrDrop(stack, player );
 	}
 	public boolean IsHellTorch(ItemStack stack)
 	{
@@ -1261,13 +1263,22 @@ public class Manager_HellArmor implements Listener
 		return 0;
 	}
 	
-	public void SetHellArrow(ItemStack arrow, Entity entity, boolean reduceStackAmount)
+	public void SetHellArrow(ItemStack arrow, Entity entity, Player shooter, boolean reduceStackAmount)
 	{
 		Integer radius = Manager_HellArmor.Instance.GetHellArrow(arrow);
 
         if(radius <= 0) return;
         
-        if(reduceStackAmount) arrow.setAmount(arrow.getAmount()-1);
+        if(reduceStackAmount) 
+        {
+        	int extra = 0;
+        	//System.out.println("item: "+shooter.getInventory().getItemInMainHand());
+        	if(shooter != null && shooter.getInventory().getItemInMainHand().getType() == Material.CROSSBOW)
+        	{
+        		extra++;
+        	}
+        	arrow.setAmount(arrow.getAmount()-1+extra);
+        }
         
         Metods._ins.setPersistenData(entity, _PD_HELL_ARROW, PersistentDataType.INTEGER, radius);
         Metods._ins.setPersistenData(entity, _PD_HELL_TIER, PersistentDataType.STRING, GetRarity(arrow).toString());

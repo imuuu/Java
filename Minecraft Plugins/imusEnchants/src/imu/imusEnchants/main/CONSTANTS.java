@@ -56,6 +56,20 @@ public class CONSTANTS
 	public static final boolean SWAPPER_ANIMATION = true;
 	public static final int DELAY_SWAPPER_ANIMATION = 12; //ticks
 	
+	public static final double MENDING_INCREASE_BY_LEVEL = 0.2f;
+	
+	public static final boolean DISABLE_ENCHANTED_BOOKS_VILLAGERS = true;
+	public static final boolean ENABLE_BUY_BOOSTERS_VILLAGERS = true;
+	public static final boolean ENABLE_BUY_SLOT_ITEMS_VILLAGERS = true;
+	public static final boolean ENABLE_SELL_BOOSTERS_FOR_TOOLS_ARMOR_VILLAGERS = true;
+	
+	public static final double UNLOCKING_NODES_RECURSIVE_REDUCE = 0.8; // 0.0-1.0f
+	public static final int UNLOCKING_NODES_RECURSIVE_DEPTH = 5;
+	public static final double UNLOCKING_NODES_RECURSIVE_START_CHANCE = 0.20; //0.0-1.0f
+	
+	public static final boolean SET_FOUND_ENCHANTED_BOOKS_LEVEL_ONE = true;
+	public static final boolean ENABLE_MENDING_FOUND_ONLY_END = true;
+	
 	public static NodeDirectional GetDirectionalNode(ItemStack stack)
 	{
 		

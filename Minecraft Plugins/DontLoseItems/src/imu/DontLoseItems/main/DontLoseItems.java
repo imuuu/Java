@@ -18,6 +18,7 @@ import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.Events.VoidTotemEvents;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.Managers.Manager_HellTools;
+import imu.DontLoseItems.Managers.Manager_IronArmor;
 import imu.DontLoseItems.Managers.Manager_LegendaryUpgrades;
 import imu.DontLoseItems.Managers.Manager_VoidStones;
 import imu.DontLoseItems.other.AntiAfk;
@@ -55,6 +56,7 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new ElytraGenerationEvents(), this);
 		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
 		getServer().getPluginManager().registerEvents(new AntiAfk(), this);
+		getServer().getPluginManager().registerEvents(new Manager_IronArmor(), this);
 		
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 		
