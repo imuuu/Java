@@ -56,6 +56,7 @@ public class ImusChallenges extends JavaPlugin
     public void onDisable()
     {
         System.out.println("ImusChallenges has been disabled!");
+
     }
 
     private void registerPermissions()
@@ -71,7 +72,7 @@ public class ImusChallenges extends JavaPlugin
     private boolean connectDataBase()
     {
         Bukkit.getLogger().info(ChatColor.GREEN + "[imusChallenges] Connecting to database...");
-        _SQL = new MySQL(this, 4,"ImusChallenges");
+        _SQL = new MySQL(this, 10,"ImusChallenges");
         return true;
     }
 

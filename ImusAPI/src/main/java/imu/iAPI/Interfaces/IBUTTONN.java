@@ -12,6 +12,7 @@ public interface IBUTTONN
 	public void setMaxStackAmount(int amount);
 	public int getMaxStackAmount();
 	public int getPosition();
+	public void setPosition(int position);
 	public boolean isPositionLocked();
 	public void setLockPosition(boolean lockPostion);
 	//void OnClick(Player whoClicked, ClickType clickType);

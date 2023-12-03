@@ -121,31 +121,44 @@ public class SpawnerEvents implements Listener
 		if (block.getType() != Material.SPAWNER)
 			return;
 		
+
 		boolean playerSpawner = Manager_Spawners.Instance.HasSpawner(e.getBlock().getLocation());
 
-		Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
-		
 		Player player = e.getPlayer();
 		if (!ImusAPI._metods.HasEnchant(player.getInventory().getItemInMainHand(), Enchantment.SILK_TOUCH))
+		{
+			Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
 			return;
+		}
+			
 
 		CreatureSpawner spawner = (CreatureSpawner) block.getState();
 		EntityType entityType = spawner.getSpawnedType();
-
+		
+		if(entityType == null)
+		{
+			Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
+			return;
+		}
+		
 		if (playerSpawner)
 		{
 			e.setDropItems(false);
 			e.setExpToDrop(0);
-			
 			ItemStack playerCustomSpawner = Manager_Spawners.Instance.GetCustomSpawner(e.getBlock().getLocation()).GetSpawnerItemStack();
 			
-			if(playerCustomSpawner == null) return;
+			if(playerCustomSpawner == null)
+			{
+				Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
+				return;
+			}
 			
 			block.getWorld().dropItemNaturally(block.getLocation(), playerCustomSpawner);
-			
+			Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
 			return;
 		}
 		
+		Manager_Spawners.Instance.RemoveSpawner(block.getLocation());
 		int chance = (int)_silk_touch_chance + _spawnerDatas.get(player.getUniqueId()).CurrentChanceBonus;
 		int roll = rand.nextInt(100);
 		

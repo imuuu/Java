@@ -1,6 +1,5 @@
 package imu.iWaystones.Main;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -71,7 +70,7 @@ public class ImusWaystones extends JavaPlugin
 	
 	boolean ConnectDataBase()
 	{
-		_SQL = new MySQL(this, 5,"imusWaystones");		
+		_SQL = new MySQL(this, 10,"imusWaystones");		
 		return true;
 	}
 	

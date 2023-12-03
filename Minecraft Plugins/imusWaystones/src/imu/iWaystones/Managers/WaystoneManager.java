@@ -58,7 +58,7 @@ public class WaystoneManager
 	public final String pd_waystoneUUID = "iw.waystoneUUID";
 	public final String pd_waystoneHolo = "iw.holo";
 	public final int _seeDistance = 20;
-	public final int _buildDistance = 30;
+	public final int _buildDistance = 300;
 	
 	private WaystoneManagerSQL _waystoneManagersSQL;
 	private BukkitTask _runnable;
@@ -337,14 +337,27 @@ public class WaystoneManager
 		_waitingPlayerConfirm.remove(uuid_player);
 	}
 
-	public boolean IsNearByWaystones(Waystone waystone)
+	public double IsNearByWaystones(Waystone waystone)
 	{
 		for(Waystone ws : _waystones.values())
 		{
-			if(ws.GetLoc().getWorld().equals(waystone.GetLoc().getWorld()) && ws.GetLoc().distance(waystone.GetLoc()) < _buildDistance) return true;
+			if(!(ws.GetOwnerUUID().equals(waystone.GetOwnerUUID()))) 
+			{
+				System.out.println("ws: "+ws.GetOwnerUUID() + " waystone: "+waystone.GetOwnerUUID());
+				continue;
+			}
+			
+			if(ws.GetLoc().getWorld().equals(waystone.GetLoc().getWorld())) 
+			{
+				double distance = ws.GetLoc().distance(waystone.GetLoc());
+				if(distance < _buildDistance)
+				{
+					return distance;
+				}
+			}
 		}
 		
-		return false;
+		return -1;
 	}
 	
 	public void RemoveWaystone(UUID uuid)

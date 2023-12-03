@@ -47,6 +47,12 @@ public class LineButtonPart implements IBUTTONN
     }
 
     @Override
+    public void setPosition(int position)
+    {
+        _position = position;
+    }
+
+    @Override
     public boolean isPositionLocked()
     {
         return true;

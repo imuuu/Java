@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import me.imu.imusenchants.CONSTANTS;
 import me.imu.imusenchants.Enums.MATERIAL_SLOT_RANGE;
 import me.imu.imusenchants.Managers.ManagerEnchants;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ public class EnchantedItem
 	private final ManagerEnchants _managerEnchants = ManagerEnchants.Instance;
 	private INode[][] _nodes;
 	private int _slots = 0;
+	private double _quality = -1;
 	private boolean _isReveaveled = false;
 	private ItemStack _stack;
 
@@ -32,7 +34,8 @@ public class EnchantedItem
 	private final static String PD_UPRADED = "ie_pd_upgraded";
 	private final static String PD_SLOTS = "ie_pd_slots";
 	private static final String PD_PRECRAFTER = "ie_precrafted";
-	
+	private static final String PD_QUALITY = "ie_quality";
+
 	private int _totalUnlocked = 0;
 
 	private Player _player;
@@ -57,7 +60,7 @@ public class EnchantedItem
 	{
 		_stack = stack;
 		_isReveaveled = IsRevealed(stack);
-
+		_quality = getQuality();
 		int slots = GetSlots(_stack);
 		if (slots > 0)
 			_slots = slots;
@@ -87,7 +90,13 @@ public class EnchantedItem
 
 		}
 		SetRevealed(true);
+		/*if(getQuality() < 0 || force)
+		{
+			setQuality(_stack, CalculateQuality());
+		}*/
+
 		SetTooltip();
+
 
 	}
 
@@ -410,37 +419,7 @@ public class EnchantedItem
 		}
 
 	}
-	
-//	private boolean IsDirectionApplicable(NodeBooster booster, NodeEnchant nodeEnchant) {
-//	    int deltaX = nodeEnchant.GetX() - booster.GetX();
-//	    int deltaY = nodeEnchant.GetY() - booster.GetY();
-//
-//	    // Check if the booster is adjacent to the nodeEnchant
-//	    if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
-//	        return false; // Not adjacent
-//	    }
-//
-//	    // Check if the booster's direction applies to the nodeEnchant based on their relative position
-//	    for (DIRECTION direction : booster.GetDirections()) {
-//	        switch (direction) {
-//	            case UP:
-//	                if (deltaY == -1 && deltaX == 0) return true;
-//	                break;
-//	            case DOWN:
-//	                if (deltaY == 1 && deltaX == 0) return true;
-//	                break;
-//	            case LEFT:
-//	                if (deltaX == -1 && deltaY == 0) return true;
-//	                break;
-//	            case RIGHT:
-//	                if (deltaX == 1 && deltaY == 0) return true;
-//	                break;
-//	            // Include cases for other directions if applicable
-//	        }
-//	    }
-//
-//	    return false;
-//	}
+
 
 	public int ContainsEnchant(ItemStack itemStack)
 	{
@@ -479,11 +458,12 @@ public class EnchantedItem
 	{
 		final String str_revealed = IsRevealed() ? "" : "&a&k#";
 		final String str_upgrade = IsUpgraded(_stack) ? "&e+ &5&k##" : "";
+		final String str_quality = hasQuality(_stack) ? "&7| "+"&9&n" + getQuality() +"&r &7|": "";
 		// ■
 
-		ItemUtils.AddOrReplaceLore(_stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		ItemUtils.AddOrReplaceLore(_stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬"+str_quality+"&3▬▬▬▬▬▬▬▬▬▬▬▬▬");
 		ItemUtils.AddOrReplaceLore(_stack,
-				"&6░ ► " + str_revealed + "&r&a" + _slots + "&r" + str_revealed + str_upgrade);
+				"&6░ ► " + str_revealed + "&r&a" + _slots + "&r"+ str_revealed + str_upgrade);
 
 		return _stack;
 	}
@@ -583,6 +563,35 @@ public class EnchantedItem
 	{
 		ItemUtils.SetTag(stack, PD_PRECRAFTER);
 	}
+
+	public static double getQuality(ItemStack stack)
+	{
+		Double quality = ItemUtils.GetPersistenData(stack, PD_QUALITY, PersistentDataType.DOUBLE);
+		return (quality != null) ? quality : -1;
+	}
+
+	public double getQuality()
+	{
+		if(_quality == -1)
+			_quality = getQuality(_stack);
+		return _quality;
+	}
+
+	public static boolean hasQuality(ItemStack stack)
+	{
+		return getQuality(stack) != -1;
+	}
+
+	public void setQuality(ItemStack stack, double quality)
+	{
+		ItemUtils.SetPersistenData(stack, PD_QUALITY, PersistentDataType.DOUBLE, quality);
+		_quality = quality;
+	}
+
+	public static void removeQuality(ItemStack stack)
+	{
+		ItemUtils.RemovePersistenData(stack, PD_QUALITY);
+	}
 	public INode[][] Get_nodes()
 	{
 		if (_nodes == null)
@@ -598,6 +607,132 @@ public class EnchantedItem
 	public int Get_slots()
 	{
 		return _slots;
+	}
+
+	public double CalculateQualityV2()
+	{
+		int totalConnections = 0;
+		int maxConnections = ((CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS) - ManagerEnchants.REDSTRICTED_SLOTS.size()) * 4; // Maximum possible connections
+
+		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+			for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) {
+				INode[] neighbors = GetNeighbors(i, j);
+
+				for (INode neighbor : neighbors) {
+					if (neighbor != null && !neighbor.IsLocked()) {
+						totalConnections++;
+					}
+				}
+			}
+		}
+
+		// Scale the quality score to a range of 0 to 100
+		double qualityScore = ((double) totalConnections / maxConnections) * 100;
+		qualityScore = Math.round(qualityScore * 10.0) / 10.0;
+		Bukkit.getLogger().info("Quality score: " + qualityScore);
+		return qualityScore;
+	}
+
+	/*public double CalculateQuality()
+	{
+		int totalPoints = 0;
+
+		// Calculate the total points based on neighbors
+		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+			for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) {
+				int neighbors = CountNeighbors(i, j);
+				switch (neighbors) {
+					case 0: totalPoints -= 2; break;
+					case 1: totalPoints += 1; break;
+					case 2: totalPoints += 2; break;
+					case 3: totalPoints += 5; break;
+					case 4: totalPoints += 10; break;
+				}
+			}
+		}
+
+		// Calculate maximum possible points based on max slots
+		MATERIAL_SLOT_RANGE range = ManagerEnchants.GetMaterialSlotsRange(_stack);
+		int maxSlots = range.GetMaxSlots();
+		double maxPoints = maxSlots * 10 * 0.5f; // Assuming the best case scenario where all nodes have 4 neighbors
+
+		// Scale the quality score to a range of 0 to 100
+		double qualityScore = ((double) totalPoints / maxPoints) * 100;
+
+		// Round to one decimal place
+		return Math.round(qualityScore * 10.0) / 10.0;
+	}*/
+
+	private int CountNeighbors(int x, int y) {
+		int count = 0;
+		INode[] neighbors = GetNeighbors(x, y);
+		for (INode neighbor : neighbors) {
+			if (neighbor != null && !neighbor.IsLocked()) {
+				count++;
+			}
+		}
+		return count;
+	}
+	public double CalculateQuality()
+	{
+		int totalPoints = 0;
+		int totalConnections = 0;
+		int maxConnections = ((CONSTANTS.ENCHANT_ROWS * CONSTANTS.ENCHANT_COLUMNS) - ManagerEnchants.REDSTRICTED_SLOTS.size()) * 4;
+		// Calculate the total points based on neighbors
+		for (int i = 0; i < CONSTANTS.ENCHANT_ROWS; i++) {
+			for (int j = 0; j < CONSTANTS.ENCHANT_COLUMNS; j++) {
+				int neighbors = CountNeighbors(i, j);
+				int points = GetPointsBasedOnNeighbors(neighbors);
+				totalConnections += neighbors;
+
+				// Check for adjacent full nodes and apply penalty
+				if (neighbors == 4 && HasAdjacentFullNode(i, j, 4)) {
+					points -= 5;
+				}
+
+				/*if (neighbors == 3 && HasAdjacentFullNode(i, j, 3)) {
+					points -= 2;
+				}*/
+
+				totalPoints += points;
+			}
+		}
+
+		// Calculate maximum possible points based on max slots
+		MATERIAL_SLOT_RANGE range = ManagerEnchants.GetMaterialSlotsRange(_stack);
+		int maxSlots = range.GetMaxSlots();
+		double maxPoints = maxSlots * 8 * 0.5f; // Adjust this value based on the maximum possible points formula
+
+		// Scale the quality score to a range of 0 to 100
+		double connectionQualityScore = ((double) totalConnections / maxConnections) * 100;
+		double qualityScore = ((double) totalPoints / maxPoints) * 100;
+
+		// Round to one decimal place
+		Bukkit.getLogger().info("Quality score: " + qualityScore + ", Connection quality score: " + connectionQualityScore);
+		return Math.round((qualityScore+connectionQualityScore) * 10.0) / 10.0;
+	}
+
+	private int GetPointsBasedOnNeighbors(int neighborCount)
+	{
+		switch (neighborCount) {
+			case 0: return -2;
+			case 1: return 1;
+			case 2: return 2;
+			case 3: return 5;
+			case 4: return 10;
+			default: return 0;
+		}
+	}
+
+	private boolean HasAdjacentFullNode(int x, int y, int nodeCount)
+	{
+		INode[] neighbors = GetNeighbors(x, y);
+		for (INode neighbor : neighbors) {
+			if (neighbor != null && CountNeighbors(neighbor.GetX(), neighbor.GetY()) == nodeCount) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<INode> DetachNodes(Class<?> nodeType, List<Integer> exceptionNodePositions)

@@ -138,7 +138,7 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
             }
         }
 
-        System.out.println("event action: " + event.getAction() + " AREA: " + area);
+        //System.out.println("event action: " + event.getAction() + " AREA: " + area);
         if (area == INVENTORY_AREA.UPPER_INV)
         {
             switch (event.getAction())

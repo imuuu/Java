@@ -31,7 +31,8 @@ public class Button implements IBUTTONN
 		_stack = stack;
 		_position = position;
 	}
-	
+
+
 	@Override
 	public void setMaxStackAmount(int amount)
 	{
@@ -60,7 +61,13 @@ public class Button implements IBUTTONN
 	{
 		return _position;
 	}
-	
+
+	@Override
+	public void setPosition(int position)
+	{
+		_position = position;
+	}
+
 	public void setLockPosition(boolean lockPostion)
 	{
 		_lockPosition = lockPostion;

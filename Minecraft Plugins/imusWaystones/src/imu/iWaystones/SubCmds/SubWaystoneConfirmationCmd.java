@@ -41,10 +41,16 @@ public class SubWaystoneConfirmationCmd implements CommandInterface
     		return false;
     	}
     	
-    	if(!p.hasPermission(ImusWaystones._instance.perm_buildIngnore) && _wManager.IsNearByWaystones(ws))
+    	
+    	if(!p.hasPermission(ImusWaystones._instance.perm_buildIngnore))
     	{
-    		sender.sendMessage(Metods.msgC("&4You can't build waystones close to each other"));
-    		return false;
+    		double distance = _wManager.IsNearByWaystones(ws);
+    		if(distance > 0)
+    		{
+    			sender.sendMessage(Metods.msgC("&4You can't build waystones close to each other &e(&9"+ Math.round(_wManager._buildDistance - distance)+"&e m)" ));
+        		return false;
+    		}
+    		
     	}
     	
     	_wManager.SaveWaystone(ws, true);
