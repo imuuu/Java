@@ -105,11 +105,13 @@ public class WaystoneManagerSQL
 		_main.getLogger().info("===TABLE LOADING FINNISHED===");
 	}
 	
-	Waystone LoadUpgrades(Waystone waystone)
+	private Waystone LoadUpgrades(Waystone waystone)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_tables.upgrades.toString()+" "
-				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';"))
+		final String quarry = "SELECT * FROM "+SQL_tables.upgrades.toString()+" "
+				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';";
+		try (Connection con =_main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
@@ -129,7 +131,7 @@ public class WaystoneManagerSQL
 		catch (Exception e) 
 		{
 			_main.getLogger().info("===> LOADING ERROR: LoadUpgrades ===");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		return waystone;
 	}
@@ -146,11 +148,14 @@ public class WaystoneManagerSQL
 			}
 		}.runTaskAsynchronously(_main);
 	}
-	void SaveUpgrades(Waystone waystone)
+	private void SaveUpgrades(Waystone waystone)
 	{
-		try(PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.upgrades.toString()+" "
-				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';");)
+		final String quarry = "DELETE FROM "+SQL_tables.upgrades.toString()+" "
+				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';";
+				
+		try(Connection con =  _main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps =con.prepareStatement(quarry);
 			ps.executeUpdate();
 		}
 		catch (Exception e) 
@@ -193,10 +198,8 @@ public class WaystoneManagerSQL
 			{
 
 				
-				try
+				try(Connection con = _main.GetSQL().GetConnection())
 				{
-					Connection con = _main.GetSQL().GetConnection();
-					
 					for(BaseUpgrade upgrade : upgrades)
 					{
 						
@@ -231,11 +234,13 @@ public class WaystoneManagerSQL
 		
 	}
 	
-	void RemoveUpgrades(Waystone waystone)
+	private void RemoveUpgrades(Waystone waystone)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.upgrades.toString()+" "
-				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';"))
+		final String quarry = "DELETE FROM "+SQL_tables.upgrades.toString()+" "
+				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ps.executeUpdate();
 			
 			
@@ -247,13 +252,11 @@ public class WaystoneManagerSQL
 	
 	private Waystone LoadWaystoneOwner(Waystone waystone)
 	{
-		try	
-				(
-				PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_tables.waystone_owners.toString()+" "
-				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';");
-				
-				)
+		final String quarry = "SELECT * FROM "+SQL_tables.waystone_owners.toString()+" "
+				+ "WHERE uuid_ws='"+waystone.GetUUID().toString()+"';";
+		try	(Connection con = _main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
@@ -266,8 +269,7 @@ public class WaystoneManagerSQL
 
 				return waystone;
 			}
-
-			
+	
 		} catch (SQLException e) {
 			
 			_main.getLogger().info("===> LOADING ERROR: LoadWaystoneOwner ===");
@@ -278,10 +280,12 @@ public class WaystoneManagerSQL
 	
 	private void SaveWaystoneOwner(UUID uuid_player, String player_name,UUID uuid_ws)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_tables.waystone_owners.toString()+" "
-				+ "(uuid_player,player_name,uuid_ws) VALUES (?,?,?);");)
+		final String quarry = "REPLACE INTO "+SQL_tables.waystone_owners.toString()+" "
+				+ "(uuid_player,player_name,uuid_ws) VALUES (?,?,?);";
+				
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			
+			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement(quarry);
 			int i = 1;
 			ps.setString(i++, uuid_player.toString());
 			ps.setString(i++, player_name);
@@ -297,12 +301,12 @@ public class WaystoneManagerSQL
 	
 	private void RemoveWaystoneOwner(UUID uuid_player, UUID uuid_ws)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.waystone_owners.toString()+" "
-				+ "WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws.toString()+"';");)
+		final String quarry = "DELETE FROM "+SQL_tables.waystone_owners.toString()+" "
+				+ "WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws.toString()+"';";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ps.executeUpdate();
-			
-
 			
 		} catch (SQLException e) {
 			
@@ -310,12 +314,13 @@ public class WaystoneManagerSQL
 		}
 	}
 	
-	public void SaveWaystone(Waystone waystone)
+	private void SaveWaystone(Waystone waystone)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_tables.waystones.toString()+" "
-				+ "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item, visibility_type) VALUES (?,?,?,?,?,?,?,?)");)
+		final String quarry = "REPLACE INTO "+SQL_tables.waystones.toString()+" "
+				+ "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item, visibility_type) VALUES (?,?,?,?,?,?,?,?)";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			int i = 1;
 			ps.setString(i++, waystone.GetUUID().toString());
 			ps.setString(i++, waystone.GetName());
@@ -358,12 +363,12 @@ public class WaystoneManagerSQL
 		}.runTaskAsynchronously(_main);
 	}
 	
-	public void RemoveWaystone(Waystone waystone)
+	private void RemoveWaystone(Waystone waystone)
 	{
-
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.waystones.toString()+ " WHERE uuid='"+waystone.GetUUID().toString()+"';");)
+		final String quarry = "DELETE FROM "+SQL_tables.waystones.toString()+ " WHERE uuid='"+waystone.GetUUID().toString()+"';";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			//System.out.println("try to remove: "+waystone.GetUUID());
 			ps.executeUpdate();
 			RemoveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetUUID());
@@ -379,8 +384,10 @@ public class WaystoneManagerSQL
 	
 	public void LoadWaystones()
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_tables.waystones.toString()+";");)
+		final String quarry ="SELECT * FROM "+SQL_tables.waystones.toString()+";";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps = con.prepareStatement(quarry);
 			_waystoneManager.GetWaystones().clear();
 			
 			ResultSet rs = ps.executeQuery();
@@ -443,12 +450,13 @@ public class WaystoneManagerSQL
 		}.runTaskAsynchronously(_main);
 	}
 	
-	public void SaveDiscovered(UUID uuid_player, UUID uuid_ws)
+	private void SaveDiscovered(UUID uuid_player, UUID uuid_ws)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("INSERT INTO "+SQL_tables.discovered.toString()+" "
-				+ "(uuid_player,uuid_ws) VALUES (?,?);");)
+		final String quarry = "INSERT INTO "+SQL_tables.discovered.toString()+" "
+				+ "(uuid_player,uuid_ws) VALUES (?,?);";
+		try (Connection con  = _main.GetSQL().GetConnection())
 		{
-			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			int i = 1;
 			ps.setString(i++, uuid_player.toString());
 			ps.setString(i++, uuid_ws.toString());			
@@ -473,8 +481,10 @@ public class WaystoneManagerSQL
 	}
 	public void LoadDiscoveredWaystones()
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_tables.discovered.toString()+"");)
+		final String quarry = "SELECT * FROM "+SQL_tables.discovered.toString()+"";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
+			PreparedStatement ps = con.prepareStatement(quarry);
 			_waystoneManager.GetDiscovered().clear();
 			System.out.println("LOADING waystones!");
 			
@@ -513,11 +523,12 @@ public class WaystoneManagerSQL
 			}
 		}.runTaskAsynchronously(_main);
 	}
-	public void RemoveDiscovered(UUID uuid_ws)
+	private void RemoveDiscovered(UUID uuid_ws)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.discovered.toString()+" WHERE uuid_ws='"+uuid_ws+"';");)
+		final String quarry = "DELETE FROM "+SQL_tables.discovered.toString()+" WHERE uuid_ws='"+uuid_ws+"';";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ps.executeUpdate();
 			
 			_main.GetSQL().GetConnection();
@@ -540,10 +551,12 @@ public class WaystoneManagerSQL
 		}.runTaskAsynchronously(_main);
 	}
 	
-	public void RemoveDiscoveredFromPlayer(UUID uuid_player, UUID uuid_ws)
+	private void RemoveDiscoveredFromPlayer(UUID uuid_player, UUID uuid_ws)
 	{
-		try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_tables.discovered.toString()+" WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws+"' ;");)
+		final String quarry = "DELETE FROM "+SQL_tables.discovered.toString()+" WHERE uuid_player='"+uuid_player.toString()+"' AND uuid_ws='"+uuid_ws+"' ;";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{			
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ps.executeUpdate();
 
 		} catch (SQLException e) {

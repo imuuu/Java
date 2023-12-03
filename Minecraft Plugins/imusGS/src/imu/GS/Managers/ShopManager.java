@@ -365,12 +365,12 @@ public class ShopManager
 	
 	public void SaveShop(UUID uuid, boolean dontsavedatabase)
 	{
-		if(_main.GetSQL() == null || dontsavedatabase)
-		{
-			System.out.println("Couldnt find SQL => didnt save data");
-			return;
-			
-		}
+//		if(_main.GetSQL() == null || dontsavedatabase)
+//		{
+//			System.out.println("Couldnt find SQL => didnt save data");
+//			return;
+//			
+//		}
 			
 		
 		Shop sBase = GetShop(uuid);

@@ -139,9 +139,9 @@ public class ShopEnchantManager extends Manager
 	
 	public void LoadEnchantInfos()
 	{
-		try 
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			Connection con = _main.GetSQL().GetConnection();
+			
 			PreparedStatement ps = con.prepareStatement("SELECT enchants.name, enchants.minlvl, enchants.maxlvl, enchants.raw_mult,enchants.price_type, enchant_price_money.min, enchant_price_money.max FROM enchants "
 					+ "INNER JOIN enchant_price_money ON enchants.name = enchant_price_money.name;");
 			ResultSet rs = ps.executeQuery();
@@ -167,7 +167,6 @@ public class ShopEnchantManager extends Manager
 			
 			rs.close();
 			ps.close();
-			con.close();
 			
 			PrintINFO("LoadEnchantInfos", "Enchants Loaded: "+count);
 		} 
@@ -193,16 +192,15 @@ public class ShopEnchantManager extends Manager
 	
 	public void LoadEnchantOtherValues()
 	{
-		try 
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			Connection con = _main.GetSQL().GetConnection();
+			
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.enchant_other_values+";");
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
 				rs.close();
 				ps.close();
-				con.close();
 				return;
 			}
 			while(rs.next())
@@ -219,7 +217,6 @@ public class ShopEnchantManager extends Manager
 			}
 			rs.close();
 			ps.close();
-			con.close();
 			PrintINFO("LoadEnchantOtherValues", "Other values loaded");
 		} 
 		catch 
@@ -286,16 +283,14 @@ public class ShopEnchantManager extends Manager
 	
 	public void LoadEnchantGearMultipliers()
 	{
-		try 
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			Connection con = _main.GetSQL().GetConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.enchant_gear_values+";");
 			ResultSet rs = ps.executeQuery();
 			if(!rs.isBeforeFirst())
 			{
 				rs.close();
 				ps.close();
-				con.close();
 				return;
 			}
 			while(rs.next())
@@ -305,7 +300,6 @@ public class ShopEnchantManager extends Manager
 			}
 			rs.close();
 			ps.close();
-			con.close();
 			PrintINFO("LoadEnchantGearMultipliers", "Gear values loaded: ");
 		} 
 		catch 

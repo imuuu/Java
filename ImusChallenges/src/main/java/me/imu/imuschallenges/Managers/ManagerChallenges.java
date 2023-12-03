@@ -1,6 +1,6 @@
 package me.imu.imuschallenges.Managers;
 
-import me.imu.imuschallenges.CHALLENGE_TYPE;
+import me.imu.imuschallenges.Enums.CHALLENGE_TYPE;
 import me.imu.imuschallenges.Challenges.CCollectMaterial;
 import me.imu.imuschallenges.Challenges.Challenge;
 import org.bukkit.Material;

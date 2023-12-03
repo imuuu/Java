@@ -63,7 +63,7 @@ public class ImusWaystones extends JavaPlugin
 	{
 		if(_waystoneManagers != null) _waystoneManagers.OnDisable();	
 		
-		if(_SQL != null) _SQL.Disconnect();
+		//if(_SQL != null) _SQL.Disconnect();
 			
 		
 		
@@ -71,18 +71,8 @@ public class ImusWaystones extends JavaPlugin
 	
 	boolean ConnectDataBase()
 	{
-		_SQL = new MySQL(this, "imusWaystones");
-		try {
-			_SQL.Connect();
-			Bukkit.getLogger().info(ChatColor.GREEN +_pluginName+" Database Connected!");
-			return true;
-		} 
-		catch (ClassNotFoundException | SQLException e) {
-
-			Bukkit.getLogger().info(ChatColor.GREEN +_pluginName+" Database not connected");
-		}
-		
-		return false;
+		_SQL = new MySQL(this, 5,"imusWaystones");		
+		return true;
 	}
 	
 	public void registerCommands() 
@@ -98,16 +88,13 @@ public class ImusWaystones extends JavaPlugin
 		handler.registerSubCmd(cmd1, cmd1_sub2, new SubCMDWaystoneList(_cmdHelper.getCmdData(full_sub2)));
 		handler.setPermissionOnLastCmd("iw.list");
 
-
-	    
 	    String cmd1_sub1 = "confirm";
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
 	    _cmdHelper.setCmd(full_sub1, "Confirm waystone", full_sub1);
 	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubWaystoneConfirmationCmd(_cmdHelper.getCmdData(full_sub1)));
 	    
 	    getCommand(cmd1).setExecutor(handler);
-	    
-	    
+	        
 	    cmd1AndArguments.put(cmd1, new String[] { "list", });
 		//cmd1AndArguments.put("inv", new String[] {"test123"});
 

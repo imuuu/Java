@@ -1,5 +1,6 @@
 package imu.GS.Managers;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -97,9 +98,10 @@ public class TagManager
 			public void run() 
 			{
 				_tags_shopItems.clear();
-				try (PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_shopitems);)
+				final String quarry = "SELECT * FROM "+SQL_TABLES.tags_shopitems;
+				try (Connection con = _main.GetSQL().GetConnection())
 				{
-					
+					PreparedStatement ps = con.prepareStatement(quarry);
 					ResultSet rs = ps.executeQuery();
 					if(rs.isBeforeFirst())
 					{
@@ -124,8 +126,9 @@ public class TagManager
 	
 	public void LoadMaterialTags()
 	{
-		try {
-			PreparedStatement ps = _main.GetSQL().GetConnection().prepareStatement("SELECT * FROM "+SQL_TABLES.tags_material);
+		try(Connection con = _main.GetSQL().GetConnection()) 
+		{
+			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.tags_material);
 			ResultSet rs = ps.executeQuery();
 			if(rs.isBeforeFirst())
 			{
@@ -167,11 +170,12 @@ public class TagManager
 			public void run() 
 			{
 				PreparedStatement ps;
-				try {
+				try(Connection con = _main.GetSQL().GetConnection()) 
+				{
 					
 					if(!AddTag(mat, tagName)) return;
 					
-					ps = _main.GetSQL().GetConnection().prepareStatement("REPLACE INTO "+SQL_TABLES.tags_material.toString()+" "
+					ps = con.prepareStatement("REPLACE INTO "+SQL_TABLES.tags_material.toString()+" "
 							+ "(material_name, tag_name) VALUES (?,?)");
 					ps.setString(1, mat.name());
 					ps.setString(2, tagName);
@@ -195,10 +199,10 @@ public class TagManager
 			public void run() 
 			{
 				PreparedStatement ps;
-				try {
-					
+				try (Connection con = _main.GetSQL().GetConnection())
+				{
 					//if(!AddTag(sib, tagName)) return;
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"';");
+					ps = con.prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"';");
 					ps.executeUpdate();
 					
 					for(String tagName : sib.GetTags())
@@ -270,10 +274,11 @@ public class TagManager
 				PreparedStatement ps;
 				_tags_material.get(mat).remove(tagName.toLowerCase());
 								
-				try {
+				try (Connection con = _main.GetSQL().GetConnection())
+				{
 					String quarry  ="DELETE FROM "+SQL_TABLES.tags_material.toString()+" WHERE material_name='"+mat.toString()+"' AND tag_name='"+tagName.toLowerCase()+"';";
 					//System.out.println("Print quarry: "+quarry);
-					ps = _main.GetSQL().GetConnection().prepareStatement(quarry);
+					ps = con.prepareStatement(quarry);
 					ps.executeUpdate();
 				} catch (SQLException e) 
 				{
@@ -295,8 +300,9 @@ public class TagManager
 			{
 				PreparedStatement ps;
 				sib.RemoveTag(tagName);
-				try {
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"' AND tag_name='"+tagName.toLowerCase()+"';");
+				try (Connection con = _main.GetSQL().GetConnection())
+				{
+					ps = con.prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"' AND tag_name='"+tagName.toLowerCase()+"';");
 					ps.executeUpdate();
 				} catch (SQLException e) 
 				{
@@ -318,8 +324,9 @@ public class TagManager
 				_tags_material.put(mat, new HashSet<>());
 				PreparedStatement ps;
 								
-				try {
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.tags_material.toString()+" WHERE material_name='"+mat.toString()+"';");
+				try (Connection con = _main.GetSQL().GetConnection()) 
+				{
+					ps = con.prepareStatement("DELETE FROM "+SQL_TABLES.tags_material.toString()+" WHERE material_name='"+mat.toString()+"';");
 					ps.executeUpdate();
 				} catch (SQLException e) 
 				{
@@ -340,8 +347,9 @@ public class TagManager
 			{
 				PreparedStatement ps;
 				sib.ClearTags();
-				try {
-					ps = _main.GetSQL().GetConnection().prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"';");
+				try (Connection con = _main.GetSQL().GetConnection()) 
+				{
+					ps = con.prepareStatement("DELETE FROM "+SQL_TABLES.tags_shopitems.toString()+" WHERE sib_uuid='"+sib.GetUUID().toString()+"';");
 					ps.executeUpdate();
 				} catch (SQLException e) 
 				{

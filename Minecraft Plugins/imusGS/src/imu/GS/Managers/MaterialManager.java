@@ -75,7 +75,7 @@ public class MaterialManager extends Manager
 			//_main.getLogger().info("====> material_prices");
 			
 			ps.close();
-			con.close();
+			
 			
 		} 
 		catch (Exception e) 
@@ -219,10 +219,10 @@ public class MaterialManager extends Manager
 	}
 	public void LoadMaterialOverflows()
 	{
-		try 
+		final String quarry = "SELECT * FROM "+SQL_TABLES.material_overflow.toString()+";";
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			Connection con = _main.GetSQL().GetConnection();
-			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.material_overflow.toString()+";");
+			PreparedStatement ps = con.prepareStatement(quarry);
 			ResultSet rs = ps.executeQuery();
 			
 			while(rs.next())
@@ -284,9 +284,9 @@ public class MaterialManager extends Manager
 	}
 	void LoadMaterialPrices()
 	{	
-		try 
+		try (Connection con = _main.GetSQL().GetConnection())
 		{
-			Connection con = _main.GetSQL().GetConnection();
+			
 			PreparedStatement ps = con.prepareStatement("SELECT * FROM "+SQL_TABLES.price_materials.toString()+";");
 			ResultSet rs = ps.executeQuery();
 			int i = 1;
@@ -355,7 +355,6 @@ public class MaterialManager extends Manager
 			
 			rs.close();
 			ps.close();
-			con.close();
 			
 			for(PriceMaterial pm : _material_prices.values())
 			{

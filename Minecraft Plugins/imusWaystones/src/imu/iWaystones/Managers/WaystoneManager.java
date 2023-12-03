@@ -319,7 +319,7 @@ public class WaystoneManager
 		
 		if(!_discoveredWaystones.containsKey(player_uuid)) _discoveredWaystones.put(player_uuid, new HashSet<>());
 		_discoveredWaystones.get(player_uuid).add(uuid_ws);
-		if(saveDatabase) _waystoneManagersSQL.SaveDiscovered(player_uuid, uuid_ws);
+		if(saveDatabase) _waystoneManagersSQL.SaveDiscoveredAsync(uuid_ws, uuid_ws);
 	}
 	
 	public void SetPlayerConfirmation(UUID uuid, Waystone waystone)
@@ -377,8 +377,9 @@ public class WaystoneManager
 	}
 	public void SaveWaystoneUpgrades(Waystone waystone)
 	{
-		_waystoneManagersSQL.SaveUpgrades(waystone);
+		_waystoneManagersSQL.SaveUpgradesAsync(waystone);
 	}
+	
 	public void SaveWaystone(Waystone waystone, boolean saveDatabase)
 	{
 		RegisterWaystoneLocation(waystone);

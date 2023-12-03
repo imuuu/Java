@@ -29,7 +29,6 @@ import imu.iWaystone.Upgrades.UpgradeCastTime;
 import imu.iWaystone.Upgrades.UpgradeXPusage;
 import imu.iWaystones.Enums.VISIBILITY_TYPE;
 import imu.iWaystones.Main.ImusWaystones;
-import imu.iWaystones.Managers.WaystoneManager;
 
 public class Waystone 
 {
@@ -443,7 +442,9 @@ public class Waystone
 						z = z == 0 ? 1 : z;
 						
 						player.teleport(target_waystone.GetLoc().clone().add(x, 1, z));
-						ReduceExp(player);
+						
+						if(GetPlayerUpgradePanel(player.getUniqueId()).get_xpUsage().IsEnabled()) ReduceExp(player);
+						
 						SetCooldownPlayer(player);
 						target_waystone.CreateHologram();
 					}

@@ -47,7 +47,7 @@ public class SubTagMaterialCMD implements CommandInterface
     {
     	Player player = (Player) sender;
     	//ImusAPI._metods.printArray("tag", args);
-    	if(args.length < 4)
+    	if(args.length < 5)
     	{  		
     		if(!(args.length > 2 && args[2].equalsIgnoreCase("remove_all_tags")))
     		{

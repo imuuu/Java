@@ -98,23 +98,13 @@ public class Main extends JavaPlugin
 		
 		if(_shopManager != null)
 			_shopManager.onDisabled();
-				
-		if(_SQL != null)
-			_SQL.Disconnect();		
-		
+
 	}
 	
 	void ConnectDataBase()
 	{
-		_SQL = new MySQL(this, "imusGS");
-		try {
-			_SQL.Connect();
-			Bukkit.getLogger().info(ChatColor.GREEN +"[imusGS] Database Connected!");
-		} 
-		catch (ClassNotFoundException | SQLException e) {
-
-			Bukkit.getLogger().info(ChatColor.RED +"[imusGS] Database not connected");
-		}
+		_SQL = new MySQL(this, 30,"imusGS");
+		Bukkit.getLogger().info(ChatColor.GREEN +"[imusGS] Database Connected!");
 	}
 	
 	public void registerCommands() 

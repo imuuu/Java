@@ -39,7 +39,7 @@ import imu.iAPI.Utilities.ItemUtils;
 
 public class ChestLootEvents implements Listener
 {
-	private static final double BETTER_STRUCTURE_LOOT_NERF = 0.5f; // 0-1
+	private static final double BETTER_STRUCTURE_LOOT_NERF = 0.35f; // 0-1
 	public static ChestLootEvents Instance;
 	private Random _rand;
 
@@ -227,9 +227,9 @@ public class ChestLootEvents implements Listener
 		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 60);
 		_lootTable_valuables.Add(new ItemStack(Material.BLAZE_ROD), 40);
 		_lootTable_valuables.Add(new ItemStack(Material.GHAST_TEAR), 14);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 2);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
-		_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
+		//_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 2);
+		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
+		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
 		
 		//_lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
 		
