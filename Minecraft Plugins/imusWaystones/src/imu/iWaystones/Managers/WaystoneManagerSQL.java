@@ -464,8 +464,9 @@ public class WaystoneManagerSQL
 	 */
 	public Set<Waystone> getLoadWaystones() {
 
-		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement =connection.prepareStatement("SELECT * FROM " + SQL_tables.waystones + ";")) {
+		try(Connection connection = _main.GetSQL().GetConnection()) {
 
+			 PreparedStatement statement =connection.prepareStatement("SELECT * FROM " + SQL_tables.waystones + ";");
 			ResultSet resultSet = statement.executeQuery();
 
 			Set<Waystone> waystones = new HashSet<>();
@@ -505,8 +506,9 @@ public class WaystoneManagerSQL
 	 */
 	public Set<Tuple<UUID, UUID>> getLoadDiscoveredWaystones() {
 
-		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.discovered + ";")) {
+		try(Connection connection = _main.GetSQL().GetConnection()) {
 
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.discovered + ";");
 			ResultSet resultSet = statement.executeQuery();
 
 			Set<Tuple<UUID, UUID>> discoveredWaystones = new HashSet<>();

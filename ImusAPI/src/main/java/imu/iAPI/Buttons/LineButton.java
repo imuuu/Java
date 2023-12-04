@@ -121,11 +121,10 @@ public class LineButton implements IBUTTONN
         }
         else if (offset == -1)
         {
-            return !isItemEmpty(_parts.get(_startPosition + _lineLenght).getItemStack());
+            return !isItemEmpty(_parts.get(_startPosition + _lineLenght-1).getItemStack());
         }
         return false;
     }
-
 
     private void shiftPositions(int offset)
     {
@@ -184,7 +183,7 @@ public class LineButton implements IBUTTONN
         _pageID++;
         if (_pageID >= getTotalPages())
         {
-            _pageID = 0; // Wrap around to the first page if exceeded
+            _pageID = 0;
         }
         update();
     }
@@ -212,11 +211,11 @@ public class LineButton implements IBUTTONN
             int index = offset + i;
             LineButtonPart buttonPart = _parts.get(index);
             int slot = buttonPart.getPosition();
-            if (slot < 0 || slot > 53 || slot < _startPosition || slot > _startPosition + getLength() - 1)
+           /* if ( slot < 0 || slot > 53 || slot < _startPosition || slot > _startPosition + getLength() - 1)
             {
                 Bukkit.getLogger().info("slot: " + slot + " is out of bounds, material is: " + buttonPart.getItemStack().getType());
                 continue;
-            }
+            }*/
             _buttonHandler.addButton(buttonPart);
             _buttonHandler.updateButton(buttonPart);
 

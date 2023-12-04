@@ -67,6 +67,17 @@ public class TestInventory extends CustomInventory
         prevButton.setPosition(45);
         addButton(prevButton);
 
+        LineButton lineButton2 = new LineButton(getButtonHandler(), 3+9, 4, items, LINE_DIRECTION.HORIZONTAL);
+        lineButton2.update();
+
+        IBUTTONN nextButton2 = lineButton2.getNextButton();
+        nextButton2.setPosition(3+9+11);
+        addButton(nextButton2);
+
+        IBUTTONN prevButton2 = lineButton2.getPreviousButton();
+        prevButton2.setPosition(3+9+12);
+        addButton(prevButton2);
+
         updateButtons(false);
 
 

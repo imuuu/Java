@@ -18,8 +18,12 @@ public class SubWaystoneReloadCommand implements CommandInterface {
     }
 
     @Override
-    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if(commandSender instanceof Player player) {
+    public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) 
+    {
+    	
+        if(commandSender instanceof Player) 
+        {
+        	Player player = (Player) commandSender;
             if(player.hasPermission(ImusWaystones._instance.perm_reload)) {
                 _wManager.reload(player);
                 return true;
