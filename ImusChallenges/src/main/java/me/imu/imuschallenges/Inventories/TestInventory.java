@@ -56,7 +56,26 @@ public class TestInventory extends CustomInventory
         items.add(new ItemStack(Material.EMERALD));
 
 
-        LineButton lineButton = new LineButton(getButtonHandler(), 1, 6, items, LINE_DIRECTION.VERTICAL);
+        items.add(new ItemStack(Material.DIRT));
+        items.add(new ItemStack(Material.BLACK_BANNER));
+        items.add(new ItemStack(Material.BONE));
+
+        items.add(new ItemStack(Material.GUNPOWDER));
+        items.add(new ItemStack(Material.BROWN_BED));
+        items.add(new ItemStack(Material.NETHERITE_INGOT));
+
+        items.add(new ItemStack(Material.NETHER_BRICK));
+        items.add(new ItemStack(Material.DIAMOND_AXE));
+        items.add(new ItemStack(Material.GOLDEN_APPLE));
+
+        items.add(new ItemStack(Material.OBSERVER));
+        items.add(new ItemStack(Material.OBSIDIAN));
+        items.add(new ItemStack(Material.OAK_BOAT));
+
+        items.add(new ItemStack(Material.DIAMOND_BLOCK));
+
+
+       /* LineButton lineButton = new LineButton(getButtonHandler(), 1, 6, items, LINE_DIRECTION.VERTICAL);
         lineButton.update();
 
         IBUTTONN nextButton = lineButton.getNextSlotButton();
@@ -65,18 +84,26 @@ public class TestInventory extends CustomInventory
 
         IBUTTONN prevButton = lineButton.getPreviousSlotButton();
         prevButton.setPosition(45);
-        addButton(prevButton);
+        addButton(prevButton);*/
 
-        LineButton lineButton2 = new LineButton(getButtonHandler(), 3+9, 4, items, LINE_DIRECTION.HORIZONTAL);
+        LineButton lineButton2 = new LineButton(getButtonHandler(), 1, 1, 6,items);
         lineButton2.update();
 
         IBUTTONN nextButton2 = lineButton2.getNextButton();
-        nextButton2.setPosition(3+9+11);
+        nextButton2.setPosition(53);
         addButton(nextButton2);
 
         IBUTTONN prevButton2 = lineButton2.getPreviousButton();
-        prevButton2.setPosition(3+9+12);
+        prevButton2.setPosition(45);
         addButton(prevButton2);
+
+        IBUTTONN nextButton = lineButton2.getNextSlotButton();
+        nextButton.setPosition(53-9);
+        addButton(nextButton);
+
+        IBUTTONN prevButton = lineButton2.getPreviousSlotButton();
+        prevButton.setPosition(45-9);
+        addButton(prevButton);
 
         updateButtons(false);
 

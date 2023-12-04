@@ -20,19 +20,20 @@ public class LineButton implements IBUTTONN
     private int _startPosition;
     private final int _lineLenght;
     private List<LineButtonPart> _parts;
-    private LINE_DIRECTION _direction;
     private int _pageID = 0;
     private IButtonHandler _buttonHandler;
 
     private ItemStack _emptyStack;
 
-    public LineButton(IButtonHandler buttonHandler, int startPosition, int lineLenght, List<ItemStack> items, LINE_DIRECTION direction)
+    private final int _height;
+
+    public LineButton(IButtonHandler buttonHandler, int startPosition, int lineLenght, int height, List<ItemStack> items)
     {
         _startPosition = startPosition;
         _lineLenght = lineLenght;
-        _direction = direction;
         _parts = new ArrayList<>();
         _pageID = 0;
+        _height = height;
         _buttonHandler = buttonHandler;
         createEmptyStack();
         loadItems(items);
@@ -51,118 +52,101 @@ public class LineButton implements IBUTTONN
 
     public void loadItems(List<ItemStack> items)
     {
-        if (_direction == LINE_DIRECTION.HORIZONTAL)
-        {
-            loadHorizontal(items);
-        }
-        else
-        {
-            loadVertical(items);
-        }
+        loadHorizontal(items);
 
     }
 
     private void loadHorizontal(List<ItemStack> items)
     {
-        int index = 0;
-        for (ItemStack item : items)
+        int itemsPerPage = getLength() * _height;
+        int totalSlots = (int) Math.ceil((double) items.size() / itemsPerPage) * itemsPerPage;
+
+        for (int i = 0; i < totalSlots; i++)
         {
-            loadItem(index, item);
-            index++;
-            if (index >= getLength())
-            {
-                index = 0;
-            }
-        }
-        for (int i = index; i < getLength(); i++)
-        {
-            loadItem(i, _emptyStack);
+            int row = (i / getLength()) % _height;
+            int column = i % getLength();
+            ItemStack item = i < items.size() ? items.get(i) : _emptyStack;
+
+            loadItem(column, row, item);
         }
     }
 
-    private void loadVertical(List<ItemStack> items)
+    private void loadItem(int column, int row, ItemStack item)
     {
-        int index = 0;
-        for (ItemStack item : items)
-        {
-            loadItem(9 * index, item);
-            index++;
+        int slot = _startPosition + (row * 9) + column;
+        LineButtonPart buttonPart = new LineButtonPart(slot, item);
+        _parts.add(buttonPart);
+    }
 
-            if (index >= getLength())
-            {
-                index = 0;
-            }
-        }
-        for (int i = index; i < getLength(); i++)
-        {
-            loadItem(i * 9, _emptyStack);
-        }
-
+    private int calculateNewPosition(int indexInList)
+    {
+        int row = indexInList / getLength();
+        int column = indexInList % getLength();
+        return _startPosition + column + (row * 9);
     }
 
     private void loadItem(int slot, ItemStack item)
     {
-        System.out.println("slot: " + slot + " item: " + item.getType());
         LineButtonPart buttonPart = new LineButtonPart(_startPosition + slot, item);
-        //buttonPart.setItemStack(item);
         _parts.add(buttonPart);
     }
 
     private boolean canShift(int offset)
     {
-        if(_parts.isEmpty())
+        if (_parts.isEmpty())
         {
             return false;
         }
 
+        final int itemsPerPage = getLength() * _height;
+        final int currentPageStartIndex = _pageID * itemsPerPage;
+        final int currentPageEndIndex = Math.min((_pageID + 1) * itemsPerPage, _parts.size()) - 1;
+
+        // Adjusted to include _startPosition in the index calculation
+        int adjustedStartIndex = Math.max(currentPageStartIndex - _startPosition, 0);
+        int adjustedEndIndex = Math.min(currentPageEndIndex - _startPosition, _parts.size() - 1);
+
         if (offset == 1)
         {
+            // Check if the last item on the current page is not empty (shift left)
             return !isItemEmpty(_parts.get(_parts.size() - 1).getItemStack());
         }
         else if (offset == -1)
         {
-            return !isItemEmpty(_parts.get(_startPosition + _lineLenght-1).getItemStack());
+            // Check if the first item on the current page is not empty (shift right)
+            return adjustedStartIndex+itemsPerPage < _parts.size() && !isItemEmpty(_parts.get(adjustedStartIndex+itemsPerPage).getItemStack());
         }
+
         return false;
     }
+
 
     private void shiftPositions(int offset)
     {
         if (!canShift(offset))
         {
-            Bukkit.getLogger().info("can't shift");
             return;
         }
 
         if (offset == 1)
         {
+            // Shift left - move the last item to the front
             LineButtonPart lastPart = _parts.remove(_parts.size() - 1);
             _parts.add(0, lastPart);
         }
         else if (offset == -1)
         {
+            // Shift right - move the first item to the end
             LineButtonPart firstPart = _parts.remove(0);
             _parts.add(firstPart);
         }
 
-        // Update positions of parts
+        // Update positions of parts considering _startPosition
         for (int i = 0; i < _parts.size(); i++)
         {
             LineButtonPart part = _parts.get(i);
-            int newPosition = calculateNewPosition(i);
+            int newPosition = calculateNewPosition(i); // calculateNewPosition accounts for _startPosition
             part.setPosition(newPosition);
-        }
-    }
-
-    private int calculateNewPosition(int indexInList)
-    {
-        if (_direction == LINE_DIRECTION.HORIZONTAL)
-        {
-            return _startPosition + indexInList;
-        }
-        else
-        { // For vertical direction
-            return _startPosition + indexInList * 9;
         }
     }
 
@@ -200,27 +184,40 @@ public class LineButton implements IBUTTONN
 
     private int getTotalPages()
     {
-        return (int) Math.ceil((double) _parts.size() / getLength());
+        final int itemsPerPage = getLength() * _height;
+        return (int) Math.ceil((double) _parts.size() / itemsPerPage);
     }
 
     public void update()
     {
-        final int offset = _pageID * getLength();
-        for (int i = 0; i < getLength(); i++)
+        final int itemsPerPage = getLength() * _height; // Total items per page
+        final int offset = _pageID * itemsPerPage; // Calculate the offset for the current page
+
+        for (int i = 0; i < itemsPerPage; i++)
         {
             int index = offset + i;
+
+            // Check if the index is within the bounds of the _parts list
+            if (index >= _parts.size())
+            {
+                break; // Exit the loop if the index exceeds the list size
+            }
+
             LineButtonPart buttonPart = _parts.get(index);
             int slot = buttonPart.getPosition();
-           /* if ( slot < 0 || slot > 53 || slot < _startPosition || slot > _startPosition + getLength() - 1)
+
+            // Optionally, you can check if the slot is within the inventory bounds
+            if (slot < 0 || slot > 53)
             {
                 Bukkit.getLogger().info("slot: " + slot + " is out of bounds, material is: " + buttonPart.getItemStack().getType());
                 continue;
-            }*/
+            }
+
             _buttonHandler.addButton(buttonPart);
             _buttonHandler.updateButton(buttonPart);
-
         }
     }
+
 
     public IBUTTONN getPreviousButton()
     {
@@ -265,11 +262,6 @@ public class LineButton implements IBUTTONN
             nextSlot();
         });
     }
-
-    /*private int getLength()
-    {
-        return _lineLenght - _startPosition;
-    }*/
 
     private int getLength()
     {
