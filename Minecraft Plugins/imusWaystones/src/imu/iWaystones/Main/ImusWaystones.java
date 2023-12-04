@@ -2,6 +2,7 @@ package imu.iWaystones.Main;
 
 import java.util.HashMap;
 
+import imu.iWaystones.SubCmds.SubWaystoneReloadCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.permissions.Permission;
@@ -17,6 +18,8 @@ import imu.iWaystones.SubCmds.CMD;
 import imu.iWaystones.SubCmds.SubCMDWaystoneList;
 import imu.iWaystones.SubCmds.SubWaystoneConfirmationCmd;
 import imus.iWaystones.Events.WaystoneEvents;
+import org.bukkit.scheduler.BukkitRunnable;
+
 public class ImusWaystones extends JavaPlugin
 {
 	public static ImusWaystones _instance;
@@ -27,6 +30,7 @@ public class ImusWaystones extends JavaPlugin
 	
 	private WaystoneManager _waystoneManagers;
 	final public Permission perm_buildIngnore = new Permission("iw.build.ingnore");
+	final public Permission perm_reload = new Permission("iw.reload");
 	@Override
 	public void onEnable() 
 	{
@@ -91,10 +95,17 @@ public class ImusWaystones extends JavaPlugin
 	    String full_sub1 = cmd1+" "+cmd1_sub1;
 	    _cmdHelper.setCmd(full_sub1, "Confirm waystone", full_sub1);
 	    handler.registerSubCmd(cmd1, cmd1_sub1, new SubWaystoneConfirmationCmd(_cmdHelper.getCmdData(full_sub1)));
+
+		String cmd1_sub3 = "reload";
+		String full_sub3 = cmd1 + " " + cmd1_sub3;
+		_cmdHelper.setCmd(full_sub3, "Reload plugin", full_sub3);
+		handler.registerSubCmd(cmd1, cmd1_sub3, new SubWaystoneReloadCommand(_cmdHelper.getCmdData(full_sub3)));
+		handler.setPermissionOnLastCmd("iw.reload");
 	    
 	    getCommand(cmd1).setExecutor(handler);
 	        
-	    cmd1AndArguments.put(cmd1, new String[] { "list", });
+	    cmd1AndArguments.put(cmd1, new String[] { "list", "reload"});
+
 		//cmd1AndArguments.put("inv", new String[] {"test123"});
 
 		// register cmds
@@ -105,8 +116,7 @@ public class ImusWaystones extends JavaPlugin
 
 		getCommand(cmd1).setTabCompleter(_tab_cmd1);
 	}	
-		
-	
+
 	public WaystoneManager GetWaystoneManager()
 	{
 		return _waystoneManagers;

@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+import imu.iAPI.Other.Tuple;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -457,6 +457,72 @@ public class WaystoneManagerSQL
 		}
 	}
 
+	/**
+	 * <strong>This is a lengthy operation and should be called async!</strong><br>
+	 * Loads all waystones from the database
+	 * @return A set of loaded waystones
+	 */
+	public Set<Waystone> getLoadWaystones() {
+
+		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement =connection.prepareStatement("SELECT * FROM " + SQL_tables.waystones + ";")) {
+
+			ResultSet resultSet = statement.executeQuery();
+
+			Set<Waystone> waystones = new HashSet<>();
+			while(resultSet.next()) {
+				UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+				String name = resultSet.getString("name");
+				World world = Bukkit.getWorld(resultSet.getString("loc_world"));
+				int x = resultSet.getInt("loc_x");
+				int y = resultSet.getInt("loc_y");
+				int z = resultSet.getInt("loc_z");
+				ItemStack displayItem = ImusAPI._metods.DecodeItemStack(resultSet.getString("display_item"));
+				VISIBILITY_TYPE visibilityType = VISIBILITY_TYPE.valueOf(resultSet.getString("visibility_type"));
+
+				Waystone newWaystone = new Waystone(new Location(world, x, y, z));
+				newWaystone.SetName(name);
+				newWaystone.SetDisplayitem(displayItem);
+				newWaystone.SetUUID(uuid);
+				newWaystone.SetVisibilityType(visibilityType);
+
+				LoadWaystoneOwner(newWaystone);
+				LoadUpgrades(newWaystone);
+
+				waystones.add(newWaystone);
+			}
+			return waystones;
+
+		} catch (SQLException e) {
+			_main.getLogger().severe("Couldn't load discovered waystones!");
+			e.printStackTrace();
+		}
+		return Collections.emptySet();
+	}
+
+	/**
+	 * <strong>This is a lengthy operation and should be called async!</strong><br>
+	 * @return A set of discovered waystones
+	 */
+	public Set<Tuple<UUID, UUID>> getLoadDiscoveredWaystones() {
+
+		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.discovered + ";")) {
+
+			ResultSet resultSet = statement.executeQuery();
+
+			Set<Tuple<UUID, UUID>> discoveredWaystones = new HashSet<>();
+			while(resultSet.next()) {
+				UUID uuid_player = UUID.fromString(resultSet.getString("uuid_player"));
+				UUID uuid_ws = UUID.fromString(resultSet.getString("uuid_ws"));
+				discoveredWaystones.add(new Tuple<>(uuid_player, uuid_ws));
+			}
+			return discoveredWaystones;
+
+		} catch (SQLException e) {
+			_main.getLogger().severe("Couldn't load discovered waystones!");
+			e.printStackTrace();
+		}
+		return Collections.emptySet();
+	}
 	public void LoadWaystonesAsync()
 	{
 		new BukkitRunnable() {
