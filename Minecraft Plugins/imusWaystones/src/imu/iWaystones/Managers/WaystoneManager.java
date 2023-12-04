@@ -7,12 +7,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Tag;
-import org.bukkit.World;
+import imu.iAPI.Other.Tuple;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -439,7 +435,38 @@ public class WaystoneManager
 		new WaystoneListInv(player).openThis();
 	}
 
-	
+	/**
+	 * Reloads waystones and discovered waystones from database asynchronously
+	 * @param player Whom to send confirmation message
+	 */
+	public void reload(Player player) {
+		WaystoneManagerSQL sql = this._waystoneManagersSQL;
+		// Move to async thread
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				Set<Waystone> waystones = sql.getLoadWaystones();
+				Set<Tuple<UUID, UUID>> discovered = sql.getLoadDiscoveredWaystones();
+
+				//Move to main thread
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						_waystones.clear();
+						for(Waystone waystone : waystones) {
+							SaveWaystone(waystone, false);
+						}
+
+						_discoveredWaystones.clear();
+						for(Tuple<UUID, UUID> tuple : discovered) {
+							AddDiscovered(tuple.GetKey(), tuple.GetValue(), false);
+						}
+						player.sendMessage(ChatColor.DARK_GREEN + "Waystones reloaded!");
+					}
+				}.runTask(_main);
+			}
+		}.runTaskAsynchronously(_main);
+	}
 	
 	
 	
