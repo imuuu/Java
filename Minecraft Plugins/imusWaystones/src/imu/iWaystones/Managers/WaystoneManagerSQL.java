@@ -458,30 +458,15 @@ public class WaystoneManagerSQL
 	}
 
 	/**
-	 * Tries to close the database resources
-	 */
-	public void tryClose(AutoCloseable closeable) {
-		if(closeable != null) {
-			try {
-				closeable.close();
-			} catch (Exception ignored) {}
-		}
-	}
-
-	/**
 	 * <strong>This is a lengthy operation and should be called async!</strong><br>
 	 * Loads all waystones from the database
 	 * @return A set of loaded waystones
 	 */
 	public Set<Waystone> getLoadWaystones() {
-		Connection connection = null;
-		ResultSet resultSet = null;
-		PreparedStatement statement = null;
-		try {
-			connection = _main.GetSQL().GetConnection();
 
-			statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.waystones + ";");
-			resultSet = statement.executeQuery();
+		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement =connection.prepareStatement("SELECT * FROM " + SQL_tables.waystones + ";")) {
+
+			ResultSet resultSet = statement.executeQuery();
 
 			Set<Waystone> waystones = new HashSet<>();
 			while(resultSet.next()) {
@@ -510,10 +495,6 @@ public class WaystoneManagerSQL
 		} catch (SQLException e) {
 			_main.getLogger().severe("Couldn't load discovered waystones!");
 			e.printStackTrace();
-		} finally {
-			tryClose(connection);
-			tryClose(resultSet);
-			tryClose(statement);
 		}
 		return Collections.emptySet();
 	}
@@ -524,14 +505,9 @@ public class WaystoneManagerSQL
 	 */
 	public Set<Tuple<UUID, UUID>> getLoadDiscoveredWaystones() {
 
-		Connection connection = null;
-		ResultSet resultSet = null;
-		PreparedStatement statement = null;
-		try {
-			connection = _main.GetSQL().GetConnection();
+		try(Connection connection = _main.GetSQL().GetConnection(); PreparedStatement statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.discovered + ";")) {
 
-			statement = connection.prepareStatement("SELECT * FROM " + SQL_tables.discovered + ";");
-			resultSet = statement.executeQuery();
+			ResultSet resultSet = statement.executeQuery();
 
 			Set<Tuple<UUID, UUID>> discoveredWaystones = new HashSet<>();
 			while(resultSet.next()) {
@@ -544,10 +520,6 @@ public class WaystoneManagerSQL
 		} catch (SQLException e) {
 			_main.getLogger().severe("Couldn't load discovered waystones!");
 			e.printStackTrace();
-		} finally {
-			tryClose(connection);
-			tryClose(resultSet);
-			tryClose(statement);
 		}
 		return Collections.emptySet();
 	}
