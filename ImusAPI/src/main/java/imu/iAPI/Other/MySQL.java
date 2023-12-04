@@ -41,7 +41,7 @@ public class MySQL
 
     }
 
-    private void setupDataSource()
+   /* private void setupDataSource()
     {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://" + _host + ":" + _port + "/" + _dataBase);
@@ -54,7 +54,43 @@ public class MySQL
         config.setConnectionTimeout(30000); // Connection timeout in milliseconds
 
         this.dataSource = new HikariDataSource(config);
+    }*/
+
+    private void setupDataSource() {
+        try {
+            // Connect to MySQL without specifying a database
+            String jdbcUrlWithoutDatabase = "jdbc:mysql://" + _host + ":" + _port;
+            HikariConfig tempConfig = new HikariConfig();
+            tempConfig.setJdbcUrl(jdbcUrlWithoutDatabase);
+            tempConfig.setUsername(_username);
+            tempConfig.setPassword(_password);
+
+            try (HikariDataSource tempDataSource = new HikariDataSource(tempConfig);
+                 Connection conn = tempDataSource.getConnection();
+                 Statement stmt = conn.createStatement())
+            {
+                // Check if database exists and create it if not
+                stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + _dataBase);
+            }
+
+            // Now set up the data source with the database
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:mysql://" + _host + ":" + _port + "/" + _dataBase);
+            config.setUsername(_username);
+            config.setPassword(_password);
+            config.addDataSourceProperty("cachePrepStmts", "true");
+            config.addDataSourceProperty("prepStmtCacheSize", "250");
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            config.setMaximumPoolSize(_poolSize);
+            config.setConnectionTimeout(30000);
+
+            this.dataSource = new HikariDataSource(config);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle errors here
+        }
     }
+
 
     public Connection GetConnection() throws SQLException
     {

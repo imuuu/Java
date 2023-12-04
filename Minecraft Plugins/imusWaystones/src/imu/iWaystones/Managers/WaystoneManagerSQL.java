@@ -36,23 +36,51 @@ public class WaystoneManagerSQL
 
 	public void CreateTables()
 	{
-		if (_main.GetSQL() == null)
-			return;
-
+		
 		try (Connection con = _main.GetSQL().GetConnection();)
 		{
 			PreparedStatement ps;
 
 			_main.getLogger().info("===LOADING TABLES===");
-			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS " + SQL_tables.waystones.toString() + "("
-					+ "uuid CHAR(36) NOT NULL, " + "name VARCHAR(100), " + "loc_world VARCHAR(20), "
-					+ "loc_x INT NOT NULL, " + "loc_y INT NOT NULL, " + "loc_z INT NOT NULL, "
-					+ "display_item TEXT(16000), " + "PRIMARY KEY(uuid));");
+			ps = con.prepareStatement("CREATE TABLE IF NOT EXISTS " + SQL_tables.waystones.toString() + 
+					"("
+					+ "id INT AUTO_INCREMENT, " 
+					+ "uuid CHAR(36) NOT NULL UNIQUE, " 
+					+ "name VARCHAR(100), " 
+					+ "loc_world VARCHAR(20), "
+					+ "loc_x INT NOT NULL, " 
+					+ "loc_y INT NOT NULL, " 
+					+ "loc_z INT NOT NULL, "
+					+ "display_item TEXT(16000), " 
+					+ "visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH', " 
+					+ "PRIMARY KEY(id) "
+				    + ");");
 			ps.executeUpdate();
 
-			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
-					+ "ADD COLUMN IF NOT EXISTS visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH';");
-			ps.executeUpdate();
+//			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//					+ "ADD COLUMN IF NOT EXISTS visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH';");
+//			ps.executeUpdate();
+//
+//
+//			ps = con.prepareStatement(
+//				    "ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//				    + "DROP PRIMARY KEY;");
+//			ps.executeUpdate();
+//
+//			// Add the new primary key and set the `id` column to auto-increment
+//			ps = con.prepareStatement(
+//			    "ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//			    + "ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY FIRST;");
+//			ps.executeUpdate();
+//
+//			// Add unique constraint to `uuid`
+//			ps = con.prepareStatement(
+//			    "ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//			    + "ADD UNIQUE (uuid);");
+//			ps.executeUpdate();
+
+			
+			
 			ps.close();
 
 			_main.getLogger().info("==> Waystones");
@@ -82,7 +110,7 @@ public class WaystoneManagerSQL
 
 		} catch (Exception e)
 		{
-			// e.printStackTrace();
+			e.printStackTrace();
 			_main.getLogger().info("===> TABLE LOADING ERROR===");
 			return;
 		}
@@ -400,7 +428,7 @@ public class WaystoneManagerSQL
 			}
 			while (rs.next())
 			{
-				int i = 1;
+				int i = 2;
 
 				UUID uuid = UUID.fromString(rs.getString(i++));
 				String name = rs.getString(i++);

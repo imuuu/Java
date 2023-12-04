@@ -471,8 +471,6 @@ public class ShopManagerSQL
 						}
 					}
 					((ShopItemStockable)sib).SetModData(modData);
-					//sis.Set_amount(amount);
-					
 					rs.close();
 
 				}

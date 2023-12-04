@@ -132,14 +132,13 @@ public class WaystoneManager
 	
 	public void Init()
 	{
-		//ClearHolograms();
-		
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() 
 			{
 				SetupValidBlocks();
+				
 				_waystoneManagersSQL.CreateTables();
 				_waystoneManagersSQL.LoadWaystones();
 				_waystoneManagersSQL.LoadDiscoveredWaystones();
@@ -314,8 +313,10 @@ public class WaystoneManager
 		if(player_uuid == null || uuid_ws == null) return;
 		
 		if(!_discoveredWaystones.containsKey(player_uuid)) _discoveredWaystones.put(player_uuid, new HashSet<>());
+		
 		_discoveredWaystones.get(player_uuid).add(uuid_ws);
-		if(saveDatabase) _waystoneManagersSQL.SaveDiscoveredAsync(uuid_ws, uuid_ws);
+		
+		if(saveDatabase) _waystoneManagersSQL.SaveDiscoveredAsync(player_uuid, uuid_ws);
 	}
 	
 	public void SetPlayerConfirmation(UUID uuid, Waystone waystone)
