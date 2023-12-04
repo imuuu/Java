@@ -458,6 +458,11 @@ public class WaystoneManager
 							SaveWaystone(waystone, false);
 						}
 
+						_location_of_waystones.clear();
+						for (Waystone waystone : waystones) {
+							RegisterWaystoneLocation(waystone);
+						}
+
 						_discoveredWaystones.clear();
 						for(Tuple<UUID, UUID> tuple : discovered) {
 							AddDiscovered(tuple.GetKey(), tuple.GetValue(), false);
