@@ -1,6 +1,7 @@
 me\imu\imusenchants\Enums\CALCULATION_MODE.class
 me\imu\imusenchants\Enchants\NodeBooster$1.class
 me\imu\imusenchants\Enchants\NodeBooster.class
+me\imu\imusenchants\Events\AnvilEvents.class
 me\imu\imusenchants\Enums\MATERIAL_SLOT_RANGE.class
 me\imu\imusenchants\Managers\ManagerEnchants.class
 me\imu\imusenchants\SubCommands\SubOpenEnchant_InvCmd.class

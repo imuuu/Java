@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import imu.iAPI.Utilities.ItemUtilToolsArmors;
 import me.imu.imusenchants.CONSTANTS;
 import me.imu.imusenchants.Enchants.EnchantedItem;
 import me.imu.imusenchants.Enchants.NodeBooster;
@@ -142,7 +143,7 @@ public class Events implements Listener
 
 		AnvilInventory inv = event.getInventory();
 
-		if (!ItemUtils.IsTool(inv.getItem(0)))
+		if (!ItemUtils.IsTool(inv.getItem(0) ))
 			return;
 
 		if (!ItemUtils.IsTool(inv.getItem(1)))
@@ -186,8 +187,37 @@ public class Events implements Listener
 
 		ItemStack stack = inv.getItem(3);
 
+		if(stack == null)
+		{
+			return;
+		}
+
 		if (!EnchantedItem.HasSlots(stack))
 			return;
+
+		if(inv.getItem(2) != null && inv.getItem(2).getType() != Material.NETHERITE_INGOT)
+		{
+			Bukkit.getLogger().info("not trying to upgrade");
+			return;
+		}
+
+		if(inv.getItem(0) != null && inv.getItem(0).getType() != Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
+		{
+			Bukkit.getLogger().info("not trying to upgrade v2");
+			return;
+		}
+		/*if(EnchantedItem.IsUpgraded(stack))
+		{
+			event.setResult(new ItemStack(Material.AIR));
+			Bukkit.getLogger().info("upgraded");
+			return;
+		}*/
+
+		if(!(ItemUtilToolsArmors.IsNetheriteTool(stack.getType()) || ItemUtilToolsArmors.IsNetheriteArmor(stack.getType())))
+		{
+			Bukkit.getLogger().info("not netherite");
+			return;
+		}
 
 		EnchantedItem eItem = new EnchantedItem(stack);
 		EnchantedItem.SetUpgraded(stack, true);

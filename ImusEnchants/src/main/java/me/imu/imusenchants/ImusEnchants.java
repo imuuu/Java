@@ -2,6 +2,7 @@ package me.imu.imusenchants;
 
 import java.util.HashMap;
 
+import me.imu.imusenchants.Events.AnvilEvents;
 import me.imu.imusenchants.Events.Events;
 import me.imu.imusenchants.Events.VillagerEvents;
 import me.imu.imusenchants.Managers.ManagerEnchants;
@@ -35,6 +36,7 @@ public class ImusEnchants extends JavaPlugin
 
         getServer().getPluginManager().registerEvents(new Events(), this);
         getServer().getPluginManager().registerEvents(new VillagerEvents(), this);
+        getServer().getPluginManager().registerEvents(new AnvilEvents(), this);
         RegisterCommands();
     }
 

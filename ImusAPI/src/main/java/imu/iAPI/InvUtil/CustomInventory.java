@@ -5,6 +5,7 @@ import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Handelers.ButtonHandler;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.ICustomInventory;
+import imu.iAPI.Interfaces.IGrid;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ItemUtils;
@@ -16,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 
 public abstract class CustomInventory implements ICustomInventory
 {
@@ -217,6 +219,11 @@ public abstract class CustomInventory implements ICustomInventory
         return _buttonHandler.getButton(position);
     }
 
+    protected IBUTTONN getButton(UUID uuid)
+    {
+        return _buttonHandler.getButton(uuid);
+    }
+
     protected IBUTTONN removeButton(IBUTTONN button)
     {
         return _buttonHandler.removeButton(button.getPosition());
@@ -319,6 +326,21 @@ public abstract class CustomInventory implements ICustomInventory
     protected void removeSnapshot(String snapshotName)
     {
         _buttonHandler.removeSnapshot(snapshotName);
+    }
+
+    protected void addGrid(IGrid grid)
+    {
+    	_buttonHandler.addGrid(grid);
+    }
+
+    protected void removeGrid(IGrid grid)
+    {
+    	_buttonHandler.removeGrid(grid);
+    }
+
+    protected void clearGrids()
+    {
+    	_buttonHandler.clearGrids();
     }
     //<<<< SnapShot system
     //EXAMPLE

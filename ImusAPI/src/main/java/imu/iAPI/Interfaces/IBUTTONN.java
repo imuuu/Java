@@ -4,8 +4,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.UUID;
+import java.util.function.Consumer;
+
 public interface IBUTTONN
 {
+	public UUID getUUID();
+
 	public ItemStack getItemStack();
 	public void setItemStack(ItemStack stack);
 	
@@ -15,10 +20,16 @@ public interface IBUTTONN
 	public void setPosition(int position);
 	public boolean isPositionLocked();
 	public void setLockPosition(boolean lockPostion);
-	//void OnClick(Player whoClicked, ClickType clickType);
-	
+
+	public void setStatic(boolean isStatic);
+	public boolean isStatic();
+
+	public void setEnableAction(boolean enable);
+	public boolean isActionEnabled();
 	public void onUpdate();
 	public void action(InventoryClickEvent event);
+
+	public Consumer<InventoryClickEvent> getAction();
 	
 	public void setLastClickType(ClickType clickType);
 	public ClickType getLastClickType();

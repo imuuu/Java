@@ -2,6 +2,7 @@ package imu.iAPI.Other;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -92,10 +93,32 @@ public class MySQL
     }
 
 
+    // In ImusAPI's MySQL class
+    public HikariDataSource getDataSource() {
+        return this.dataSource;
+    }
+
+
     public Connection GetConnection() throws SQLException
     {
         return dataSource.getConnection();
     }
+
+    //private ConnectionSource _connectionSource;
+
+    /*public synchronized ConnectionSource GetConnectionSource() throws  SQLException
+    {
+        if (_connectionSource == null) {
+            _connectionSource = new DataSourceConnectionSource(dataSource, dataSource.getJdbcUrl());
+        }
+        return _connectionSource;
+    }
+
+    public ConnectionSource GetConnectionSourceNew() throws  SQLException
+    {
+       return new DataSourceConnectionSource(dataSource, dataSource.getJdbcUrl());
+    }*/
+
     public boolean ExecuteStatements(Iterable<String> statements)
     {
         try (Connection con = GetConnection();

@@ -16,9 +16,11 @@ imu\iAPI\Interfaces\IButton.class
 imu\iAPI\Interfaces\ISnapshotHandler.class
 imu\iAPI\SubCommands\Sub_Cmd_OpenNamedInvs.class
 imu\iAPI\Other\CustomInvLayout$1.class
+imu\iAPI\Buttons\GridButton.class
 imu\iAPI\SubCommands\Sub_Cmd_FollowPlayer.class
 imu\iAPI\Utilities\EnchantUtil.class
 imu\iAPI\Utilities\ItemUtilToolsArmors.class
+imu\iAPI\Interfaces\IGrid.class
 imu\iAPI\Utilities\ItemUtilToolsArmors$1.class
 imu\iAPI\SubCommands\Sub_Cmd_FollowPlayer$FollowPlayer.class
 imu\iAPI\Enums\ENCHANTMENT_TIER.class
@@ -49,11 +51,9 @@ imu\iAPI\Other\ParticleAnimations$2.class
 imu\iAPI\FastInventory\Click_Get_Inv$BUTTON.class
 imu\iAPI\SubCommands\Sub_Cmd_FollowPlayer$1.class
 imu\iAPI\FastInventory\Fast_Inventory.class
-imu\iAPI\Buttons\LineButton.class
 imu\iAPI\Other\Metods$1.class
 imu\iAPI\FastInventory\Click_Get_Inv.class
 imu\iAPI\Utilities\ItemUtilToolsArmors$ItemMaterial.class
-imu\iAPI\Buttons\LineButtonPart.class
 imu\iAPI\Interfaces\ICustomInventory.class
 imu\iAPI\Other\ImusTabCompleter.class
 imu\iAPI\CmdUtil\CmdHelper.class
@@ -66,6 +66,7 @@ imu\iAPI\InvUtil\InventoryReaderStack.class
 imu\iAPI\InvUtil\CustomInventory.class
 imu\iAPI\Other\Tuple.class
 imu\iAPI\Interfaces\ITouchHandler.class
+imu\iAPI\Buttons\GridButtonPart.class
 imu\iAPI\FastInventory\Click_Get_Inv$1.class
 imu\iAPI\Enums\INVENTORY_AREA.class
 imu\iAPI\Enums\INV_ACTION.class

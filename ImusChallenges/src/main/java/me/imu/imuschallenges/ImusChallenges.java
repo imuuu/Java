@@ -1,21 +1,26 @@
 package me.imu.imuschallenges;
 
+import com.j256.ormlite.jdbc.DataSourceConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.zaxxer.hikari.HikariDataSource;
 import imu.iAPI.CmdUtil.CmdHelper;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
 import me.imu.imuschallenges.Commands.ExampleCmd;
-import me.imu.imuschallenges.Events.CollectionEventListener;
 import me.imu.imuschallenges.Managers.ManagerAchievementChallenges;
 import me.imu.imuschallenges.Managers.ManagerCCollectMaterial;
 import me.imu.imuschallenges.Managers.ManagerChallenges;
+import me.imu.imuschallenges.Managers.ManagerTablePlayers;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCmd;
+import me.imu.imuschallenges.SubCommands.SubOpenInvCollectionMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class ImusChallenges extends JavaPlugin
@@ -32,6 +37,7 @@ public class ImusChallenges extends JavaPlugin
     //Managers
     private static ManagerChallenges _managerChallenges;
     private static ManagerCCollectMaterial _managerCCollectMaterial;
+    private static ManagerTablePlayers _managerTablePlayers;
 
     public static ManagerChallenges getManagerChallenges() {return _managerChallenges;}
 
@@ -44,9 +50,11 @@ public class ImusChallenges extends JavaPlugin
         registerCommands();
         System.out.println("ImusChallenges has been enabled!");
         registerPermissions();
+
+        _managerTablePlayers = new ManagerTablePlayers();
         _managerChallenges = new ManagerChallenges();
         _managerCCollectMaterial = new ManagerCCollectMaterial(this);
-        getServer().getPluginManager().registerEvents(new CollectionEventListener(), this);
+        getServer().getPluginManager().registerEvents(_managerCCollectMaterial, this);
         getServer().getPluginManager().registerEvents(new ManagerAchievementChallenges(), this);
 
 
@@ -68,6 +76,14 @@ public class ImusChallenges extends JavaPlugin
         permissionNode = CONSTANTS.PERM_SERVER_WIDE_COLLECTION_CHALLENGE_BROADCAST;
         permission = new Permission(permissionNode, "Allows hear other research findings", PermissionDefault.NOT_OP);
         Bukkit.getPluginManager().addPermission(permission);
+
+        permissionNode = CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE;
+        permission = new Permission(permissionNode, "Allows compete server wide achievement competition", PermissionDefault.FALSE);
+        Bukkit.getPluginManager().addPermission(permission);
+
+        permissionNode = CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE_BROADCAST;
+        permission = new Permission(permissionNode, "Allows hear other achievement findings", PermissionDefault.FALSE);
+        Bukkit.getPluginManager().addPermission(permission);
     }
     private boolean connectDataBase()
     {
@@ -76,10 +92,17 @@ public class ImusChallenges extends JavaPlugin
         return true;
     }
 
-    public MySQL GetSQL()
+    public MySQL getSQL()
     {
         return _SQL;
     }
+
+    public ConnectionSource getSource() throws SQLException
+    {
+        HikariDataSource dataSource = getSQL().getDataSource();
+        return new DataSourceConnectionSource(dataSource, dataSource.getJdbcUrl());
+    }
+
 
     public void registerCommands()
     {
@@ -97,7 +120,13 @@ public class ImusChallenges extends JavaPlugin
         handler.registerSubCmd(cmd1, cmd1_sub1, new SubOpenInvCmd(_cmdHelper.getCmdData(full_sub1)));
         handler.setPermissionOnLastCmd("ic.inv");
 
-        cmd1AndArguments.put(cmd1, new String[] { "inv" });
+        String cmd1_sub2 = "collect_materials";
+        String full_sub2 = cmd1 + " " + cmd1_sub2;
+        _cmdHelper.setCmd(full_sub2, "Open collected challenge inv", full_sub2);
+        handler.registerSubCmd(cmd1, cmd1_sub2, new SubOpenInvCollectionMaterial(_cmdHelper.getCmdData(full_sub2)));
+        handler.setPermissionOnLastCmd("ic.collect_materials");
+
+        cmd1AndArguments.put(cmd1, new String[] { "inv", "collect_materials" });
         // cmd1AndArguments.put("create", new String[] {"card"});
 
         // register cmds

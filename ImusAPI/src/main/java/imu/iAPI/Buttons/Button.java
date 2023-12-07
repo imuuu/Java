@@ -1,5 +1,6 @@
 package imu.iAPI.Buttons;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.bukkit.event.inventory.ClickType;
@@ -10,20 +11,31 @@ import imu.iAPI.Interfaces.IBUTTONN;
 
 public class Button implements IBUTTONN
 {
+	private UUID _uuid = UUID.randomUUID();
 	private ItemStack _stack;
 	private int _position;
 	private boolean _lockPosition = true;
 	private int _maxStackAmount = 1;
-	private Consumer<InventoryClickEvent> _onClickAction;
+	protected Consumer<InventoryClickEvent> _onClickAction;
 	
-	private ClickType _lastClickType = ClickType.UNKNOWN;
-	
+	protected ClickType _lastClickType = ClickType.UNKNOWN;
+
+	private boolean _isStatic = false;
+	private boolean _enableAction = true;
 	public Button(int position, ItemStack stack, Consumer<InventoryClickEvent> onClickAction)
 	{
 		_stack = stack;
 		_position = position;
 		_onClickAction = onClickAction;
 
+	}
+
+	public Button(IBUTTONN button)
+	{
+		_stack = button.getItemStack();
+		_position = button.getPosition();
+		_onClickAction = button.getAction();
+		_uuid = button.getUUID();
 	}
 	
 	public Button(int position, ItemStack stack)
@@ -49,6 +61,11 @@ public class Button implements IBUTTONN
 	{
 		_onClickAction = onClickAction;
 	}
+
+	public Consumer<InventoryClickEvent> getAction()
+	{
+		return _onClickAction;
+	}
 	
 //	@Override
 //	public void OnClick(Player whoClicked, ClickType clickType)
@@ -72,7 +89,32 @@ public class Button implements IBUTTONN
 	{
 		_lockPosition = lockPostion;
 	}
-	
+
+	@Override
+	public void setStatic(boolean isStatic)
+	{
+		_isStatic = isStatic;
+	}
+
+	@Override
+	public boolean isStatic()
+	{
+		return _isStatic;
+	}
+
+
+	@Override
+	public void setEnableAction(boolean enable)
+	{
+		_enableAction = enable;
+	}
+
+	@Override
+	public boolean isActionEnabled()
+	{
+		return _enableAction;
+	}
+
 	public boolean isPositionLocked()
 	{
 		return _lockPosition;
@@ -80,10 +122,19 @@ public class Button implements IBUTTONN
 	
 	public void action(InventoryClickEvent event)
 	{
+		if(!_enableAction)
+			return;
+
 		if (_onClickAction != null) 
 		{
 			_onClickAction.accept(event);
         }
+	}
+
+	@Override
+	public UUID getUUID()
+	{
+		return _uuid;
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package imu.iAPI.Buttons;
 
-import imu.iAPI.Enums.LINE_DIRECTION;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.Interfaces.IButtonHandler;
+import imu.iAPI.Interfaces.IGrid;
 import imu.iAPI.Utilities.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,31 +12,79 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class LineButton implements IBUTTONN
+public class GridButton implements IGrid
 {
-    private final int MAX_ROW_SIZE = 9;
-    private final int MAX_COLUMN_SIZE = 6;
     private int _startPosition;
     private final int _lineLenght;
-    private List<LineButtonPart> _parts;
+    private List<GridButtonPart> _parts;
+    private List<ItemStack> _items;
+    private List<IBUTTONN> _buttons;
     private int _pageID = 0;
     private IButtonHandler _buttonHandler;
-
     private ItemStack _emptyStack;
 
     private final int _height;
 
-    public LineButton(IButtonHandler buttonHandler, int startPosition, int lineLenght, int height, List<ItemStack> items)
+    public GridButton(int startPosition, int lineLenght, int height, List<ItemStack> items)
     {
         _startPosition = startPosition;
         _lineLenght = lineLenght;
         _parts = new ArrayList<>();
         _pageID = 0;
         _height = height;
-        _buttonHandler = buttonHandler;
         createEmptyStack();
-        loadItems(items);
+        _items = items;
+        //loadItems(items);
+    }
+
+    public GridButton(List<IBUTTONN> buttons, int startPosition, int lineLenght, int height)
+    {
+        _startPosition = startPosition;
+        _lineLenght = lineLenght;
+        _parts = new ArrayList<>();
+        _pageID = 0;
+        _height = height;
+        createEmptyStack();
+        _buttons = buttons;
+        //loadButtons(buttons); // Load IBUTTONN objects
+    }
+
+    public void registerButtonHandler(IButtonHandler buttonHandler)
+    {
+        _buttonHandler = buttonHandler;
+    }
+
+    @Override
+    public void unregisterButtonHandler()
+    {
+        _buttonHandler = null;
+    }
+
+    @Override
+    public void loadButtons()
+    {
+        if(_items != null)
+        {
+            loadItems(_items);
+            return;
+        }
+        if(_buttons != null)
+        {
+            loadButtons(_buttons);
+            return;
+        }
+        int itemsPerPage = getLength() * _height;
+        for (int i = 0; i < itemsPerPage; i++)
+        {
+            int row = (i / getLength()) % _height;
+            int column = i % getLength();
+            int slot = _startPosition + (row * 9) + column;
+            IBUTTONN button = createPlaceholderButton(slot);
+            _buttonHandler.addButton(button);
+            _buttonHandler.updateButton(button);
+        }
     }
 
     private void createEmptyStack()
@@ -50,13 +98,8 @@ public class LineButton implements IBUTTONN
         return ItemUtils.HasTag(item, "empty");
     }
 
-    public void loadItems(List<ItemStack> items)
-    {
-        loadHorizontal(items);
 
-    }
-
-    private void loadHorizontal(List<ItemStack> items)
+    private void loadItems(List<ItemStack> items)
     {
         int itemsPerPage = getLength() * _height;
         int totalSlots = (int) Math.ceil((double) items.size() / itemsPerPage) * itemsPerPage;
@@ -71,11 +114,46 @@ public class LineButton implements IBUTTONN
         }
     }
 
+    private void loadButtons(List<IBUTTONN> buttons)
+    {
+        ArrayList<ItemStack> stacks = new ArrayList<>();
+        for(IBUTTONN button : buttons)
+        {
+            stacks.add(button.getItemStack());
+        }
+        _items = stacks;
+
+        int buttonsPerPage = getLength() * _height;
+        int totalSlots = (int) Math.ceil((double) buttons.size() / buttonsPerPage) * buttonsPerPage;
+
+        for (int i = 0; i < totalSlots; i++)
+        {
+            int row = (i / getLength()) % _height;
+            int column = i % getLength();
+            IBUTTONN button = i < buttons.size() ? buttons.get(i) : createPlaceholderButton(0);
+
+            loadButton(column, row, button);
+        }
+    }
+
+    private void loadButton(int column, int row, IBUTTONN button)
+    {
+        int slot = _startPosition + (row * 9) + column;
+        GridButtonPart buttonPart = new GridButtonPart(button, this);
+        buttonPart.setPosition(slot);
+        _parts.add(buttonPart);
+    }
+
     private void loadItem(int column, int row, ItemStack item)
     {
         int slot = _startPosition + (row * 9) + column;
-        LineButtonPart buttonPart = new LineButtonPart(slot, item);
+        GridButtonPart buttonPart = new GridButtonPart(slot, item, this);
         _parts.add(buttonPart);
+    }
+
+    private IBUTTONN createPlaceholderButton(int slot)
+    {
+        return new GridButtonPart(slot,_emptyStack, this);
     }
 
     private int calculateNewPosition(int indexInList)
@@ -87,7 +165,7 @@ public class LineButton implements IBUTTONN
 
     private void loadItem(int slot, ItemStack item)
     {
-        LineButtonPart buttonPart = new LineButtonPart(_startPosition + slot, item);
+        GridButtonPart buttonPart = new GridButtonPart(_startPosition + slot, item, this);
         _parts.add(buttonPart);
     }
 
@@ -100,11 +178,11 @@ public class LineButton implements IBUTTONN
 
         final int itemsPerPage = getLength() * _height;
         final int currentPageStartIndex = _pageID * itemsPerPage;
-        final int currentPageEndIndex = Math.min((_pageID + 1) * itemsPerPage, _parts.size()) - 1;
+        //final int currentPageEndIndex = Math.min((_pageID + 1) * itemsPerPage, _parts.size()) - 1;
 
         // Adjusted to include _startPosition in the index calculation
         int adjustedStartIndex = Math.max(currentPageStartIndex - _startPosition, 0);
-        int adjustedEndIndex = Math.min(currentPageEndIndex - _startPosition, _parts.size() - 1);
+        //int adjustedEndIndex = Math.min(currentPageEndIndex - _startPosition, _parts.size() - 1);
 
         if (offset == 1)
         {
@@ -131,20 +209,20 @@ public class LineButton implements IBUTTONN
         if (offset == 1)
         {
             // Shift left - move the last item to the front
-            LineButtonPart lastPart = _parts.remove(_parts.size() - 1);
+            GridButtonPart lastPart = _parts.remove(_parts.size() - 1);
             _parts.add(0, lastPart);
         }
         else if (offset == -1)
         {
             // Shift right - move the first item to the end
-            LineButtonPart firstPart = _parts.remove(0);
+            GridButtonPart firstPart = _parts.remove(0);
             _parts.add(firstPart);
         }
 
         // Update positions of parts considering _startPosition
         for (int i = 0; i < _parts.size(); i++)
         {
-            LineButtonPart part = _parts.get(i);
+            GridButtonPart part = _parts.get(i);
             int newPosition = calculateNewPosition(i); // calculateNewPosition accounts for _startPosition
             part.setPosition(newPosition);
         }
@@ -190,23 +268,21 @@ public class LineButton implements IBUTTONN
 
     public void update()
     {
-        final int itemsPerPage = getLength() * _height; // Total items per page
-        final int offset = _pageID * itemsPerPage; // Calculate the offset for the current page
+        final int itemsPerPage = getLength() * _height;
+        final int offset = _pageID * itemsPerPage;
 
         for (int i = 0; i < itemsPerPage; i++)
         {
             int index = offset + i;
 
-            // Check if the index is within the bounds of the _parts list
-            if (index >= _parts.size())
+            if (index >= _parts.size() || index < 0)
             {
-                break; // Exit the loop if the index exceeds the list size
+                break;
             }
 
-            LineButtonPart buttonPart = _parts.get(index);
+            GridButtonPart buttonPart = _parts.get(index);
             int slot = buttonPart.getPosition();
 
-            // Optionally, you can check if the slot is within the inventory bounds
             if (slot < 0 || slot > 53)
             {
                 Bukkit.getLogger().info("slot: " + slot + " is out of bounds, material is: " + buttonPart.getItemStack().getType());
@@ -218,7 +294,19 @@ public class LineButton implements IBUTTONN
         }
     }
 
+    public void generateLeftRightButtons(int leftSlot, int rightSlot)
+    {
+        IBUTTONN leftButton = getPreviousButton();
+        leftButton.setPosition(leftSlot);
 
+        IBUTTONN rightButton = getNextButton();
+        rightButton.setPosition(rightSlot);
+
+        _buttonHandler.addButton(leftButton);
+        _buttonHandler.addButton(rightButton);
+        _buttonHandler.updateButton(leftButton);
+        _buttonHandler.updateButton(rightButton);
+    }
     public IBUTTONN getPreviousButton()
     {
         ItemStack stack = new ItemStack(Material.BIRCH_SIGN);
@@ -268,80 +356,5 @@ public class LineButton implements IBUTTONN
         return _lineLenght;
     }
 
-    @Override
-    public ItemStack getItemStack()
-    {
-        return null;
-    }
 
-    @Override
-    public void setItemStack(ItemStack stack)
-    {
-
-    }
-
-    @Override
-    public void setMaxStackAmount(int amount)
-    {
-
-    }
-
-    @Override
-    public int getMaxStackAmount()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getPosition()
-    {
-        return _startPosition;
-    }
-
-    @Override
-    public void setPosition(int position)
-    {
-        _startPosition = position;
-    }
-
-    public int getEndPosition()
-    {
-        return _lineLenght;
-    }
-
-    @Override
-    public boolean isPositionLocked()
-    {
-        return false;
-    }
-
-    @Override
-    public void setLockPosition(boolean lockPostion)
-    {
-
-    }
-
-    @Override
-    public void onUpdate()
-    {
-
-    }
-
-    @Override
-    public void action(InventoryClickEvent event)
-    {
-
-    }
-
-    @Override
-    public void setLastClickType(ClickType clickType)
-    {
-
-    }
-
-    @Override
-    public ClickType getLastClickType()
-    {
-        return null;
-    }
 }

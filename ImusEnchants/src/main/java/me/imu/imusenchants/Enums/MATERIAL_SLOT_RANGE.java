@@ -10,14 +10,14 @@ public enum MATERIAL_SLOT_RANGE
     IRON		(1, 9),
     GOLD		(1, 12),
     
-    CROSSBOW	(2,11),
-    BOW			(2,11),
+    CROSSBOW	(2,16),
+    BOW			(2,16),
     
     SHIELD		(1,10),
     TRIDEN		(5,16),
     
     STONE		(1,10),
-    FISH_ROD	(1,13),
+    FISH_ROD	(1,14),
     LEATHER		(1,10),
     WOOD		(1, 8);
 

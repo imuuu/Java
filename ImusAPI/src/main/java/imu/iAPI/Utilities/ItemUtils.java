@@ -71,9 +71,6 @@ public class ItemUtils
 		
 	}
 	
-	
-
-	
 	private static int CalculateSimilarity(String x, String y) 
 	{
         int maxLength = Math.max(x.length(), y.length());
@@ -81,9 +78,16 @@ public class ItemUtils
         return (int) ((1 - ((double) ImusUtilities.LevenshteinDistance(x, y) / maxLength)) * 100);
     }
 
-    public static ItemStack AddOrReplaceLore(ItemStack stack, String newLore) 
+	public static ItemStack AddOrReplaceLore(ItemStack stack, String newLore)
+	{
+		return AddOrReplaceLore(stack, newLore, SIMILARITY_THRESHOLD);
+	}
+	public static ItemStack AddOrReplaceLore(ItemStack stack, String newLore, int similarityPercent)
     {
         if (!IsValid(stack)) return stack;
+
+		if(similarityPercent > 100) similarityPercent = 100;
+		if(similarityPercent < 0) similarityPercent = 0;
 
         ItemMeta meta = stack.getItemMeta();
         List<String> lores = meta.hasLore() ? meta.getLore() : new ArrayList<>();
@@ -92,7 +96,7 @@ public class ItemUtils
         for (int i = 0; i < lores.size(); i++) 
         {
         	String existingLore = lores.get(i);
-            if (CalculateSimilarity(existingLore, Metods.msgC(newLore)) >= SIMILARITY_THRESHOLD) 
+            if (CalculateSimilarity(existingLore, Metods.msgC(newLore)) >= similarityPercent)
             {
                 lores.set(i, Metods.msgC(newLore)); // Replace similar lore
                 loreExists = true;

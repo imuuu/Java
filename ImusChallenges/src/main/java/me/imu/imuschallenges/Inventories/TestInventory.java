@@ -1,6 +1,6 @@
 package me.imu.imuschallenges.Inventories;
 
-import imu.iAPI.Buttons.LineButton;
+
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Enums.LINE_DIRECTION;
 import imu.iAPI.Interfaces.IBUTTONN;
@@ -86,7 +86,7 @@ public class TestInventory extends CustomInventory
         prevButton.setPosition(45);
         addButton(prevButton);*/
 
-        LineButton lineButton2 = new LineButton(getButtonHandler(), 1, 1, 6,items);
+        /*LineButton lineButton2 = new LineButton(getButtonHandler(), 1, 1, 6,items);
         lineButton2.update();
 
         IBUTTONN nextButton2 = lineButton2.getNextButton();
@@ -103,7 +103,7 @@ public class TestInventory extends CustomInventory
 
         IBUTTONN prevButton = lineButton2.getPreviousSlotButton();
         prevButton.setPosition(45-9);
-        addButton(prevButton);
+        addButton(prevButton);*/
 
         updateButtons(false);
 

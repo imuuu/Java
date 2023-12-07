@@ -15,16 +15,15 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler, ITouchHandler
 {
     private Plugin _plugin;
     private Map<Integer, IBUTTONN> _buttons;
+
+    private List<IGrid> _grids;
 
     private ICustomInventory _customInventory;
 
@@ -39,6 +38,7 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
     public ButtonHandler(Plugin plugin, ICustomInventory customInventory)
     {
         _buttons = new HashMap<>();
+        _grids = new ArrayList<>();
         _customInventory = customInventory;
         _plugin = plugin;
 
@@ -51,7 +51,18 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
 
     public void clearButtons()
     {
-        _buttons.clear();
+        if (_buttons == null) return;
+
+        List<Integer> positionsToRemove = new ArrayList<>();
+        for (Map.Entry<Integer, IBUTTONN> entry : _buttons.entrySet())
+        {
+            positionsToRemove.add(entry.getKey());
+        }
+
+        for (Integer position : positionsToRemove)
+        {
+            removeButton(position);
+        }
     }
 
     public void addButton(IBUTTONN button)
@@ -67,8 +78,12 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
     public IBUTTONN removeButton(int position)
     {
         removeTouch(position);
-//    	IBUTTONN button = _buttons.remove(position);
-//    	UpdateButton(position);
+
+        if (_buttons.get(position) != null && _buttons.get(position).isStatic())
+        {
+            return null;
+        }
+
         return _buttons.remove(position);
     }
 
@@ -82,6 +97,18 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
         if (!_buttons.containsKey(position)) return null;
 
         return _buttons.get(position);
+    }
+
+    public IBUTTONN getButton(UUID uuid)
+    {
+        for (IBUTTONN button : _buttons.values())
+        {
+            if (button.getUUID().equals(uuid))
+            {
+                return button;
+            }
+        }
+        return null;
     }
 
     public void onHandlerOpen()
@@ -363,6 +390,30 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
         }
 
         return INVENTORY_AREA.NONE;
+    }
+
+    @Override
+    public void addGrid(IGrid grid)
+    {
+        grid.registerButtonHandler(this);
+        grid.loadButtons();
+        _grids.add(grid);
+    }
+
+    @Override
+    public void removeGrid(IGrid grid)
+    {
+        grid.unregisterButtonHandler();
+        _grids.remove(grid);
+    }
+
+    @Override
+    public void clearGrids()
+    {
+        for (IGrid grid : _grids)
+        {
+            grid.unregisterButtonHandler();
+        }
     }
 
     public void updateButtons(boolean clearEmpties)

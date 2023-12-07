@@ -1,7 +1,13 @@
 package me.imu.imuschallenges.Managers;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.table.TableUtils;
 import imu.iAPI.Other.Metods;
 import me.imu.imuschallenges.CONSTANTS;
+import me.imu.imuschallenges.Database.Tables.TablePlayerAchievements;
+import me.imu.imuschallenges.Database.Tables.TablePlayers;
 import me.imu.imuschallenges.ImusChallenges;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
@@ -14,20 +20,40 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ManagerAchievementChallenges implements Listener
 {
     private ImusChallenges _main = ImusChallenges.getInstance();
+
+    private static ManagerTablePlayers _managerTablePlayers = ManagerTablePlayers.getInstance();
     private Map<UUID, Set<String>> _playerCompletedAdvancements;
     private Set<String> _globalCompletedAdvancements;
 
     private final ConcurrentLinkedQueue<PlayerAdvancementPair> buffer = new ConcurrentLinkedQueue<>();
     private final BukkitScheduler scheduler = Bukkit.getScheduler();
+
+    private final Dao<TablePlayerAchievements, Integer> _tablePlayerAchievementsDao;
+
+    public ManagerAchievementChallenges()
+    {
+        _playerCompletedAdvancements = new HashMap<>();
+        _globalCompletedAdvancements = new HashSet<>();
+        createTables();
+        startBufferProcessor();
+
+        try
+        {
+            _tablePlayerAchievementsDao = DaoManager.createDao(_main.getSource(), TablePlayerAchievements.class);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            throw new RuntimeException("Could not create tablePlayersDao");
+        }
+
+    }
 
     private static class PlayerAdvancementPair
     {
@@ -41,29 +67,12 @@ public class ManagerAchievementChallenges implements Listener
         }
     }
 
-    public ManagerAchievementChallenges()
-    {
-        _playerCompletedAdvancements = new HashMap<>();
-        _globalCompletedAdvancements = new HashSet<>();
-        createTables();
-        startBufferProcessor();
-    }
-
-
     private void createTables()
     {
-        try (Connection con = _main.GetSQL().GetConnection())
+        try
         {
-            PreparedStatement ps = con.prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS player_achievements (" +
-                            "id INT AUTO_INCREMENT PRIMARY KEY," +
-                            "player_name CHAR(36) NOT NULL," +
-                            "player_uuid CHAR(36) NOT NULL," +
-                            "advancement_key VARCHAR(255) NOT NULL," +
-                            "completion_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                            ")"
-            );
-            ps.executeUpdate();
+            TableUtils.createTableIfNotExists(_main.getSource(), TablePlayerAchievements.class);
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -81,17 +90,24 @@ public class ManagerAchievementChallenges implements Listener
             @Override
             public void run()
             {
-                try (Connection con = _main.GetSQL().GetConnection();
-                     PreparedStatement ps = con.prepareStatement("SELECT DISTINCT advancement_key FROM player_achievements"))
+                try
                 {
-                    try (ResultSet rs = ps.executeQuery())
+                    // Get the DAO for TablePlayerAchievements
+                    Dao<TablePlayerAchievements, Integer> dao = _tablePlayerAchievementsDao;
+
+                    // Create a query builder
+                    QueryBuilder<TablePlayerAchievements, Integer> queryBuilder = dao.queryBuilder();
+
+                    // Select the distinct achievement names
+                    queryBuilder.selectColumns("achievement_name").distinct();
+
+                    // Execute the query and process the results
+                    List<TablePlayerAchievements> results = queryBuilder.query();
+                    for (TablePlayerAchievements achievement : results)
                     {
-                        while (rs.next())
-                        {
-                            _globalCompletedAdvancements.add(rs.getString("advancement_key"));
-                        }
+                        _globalCompletedAdvancements.add(achievement.getAchievement_name());
                     }
-                } catch (Exception e)
+                } catch (SQLException e)
                 {
                     e.printStackTrace();
                 }
@@ -101,7 +117,7 @@ public class ManagerAchievementChallenges implements Listener
 
     // In ManagerAchievementChallenges class
 
-    private void loadPlayerAchievements(UUID playerUuid)
+    private void loadPlayerAchievements(Player player)
     {
         new BukkitRunnable()
         {
@@ -109,25 +125,32 @@ public class ManagerAchievementChallenges implements Listener
             public void run()
             {
                 Set<String> playerAchievements = new HashSet<>();
-                String query = "SELECT advancement_key FROM player_achievements WHERE player_uuid = ?";
-                try (Connection con = _main.GetSQL().GetConnection();
-                     PreparedStatement ps = con.prepareStatement(query))
+                try
                 {
+                    // Get the DAO for TablePlayerAchievements
+                    Dao<TablePlayerAchievements, Integer> dao = _tablePlayerAchievementsDao;
 
-                    ps.setString(1, playerUuid.toString());
-                    try (ResultSet rs = ps.executeQuery())
+                    // Create a query builder
+                    QueryBuilder<TablePlayerAchievements, Integer> queryBuilder = dao.queryBuilder();
+
+                    TablePlayers tablePlayer = _managerTablePlayers.findOrCreatePlayer(player);
+                    // Build the query
+                    queryBuilder.where().eq("player_id", tablePlayer.getId());
+                    queryBuilder.selectColumns("achievement_name");
+
+                    // Execute the query
+                    List<TablePlayerAchievements> results = queryBuilder.query();
+                    for (TablePlayerAchievements achievement : results)
                     {
-                        while (rs.next())
-                        {
-                            playerAchievements.add(rs.getString("advancement_key"));
-                        }
+                        playerAchievements.add(achievement.getAchievement_name());
                     }
-                } catch (Exception e)
+                } catch (SQLException e)
                 {
                     e.printStackTrace();
-                } finally
+                }
+                finally
                 {
-                    Bukkit.getScheduler().runTask(_main, () -> _playerCompletedAdvancements.put(playerUuid, playerAchievements));
+                    Bukkit.getScheduler().runTask(_main, () -> _playerCompletedAdvancements.put(player.getUniqueId(), playerAchievements));
                 }
             }
         }.runTaskAsynchronously(_main);
@@ -150,29 +173,19 @@ public class ManagerAchievementChallenges implements Listener
         }, 20L, 100L); // Runs every 5 seconds, adjustable
     }
 
-
-    /*@EventHandler
-    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event)
-    {
-        Player player = event.getPlayer();
-        Advancement advancement = event.getAdvancement();
-        String advancementKey = advancement.toString();
-        System.out.println("Player " + player.getName() + " completed advancement " + advancementKey);
-        if (!_globalCompletedAdvancements.contains(advancementKey))
-        {
-            markAdvancementAsCompleted(player, advancementKey);
-            savePlayerAdvancement(player, advancementKey);
-            _globalCompletedAdvancements.add(advancementKey);  // Mark globally as completed
-            // Notify player or perform other actions
-        }
-    }*/
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event)
     {
         Player player = event.getPlayer();
+
+        if(!player.hasPermission(CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE))
+        {
+            return;
+        }
+
         Advancement advancement = event.getAdvancement();
 
-        if(advancement.getDisplay() == null)
+        if (advancement.getDisplay() == null)
         {
             return;
         }
@@ -197,22 +210,21 @@ public class ManagerAchievementChallenges implements Listener
         return completedAdvancements != null && completedAdvancements.contains(advancementKey);
     }
 
-    private void savePlayerAdvancement(Player player, String advancementKey)
+    private void savePlayerAdvancement(Player player, String achievementName)
     {
         new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                try (Connection con = _main.GetSQL().GetConnection();
-                     PreparedStatement ps = con.prepareStatement(
-                             "INSERT INTO player_achievements (player_name, player_uuid, advancement_key) VALUES (?, ?, ?)"
-                     ))
+                try
                 {
-                    ps.setString(1, player.getName());
-                    ps.setString(2, player.getUniqueId().toString());
-                    ps.setString(3, advancementKey);
-                    ps.executeUpdate();
+                    TablePlayerAchievements tablePlayerAchievements = new TablePlayerAchievements();
+                    TablePlayers tablePlayer = _managerTablePlayers.findOrCreatePlayer(player);
+                    tablePlayerAchievements.setPlayer(tablePlayer);
+                    tablePlayerAchievements.setAchievement_name(achievementName);
+                    tablePlayerAchievements.setCollection_time(new Date());
+                    _tablePlayerAchievementsDao.create(tablePlayerAchievements);
                 } catch (Exception e)
                 {
                     e.printStackTrace();
@@ -224,8 +236,7 @@ public class ManagerAchievementChallenges implements Listener
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        UUID playerUuid = event.getPlayer().getUniqueId();
-        loadPlayerAchievements(playerUuid);
+        loadPlayerAchievements(event.getPlayer());
     }
 
     @EventHandler
@@ -237,9 +248,9 @@ public class ManagerAchievementChallenges implements Listener
 
     private void informPlayer(Player player, String achievement)
     {
-        if (player.hasPermission(CONSTANTS.PERM_SERVER_WIDE_COLLECTION_CHALLENGE_BROADCAST))
+        if (player.hasPermission(CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE_BROADCAST))
         {
-            Bukkit.getServer().broadcast(Metods.msgC("&9" + player.getName() + " &9is first to complete the &6" + achievement), CONSTANTS.PERM_SERVER_WIDE_COLLECTION_CHALLENGE_BROADCAST);
+            Bukkit.getServer().broadcast(Metods.msgC("&9" + player.getName() + " &9is &5FIRST &9to complete the &a["+achievement+"]"), CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE_BROADCAST);
             return;
         }
 

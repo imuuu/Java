@@ -456,14 +456,14 @@ public class EnchantedItem
 
 	public ItemStack SetTooltip()
 	{
-		final String str_revealed = IsRevealed() ? "" : "&a&k#";
+		final String str_revealed = IsRevealed(_stack) ? "" : "&a&k#";
 		final String str_upgrade = IsUpgraded(_stack) ? "&e+ &5&k##" : "";
 		final String str_quality = hasQuality(_stack) ? "&7| "+"&9&n" + getQuality() +"&r &7|": "";
 		// ■
 
-		ItemUtils.AddOrReplaceLore(_stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬"+str_quality+"&3▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		ItemUtils.AddOrReplaceLore(_stack, "&3▬▬▬▬▬▬▬▬▬▬▬▬▬"+str_quality+"&3▬▬▬▬▬▬▬▬▬▬▬▬▬", 50);
 		ItemUtils.AddOrReplaceLore(_stack,
-				"&6░ ► " + str_revealed + "&r&a" + _slots + "&r"+ str_revealed + str_upgrade);
+				"&6░ ► " + str_revealed + "&r&a" + _slots + "&r"+ str_revealed + str_upgrade, 25);
 
 		return _stack;
 	}
