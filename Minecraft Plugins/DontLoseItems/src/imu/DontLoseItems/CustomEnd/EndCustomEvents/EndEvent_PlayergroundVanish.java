@@ -5,10 +5,12 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
+import imu.iAPI.Other.Cooldowns;
 
 public class EndEvent_PlayergroundVanish extends EndEvent
 {
@@ -27,13 +29,13 @@ public class EndEvent_PlayergroundVanish extends EndEvent
  	public EndEvent_PlayergroundVanish()
 	{
 		super("Blocks disapier underneat", 60);
-		
+		ChestLootAmount = 2;
 	}
 
 	@Override
 	public void OnEventStart()
 	{
-		ChestLootAmount = 5;
+		ChestLootAmount = 3;
 		_playerLocs.clear();
 		
 	}
@@ -86,10 +88,21 @@ public class EndEvent_PlayergroundVanish extends EndEvent
 		}
 	}
 	
+	private Cooldowns _cd = new Cooldowns();
 	private void OnRemoveGround(Player p)
 	{
 
 		EndEvents.Instance.CreateMaterialSphere(null, p.getLocation().add(_offset), _mats, 10, p.getLocation().getY()-1, _radius);
+		
+		final String id = p.getUniqueId() + "water_search";
+		if(!_cd.isCooldownReady(id))
+		{
+			return;
+		}
+		
+		_cd.setCooldownInSeconds(id, 10);
+		
+		EndEvents.Instance.replaceWaterSourcesAsync(p.getLocation(), 300);
 	}
 
 	@Override
@@ -103,7 +116,7 @@ public class EndEvent_PlayergroundVanish extends EndEvent
 	public String GetRewardInfo()
 	{
 		
-		return "Chestloot roll +"+ChestLootAmount;
+		return "Chestloot roll + "+ChestLootAmount;
 	}
 
 	@Override
@@ -112,6 +125,8 @@ public class EndEvent_PlayergroundVanish extends EndEvent
 		
 		return "Blocks disapier";
 	}
+	
+	
 	
 	
 

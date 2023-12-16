@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,6 +20,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -689,10 +692,6 @@ public class EndEvents implements Listener
 				    		}
 						}
 						
-						
-						//System.out.println("blocks: "+blocks.size()+ " mats: "+_ghastBallMaterials.length);
-						
-			    		//Runs in main thread
 						ChangeBlockType(blocks, mat_list, delay, 0);
 					}
 				}.runTask(DontLoseItems.Instance);
@@ -727,7 +726,7 @@ public class EndEvents implements Listener
 	    		Material mat = block.getType();
 	    		if(block == null || mat == Material.AIR) continue;
 	    		
-	    		if(mat.getBlastResistance() >= 1200) continue;
+	    		if(mat.getBlastResistance() >= 2000) continue;
 	    		
 	    		if(mat.isInteractable())
 	    		{
@@ -742,6 +741,90 @@ public class EndEvents implements Listener
 	    	
 	        
 	    }, delay);
+	}
+	
+	
+	public void replaceWaterSourcesAsync(Location loc, int depth)
+	{
+		new BukkitRunnable() 
+		{
+			
+			@Override
+			public void run()
+			{
+				HashMap<Location, Material> waterSources = new HashMap<>();
+				waterSources = findWaterSources(loc, waterSources, depth);
+
+				List<Location> sources = new ArrayList<>();
+
+				for(Location loc : waterSources.keySet())
+				{
+					Block block = loc.getBlock();
+					if(isSourceBlock(block))
+					{
+						sources.add(loc);
+					}
+				}
+				
+				new BukkitRunnable() {
+					
+					@Override
+					public void run()
+					{
+						for(Location loc : sources)
+						{
+							loc.getBlock().setType(Material.AIR);
+						}
+					}
+				}.runTask(DontLoseItems.Instance);
+			}
+		}.runTaskAsynchronously(DontLoseItems.Instance);
+	    
+	}
+	
+	private HashMap<Location, Material> findWaterSources(Location location, HashMap<Location, Material> waterSources, int depth)
+	{
+		depth--;
+
+		if(depth <= 0)
+			return waterSources;
+
+		Block block = location.getBlock();
+
+		// Check if the block is a water block
+		if (block.getType() != Material.WATER) {
+			return waterSources;
+		}
+
+		// Check if this location is already processed
+		if (waterSources.containsKey(location)) {
+			return waterSources;
+		}
+
+		waterSources.put(location, Material.WATER);
+
+		// Recursively check adjacent blocks
+		findWaterSources(location.clone().add(1, 0, 0), waterSources, depth); // East
+		findWaterSources(location.clone().add(-1, 0, 0), waterSources, depth); // West
+		findWaterSources(location.clone().add(0, 1, 0), waterSources, depth); // Up
+		findWaterSources(location.clone().add(0, -1, 0), waterSources, depth); // Down
+		findWaterSources(location.clone().add(0, 0, 1), waterSources, depth); // South
+		findWaterSources(location.clone().add(0, 0, -1), waterSources, depth); // North
+
+		return waterSources;
+	}
+
+	private boolean isSourceBlock(Block block) 
+	{
+		BlockData blockData = block.getBlockData();
+
+		if (blockData instanceof Levelled)
+		{
+			Levelled levelled = (Levelled) blockData;
+			return levelled.getLevel() == 0;
+		}
+
+		return false;
 	}
 	
 	void GetSettings()

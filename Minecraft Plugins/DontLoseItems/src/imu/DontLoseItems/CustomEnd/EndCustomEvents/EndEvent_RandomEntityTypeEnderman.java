@@ -46,7 +46,7 @@ public class EndEvent_RandomEntityTypeEnderman extends EndEvent
 			new SpawnType(-1, EntityType.ZOMBIE),
 			new SpawnType(1, EntityType.PIGLIN_BRUTE),
 			new SpawnType(-1, EntityType.WITCH),
-			new SpawnType(-1, EntityType.BAT),
+			//new SpawnType(-1, EntityType.BAT),
 			new SpawnType(-1, EntityType.SHULKER),
 			new SpawnType(1, EntityType.RAVAGER),
 			new SpawnType(1, EntityType.CAVE_SPIDER),

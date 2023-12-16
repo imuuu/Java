@@ -117,7 +117,7 @@ public class EndChestLootEvents implements Listener
         
         Unstable_Void_Stone voidStone = new Unstable_Void_Stone();
         _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
-        _lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 1);
+        //_lootTable_valuables.Add(voidStone.GetVoidStoneWithTier(VOID_STONE_TIER.RARE), 1);
         _lootTable_valuables.Add(new Reforge_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 1);
         _lootTable_valuables.Add(new Unanointment_Void_Stone().GetVoidStoneWithTier(VOID_STONE_TIER.NORMAL), 2);
 
@@ -189,7 +189,7 @@ public class EndChestLootEvents implements Listener
 
 		int valuableChance = 36;
 		int foodChance = 2; // 2
-		int enchantedBook = 3;
+		int enchantedBook = 6;
 		int legendaryUpgrades = 1;
 		
 		if(_chestDEBUG && _lootBoost)

@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import imu.DontLoseItems.CustomItems.VoidTotemController;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
 import imu.iAPI.FastInventory.Fast_Inventory;
 import imu.iAPI.FastInventory.Manager_FastInventories;
@@ -49,6 +50,8 @@ public class Manager_LegendaryUpgrades
 		fastInv.AddStack(Get_UpgradeHellChest());
 		fastInv.AddStack(Get_UpgradeHellLeggings());
 		fastInv.AddStack(Get_UpgradeHellBoots());
+		
+		fastInv.AddStack(VoidTotemController.GetVoidtotemItem());
 		
 		Manager_FastInventories.Instance.RegisterFastInventory(fastInv);
 		

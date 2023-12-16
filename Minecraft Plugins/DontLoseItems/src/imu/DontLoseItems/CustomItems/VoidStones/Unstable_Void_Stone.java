@@ -85,6 +85,8 @@ public class Unstable_Void_Stone extends Void_Stone
 		Metods._ins.AddGlow(stack);
 		return stack;
 	}
+	
+	private final int _enchantChance = 50;
 	@Override
 	public ItemStack UseItem(ItemStack stack,VOID_STONE_TIER tier)
 	{
@@ -109,31 +111,33 @@ public class Unstable_Void_Stone extends Void_Stone
 		ench = ImusUtilities.ShuffleArray(ench);
 		Enchantment ench1 = ench[0];
 		Enchantment ench2 = ench[1];
+		
 		stack.removeEnchantment(ench1);
 		stack.removeEnchantment(ench2);
 		
+		reforge(stack, data, ench1, tier, ThreadLocalRandom.current().nextInt(100) < _enchantChance);
+		reforge(stack, data, ench2, tier, ThreadLocalRandom.current().nextInt(100) < _enchantChance);
+	
+		
+		return stack;
+	}
+	
+	private void reforge(ItemStack stack, HashMap<Enchantment, Integer> data, Enchantment ench, VOID_STONE_TIER tier,boolean positive)
+	{
 		if(positive)
 		{
-			int value = data.get(ench1)+GetTierInceaseToEnchant(tier);
-			if(Manager_VoidStones.MAX_ENCH_LEVEL.containsKey(ench1)) value = Manager_VoidStones.MAX_ENCH_LEVEL.get(ench1);
+			int value = data.get(ench)+GetTierInceaseToEnchant(tier);
+			if(Manager_VoidStones.MAX_ENCH_LEVEL.containsKey(ench)) value = Manager_VoidStones.MAX_ENCH_LEVEL.get(ench);
 			
-			stack.addUnsafeEnchantment(ench1, value);
+			stack.addUnsafeEnchantment(ench, value);
 			
-			value = data.get(ench2)+GetTierInceaseToEnchant(tier);
-			if(Manager_VoidStones.MAX_ENCH_LEVEL.containsKey(ench2)) value = Manager_VoidStones.MAX_ENCH_LEVEL.get(ench2);
-			
-			stack.addUnsafeEnchantment(ench2, value);
 		}
 		else
 		{
-			int value = data.get(ench1)-GetTierInceaseToEnchant(tier);
-			if(value >= 1) stack.addEnchantment(ench1, value);
+			int value = data.get(ench)-GetTierInceaseToEnchant(tier);
+			if(value >= 1) stack.addEnchantment(ench, value);
 			
-			value = data.get(ench2)-GetTierInceaseToEnchant(tier);
-			if(value >= 1) stack.addEnchantment(ench2, value);
 		}
-		
-		return stack;
 	}
 
 	

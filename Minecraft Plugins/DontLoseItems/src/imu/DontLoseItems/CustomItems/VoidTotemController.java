@@ -109,7 +109,7 @@ public class VoidTotemController {
                 elytraChoice);
     }
 
-    private ItemStack GetVoidtotemItem() 
+    public static ItemStack GetVoidtotemItem() 
     {
         ItemStack item = new ItemStack(Material.TOTEM_OF_UNDYING);
         ItemMeta meta = item.getItemMeta();

@@ -28,7 +28,7 @@ public class ManagerAchievementChallenges implements Listener
 {
     private ImusChallenges _main = ImusChallenges.getInstance();
 
-    private static ManagerTablePlayers _managerTablePlayers = ManagerTablePlayers.getInstance();
+    private static ManagerPlayers _managerTablePlayers = ManagerPlayers.getInstance();
     private Map<UUID, Set<String>> _playerCompletedAdvancements;
     private Set<String> _globalCompletedAdvancements;
 

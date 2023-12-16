@@ -29,7 +29,7 @@ public class EndEvent_TntEverywhere extends EndEvent
 	private final int _delayTicksToSpawn = 10;
 	
 	private final int _everyThisTickSpawnToPlayer = 20 * 8;
-	private final int _chanceToSpawnToPlayer = 33;
+	private final int _chanceToSpawnToPlayer = 44;
 	
 	private EntityType[] _types = 
 		{
@@ -48,7 +48,7 @@ public class EndEvent_TntEverywhere extends EndEvent
 			}
 		}
 		
-		ChestLootAmount = 3;
+		ChestLootAmount = 1;
 	}
 
 	@Override

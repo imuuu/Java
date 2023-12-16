@@ -65,7 +65,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import imu.DontLoseItems.Enums.DIFFICULT;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.DontLoseItems.Managers.Manager_Difficult;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.DontLoseItems.other.PlayerFear;
@@ -182,6 +184,16 @@ public class NetherEvents implements Listener
 		_validEquipEnteties.add(EntityType.SKELETON);
 	}
 	
+	private DIFFICULT getPlayerDifficulty(Player player)
+	{
+		return getPlayerDifficulty(player.getUniqueId());
+	}
+	
+	private DIFFICULT getPlayerDifficulty(UUID uuid)
+	{
+		return Manager_Difficult.Instance.getPlayerSettings(uuid).NetherDifficulty;
+	}
+	
 	void RunnableAsync()
 	{
 		
@@ -201,7 +213,10 @@ public class NetherEvents implements Listener
 						continue;
 					}
 					
-					
+					if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+					{
+						continue;
+					}
 					
 					Block block = player.getLocation().getBlock();
 					
@@ -363,8 +378,14 @@ public class NetherEvents implements Listener
 		return helmet + chest + legg + feet;
 		
 	}
+	
 	private void AddFearToPlayer(Player player, double amount)
 	{
+		if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+		{
+			return;
+		}
+		
 		//System.out.println("fear: "+amount);
 		PlayerFear fear = GetFear(player);
 		fear.SetPlayer(player);
@@ -461,6 +482,8 @@ public class NetherEvents implements Listener
 		if(e.getBlock().getType() != Material.TORCH) return;
 		
 		if(e.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+		
+		if(getPlayerDifficulty(e.getPlayer()) == DIFFICULT.NO_FEAR) return;
 		
 		if(Manager_HellArmor.Instance.IsHellTorch(e.getPlayer().getInventory().getItemInMainHand())) 
 		{
@@ -604,10 +627,14 @@ public class NetherEvents implements Listener
 	    }
 
 	    Player player = (Player) e.getEntity();
-
+	    DIFFICULT difficulty = getPlayerDifficulty(player);
+	    
 	    if (e.getDamager() instanceof Arrow)
 		{
 	    	if(!_enablePiglinArrowKnockBack) return;
+	    	
+	    	if(difficulty == DIFFICULT.NO_FEAR) return;
+	    	
 			Arrow arrow = (Arrow) e.getDamager();
 
 		    if (!(arrow.getShooter() instanceof Piglin)) {
@@ -633,6 +660,12 @@ public class NetherEvents implements Listener
 	    	    
 	    if(Metods._ins.getPersistenData(e.getDamager(), "SPEED_ZOMBIE", PersistentDataType.INTEGER) == null) return;
 	    
+	    if(difficulty == DIFFICULT.NO_FEAR) 
+	    {
+	    	e.getDamager().remove();
+	    	e.setCancelled(true);
+	    	return;
+	    }
 	    AddFearToPlayer(((Player)e.getEntity()), _fearIncreaseBySpeedZombie);
 	    
 	  }
@@ -715,8 +748,18 @@ public class NetherEvents implements Listener
 	    if (e.getDamager().getType() != EntityType.ARROW) return;
 	    
         if (entity.getEquipment().getItemInOffHand().getType() != Material.SHIELD) return;
-       
+        
+        
+
         Arrow arrow = (Arrow) e.getDamager();
+        
+        if (arrow.getShooter() instanceof Player) 
+        {
+            Player shooter = (Player) arrow.getShooter();
+            
+            if(getPlayerDifficulty(shooter) == DIFFICULT.NO_FEAR) return;
+            
+        }
         SendArrowBack(entity, arrow, 10,2);
         e.setCancelled(true);
 	}
@@ -727,6 +770,11 @@ public class NetherEvents implements Listener
 	    if (e.getEntity() instanceof Player && e.getDamager().getType() == EntityType.HOGLIN) 
 	    {
 	    	Player player = (Player) e.getEntity();
+	    	if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+	    	{
+	    		return;
+	    	}
+	    	
 	    	Hoglin hoglin = (Hoglin) e.getDamager();
 	    	
 	        Vector direction = player.getLocation().toVector().subtract(hoglin.getLocation().toVector());
@@ -750,7 +798,12 @@ public class NetherEvents implements Listener
 		
 		if(!(entity instanceof Player)) return;
 		
+		Player player = (Player) entity;
 		
+		if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+		{
+			return;
+		}
           
 		if(_fearIncreaseByHit > 0)
 		{

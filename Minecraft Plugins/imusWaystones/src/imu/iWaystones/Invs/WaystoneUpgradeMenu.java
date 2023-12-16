@@ -181,23 +181,25 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	@Override
 	public void setupButtons() {
 		
-		for(int i = 0; i < _size; i++) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, " ", i);}
+		for(int i = 0; i < _size; i++) {setupButton(BUTTON.NONE, Material.BLACK_STAINED_GLASS_PANE, _waystone.IsMaxOut() ? "&5MAX OUT!" : " ", i);}
 
 		setupButton(BUTTON.BACK, Material.RED_WOOL, "&bBACK", _size-9);
 		
-		ItemStack stack = new ItemStack(Material.GRINDSTONE);
-		Metods.setDisplayName(stack, "&bExtract Upgrades");
-		ArrayList<String> lores = new ArrayList<>();
-		lores.add("&ePress &5Shift &bM2 &eto Extract");
-		lores.add(" ");
-		lores.add("&9Moves Upgrades to Item");
-		lores.add("&9Which can be inserted other waystone");
-		lores.add("&9to apply items upgrades");
-		Metods._ins.addLore(stack, lores);
-		SetButton(stack, BUTTON.EXTRACT_UPGRADES);
-		SetITEM(_size-5, stack);
-		//setupButton(BUTTON.EXTRACT_UPGRADES, Material.NETHER_STAR, "&bExtract Upgrades", _size-5);
-		
+		if(!_waystone.IsMaxOut())
+		{
+			ItemStack stack = new ItemStack(Material.GRINDSTONE);
+			Metods.setDisplayName(stack, "&bExtract Upgrades");
+			ArrayList<String> lores = new ArrayList<>();
+			lores.add("&ePress &5Shift &bM2 &eto Extract");
+			lores.add(" ");
+			lores.add("&9Moves Upgrades to Item");
+			lores.add("&9Which can be inserted other waystone");
+			lores.add("&9to apply items upgrades");
+			Metods._ins.addLore(stack, lores);
+			SetButton(stack, BUTTON.EXTRACT_UPGRADES);
+			SetITEM(_size-5, stack);
+		}
+
 		if(_waystone.GetOwnerUUID().equals(_player.getUniqueId())|| _player.isOp()) setupButton(BUTTON.SET_NAME, Material.NAME_TAG, "&2Rename Waystone", _size-6);
 		
 		//setupButton(BUTTON.UPGRADE_CASTTIME, Material.LAPIS_BLOCK, "&bCast Time", 1);
@@ -208,6 +210,8 @@ public class WaystoneUpgradeMenu extends CustomInvLayout implements IModDataInv
 	
 	void SetUpgradesAsync()
 	{
+		if(_waystone.IsMaxOut()) return;
+		
 		String forceStr = "&4===> &e&k#&7(&eSHIFT &bM2&7)&e&k# &eto &6FORCE &5UPGRADE!";
 		ItemStack stack = null;
 		

@@ -296,7 +296,7 @@ public class InventoryEnchanting extends CustomInventory
     {
         if (_enchantedItem == null) return;
 
-        for (INode node : _enchantedItem.GetUnlockedNodes())
+        for (INode node : _enchantedItem.getUnlockedNodes())
         {
             if (node.IsFrozen()) continue;
 
@@ -329,7 +329,7 @@ public class InventoryEnchanting extends CustomInventory
             handdleDropTouches();
             _enchantedItem = null;
 
-            for (INode node : item.GetUnlockedNodes())
+            for (INode node : item.getUnlockedNodes())
             {
                 int nodeSlot = node.GetFlatIndex();
 
@@ -399,7 +399,7 @@ public class InventoryEnchanting extends CustomInventory
     private void removeNode(IBUTTONN button)
     {
 
-        _enchantedItem.RemoveNode(button.getPosition());
+        _enchantedItem.removeNode(button.getPosition());
 
         updateEnchantedItem(true);
 

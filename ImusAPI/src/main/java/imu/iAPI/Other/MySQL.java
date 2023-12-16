@@ -3,6 +3,7 @@ package imu.iAPI.Other;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import imu.iAPI.Main.ImusAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
@@ -57,7 +58,8 @@ public class MySQL
         this.dataSource = new HikariDataSource(config);
     }*/
 
-    private void setupDataSource() {
+    private void setupDataSource()
+    {
         try {
             // Connect to MySQL without specifying a database
             String jdbcUrlWithoutDatabase = "jdbc:mysql://" + _host + ":" + _port;
@@ -86,6 +88,8 @@ public class MySQL
             config.setConnectionTimeout(30000);
 
             this.dataSource = new HikariDataSource(config);
+            ImusAPI._instance.RegisterSQL(this);
+
         } catch (SQLException e) {
             e.printStackTrace();
             // Handle errors here
@@ -96,6 +100,13 @@ public class MySQL
     // In ImusAPI's MySQL class
     public HikariDataSource getDataSource() {
         return this.dataSource;
+    }
+
+    public void CloseDataSource()
+    {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+        }
     }
 
 

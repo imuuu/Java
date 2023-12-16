@@ -1,11 +1,8 @@
 package imu.iAPI.Main;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+import imu.iAPI.Other.*;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -19,11 +16,6 @@ import imu.iAPI.Commands.ExampleCmd;
 import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Interfaces.ICustomInventory;
-import imu.iAPI.Other.CustomInvLayout;
-import imu.iAPI.Other.ImusTabCompleter;
-import imu.iAPI.Other.Metods;
-import imu.iAPI.Other.MySQLHelper;
-import imu.iAPI.Other.ProtocolLibUtil;
 import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 
 public class ImusAPI extends JavaPlugin
@@ -40,8 +32,11 @@ public class ImusAPI extends JavaPlugin
 	private ProtocolManager _protocolManager;
 	private ProtocolLibUtil _protocolLibUtil;
 
+	private List<MySQL> _sqls = new ArrayList<>();
 	public static HashSet<Material> AirHashSet;
 	public static HashSet<Material> Ores;
+
+	public static HashSet<Material> FortuneOres;
 	public static HashSet<EntityType> EntitiesNoBosses;
 	private List<EntityType> _excludeEntityTypes = Arrays.asList(EntityType.WANDERING_TRADER, EntityType.WARDEN,
 			EntityType.ARMOR_STAND, EntityType.GIANT, EntityType.ENDER_DRAGON, EntityType.WITHER,
@@ -72,10 +67,13 @@ public class ImusAPI extends JavaPlugin
 		AirHashSet.add(Material.CAVE_AIR);
 
 		InitOres();
+		InitFortuneOres();
 		InitEntities();
 		
 
 	}
+
+
 
 	@Override
 	public void onDisable()
@@ -92,6 +90,11 @@ public class ImusAPI extends JavaPlugin
 		
 		_openedCustomInventories.clear();
 		_openedInvs.clear();
+
+		for(MySQL sql : _sqls)
+		{
+			sql.CloseDataSource();
+		}
 	}
 
 	public void RegisterCommands()
@@ -137,6 +140,11 @@ public class ImusAPI extends JavaPlugin
 	public ImusTabCompleter GetCMD1_TabCompleter()
 	{
 		return _tab_cmd1;
+	}
+
+	public void RegisterSQL(MySQL sql)
+	{
+		_sqls.add(sql);
 	}
 	public void RegisterInvOpen(CustomInvLayout inv)
 	{
@@ -210,6 +218,20 @@ public class ImusAPI extends JavaPlugin
 		Ores.add(Material.DEEPSLATE_IRON_ORE);
 		Ores.add(Material.DEEPSLATE_LAPIS_ORE);
 		Ores.add(Material.DEEPSLATE_REDSTONE_ORE);
+	}
+
+	private void InitFortuneOres()
+	{
+		FortuneOres = new HashSet<>();
+
+		for(Material ore : Ores)
+		{
+			FortuneOres.add(ore);
+		}
+
+		FortuneOres.remove(Material.ANCIENT_DEBRIS);
+		FortuneOres.remove(Material.GLOWSTONE);
+
 	}
 //	boolean setup()
 //	{

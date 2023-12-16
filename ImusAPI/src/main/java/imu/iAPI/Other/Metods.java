@@ -1022,8 +1022,8 @@ public class Metods
 		PlayerDropItemEvent event = new PlayerDropItemEvent(player, dropped);
 		Bukkit.getPluginManager().callEvent(event);
 	}
-	
-	public <K,V> void printHashMap(HashMap<K, V> map)
+
+	/*public <K,V> void printHashMap(HashMap<K, V> map)
 	{
 		System.out.println("========MAP========");
 		for(Entry<K, V> entry : map.entrySet())
@@ -1041,11 +1041,34 @@ public class Metods
 			}else
 			{
 				System.out.println("Key: "+entry.getKey()+" value: "+entry.getValue());
-			}			
+			}
 		}
 		System.out.println("========MAP========");
+	}*/
+
+	public void printHashMap(HashMap<?, ?> map) {
+		StringBuilder sb = new StringBuilder("========MAP========\n");
+		for (Map.Entry<?, ?> entry : map.entrySet()) {
+			Object value = entry.getValue();
+			// Check if the value is null
+			if (value == null) {
+				sb.append("Key: ").append(entry.getKey()).append(" value: null\n");
+			} else if (value.getClass().isArray()) {
+				sb.append("==KEY: ").append(entry.getKey()).append("\n");
+				Object[] array = (Object[]) value;
+				for (Object v : array) {
+					sb.append("values: ").append(v).append("\n");
+				}
+			} else {
+				sb.append("Key: ").append(entry.getKey()).append(" value: ").append(value).append("\n");
+			}
+		}
+		sb.append("========MAP========");
+		System.out.println(sb.toString());
 	}
-	
+
+
+
 	public <T> void printArray(String id, T[] arr)
 	{
 		System.out.println("====================");
@@ -1591,6 +1614,7 @@ public class Metods
 	
 	public ItemStack FortuneSimulation(ItemStack stack, int fortuneLevel) 
 	{
+		if(!ImusAPI.FortuneOres.contains(stack.getType())) return stack;
 
 	    int x = fortuneLevel;
 	    double chance = 1.0 - (2.0 / ((double)x + 2.0)); 

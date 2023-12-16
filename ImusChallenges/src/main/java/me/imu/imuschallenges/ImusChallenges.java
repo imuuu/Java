@@ -8,10 +8,7 @@ import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
 import me.imu.imuschallenges.Commands.ExampleCmd;
-import me.imu.imuschallenges.Managers.ManagerAchievementChallenges;
-import me.imu.imuschallenges.Managers.ManagerCCollectMaterial;
-import me.imu.imuschallenges.Managers.ManagerChallenges;
-import me.imu.imuschallenges.Managers.ManagerTablePlayers;
+import me.imu.imuschallenges.Managers.*;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCmd;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCollectionMaterial;
 import org.bukkit.Bukkit;
@@ -35,12 +32,11 @@ public class ImusChallenges extends JavaPlugin
     private CmdHelper _cmdHelper;
 
     //Managers
-    private static ManagerChallenges _managerChallenges;
-    private static ManagerCCollectMaterial _managerCCollectMaterial;
-    private static ManagerTablePlayers _managerTablePlayers;
-
-    public static ManagerChallenges getManagerChallenges() {return _managerChallenges;}
-
+    private ManagerChallenges _managerChallenges;
+    private ManagerCCollectMaterial _managerCCollectMaterial;
+    private ManagerPlayers _managerPlayers;
+    private ManagerPointType _managerPointType;
+    private ManagerPlayerPoints _managerPlayerPoints;
 
     @Override
     public void onEnable()
@@ -51,9 +47,11 @@ public class ImusChallenges extends JavaPlugin
         System.out.println("ImusChallenges has been enabled!");
         registerPermissions();
 
-        _managerTablePlayers = new ManagerTablePlayers();
+        _managerPlayers = new ManagerPlayers();
         _managerChallenges = new ManagerChallenges();
         _managerCCollectMaterial = new ManagerCCollectMaterial(this);
+        _managerPointType = new ManagerPointType(this);
+        _managerPlayerPoints = new ManagerPlayerPoints(this);
         getServer().getPluginManager().registerEvents(_managerCCollectMaterial, this);
         getServer().getPluginManager().registerEvents(new ManagerAchievementChallenges(), this);
 

@@ -15,11 +15,15 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDeprisScrap;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDeprisScrapOrSilverFish;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDiamond;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDiamondOrSilverFish;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_PlayergroundVanish;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_PlayergroundVanishHard;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnderman;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_SpecialCreepers;
@@ -74,6 +78,9 @@ public class UnstableEnd implements Listener
 		_allEvents.add(new EndEvent_RandomPotionEffect());
 		_allEvents.add(new EndEvent_TntEverywhere());
 		_allEvents.add(new EndEvent_SpecialCreepers());
+		_allEvents.add(new EndEvent_EndStoneToDeprisScrapOrSilverFish());
+		_allEvents.add(new EndEvent_EndStoneToDiamondOrSilverFish());
+		_allEvents.add(new EndEvent_PlayergroundVanishHard());
 		
 	}
 
@@ -207,6 +214,12 @@ public class UnstableEnd implements Listener
 		GetCurrentEvent().RemovePlayer(e.getPlayer());
 		GetCurrentEvent().OnPlayerLeftMiddleOfEvent(e.getPlayer());
 	}
+	
+//	@EventHandler
+//	public void OnPlayerTele(PlayerTeleportEvent e)
+//	{
+//		
+//	}
 
 	@EventHandler
 	public void OnPlayerJoin(PlayerJoinEvent e)

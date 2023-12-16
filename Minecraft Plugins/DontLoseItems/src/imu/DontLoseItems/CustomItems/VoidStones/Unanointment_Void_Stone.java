@@ -5,18 +5,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.Material;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.plugin.Plugin;
 
 import imu.DontLoseItems.Enums.VOID_STONE_TIER;
 import imu.DontLoseItems.Enums.VOID_STONE_TYPE;
+import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 
 public class Unanointment_Void_Stone extends Void_Stone
 {
+	
+		
+
 //	private Enchantment[] _valid_armor_ench = 
 //		{
 //		    Enchantment.PROTECTION_ENVIRONMENTAL,
@@ -101,7 +105,8 @@ public class Unanointment_Void_Stone extends Void_Stone
 		enchs = ImusUtilities.ShuffleArray(enchs);
 		
 		stack.removeEnchantment(selected);
-
+		
+		boolean hasImusEnchant = DontLoseItems.HasServerImusEnchants();
 		for(i = 0; i < enchs.length; i++)
 		{
 			boolean done = false;
@@ -111,13 +116,22 @@ public class Unanointment_Void_Stone extends Void_Stone
 			
 			if(nopEnchants.contains(ench)) continue;
 			
-			int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+_minimumLevel;
+			int level;
+			
+	        if (hasImusEnchant) 
+	        {
+	            level = 1; 
+	        } else 
+	        {
+	            level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel()) + _minimumLevel;
+	        }
+			//int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+_minimumLevel;
 			
 			if(level == 0) level = 1;
 			
 			if(level > ench.getMaxLevel()) level = ench.getMaxLevel();
 			
-			if(!ench.canEnchantItem(stack) ) continue;
+			//if(!ench.canEnchantItem(stack) ) continue;
 			
 			
 			int counter = 0;
@@ -138,7 +152,7 @@ public class Unanointment_Void_Stone extends Void_Stone
 				continue;
 			}
 
-			stack.addEnchantment(ench, level);
+			stack.addUnsafeEnchantment(ench, level);
 			break;
 			
 		}

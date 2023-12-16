@@ -29,6 +29,25 @@ public class NodeEnchant extends Node
 		LoadEnchantsFromStack(stack);
 	}
 
+	public NodeEnchant(Enchantment enchantment, int level)
+	{
+		SetLock(false);
+		ItemStack enchantedBook = createEnchantedBook(enchantment, level);
+		LoadEnchantsFromStack(enchantedBook);
+	}
+
+	private ItemStack createEnchantedBook(Enchantment enchantment, int level)
+	{
+		ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+		EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
+		if (meta != null)
+		{
+			meta.addStoredEnchant(enchantment, level, true);
+		}
+		book.setItemMeta(meta);
+		return book;
+	}
+
 	@Override
 	public boolean IsValidGUIitem(TOUCH_TYPE touchType, EnchantedItem enchantedItem, ItemStack stack)
 	{

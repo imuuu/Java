@@ -49,7 +49,7 @@ public class EndEvent_SpecialCreepers extends EndEvent
 			}
 		}
 		
-		ChestLootAmount = 3;
+		ChestLootAmount = 1;
 	}
 
 	@Override

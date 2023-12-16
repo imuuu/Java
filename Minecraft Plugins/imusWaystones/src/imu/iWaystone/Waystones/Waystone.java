@@ -32,6 +32,9 @@ import imu.iWaystones.Main.ImusWaystones;
 
 public class Waystone 
 {
+	private boolean _enable = true;
+	private boolean _unbreakable = false;
+	private boolean _maxOut = false;
 	private String _name="&6New Waystone";
 	//private Block _top,_mid,_low;
 	private UUID _owner_uuid;
@@ -348,6 +351,7 @@ public class Waystone
         _visibilityType = values[nextIndex];
     }
 	
+	
 	public Double GetValue(BaseUpgrade upgrade)
 	{
 		if(upgrade instanceof UpgradeCastTime)
@@ -374,6 +378,8 @@ public class Waystone
 		
 		if(!panel.get_xpUsage().IsEnabled()) return true;
 		
+		if(IsMaxOut()) return true;
+		
 		double neededXP = panel.get_xpUsage().GetCombinedValue(base_xpUsage);
 
 		if((XpUtil.GetPlayerLevel(player) - neededXP) >= 0)
@@ -393,6 +399,8 @@ public class Waystone
 	{
 		if(_main.GetWaystoneManager().IsTeleporting(player)) return;
 		
+		
+		
 		PlayerUpgradePanel panel = _playerUpgradePanel.get(player.getUniqueId());
 		Waystone thiss = this;
 		UUID uuid_player = player.getUniqueId();
@@ -401,7 +409,7 @@ public class Waystone
 		
 		new BukkitRunnable() 
 		{
-			int seconds =  player.isOp() ? 1 : (int)panel.get_castTime().GetCombinedValue(base_casttime);
+			int seconds =  player.isOp() || IsMaxOut() ? 1 : (int)panel.get_castTime().GetCombinedValue(base_casttime);
 					
 			void TeleCancel()
 			{
@@ -443,9 +451,13 @@ public class Waystone
 						
 						player.teleport(target_waystone.GetLoc().clone().add(x, 1, z));
 						
-						if(GetPlayerUpgradePanel(player.getUniqueId()).get_xpUsage().IsEnabled()) ReduceExp(player);
+						if(!IsMaxOut())
+						{
+							if(GetPlayerUpgradePanel(player.getUniqueId()).get_xpUsage().IsEnabled()) ReduceExp(player);
+							
+							SetCooldownPlayer(player);
+						}
 						
-						SetCooldownPlayer(player);
 						target_waystone.CreateHologram();
 					}
 				}.runTask(_main);
@@ -476,6 +488,36 @@ public class Waystone
 			}
 			
 		}.runTaskTimerAsynchronously(ImusWaystones._instance, 0, 20);
+	}
+
+	public boolean IsEnable()
+	{
+		return _enable;
+	}
+
+	public void SetEnable(boolean _enable)
+	{
+		this._enable = _enable;
+	}
+
+	public boolean IsUnbreakable()
+	{
+		return _unbreakable;
+	}
+
+	public void SetUnbreakable(boolean _unbreakable)
+	{
+		this._unbreakable = _unbreakable;
+	}
+
+	public boolean IsMaxOut()
+	{
+		return _maxOut;
+	}
+
+	public void SetMaxOut(boolean _maxOut)
+	{
+		this._maxOut = _maxOut;
 	}
 	
 	

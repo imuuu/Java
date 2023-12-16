@@ -7,6 +7,7 @@ import imu.iAPI.Other.Metods;
 import me.imu.imuschallenges.CONSTANTS;
 import me.imu.imuschallenges.Database.Tables.TableCollected_materials;
 import me.imu.imuschallenges.Database.Tables.TableExludedCollectMaterials;
+import me.imu.imuschallenges.Enums.POINT_TYPE;
 import me.imu.imuschallenges.ImusChallenges;
 import me.imu.imuschallenges.Interfaces.CacheUpdateCallback;
 import org.bukkit.Bukkit;
@@ -28,15 +29,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ManagerCCollectMaterial implements Listener
 {
-    private ImusChallenges _main = ImusChallenges.getInstance();
+    private final ImusChallenges _main = ImusChallenges.getInstance();
     private static ManagerCCollectMaterial _instance;
 
     public static ManagerCCollectMaterial getInstance() {return _instance;}
-
-    private Set<Material> _collectedMaterials;
+    private final Set<Material> _collectedMaterials;
     private Set<Material> _unCollectedMaterials;
-    private Set<Material> _excludedCollectedMaterials;
-    private Map<UUID, List<TableCollected_materials>> _playerCollectedMaterials;
+    private final Set<Material> _excludedCollectedMaterials;
+    private final Map<UUID, List<TableCollected_materials>> _playerCollectedMaterials;
 
     private final ConcurrentLinkedQueue<PlayerMaterialPair> buffer = new ConcurrentLinkedQueue<>();
     private final BukkitScheduler scheduler = Bukkit.getScheduler();
@@ -44,6 +44,7 @@ public class ManagerCCollectMaterial implements Listener
     private final Dao<TableCollected_materials, String> _collectedMaterialsDao;
     private final Dao<TableExludedCollectMaterials, String> _excludedMaterialsDao;
 
+    private final double POINT_PER_MATERIAL = 1;
     public ManagerCCollectMaterial(ImusChallenges main)
     {
         _instance = this;
@@ -65,6 +66,11 @@ public class ManagerCCollectMaterial implements Listener
             throw new RuntimeException("Could not create Dao");
         }
 
+    }
+
+    private ManagerPlayerPoints getManagerPlayerPoints()
+    {
+        return ManagerPlayerPoints.getInstance();
     }
 
     private static class PlayerMaterialPair
@@ -344,6 +350,7 @@ public class ManagerCCollectMaterial implements Listener
         if (!_collectedMaterials.contains(material))
         {
             _collectedMaterials.add(material);
+            _unCollectedMaterials.remove(material);
 
             TableCollected_materials collectedMaterial = new TableCollected_materials(player, material, new Date());
 
@@ -352,6 +359,8 @@ public class ManagerCCollectMaterial implements Listener
 
             // Add to buffer for asynchronous database update
             buffer.offer(new PlayerMaterialPair(player, material));
+
+            getManagerPlayerPoints().addPointsAsync(player, POINT_TYPE.CHALLENGE_POINT, POINT_PER_MATERIAL);
         }
     }
 

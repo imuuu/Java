@@ -68,6 +68,11 @@ public abstract class CustomInventory implements ICustomInventory
         return _inv;
     }
 
+    public IBUTTONN getEmptyButton(int slot, Material material)
+    {
+        return new Button(slot, ItemUtils.SetDisplayNameEmpty(new ItemStack(material)));
+    }
+
     @Override
     public int getSize()
     {

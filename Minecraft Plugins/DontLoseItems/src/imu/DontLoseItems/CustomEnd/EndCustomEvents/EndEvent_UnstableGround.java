@@ -24,9 +24,9 @@ public class EndEvent_UnstableGround extends EndEvent
 
 	public EndEvent_UnstableGround()
 	{
-		super("Unstable Ground", 45);
+		super("Unstable Ground", 60);
 
-		ChestLootAmount = 3;
+		ChestLootAmount = 2;
 	}
 
 	@Override

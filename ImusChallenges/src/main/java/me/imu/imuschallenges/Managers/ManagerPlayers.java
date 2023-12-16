@@ -11,15 +11,15 @@ import org.bukkit.entity.Player;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ManagerTablePlayers
+public class ManagerPlayers
 {
     private ImusChallenges _main = ImusChallenges.getInstance();
-    private static ManagerTablePlayers _instance;
+    private static ManagerPlayers _instance;
 
-    public static ManagerTablePlayers getInstance() {return _instance;}
+    public static ManagerPlayers getInstance() {return _instance;}
     private final Dao<TablePlayers, Integer> _tablePlayersDao;
 
-    public ManagerTablePlayers()
+    public ManagerPlayers()
     {
         _instance = this;
         createTables();

@@ -11,10 +11,10 @@ import imu.DontLoseItems.CustomEnd.EndEvents;
 
 public class EndEvent_EndStoneToDeprisScrap extends EndEvent
 {
-
+	private final double _chanceToBeNetherScrap = 0.6;
 	public EndEvent_EndStoneToDeprisScrap()
 	{
-		super("Endstone to nether Scrap!", 8);
+		super("Endstone chance to be nether scrap!", 7);
 		ChestLootAmount = 1;
 	}
 
@@ -55,8 +55,11 @@ public class EndEvent_EndStoneToDeprisScrap extends EndEvent
 
 		Location loc = e.getBlock().getLocation();
 		if(!EndEvents.Instance.IsPlayerUnstableArea(loc)) return;
-
-		loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.NETHERITE_SCRAP));
+		
+		if (Math.random() < _chanceToBeNetherScrap) 
+		{
+            loc.getWorld().dropItemNaturally(loc, new ItemStack(Material.NETHERITE_SCRAP));
+        }
 	}
 
 	@Override

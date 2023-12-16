@@ -3,6 +3,7 @@ package imu.DontLoseItems.Events;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -28,7 +29,9 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import com.magmaguy.betterstructures.api.ChestFillEvent;
 
+import imu.DontLoseItems.Enums.DIFFICULT;
 import imu.DontLoseItems.Enums.ITEM_RARITY;
+import imu.DontLoseItems.Managers.Manager_Difficult;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.Managers.Manager_HellTools;
 import imu.DontLoseItems.main.DontLoseItems;
@@ -63,7 +66,8 @@ public class ChestLootEvents implements Listener
 	
 	private ImusLootTable<Integer> _lootTable_stackMaxAmounts;
 	
-	private int _chestRollMaxAmount = 9;
+	private int _chestRollMaxAmount = 10;
+	private int _noFearRollMaxAmount = 1;
 	
 	private boolean _chestDEBUG = false;
 	private boolean _lootBoost = false;
@@ -559,6 +563,7 @@ public class ChestLootEvents implements Listener
 		Location chestLocation = e.getContainer().getLocation();
 	    double closeByDistance = 500; 
 	    StringBuilder closeByPlayerNames = new StringBuilder();
+	    boolean isFearPlayerNearby = false;
 
 	    for (Player player : world.getPlayers()) 
 	    {
@@ -567,6 +572,12 @@ public class ChestLootEvents implements Listener
 	            if (closeByPlayerNames.length() > 0) {
 	                closeByPlayerNames.append(", ");
 	            }
+	            
+	            if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+	            {
+	            	isFearPlayerNearby = true;
+	            }
+	            
 	            closeByPlayerNames.append(player.getName());
 	        }
 	    }
@@ -575,13 +586,19 @@ public class ChestLootEvents implements Listener
 
 		Inventory inv = e.getContainer().getInventory();
 		inv = e.getContainer().getSnapshotInventory();
-		List<ItemStack> stacks = GenerateNetherLoot(2, _chestRollMaxAmount);
 		
-		double betterStructureNerf = stacks.size() * BETTER_STRUCTURE_LOOT_NERF;
+		int lootRollAmount = _chestRollMaxAmount;
 		
-//		if(world.getEnvironment() == Environment.NETHER)
-//		else stacks = GenerateNetherLoot(2, (int)(_chestRollMaxAmount));
-//		
+		if(isFearPlayerNearby && IsNether(world))
+		{
+			lootRollAmount = _noFearRollMaxAmount;
+		}
+		
+		List<ItemStack> stacks = GenerateNetherLoot(2, lootRollAmount);
+		
+		double betterStructureNerf = stacks.size() * (IsNether(world) ? 1 :BETTER_STRUCTURE_LOOT_NERF);
+		
+		
 		StringBuilder itemNames = new StringBuilder();
 		int counter = 0;
 	    for (ItemStack stack : stacks) 
@@ -622,7 +639,6 @@ public class ChestLootEvents implements Listener
 	public void OnInventoryOpen(LootGenerateEvent e)
 	{
 		
-		
 		if (!(IsNether(e.getWorld())))
 			return;
 		
@@ -639,7 +655,19 @@ public class ChestLootEvents implements Listener
 		
 		Bukkit.getLogger().info("Player: "+e.getEntity()+ " Generated loot by opened  chest");
 		
-		for(ItemStack stack : GenerateNetherLoot(2,_chestRollMaxAmount)) 
+		
+		int lootRollAmount = _chestRollMaxAmount;
+		
+		if(e.getEntity() instanceof Player)
+		{
+			Player player = (Player)e.getEntity();
+			if(getPlayerDifficulty(player) == DIFFICULT.NO_FEAR)
+			{
+				lootRollAmount = _noFearRollMaxAmount;
+			}
+		}
+		
+		for(ItemStack stack : GenerateNetherLoot(2,lootRollAmount)) 
 		{ 
 			inv.addItem(stack); 
 			//e.getLoot().add(stack);
@@ -674,7 +702,16 @@ public class ChestLootEvents implements Listener
 
 	}
 	
-
+	private DIFFICULT getPlayerDifficulty(Player player)
+	{
+		return getPlayerDifficulty(player.getUniqueId());
+	}
+	
+	private DIFFICULT getPlayerDifficulty(UUID uuid)
+	{
+		return Manager_Difficult.Instance.getPlayerSettings(uuid).NetherDifficulty;
+	}
+	
 	void GetSettings()
 	{
 		final String netherSettings = "NetherSettings";

@@ -56,7 +56,23 @@ public class WaystoneManagerSQL
 					+ "PRIMARY KEY(id) "
 				    + ");");
 			ps.executeUpdate();
+			
+//			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//				    + "ADD COLUMN IF NOT EXISTS `max_out` BOOLEAN DEFAULT FALSE, "
+//				    + "ADD COLUMN IF NOT EXISTS `unbreakable` BOOLEAN DEFAULT FALSE, "
+//				    + "ADD COLUMN IF NOT EXISTS `enable` BOOLEAN DEFAULT TRUE;");
+//				ps.executeUpdate();
+//			
+//			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//				    + "MODIFY COLUMN visibility_type ENUM('BY_TOUCH', 'TO_ALL', 'ONE_WAY', 'TO_ALL_ONE_WAY') DEFAULT 'BY_TOUCH';");
+//			ps.executeUpdate();
 
+
+
+//			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
+//					+ "ADD COLUMN IF NOT EXISTS visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH';");
+//			ps.executeUpdate();
+			
 //			ps = con.prepareStatement("ALTER TABLE " + SQL_tables.waystones.toString() + " "
 //					+ "ADD COLUMN IF NOT EXISTS visibility_type ENUM('BY_TOUCH', 'TO_ALL') DEFAULT 'BY_TOUCH';");
 //			ps.executeUpdate();
@@ -343,32 +359,33 @@ public class WaystoneManagerSQL
 		}
 	}
 
-	private void SaveWaystone(Waystone waystone)
-	{
-		final String quarry = "REPLACE INTO " + SQL_tables.waystones.toString() + " "
-				+ "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item, visibility_type) VALUES (?,?,?,?,?,?,?,?)";
-		try (Connection con = _main.GetSQL().GetConnection())
-		{
-			PreparedStatement ps = con.prepareStatement(quarry);
-			int i = 1;
-			ps.setString(i++, waystone.GetUUID().toString());
-			ps.setString(i++, waystone.GetName());
-			ps.setString(i++, waystone.GetLoc().getWorld().getName());
-			ps.setInt(i++, waystone.GetLoc().getBlockX());
-			ps.setInt(i++, waystone.GetLoc().getBlockY());
-			ps.setInt(i++, waystone.GetLoc().getBlockZ());
-			ps.setString(i++, ImusAPI._metods.EncodeItemStack(waystone.GetDisplayItem()));
-			ps.setString(i++, waystone.GetVisibilityType().toString());
-			ps.executeUpdate();
-			SaveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetOwnerName(), waystone.GetUUID(), con);
-			SaveUpgrades(waystone, con);
+	private void SaveWaystone(Waystone waystone) {
+	    final String quarry = "REPLACE INTO " + SQL_tables.waystones.toString() + " "
+	            + "(uuid, name, loc_world, loc_x, loc_y, loc_z, display_item, visibility_type, max_out, unbreakable, enable) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+	    try (Connection con = _main.GetSQL().GetConnection()) {
+	        PreparedStatement ps = con.prepareStatement(quarry);
+	        int i = 1;
+	        ps.setString(i++, waystone.GetUUID().toString());
+	        ps.setString(i++, waystone.GetName());
+	        ps.setString(i++, waystone.GetLoc().getWorld().getName());
+	        ps.setInt(i++, waystone.GetLoc().getBlockX());
+	        ps.setInt(i++, waystone.GetLoc().getBlockY());
+	        ps.setInt(i++, waystone.GetLoc().getBlockZ());
+	        ps.setString(i++, ImusAPI._metods.EncodeItemStack(waystone.GetDisplayItem()));
+	        ps.setString(i++, waystone.GetVisibilityType().toString());
+	        ps.setBoolean(i++, waystone.IsMaxOut());
+	        ps.setBoolean(i++, waystone.IsUnbreakable());
+	        ps.setBoolean(i++, waystone.IsEnable());
+	        ps.executeUpdate();
 
-		} catch (SQLException e)
-		{
+	        SaveWaystoneOwner(waystone.GetOwnerUUID(), waystone.GetOwnerName(), waystone.GetUUID(), con);
+	        SaveUpgrades(waystone, con);
 
-			e.printStackTrace();
-		}
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
 	}
+
 
 	public void SaveWaystoneAsync(Waystone waystone)
 	{
@@ -438,12 +455,18 @@ public class WaystoneManagerSQL
 				int z = rs.getInt(i++);
 				ItemStack displayItem = ImusAPI._metods.DecodeItemStack(rs.getString(i++));
 				String visibilityTypeStr = rs.getString(i++);
+				boolean maxOut = rs.getBoolean(i++);
+		        boolean unbreakable = rs.getBoolean(i++);
+		        boolean enable = rs.getBoolean(i++);
 
 				Waystone newWaystone = new Waystone(new Location(world, x, y, z));
 				newWaystone.SetName(name);
 				newWaystone.SetDisplayitem(displayItem);
 				newWaystone.SetUUID(uuid);
 				newWaystone.SetVisibilityType(VISIBILITY_TYPE.valueOf(visibilityTypeStr));
+				newWaystone.SetMaxOut(maxOut);
+		        newWaystone.SetUnbreakable(unbreakable);
+		        newWaystone.SetEnable(enable);
 				newWaystone = LoadWaystoneOwner(newWaystone);
 				newWaystone = LoadUpgrades(newWaystone);
 				_waystoneManager.SaveWaystone(newWaystone, false);

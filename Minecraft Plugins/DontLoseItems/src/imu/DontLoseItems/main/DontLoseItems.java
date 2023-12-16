@@ -1,11 +1,13 @@
 package imu.DontLoseItems.main;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import imu.DontLoseItems.CustomEnd.EndEvents;
@@ -16,6 +18,7 @@ import imu.DontLoseItems.Events.EndChestLootEvents;
 import imu.DontLoseItems.Events.MainEvents;
 import imu.DontLoseItems.Events.NetherEvents;
 import imu.DontLoseItems.Events.VoidTotemEvents;
+import imu.DontLoseItems.Managers.Manager_Difficult;
 import imu.DontLoseItems.Managers.Manager_HellArmor;
 import imu.DontLoseItems.Managers.Manager_HellTools;
 import imu.DontLoseItems.Managers.Manager_IronArmor;
@@ -57,6 +60,7 @@ public class DontLoseItems extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new VoidTotemEvents(), this);
 		getServer().getPluginManager().registerEvents(new AntiAfk(), this);
 		getServer().getPluginManager().registerEvents(new Manager_IronArmor(), this);
+		getServer().getPluginManager().registerEvents(new Manager_Difficult(), this);
 		
 		// getServer().getPluginManager().registerEvents(new FishingEvent(this), this);
 		
@@ -99,7 +103,15 @@ public class DontLoseItems extends JavaPlugin
 //			getCommand(cmd1).setTabCompleter(_tab_cmd1);
 
 	}
-
+	
+	
+	public static boolean HasServerImusEnchants()
+	{
+		 Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("ImusEnchants");
+		 
+		 return (plugin != null && plugin.isEnabled());
+	}
+	
 	@SuppressWarnings("unused")
 	public static boolean IsEnd(World world)
 	{

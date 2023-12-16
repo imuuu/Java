@@ -3,7 +3,7 @@ package me.imu.imuschallenges.Database.Tables;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "table_players")
+@DatabaseTable(tableName = "players")
 public class TablePlayers
 {
     @DatabaseField(generatedId = true)

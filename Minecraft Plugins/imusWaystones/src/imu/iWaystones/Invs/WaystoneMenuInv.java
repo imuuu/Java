@@ -33,7 +33,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	private int _page = 0;
 	private ArrayList<Waystone> _discoveredWaystones = new ArrayList<>();
 	
-	private boolean _visibilityModified = false;
+	private boolean _saveAfterClose = false;
 	public WaystoneMenuInv(Waystone waystone, Player player) 
 	{
 		super(ImusWaystones._instance, player, waystone.GetName()+" "+(waystone.IsCooldown(player) ? "&ccd: "+ waystone.GetCooldown(player): "") , 4 * 9);
@@ -48,6 +48,18 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	{
 		_discoveredWaystones.clear();
 		
+		if(!_waystone.IsEnable())
+		{
+			_player.sendMessage(Metods.msgC("&cWaystone is Disabled!"));
+			return;
+		}
+		
+		if(_waystone.GetVisibilityType() == VISIBILITY_TYPE.TO_ALL_ONE_WAY)
+		{
+			_player.sendMessage(Metods.msgC("&eThis Waystone is unable to teleport other Waystones"));
+			return;
+		}
+		
 		if(_waystone.IsCooldown(_player)) 
 		{
 			_player.sendMessage(Metods.msgC("&eYou have cooldown => "+_waystone.GetCooldown(_player)));
@@ -55,6 +67,11 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		}
 		
 		for(UUID uuid_ws : _wManager.GetWaystonesByVisibility(VISIBILITY_TYPE.TO_ALL))
+		{
+			LoadWaystone(uuid_ws);
+		}
+		
+		for(UUID uuid_ws : _wManager.GetWaystonesByVisibility(VISIBILITY_TYPE.TO_ALL_ONE_WAY))
 		{
 			LoadWaystone(uuid_ws);
 		}
@@ -72,9 +89,23 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		PlayerUpgradePanel panel = _waystone.GetPlayerUpgradePanel(_player.getUniqueId());
 		
 		if(uuid_ws.equals(_waystone.GetUUID())) return;
-		
+			
 		Waystone ws = _wManager.GetWaystone(uuid_ws);
+		
 		if(ws == null) return;
+		
+		if(_discoveredWaystones.contains(ws)) return;
+		
+		if(ws.GetVisibilityType() == VISIBILITY_TYPE.ONE_WAY) return;
+		
+		if(!ws.IsEnable()) return;
+		
+		if(ws.GetVisibilityType() == VISIBILITY_TYPE.TO_ALL || ws.GetVisibilityType() == VISIBILITY_TYPE.TO_ALL_ONE_WAY)
+		{
+			_discoveredWaystones.add(ws);
+			return;
+			
+		}
 		
 		if(ws.GetLoc().getWorld().getEnvironment() == Environment.NETHER  && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.THE_END) && !panel.get_dimension().IsNetherUnlocked())
 		{
@@ -85,9 +116,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		{
 			return;
 		}
-		
-		
-		
+			
 		if(ws.GetLoc().getWorld().getEnvironment() == Environment.THE_END && (_waystone.GetLoc().getWorld().getEnvironment() == Environment.NORMAL || _waystone.GetLoc().getWorld().getEnvironment() == Environment.NETHER) && !panel.get_dimension().IsEndUnlocked())
 		{
 			return;
@@ -98,7 +127,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			return;
 		}
 		
-		if(!IsAbleToShow(ws)) return;
+		//if(!IsAbleToShow(ws)) return;
 		_discoveredWaystones.add(ws);
 	}
 	
@@ -111,6 +140,9 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		WAYSTONE,
 		REMOVE,
 		VISIBILITY_TYPE,
+		UNBREAKABLE,
+		SET_ENABLE,
+		MAX_OUT,
 	}
 	BUTTON GetButtonPress(InventoryClickEvent e)
 	{
@@ -128,7 +160,7 @@ public class WaystoneMenuInv extends CustomInvLayout {
 	@Override
 	public void invClosed(InventoryCloseEvent e) 
 	{
-		if(_visibilityModified)
+		if(_saveAfterClose)
 		{
 			_wManager.SaveWaystone(_wManager.GetWaystone(_waystone.GetUUID()), true);
 		}
@@ -173,8 +205,23 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			break;
 		case VISIBILITY_TYPE:
 			
-			_visibilityModified = true;
+			_saveAfterClose = true;
 			_waystone.RollVisibilityType();
+			setupButtons();
+			break;
+		case UNBREAKABLE:
+			_saveAfterClose = true;
+			_waystone.SetUnbreakable(!_waystone.IsUnbreakable());
+			setupButtons();
+			break;
+		case MAX_OUT:
+			_saveAfterClose = true;
+			_waystone.SetMaxOut(!_waystone.IsMaxOut());
+			setupButtons();
+			break;
+		case SET_ENABLE:
+			_saveAfterClose = true;
+			_waystone.SetEnable(!_waystone.IsEnable());
 			setupButtons();
 			break;
 		}
@@ -248,7 +295,9 @@ public class WaystoneMenuInv extends CustomInvLayout {
 		for(int i = _size-9; i < _size; i++) {setupButton(BUTTON.NONE, Material.CYAN_STAINED_GLASS_PANE, " ", i);}
 		setupButton(BUTTON.GO_LEFT, Material.BIRCH_SIGN, "&b<<", _size-9);
 		setupButton(BUTTON.GO_RIGHT, Material.BIRCH_SIGN, "&b>>", _size-1);
+		
 		setupButton(BUTTON.UPGRADE, Material.BIRCH_BOAT, "&eUPGRADE", _size-5);
+		
 		if(_player.getGameMode() == GameMode.CREATIVE)
 		{
 			 setupButton(BUTTON.REMOVE, Material.LAVA_BUCKET, "&eRemove This Waystone", _size-3);
@@ -262,6 +311,36 @@ public class WaystoneMenuInv extends CustomInvLayout {
 			 
 			 SetButton(stack, BUTTON.VISIBILITY_TYPE);
 			 SetITEM(_size-7, stack);
+			 
+			 stack = new ItemStack(Material.BEDROCK);
+			 Metods.setDisplayName(stack, "&eUnbreakable");
+			 lores = new ArrayList<String>();
+			 lores.add(" ");
+			 lores.add("&9Current: &2"+_waystone.IsUnbreakable());
+			 _metods.addLore(stack, lores);
+			 
+			 SetButton(stack, BUTTON.UNBREAKABLE);
+			 SetITEM(_size-8, stack);
+			 
+			 stack = new ItemStack(Material.NETHER_STAR);
+			 Metods.setDisplayName(stack, "&eMax out");
+			 lores = new ArrayList<String>();
+			 lores.add(" ");
+			 lores.add("&9Current: &2"+_waystone.IsMaxOut());
+			 _metods.addLore(stack, lores);
+			 
+			 SetButton(stack, BUTTON.MAX_OUT);
+			 SetITEM(_size-6, stack);
+			 
+			 stack = new ItemStack(Material.BARRIER);
+			 Metods.setDisplayName(stack, "&eEnable");
+			 lores = new ArrayList<String>();
+			 lores.add(" ");
+			 lores.add("&9Current: &2"+_waystone.IsEnable());
+			 _metods.addLore(stack, lores);
+			 
+			 SetButton(stack, BUTTON.SET_ENABLE);
+			 SetITEM(_size-2, stack);
 		}
 		
 		LoadWaystonesAsync();

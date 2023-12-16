@@ -265,8 +265,6 @@ public class InventoryCCollectMaterial extends CustomInventory
 
     private void onButtonPlayersMaterials()
     {
-        Bukkit.getLogger().info("onButtonPlayersMaterials");
-
         _managerCollectMaterial.updateCollectedMaterialsCountCache(() ->
         {
 

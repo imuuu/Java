@@ -12,7 +12,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	private PotionEffect[] _potionEffectsNegatives;
 	private PotionEffect[] _potionEffectsPositive;
 
-	private final double _chanceToBePositive = 33;
+	private final double _chanceToBePositive = 26;
 	private final int _rangeTotalEffect = 4;
 
 	private LinkedList<PotionEffect> _givenEffects = new LinkedList<>();
@@ -20,7 +20,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 	public EndEvent_RandomPotionEffect()
 	{
 		super("Random potion effects", 60);
-		ChestLootAmount = 2;
+		ChestLootAmount = 1;
 	}
 
 	public void InitPotionEffects()
@@ -31,6 +31,7 @@ public class EndEvent_RandomPotionEffect extends EndEvent
 				new PotionEffect(PotionEffectType.CONFUSION, (int) (GetDuration() * 20), 1), 
 				new PotionEffect(PotionEffectType.SLOW_DIGGING, (int) (GetDuration() * 20), 2), 
 				new PotionEffect(PotionEffectType.SLOW, (int) (GetDuration() * 20), 1), 
+				new PotionEffect(PotionEffectType.POISON, (int) (GetDuration() * 20), 1), 
 				};
 
 		_potionEffectsPositive = new PotionEffect[] {
