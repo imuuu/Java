@@ -298,6 +298,11 @@ public class ManagerCCollectMaterial implements Listener
         return _unCollectedMaterials;
     }
 
+    public boolean isExcludedMaterial(Material material)
+    {
+        return _excludedCollectedMaterials.contains(material);
+    }
+
     public List<TableCollected_materials> getPlayerCollectedMaterials(Player player)
     {
         return _playerCollectedMaterials.getOrDefault(player.getUniqueId(), new ArrayList<>());

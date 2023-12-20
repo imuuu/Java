@@ -77,7 +77,7 @@ public class EndEvent_EndStoneToDiamondOrSilverFish extends EndEvent
 	@Override
 	public String GetEventName()
 	{		
-		return "Diamond Time!";
+		return "Diamond Time or Silver Fish!";
 	}
 
 	@Override

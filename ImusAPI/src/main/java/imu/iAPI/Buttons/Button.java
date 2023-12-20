@@ -44,6 +44,10 @@ public class Button implements IBUTTONN
 		_position = position;
 	}
 
+	public void setUUID(UUID uuid)
+	{
+		_uuid = uuid;
+	}
 
 	@Override
 	public void setMaxStackAmount(int amount)
@@ -57,7 +61,7 @@ public class Button implements IBUTTONN
 		return _maxStackAmount;
 	}
 	
-	public void SetAction(Consumer<InventoryClickEvent> onClickAction)
+	public void setAction(Consumer<InventoryClickEvent> onClickAction)
 	{
 		_onClickAction = onClickAction;
 	}

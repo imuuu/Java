@@ -35,8 +35,7 @@ public class GridButton implements IGrid
         _pageID = 0;
         _height = height;
         createEmptyStack();
-        _items = items;
-        //loadItems(items);
+        convertItemsToButtons(items);
     }
 
     public GridButton(List<IBUTTONN> buttons, int startPosition, int lineLenght, int height)
@@ -48,7 +47,6 @@ public class GridButton implements IGrid
         _height = height;
         createEmptyStack();
         _buttons = buttons;
-        //loadButtons(buttons); // Load IBUTTONN objects
     }
 
     public void registerButtonHandler(IButtonHandler buttonHandler)
@@ -62,20 +60,26 @@ public class GridButton implements IGrid
         _buttonHandler = null;
     }
 
+    private void convertItemsToButtons(List<ItemStack> items)
+    {
+        _buttons = new ArrayList<>();
+        for (ItemStack item : items)
+        {
+            Button button = new Button(0, item);
+            _buttons.add(button);
+        }
+    }
     @Override
     public void loadButtons()
     {
-        if(_items != null)
+        if (_buttons == null || _buttons.isEmpty())
         {
-            loadItems(_items);
+            loadEmptyGrid();
             return;
         }
-        if(_buttons != null)
-        {
-            loadButtons(_buttons);
-            return;
-        }
-        int itemsPerPage = getLength() * _height;
+
+        loadButtons(_buttons);
+       /* int itemsPerPage = getLength() * _height;
         for (int i = 0; i < itemsPerPage; i++)
         {
             int row = (i / getLength()) % _height;
@@ -84,34 +88,28 @@ public class GridButton implements IGrid
             IBUTTONN button = createPlaceholderButton(slot);
             _buttonHandler.addButton(button);
             _buttonHandler.updateButton(button);
-        }
+        }*/
     }
 
     private void createEmptyStack()
     {
-        _emptyStack = ItemUtils.SetDisplayNameEmpty(new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
-        ItemUtils.SetTag(_emptyStack, "empty");
+        setEmptyStack(ItemUtils.SetDisplayNameEmpty(new ItemStack(Material.BLACK_STAINED_GLASS_PANE)));
+    }
+
+    private ItemStack getEmptyStack()
+    {
+        return _emptyStack;
+    }
+
+    public void setEmptyStack(ItemStack stack)
+    {
+        ItemUtils.SetTag(stack, "empty");
+        _emptyStack = stack;
     }
 
     private boolean isItemEmpty(ItemStack item)
     {
         return ItemUtils.HasTag(item, "empty");
-    }
-
-
-    private void loadItems(List<ItemStack> items)
-    {
-        int itemsPerPage = getLength() * _height;
-        int totalSlots = (int) Math.ceil((double) items.size() / itemsPerPage) * itemsPerPage;
-
-        for (int i = 0; i < totalSlots; i++)
-        {
-            int row = (i / getLength()) % _height;
-            int column = i % getLength();
-            ItemStack item = i < items.size() ? items.get(i) : _emptyStack;
-
-            loadItem(column, row, item);
-        }
     }
 
     private void loadButtons(List<IBUTTONN> buttons)
@@ -136,6 +134,19 @@ public class GridButton implements IGrid
         }
     }
 
+    private void loadEmptyGrid()
+    {
+        int itemsPerPage = getLength() * _height;
+        for (int i = 0; i < itemsPerPage; i++) {
+            int row = (i / getLength()) % _height;
+            int column = i % getLength();
+            int slot = _startPosition + (row * 9) + column;
+            IBUTTONN button = createPlaceholderButton(slot);
+            _buttonHandler.addButton(button);
+            _buttonHandler.updateButton(button);
+        }
+    }
+
     private void loadButton(int column, int row, IBUTTONN button)
     {
         int slot = _startPosition + (row * 9) + column;
@@ -144,16 +155,16 @@ public class GridButton implements IGrid
         _parts.add(buttonPart);
     }
 
-    private void loadItem(int column, int row, ItemStack item)
+   /* private void loadItem(int column, int row, ItemStack item)
     {
         int slot = _startPosition + (row * 9) + column;
         GridButtonPart buttonPart = new GridButtonPart(slot, item, this);
         _parts.add(buttonPart);
-    }
+    }*/
 
     private IBUTTONN createPlaceholderButton(int slot)
     {
-        return new GridButtonPart(slot,_emptyStack, this);
+        return new GridButtonPart(slot,getEmptyStack(), this);
     }
 
     private int calculateNewPosition(int indexInList)
@@ -163,11 +174,11 @@ public class GridButton implements IGrid
         return _startPosition + column + (row * 9);
     }
 
-    private void loadItem(int slot, ItemStack item)
+ /*   private void loadItem(int slot, ItemStack item)
     {
         GridButtonPart buttonPart = new GridButtonPart(_startPosition + slot, item, this);
         _parts.add(buttonPart);
-    }
+    }*/
 
     private boolean canShift(int offset)
     {

@@ -52,7 +52,10 @@ public class AnvilEvents implements Listener
 
         if(e.getSlotType() != InventoryType.SlotType.RESULT) return;
 
+
         AnvilInventory inv = (AnvilInventory)e.getInventory();
+
+        if(inv.getItem(2) == null) return;
 
         if(inv.getItem(0) == null || inv.getItem(1) == null) return;
 
@@ -60,10 +63,14 @@ public class AnvilEvents implements Listener
         {
             int repairCount = getRepairCount(inv.getItem(0));
             int diamondCost = calculateDiamondCost(repairCount);
+
+            if(inv.getItem(1).getAmount() < diamondCost) return;
+
             inv.getItem(1).setAmount(inv.getItem(1).getAmount() - diamondCost);
             inv.getItem(0).setAmount(0);
             InvUtil.AddItemToInventoryOrDrop((Player) e.getWhoClicked(), e.getCurrentItem().clone());
             e.getCurrentItem().setAmount(0);
+
         }
     }
 

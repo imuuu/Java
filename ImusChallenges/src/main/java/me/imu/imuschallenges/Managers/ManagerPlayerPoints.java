@@ -110,7 +110,7 @@ public class ManagerPlayerPoints
         }.runTaskAsynchronously(_main);
     }
 
-    public List<TablePlayerPoints> getPointsForPlayer(TablePlayers player)
+    private List<TablePlayerPoints> getPointsForPlayer(TablePlayers player)
     {
         try
         {

@@ -306,8 +306,8 @@ public class MainEvents implements Listener
 
 //============================ >>> ENCHANTED CARROT ==================================
 	private ItemStack _itemStackEnchantedCarrot = null;
-	private final float _enchantedCarrotXP = 10;
-	private final float _chanceToDropEnchantedCarrot = 0.1f;
+	private double _enchantedCarrotXP = 10;
+	private double _chanceToDropEnchantedCarrot = 0.1f;
 
 	private ItemStack getEnchantedCarrot()
 	{
@@ -714,7 +714,10 @@ public class MainEvents implements Listener
 
 		String endOpenDate_path = "settings.end_open_date";
 		String netherOpenDate_path = "settings.nether_open_date";
-
+		
+		String enchantedCarrotXp_path = "settings.enchanted_carrot_xp_amount";
+		String enchantedCarrotDropChance_path = "settings.enchanted_carrot_drop_chance";
+		
 		if (!config.contains("settings."))
 		{
 			// default values
@@ -734,6 +737,9 @@ public class MainEvents implements Listener
 
 			config.set(endOpenDate_path, DateParser.FormatDate(_endOpenDate));
 			config.set(netherOpenDate_path, DateParser.FormatDate(_netherOpenDate));
+			
+			config.set(enchantedCarrotXp_path, _enchantedCarrotXP);
+			config.set(enchantedCarrotDropChance_path, _chanceToDropEnchantedCarrot);
 
 			cm.saveConfig();
 			return;
@@ -775,6 +781,18 @@ public class MainEvents implements Listener
 			config.set(jokeTotemChance, _totemJokeChance);
 			cm.saveConfig();
 		}
+		
+		if (!config.contains(enchantedCarrotXp_path))
+		{
+			config.set(enchantedCarrotXp_path, _enchantedCarrotXP);
+			cm.saveConfig();
+		}
+		
+		if (!config.contains(enchantedCarrotDropChance_path))
+		{
+			config.set(enchantedCarrotDropChance_path, _chanceToDropEnchantedCarrot);
+			cm.saveConfig();
+		}
 
 		saveArmor = config.getBoolean(a_path);
 		saveTools = config.getBoolean(t_path);
@@ -792,7 +810,9 @@ public class MainEvents implements Listener
 		_death_xp_multiplier = config.getDouble(xp_multiplier_path);
 
 		_totemJokeChance = config.getInt(jokeTotemChance);
-
+		
+		_enchantedCarrotXP = config.getDouble(enchantedCarrotXp_path);
+		_chanceToDropEnchantedCarrot = config.getDouble(enchantedCarrotDropChance_path);
 	}
 
 	boolean stringEndsWith(String target, String[] array)

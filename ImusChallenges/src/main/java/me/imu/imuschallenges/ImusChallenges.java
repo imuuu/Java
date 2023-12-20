@@ -11,6 +11,7 @@ import me.imu.imuschallenges.Commands.ExampleCmd;
 import me.imu.imuschallenges.Managers.*;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCmd;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCollectionMaterial;
+import me.imu.imuschallenges.SubCommands.SubOpenShopCmd;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.permissions.Permission;
@@ -37,6 +38,7 @@ public class ImusChallenges extends JavaPlugin
     private ManagerPlayers _managerPlayers;
     private ManagerPointType _managerPointType;
     private ManagerPlayerPoints _managerPlayerPoints;
+    private ManagerChallengeShop _managerChallengeShop;
 
     @Override
     public void onEnable()
@@ -47,11 +49,13 @@ public class ImusChallenges extends JavaPlugin
         System.out.println("ImusChallenges has been enabled!");
         registerPermissions();
 
+
         _managerPlayers = new ManagerPlayers();
         _managerChallenges = new ManagerChallenges();
         _managerCCollectMaterial = new ManagerCCollectMaterial(this);
         _managerPointType = new ManagerPointType(this);
         _managerPlayerPoints = new ManagerPlayerPoints(this);
+        _managerChallengeShop = new ManagerChallengeShop();
         getServer().getPluginManager().registerEvents(_managerCCollectMaterial, this);
         getServer().getPluginManager().registerEvents(new ManagerAchievementChallenges(), this);
 
@@ -124,8 +128,14 @@ public class ImusChallenges extends JavaPlugin
         handler.registerSubCmd(cmd1, cmd1_sub2, new SubOpenInvCollectionMaterial(_cmdHelper.getCmdData(full_sub2)));
         handler.setPermissionOnLastCmd("ic.collect_materials");
 
-        cmd1AndArguments.put(cmd1, new String[] { "inv", "collect_materials" });
-        // cmd1AndArguments.put("create", new String[] {"card"});
+        String cmd1_sub3 = "shop";
+        String full_sub3 = cmd1 + " " + cmd1_sub3;
+        _cmdHelper.setCmd(full_sub3, "Open Challenge Shop", full_sub3);
+        handler.registerSubCmd(cmd1, cmd1_sub3, new SubOpenShopCmd());
+        handler.setPermissionOnLastCmd("ic.shop");
+
+        cmd1AndArguments.put(cmd1, new String[] { "inv", "collect_materials", "shop" });
+
 
         // register cmds
         getCommand(cmd1).setExecutor(handler);

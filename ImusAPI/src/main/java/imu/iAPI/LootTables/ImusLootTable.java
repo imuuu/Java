@@ -10,14 +10,25 @@ import org.bukkit.inventory.ItemStack;
 
 public class ImusLootTable<T>
 {
-	private List<LootTableItem<T>> items = new ArrayList<>();
+	protected List<LootTableItem<T>> items = new ArrayList<>();
 	private int totalWeight = 0;
 	//private Random random = new Random();
+
+	public int GetTotalWeight()
+	{
+		return totalWeight;
+	}
 
 	public void Add(T value, int weight)
 	{
 		totalWeight += weight;
 		items.add(new LootTableItem<>(value, weight));
+	}
+
+	public void Add(T value, int weight, int maxAmount)
+	{
+		totalWeight += weight;
+		items.add(new LootTableItem<>(value, weight, maxAmount));
 	}
 
 	public T GetLoot()
@@ -35,6 +46,8 @@ public class ImusLootTable<T>
 		}
 		return null;
 	}
+
+
 	
 	public LinkedList<T> GetLoot(int rolls)
 	{

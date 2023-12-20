@@ -15,7 +15,7 @@ public class EndEvent_EndStoneToDiamond extends EndEvent
 
 	public EndEvent_EndStoneToDiamond()
 	{
-		super("Get All the diamonds", 7);
+		super("Get All the diamonds", 5);
 		ChestLootAmount = 1;
 	}
 

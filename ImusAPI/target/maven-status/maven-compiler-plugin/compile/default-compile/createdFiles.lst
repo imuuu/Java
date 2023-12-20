@@ -6,12 +6,14 @@ imu\iAPI\Utilities\ItemUtilToolsArmors$ArmorMaterial.class
 imu\iAPI\Convs\ConvModData$1.class
 imu\iAPI\Other\Metods.class
 imu\iAPI\Convs\ConvModData.class
+imu\iAPI\LootTables\Manager_ImusLootTable.class
 imu\iAPI\Utilities\ItemUtils$DisplayNamePosition.class
 imu\iAPI\Interfaces\CommandInterface.class
 imu\iAPI\InvUtil\InventoryReaderStack$ItemInfo.class
 imu\iAPI\Handelers\ButtonHandler.class
 imu\iAPI\Interfaces\IBUTTONN.class
 imu\iAPI\InvUtil\WindowInfo.class
+imu\iAPI\Managers\Manager_Vault.class
 imu\iAPI\Interfaces\IButton.class
 imu\iAPI\Interfaces\ISnapshotHandler.class
 imu\iAPI\SubCommands\Sub_Cmd_OpenNamedInvs.class
@@ -79,6 +81,7 @@ imu\iAPI\Interfaces\CustomInv.class
 imu\iAPI\Other\ParticleAnimations$1.class
 imu\iAPI\Enums\ITEM_CATEGORY.class
 imu\iAPI\Enums\DEFAULT_FONT_INFO.class
+imu\iAPI\LootTables\LootTableItemStack.class
 imu\iAPI\Interfaces\IModDataInv.class
 imu\iAPI\Enums\LINE_DIRECTION.class
 imu\iAPI\Other\Metods$2.class

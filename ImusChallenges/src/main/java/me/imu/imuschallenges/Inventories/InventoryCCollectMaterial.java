@@ -149,7 +149,7 @@ public class InventoryCCollectMaterial extends CustomInventory
                     if (getPlayer().isOp())
                     {
                         UUID uuid = button.getUUID();
-                        button.SetAction(inventoryClickEvent ->
+                        button.setAction(inventoryClickEvent ->
                         {
                             if (!getPlayer().isOp()) return;
 
@@ -218,7 +218,7 @@ public class InventoryCCollectMaterial extends CustomInventory
                     if (getPlayer().isOp())
                     {
                         final UUID uuid = button.getUUID();
-                        button.SetAction(inventoryClickEvent ->
+                        button.setAction(inventoryClickEvent ->
                         {
 
                             if (!getPlayer().isOp()) return;

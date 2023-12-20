@@ -8,12 +8,14 @@ import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,7 +27,8 @@ import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.ImusUtilities;
 import net.md_5.bungee.api.ChatColor;
 
-public class VoidTotemController {
+public class VoidTotemController implements Listener 
+{
     private static VoidTotemController instance;
 
     private final String defaultWorld = "World";
@@ -33,13 +36,11 @@ public class VoidTotemController {
     public VoidTotemController() 
     {
         instance = this;
-        Bukkit.addRecipe(GetRecipe());
+        Bukkit.getPluginManager().registerEvents(this, DontLoseItems.Instance);
     }
 
     public void findSafeBlock(Player player)
     {
-        final long start = System.currentTimeMillis();
-
         Location mid = player.getLocation();
         World end = mid.getWorld();
         assert end != null;
@@ -95,18 +96,42 @@ public class VoidTotemController {
         }
         return bottom;
     }
+    
+    @EventHandler
+    public void onVoidTotemAnvil(PrepareAnvilEvent event) 
+    {
+        AnvilInventory inv = event.getInventory();
+        ItemStack first = inv.getItem(0);
+        ItemStack second = inv.getItem(1);
+        ItemStack result;
 
-    public SmithingRecipe GetRecipe() {
-        NamespacedKey key = new NamespacedKey(DontLoseItems.Instance, "voidtotem");
-        RecipeChoice.MaterialChoice totemChoice = new RecipeChoice.MaterialChoice(Material.TOTEM_OF_UNDYING);
-        RecipeChoice.MaterialChoice elytraChoice = new RecipeChoice.MaterialChoice(Material.ELYTRA);
-        
-       
-        return new SmithingRecipe(
-                key,
-                GetVoidtotemItem(),
-                totemChoice,
-                elytraChoice);
+        if(first == null || second == null) return;
+
+        if(first.getType() == Material.TOTEM_OF_UNDYING && second.getType() == Material.ELYTRA) {
+            result = GetVoidtotemItem();
+            event.setResult(result);
+        }
+    }
+
+    @EventHandler
+    public void onVoidTotemAnvilCraft(InventoryClickEvent event) 
+    {
+        if(event.isCancelled()) return;
+        if(event.getClickedInventory() == null) return;
+        if(event.getClickedInventory().getType() != org.bukkit.event.inventory.InventoryType.ANVIL) return;
+        if(event.getSlotType() != org.bukkit.event.inventory.InventoryType.SlotType.RESULT) return;
+
+        AnvilInventory inv = (AnvilInventory) event.getClickedInventory();
+        ItemStack first = inv.getItem(0);
+        ItemStack second = inv.getItem(1);
+        ItemStack result = inv.getItem(2);
+
+        if(first == null || second == null || result == null) return;
+
+        Metods._ins.InventoryAddItemOrDrop(event.getCurrentItem(), (Player)event.getWhoClicked());
+        event.setCurrentItem(null);
+        inv.setItem(0, null);
+        inv.setItem(1, null);
     }
 
     public static ItemStack GetVoidtotemItem() 

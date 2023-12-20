@@ -1,11 +1,17 @@
 package imu.DontLoseItems.CustomEnd;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.UUID;
 
+import javax.swing.text.Utilities;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
@@ -13,9 +19,11 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_EndStoneToDeprisScrap;
@@ -28,9 +36,12 @@ import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomEntityTypeEnde
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_RandomPotionEffect;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_SpecialCreepers;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_TntEverywhere;
+import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_TntWalk;
 import imu.DontLoseItems.CustomEnd.EndCustomEvents.EndEvent_UnstableGround;
 import imu.DontLoseItems.main.DontLoseItems;
 import imu.iAPI.Other.Cooldowns;
+import imu.iAPI.Other.Metods;
+import imu.iAPI.Other.Tuple;
 import imu.iAPI.Utilities.ImusUtilities;
 
 public class UnstableEnd implements Listener
@@ -62,6 +73,7 @@ public class UnstableEnd implements Listener
 		BOSS_BAR = Bukkit.createBossBar("Unstable Void", BarColor.PURPLE, BarStyle.SEGMENTED_20, BarFlag.DARKEN_SKY);
 		BOSS_BAR.setTitle(ChatColor.BLACK + "| " + ChatColor.DARK_PURPLE + "Unstable Void" + ChatColor.BLACK + " |");
 		InitEvents();
+		InitLoopTimer();
 
 	}
 
@@ -81,14 +93,15 @@ public class UnstableEnd implements Listener
 		_allEvents.add(new EndEvent_EndStoneToDeprisScrapOrSilverFish());
 		_allEvents.add(new EndEvent_EndStoneToDiamondOrSilverFish());
 		_allEvents.add(new EndEvent_PlayergroundVanishHard());
-		
-	}
+		_allEvents.add(new EndEvent_TntWalk());
 
+	}
 
 	public void OnDisabled()
 	{
-		if(GetCurrentEvent() != null) GetCurrentEvent().OnEventEnd();
-		
+		if (GetCurrentEvent() != null)
+			GetCurrentEvent().OnEventEnd();
+
 		BOSS_BAR.removeAll();
 		_chestLootBases.clear();
 		_allEvents.clear();
@@ -214,12 +227,119 @@ public class UnstableEnd implements Listener
 		GetCurrentEvent().RemovePlayer(e.getPlayer());
 		GetCurrentEvent().OnPlayerLeftMiddleOfEvent(e.getPlayer());
 	}
+
+
+	private LinkedList<Tuple<Block, Integer>> _placedBlocked = new LinkedList<>();
+	private Material[] _placedMaterialOrder = { Material.COPPER_BLOCK, Material.IRON_BLOCK, Material.GOLD_BLOCK,
+			Material.DIAMOND_BLOCK, Material.BEDROCK,
+
+	};
+
+	@EventHandler
+	public void OnBlockPlace(BlockPlaceEvent e)
+	{
+		if (e.isCancelled())
+			return;
+		
+		if(!DontLoseItems.IsEnd(e.getPlayer())) return;
+		
+		if(e.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+		
+		if(!IsEventRuning()) return;
+		
+		if (!GetCurrentEvent().HasPlayer(e.getPlayer()))
+			return;
+		
+		Block block = e.getBlockPlaced();
+		Player player = e.getPlayer();
+
+		if (block.getType().isSolid())
+		{
+			if (block.getType().isInteractable())
+			{
+				player.sendMessage(Metods.msgC("&cUnable &9to place &6inventory &9item in &5Event"));
+				e.setCancelled(true);
+				
+			} 
+			else
+			{
+				_placedBlocked.addLast(new Tuple<>(block, _placedMaterialOrder.length - 1));
+			}
+		}
+
 	
-//	@EventHandler
-//	public void OnPlayerTele(PlayerTeleportEvent e)
-//	{
-//		
-//	}
+	}
+
+	@EventHandler
+	public void OnBlockBreak(BlockBreakEvent e)
+	{
+		if (e.isCancelled())
+			return;
+		
+		if(!DontLoseItems.IsEnd(e.getPlayer())) return;
+		
+		if(!IsEventRuning()) return;
+		
+		if (!GetCurrentEvent().HasPlayer(e.getPlayer()))
+			return;
+		
+		
+		
+		Block brokenBlock = e.getBlock();
+
+		Iterator<Tuple<Block, Integer>> iterator = _placedBlocked.iterator();
+		while (iterator.hasNext())
+		{
+			Tuple<Block, Integer> entry = iterator.next();
+			Block block = entry.GetKey();
+
+			if (block.equals(brokenBlock))
+			{
+				iterator.remove();
+				break;
+			}
+		}
+	}
+
+	private void InitLoopTimer()
+	{
+		new BukkitRunnable() {
+			@Override
+			public void run()
+			{
+				Iterator<Tuple<Block, Integer>> iterator = _placedBlocked.iterator();
+
+				while (iterator.hasNext())
+				{
+					Tuple<Block, Integer> entry = iterator.next();
+					Block block = entry.GetKey();
+					int state = entry.GetValue();
+
+					if (state < 0)
+					{
+						block.breakNaturally();
+						iterator.remove();
+					} 
+					else
+					{
+						Material nextMaterial = _placedMaterialOrder[state];
+						for (Player player : Bukkit.getOnlinePlayers())
+						{
+							if(!DontLoseItems.IsEnd(player)) continue;
+							
+							if (player.getWorld().equals(block.getWorld())
+									&& player.getLocation().distance(block.getLocation()) < 30)
+							{
+								ImusUtilities.SetFakeBlock(player, nextMaterial, block.getLocation());
+							}
+						}
+						entry.SetValue(state - 1);
+					}
+				}
+			}
+		}.runTaskTimer(DontLoseItems.Instance, 20L, 20L); // Runs every second (20 ticks)
+
+	}
 
 	@EventHandler
 	public void OnPlayerJoin(PlayerJoinEvent e)
@@ -274,12 +394,12 @@ public class UnstableEnd implements Listener
 		event.UnRegisterBukkitEvents();
 
 	}
-	
+
 	public boolean IsEventRuning()
 	{
 		return GetCurrentEvent() != null;
 	}
-	
+
 	public EndEvent GetCurrentEvent()
 	{
 		if (_activeEvents.size() == 0)
@@ -299,8 +419,8 @@ public class UnstableEnd implements Listener
 				continue;
 
 			event.AddPlayer(player);
-			//FIXME tests
-			//event.PrintToPlayer(player);
+			// FIXME tests
+			// event.PrintToPlayer(player);
 			event.TitleToPlayer(player);
 		}
 		event.OnEventStart();
@@ -314,45 +434,44 @@ public class UnstableEnd implements Listener
 			return;
 
 		isEventActive = true;
-		
-		
-	    for (Player player : Bukkit.getServer().getOnlinePlayers()) 
-	    {
-	    	if(!EndEvents.Instance.IsPlayerUnstableArea(player)) continue;
-	    	
-	    	System.out.println("Send title");
-	        player.sendTitle(ChatColor.GREEN + "Event Starting in 10s!", ChatColor.YELLOW + "Prepare yourself...", 10, 70, 20);
-	    }
 
-	    Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, new Runnable() 
-	    {
-	        @Override
-	        public void run() 
-	        {
-	        	EndEvent[] events = _allEvents.toArray(new EndEvent[_allEvents.size()]);
+		for (Player player : Bukkit.getServer().getOnlinePlayers())
+		{
+			if (!EndEvents.Instance.IsPlayerUnstableArea(player))
+				continue;
 
-	    		ImusUtilities.ShuffleArray(events);
+			player.sendTitle(ChatColor.GREEN + "Event Starting in 10s!", ChatColor.YELLOW + "Prepare yourself...", 10,
+					70, 20);
+		}
 
-	    		for (int i = 0; i < events.length; i++)
-	    		{
+		Bukkit.getScheduler().runTaskLater(DontLoseItems.Instance, new Runnable() {
+			@Override
+			public void run()
+			{
+				EndEvent[] events = _allEvents.toArray(new EndEvent[_allEvents.size()]);
 
-	    			if (i >= _totalRolls)
-	    				break;
+				ImusUtilities.ShuffleArray(events);
 
-	    			EndEvent event = events[i];
-	    			_activeEvents.add(event);
-	    		}
-	    		
-	    		if (_activeEvents.size() == 0)
-	    		{
-	    			AllTimeEventsHasBeenEnded();
-	    			return;
-	    		}
-	    		
-	            OnTriggerEvent(_activeEvents.getFirst());
-	        }
-	    }, START_DELAY_EVENT); 
-		//OnTriggerEvent(_activeEvents.getFirst());
+				for (int i = 0; i < events.length; i++)
+				{
+
+					if (i >= _totalRolls)
+						break;
+
+					EndEvent event = events[i];
+					_activeEvents.add(event);
+				}
+
+				if (_activeEvents.size() == 0)
+				{
+					AllTimeEventsHasBeenEnded();
+					return;
+				}
+
+				OnTriggerEvent(_activeEvents.getFirst());
+			}
+		}, START_DELAY_EVENT);
+		// OnTriggerEvent(_activeEvents.getFirst());
 
 	}
 }

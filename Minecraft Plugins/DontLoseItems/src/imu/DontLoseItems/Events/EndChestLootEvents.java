@@ -472,7 +472,7 @@ public class EndChestLootEvents implements Listener
 		
 		if(e.getEntity() instanceof Player)
 		{
-			stacks = GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getEntity()), 2,_chestRollMaxAmount);
+			stacks = GenerateEndLoot(UnstableEnd.Instance.GetPlayerBaseRollAmount((Player)e.getEntity())+1, 2,_chestRollMaxAmount);
 			UnstableEnd.Instance.RemovePlayerChestLootBase((Player)e.getEntity());
 		}
 		else

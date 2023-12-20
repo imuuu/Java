@@ -2,6 +2,8 @@ package imu.iAPI.Main;
 
 import java.util.*;
 
+import imu.iAPI.LootTables.Manager_ImusLootTable;
+import imu.iAPI.Managers.Manager_Vault;
 import imu.iAPI.Other.*;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -24,6 +26,8 @@ public class ImusAPI extends JavaPlugin
 	public static Metods _metods;
 	public static MySQLHelper _sqlHelper;
 	private Manager_FastInventories _fastInvs;
+	private Manager_ImusLootTable _lootTableManager;
+	private Manager_Vault _vaultManager;
 	
 	//depricated
 	private HashMap<UUID, CustomInvLayout> _openedInvs = new HashMap<>();
@@ -52,9 +56,13 @@ public class ImusAPI extends JavaPlugin
 	public void onEnable()
 	{
 		_instance = this;
+		_vaultManager = new Manager_Vault(this);
+		Manager_Vault.setupEconomy();
+
 		_metods = new Metods(this);
 		_sqlHelper = new MySQLHelper();
 		_fastInvs = new Manager_FastInventories();
+		_lootTableManager = new Manager_ImusLootTable();
 
 		_protocolManager = ProtocolLibrary.getProtocolManager();
 		// setup();

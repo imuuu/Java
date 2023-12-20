@@ -7,6 +7,7 @@ C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\CommandInterf
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\IModDataInv.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\CmdUtil\CmdData.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Enums\INV_ACTION.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Managers\Manager_Vault.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\IBUTTONN.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Enums\LINE_DIRECTION.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\LootTableItem.java
@@ -18,6 +19,7 @@ C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Convs\ConvModData.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Enums\ENCHANTMENT_TIER.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\ISnapshotHandler.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\XpUtil.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\Manager_ImusLootTable.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\InvUtil\CustomInventory.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\ITuple.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\Metods.java
@@ -56,4 +58,5 @@ C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\IButton.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\CustomInv.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\MySQL.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\ImusLootTable.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\LootTableItemStack.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\DelaySendable.java

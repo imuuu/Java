@@ -561,7 +561,6 @@ public class EnchantedItem
 
     private void SetRevealed(boolean revealed)
     {
-        System.out.println("Setting revealed to "+revealed+ " item: "+_stack);
         _isReveaveled = revealed;
         ItemUtils.SetPersistenData(_stack, PD_REVEALED, PersistentDataType.INTEGER, revealed ? 1 : 0);
     }

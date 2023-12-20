@@ -296,6 +296,9 @@ public final class Hell_Pickaxe_Controller
 	{
 		Player player = e.getPlayer();
 		ItemStack stack = player.getInventory().getItemInMainHand();
+		
+		if(stack == null || stack.getType().isAir()) return;
+		
 		if (!IsHellPickaxe(stack))
 			return;
 
