@@ -9,7 +9,7 @@ import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
 import me.imu.imuschallenges.Commands.ExampleCmd;
 import me.imu.imuschallenges.Managers.*;
-import me.imu.imuschallenges.SubCommands.SubOpenInvCmd;
+import me.imu.imuschallenges.SubCommands.SubStatsAdvancements;
 import me.imu.imuschallenges.SubCommands.SubOpenInvCollectionMaterial;
 import me.imu.imuschallenges.SubCommands.SubOpenShopCmd;
 import org.bukkit.Bukkit;
@@ -39,6 +39,7 @@ public class ImusChallenges extends JavaPlugin
     private ManagerPointType _managerPointType;
     private ManagerPlayerPoints _managerPlayerPoints;
     private ManagerChallengeShop _managerChallengeShop;
+    private ManagerAdvancement _managerAdvancement;
 
     @Override
     public void onEnable()
@@ -56,6 +57,7 @@ public class ImusChallenges extends JavaPlugin
         _managerPointType = new ManagerPointType(this);
         _managerPlayerPoints = new ManagerPlayerPoints(this);
         _managerChallengeShop = new ManagerChallengeShop();
+        _managerAdvancement = new ManagerAdvancement();
         getServer().getPluginManager().registerEvents(_managerCCollectMaterial, this);
         getServer().getPluginManager().registerEvents(new ManagerAchievementChallenges(), this);
 
@@ -116,11 +118,11 @@ public class ImusChallenges extends JavaPlugin
         String cmd1 = "imuschallenges";
         handler.registerCmd(cmd1, new ExampleCmd());
 
-        String cmd1_sub1 = "inv";
+        String cmd1_sub1 = "stats_advancements";
         String full_sub1 = cmd1 + " " + cmd1_sub1;
         _cmdHelper.setCmd(full_sub1, "Open Enchant Inv", full_sub1);
-        handler.registerSubCmd(cmd1, cmd1_sub1, new SubOpenInvCmd(_cmdHelper.getCmdData(full_sub1)));
-        handler.setPermissionOnLastCmd("ic.inv");
+        handler.registerSubCmd(cmd1, cmd1_sub1, new SubStatsAdvancements(_cmdHelper.getCmdData(full_sub1)));
+        handler.setPermissionOnLastCmd("ic.stats_advancements");
 
         String cmd1_sub2 = "collect_materials";
         String full_sub2 = cmd1 + " " + cmd1_sub2;
@@ -134,7 +136,7 @@ public class ImusChallenges extends JavaPlugin
         handler.registerSubCmd(cmd1, cmd1_sub3, new SubOpenShopCmd());
         handler.setPermissionOnLastCmd("ic.shop");
 
-        cmd1AndArguments.put(cmd1, new String[] { "inv", "collect_materials", "shop" });
+        cmd1AndArguments.put(cmd1, new String[] { "stats_advancements", "collect_materials", "shop" });
 
 
         // register cmds

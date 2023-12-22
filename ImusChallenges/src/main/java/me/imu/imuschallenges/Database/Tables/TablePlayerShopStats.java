@@ -13,10 +13,22 @@ public class TablePlayerShopStats
     @DatabaseField(canBeNull = false, foreign = true, columnName = "player_id")
     private TablePlayers player;
 
-    @DatabaseField(canBeNull = false, defaultValue = "4")
+    @DatabaseField(canBeNull = false, defaultValue = "2")
     private int bought_normal_slots;
 
+    @DatabaseField(canBeNull = false, defaultValue = "1")
+    private int bought_special_slots;
     public TablePlayerShopStats() {}
+
+    public int getBought_special_slots()
+    {
+        return bought_special_slots;
+    }
+
+    public void setBought_special_slots(int bought_special_slots)
+    {
+        this.bought_special_slots = bought_special_slots;
+    }
 
     public int getId()
     {

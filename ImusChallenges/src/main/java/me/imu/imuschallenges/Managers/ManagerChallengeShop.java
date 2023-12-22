@@ -4,6 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.table.TableUtils;
 import imu.iAPI.LootTables.LootTableItemStack;
+import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
 import me.imu.imuschallenges.CONSTANTS;
 import me.imu.imuschallenges.Database.Tables.TablePlayerShopStats;
@@ -33,20 +34,26 @@ public class ManagerChallengeShop
         return _instance;
     }
 
-    private LootTableItemStack _tier_1_lootTable;
-    private LootTableItemStack _challengePointAmounts;
-    private ArrayList<ItemStack> _generatedItems;
-    private ArrayList<Integer> _itemCosts;
+    private LootTableItemStack _tier_normal_lootTable;
+    private LootTableItemStack _tier_special_lootTable;
+
+    private ArrayList<ItemStack> _generatedNormalItems;
+    private ArrayList<ItemStack> _generatedSpecialItems;
+    private ArrayList<Integer> _itemCostsNormal;
+    private ArrayList<Integer> _itemCostsSpecial;
     private HashSet<Player> _hasShopOpen = new HashSet<>();
-    private final HashSet<UUID> _hasPlayerBuyNormal =  new HashSet<>();
+    private final HashSet<UUID> _hasPlayerBuyNormal = new HashSet<>();
+    private final HashSet<UUID> _hasPlayerBuySpecial = new HashSet<>();
 
     private Dao<TablePlayerShopStats, Integer> playerShopStatsDao;
 
-    private final int MAX_ITEMS = 16;
     //private final int TIME_BETWEEN_GENERATIONS = 3 * 60 * 60 * 20; // 3 hours in server ticks (20 ticks = 1 second)
-    private final int TIME_BETWEEN_GENERATIONS = 30 * 20; // 30 seconds in server ticks (20 ticks = 1 second)
+    private final int TIME_BETWEEN_NORMAL_GENERATIONS = 30;
+    private final int TIME_BETWEEN_SPECIAL_GENERATIONS = 30;
 
     private HashSet<Material> _excludedMaterials = new HashSet<>();
+
+    private Cooldowns _cooldowns = new Cooldowns();
 
     public ManagerChallengeShop()
     {
@@ -61,8 +68,10 @@ public class ManagerChallengeShop
         }
         InitExcludedMaterials();
         initLoot();
-        _generatedItems = new ArrayList<>();
-        _itemCosts = new ArrayList<>();
+        _generatedNormalItems = new ArrayList<>();
+        _itemCostsNormal = new ArrayList<>();
+        _generatedSpecialItems = new ArrayList<>();
+        _itemCostsSpecial = new ArrayList<>();
         scheduleItemGeneration();
     }
 
@@ -92,6 +101,7 @@ public class ManagerChallengeShop
         _hasShopOpen.clear();
         return players;
     }
+
     private void InitExcludedMaterials()
     {
         _excludedMaterials.add(Material.NETHER_STAR);
@@ -110,55 +120,84 @@ public class ManagerChallengeShop
 
     private void initLoot()
     {
-        _tier_1_lootTable = new LootTableItemStack();
+        _tier_normal_lootTable = new LootTableItemStack();
 
-        _tier_1_lootTable.Add(new ItemStack(Material.STONE), 200, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 16);
-        _tier_1_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
-        _tier_1_lootTable.Add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.NETHERITE_BLOCK), 1, 1);
-        _tier_1_lootTable.Add(new ItemStack(Material.NETHERITE_INGOT), 4, 12);
-        _tier_1_lootTable.Add(new ItemStack(Material.EMERALD_BLOCK), 30, 33);
-        _tier_1_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.EMERALD_ORE), 35, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.IRON_INGOT), 40, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.GOLD_INGOT), 40, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.LAPIS_LAZULI), 37, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.COAL), 70, 64);
-        _tier_1_lootTable.Add(new ItemStack(Material.COAL_BLOCK), 28, 33);
-        _tier_1_lootTable.Add(new ItemStack(Material.IRON_BLOCK), 28, 33);
-        _tier_1_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 33);
-        _tier_1_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 30);
+        _tier_normal_lootTable.Add(new ItemStack(Material.STONE), 200, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 16);
+        _tier_normal_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
+        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_BLOCK), 1, 1);
+        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_INGOT), 4, 12);
+        _tier_normal_lootTable.Add(new ItemStack(Material.EMERALD_BLOCK), 30, 33);
+        _tier_normal_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 1);
+        _tier_normal_lootTable.Add(new ItemStack(Material.EMERALD_ORE), 35, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_INGOT), 40, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_INGOT), 40, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_LAZULI), 37, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.COAL), 70, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.COAL_BLOCK), 28, 33);
+        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_BLOCK), 28, 33);
+        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 33);
+        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 30);
+
+        _tier_special_lootTable = new LootTableItemStack();
+        //_tier_special_lootTable.Add(new ItemStack(Material.STONE), 10, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
+        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_BLOCK), 1, 3);
+        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_INGOT), 4, 22);
+        _tier_special_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 1);
+        _tier_special_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 64);
+
     }
 
     private int getRandomCost()
     {
         return ThreadLocalRandom.current().nextInt(CONSTANTS.MIN_CHALLENGE_POINTS_NORMAL, CONSTANTS.MAX_CHALLENGE_POINTS_NORMAL);
     }
+
     public ArrayList<ItemStack> getGeneratedItems()
     {
-        return _generatedItems;
+        return _generatedNormalItems;
     }
 
-    public ArrayList<Integer> getItemCosts()
+    public ArrayList<ItemStack> getGeneratedSpecialItems()
     {
-        return _itemCosts;
+        return _generatedSpecialItems;
     }
 
-    public int getSlotPrice(int slotNumber)
+    public ArrayList<Integer> getItemCostsNormal()
     {
-        return (int) (CONSTANTS.FIRST_SLOT_PRICE * Math.pow(CONSTANTS.FIRST_SLOT_PRICE_POW, slotNumber));
+        return _itemCostsNormal;
     }
-    private void generateItems()
-    {
-        _generatedItems.clear();
-        _itemCosts.clear();
-        _hasPlayerBuyNormal.clear();
 
-        for (int i = 0; i < MAX_ITEMS; i++)
+    public ArrayList<Integer> getItemCostsSpecial()
+    {
+        return _itemCostsSpecial;
+    }
+
+    public int getNormalSlotPrice(int slotNumber)
+    {
+        return (int) (CONSTANTS.FIRST_NORMAL_SLOT_PRICE * Math.pow(CONSTANTS.FIRST_NORMAL_SLOT_PRICE_POW, slotNumber));
+    }
+
+    public int getSpecialSlotPrice(int slotNumber)
+    {
+        return (int) (CONSTANTS.FIRST_SPECIAL_SLOT_PRICE * Math.pow(CONSTANTS.FIRST_SPECIAL_SLOT_PRICE_POW, slotNumber));
+    }
+
+    private void generateSpecialItems()
+    {
+        _generatedSpecialItems.clear();
+        _hasPlayerBuySpecial.clear();
+
+        for (int i = 0; i < (CONSTANTS.SPECIAL_SLOTS); i++)
         {
-            ItemStack item = _tier_1_lootTable.GetLoot();
+            ItemStack item = _tier_special_lootTable.GetLoot();
 
             if (item == null)
                 continue;
@@ -168,26 +207,58 @@ public class ManagerChallengeShop
                 item = getRandomItem();
             }
 
-            if(generatedItemContainsMaterial(item.getType()))
+            if (generatedItemContainsMaterial(item.getType(), true))
             {
                 i--;
-                if(i < 0) i = 0;
+                if (i < 0) i = 0;
                 continue;
             }
 
-            _generatedItems.add(item);
-            _itemCosts.add(getRandomCost());
+            _generatedSpecialItems.add(item);
+            _itemCostsSpecial.add(getRandomCost()+CONSTANTS.SPECIAL_BASE_ITEM_COST);
         }
     }
-    private boolean generatedItemContainsMaterial(Material material)
+
+    private void generateNormalItems()
     {
-        for (ItemStack item : _generatedItems)
+        _generatedNormalItems.clear();
+        _itemCostsNormal.clear();
+        _hasPlayerBuyNormal.clear();
+
+        for (int i = 0; i < (CONSTANTS.NORMAL_SLOT_COLUMNS * CONSTANTS.NORMAL_SLOT_ROWS); i++)
+        {
+            ItemStack item = _tier_normal_lootTable.GetLoot();
+
+            if (item == null)
+                continue;
+
+            if (item.getType() == Material.STONE)
+            {
+                item = getRandomItem();
+            }
+
+            if (generatedItemContainsMaterial(item.getType(), false))
+            {
+                i--;
+                if (i < 0) i = 0;
+                continue;
+            }
+
+            _generatedNormalItems.add(item);
+            _itemCostsNormal.add(getRandomCost());
+        }
+    }
+
+    private boolean generatedItemContainsMaterial(Material material, boolean special)
+    {
+        for (ItemStack item : (special ? _generatedSpecialItems : _generatedNormalItems))
         {
             if (item.getType() == material)
                 return true;
         }
         return false;
     }
+
     private ItemStack getRandomItem()
     {
         Material[] materials = Material.values();
@@ -203,7 +274,6 @@ public class ManagerChallengeShop
 
             if (_excludedMaterials.contains(material))
                 continue;
-
 
 
             if (material.isItem())
@@ -224,9 +294,14 @@ public class ManagerChallengeShop
         return _hasPlayerBuyNormal.contains(uuid);
     }
 
+    public boolean hasPlayerBuySpecial(UUID uuid)
+    {
+        return _hasPlayerBuySpecial.contains(uuid);
+    }
+
     public void setPlayerBuyNormal(UUID uuid, boolean value)
     {
-        if(value)
+        if (value)
         {
             _hasPlayerBuyNormal.add(uuid);
         }
@@ -236,6 +311,28 @@ public class ManagerChallengeShop
         }
     }
 
+    public void setPlayerBuySpecial(UUID uuid, boolean value)
+    {
+        if (value)
+        {
+            _hasPlayerBuySpecial.add(uuid);
+        }
+        else
+        {
+            _hasPlayerBuySpecial.remove(uuid);
+        }
+    }
+
+    public String timeLeftNormal()
+    {
+        return _cooldowns.getCdInReadableTime("normal");
+    }
+
+    public String timeLeftSpecial()
+    {
+        return _cooldowns.getCdInReadableTime("special");
+    }
+
     private void scheduleItemGeneration()
     {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(ImusChallenges.getInstance(), new Runnable()
@@ -243,19 +340,42 @@ public class ManagerChallengeShop
             @Override
             public void run()
             {
+                if (_cooldowns.isCooldownReady("special"))
+                {
+                    closeShops(true);
+                    generateSpecialItems();
+                    _cooldowns.addCooldownInSeconds("special", TIME_BETWEEN_SPECIAL_GENERATIONS);
+
+                }
+
+                if (_cooldowns.isCooldownReady("normal"))
+                {
+                    closeShops(false);
+                    generateNormalItems();
+                    _cooldowns.addCooldownInSeconds("normal", TIME_BETWEEN_NORMAL_GENERATIONS);
+
+                }
+            }
+
+            private void closeShops(boolean special)
+            {
                 ArrayList<Player> players = closeAllShops();
                 for (Player player : players)
                 {
-                    player.sendMessage(Metods.msgC("&9Challenge shop has been updated!"));
-                }
-                generateItems();
-
-                for (Player player : players)
-                {
-                    openShop(player);
+                    if (special)
+                    {
+                        player.sendMessage(Metods.msgC("&9Challenge shop has been updated!"));
+                        player.sendMessage(Metods.msgC("&9You can now buy &2new &6special &9items!"));
+                    }
+                    else
+                    {
+                        player.sendMessage(Metods.msgC("&9Challenge shop has been updated!"));
+                        player.sendMessage(Metods.msgC("&9You can now buy &2new &9items!"));
+                    }
                 }
             }
-        }, 0L, TIME_BETWEEN_GENERATIONS);
+
+        }, 0L, 20);
     }
 
     // SQL ============================================================================================================
@@ -277,7 +397,6 @@ public class ManagerChallengeShop
 
     private TablePlayerShopStats getShopStatsByPlayerId(Player player) throws SQLException
     {
-        // First, find or create the TablePlayers instance for this Player
         TablePlayers tablePlayer = ManagerPlayers.getInstance().findOrCreatePlayer(player);
 
         List<TablePlayerShopStats> stats = playerShopStatsDao.queryForEq("player_id", tablePlayer.getId());
@@ -289,29 +408,27 @@ public class ManagerChallengeShop
         {
             TablePlayerShopStats newShopStats = new TablePlayerShopStats();
             newShopStats.setPlayer(tablePlayer);
-
             newShopStats.setBought_normal_slots(CONSTANTS.PLAYER_SHOP_STATS_DEFAULT_VALUE);
-
+            newShopStats.setBought_special_slots(CONSTANTS.PLAYER_SHOP_STATS_DEFAULT_SPECIAL); // Assuming default value constant for special slots
             playerShopStatsDao.create(newShopStats);
-
             return newShopStats;
         }
     }
 
 
-    public void addSlotsToPlayerShopAsync(Player player, int addSlotAmount)
+    public void addSlotsToPlayerShopAsync(Player player, int addSlotAmount, boolean isSpecial)
     {
         new BukkitRunnable()
         {
             @Override
             public void run()
             {
-                addSlotsToPlayerShop(player, addSlotAmount);
+                addSlotsToPlayerShop(player, addSlotAmount, isSpecial);
             }
         }.runTaskAsynchronously(ImusChallenges.getInstance());
     }
 
-    private void addSlotsToPlayerShop(Player player, int addSlotAmount)
+    private void addSlotsToPlayerShop(Player player, int addSlotAmount, boolean isSpecial)
     {
         try
         {
@@ -322,13 +439,28 @@ public class ManagerChallengeShop
             {
                 currentStats = new TablePlayerShopStats();
                 currentStats.setPlayer(tablePlayer);
-                currentStats.setBought_normal_slots(addSlotAmount);
+                if (isSpecial)
+                {
+                    currentStats.setBought_special_slots(addSlotAmount);
+                }
+                else
+                {
+                    currentStats.setBought_normal_slots(addSlotAmount);
+                }
                 playerShopStatsDao.create(currentStats);
             }
             else
             {
-                int newSlotCount = currentStats.getBought_normal_slots() + addSlotAmount;
-                currentStats.setBought_normal_slots(newSlotCount);
+                if (isSpecial)
+                {
+                    int newSpecialSlotCount = currentStats.getBought_special_slots() + addSlotAmount;
+                    currentStats.setBought_special_slots(newSpecialSlotCount);
+                }
+                else
+                {
+                    int newNormalSlotCount = currentStats.getBought_normal_slots() + addSlotAmount;
+                    currentStats.setBought_normal_slots(newNormalSlotCount);
+                }
                 playerShopStatsDao.update(currentStats);
             }
         } catch (SQLException e)
