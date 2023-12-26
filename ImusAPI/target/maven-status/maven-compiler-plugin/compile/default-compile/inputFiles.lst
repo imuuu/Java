@@ -48,6 +48,7 @@ C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Handelers\CommandHandler
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\DateParser.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\ConfigMaker.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Enums\INVENTORY_AREA.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\ProtocolLib\Listeners\ChatPacketListener.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\Tuple.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\CustomInvLayout.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Utilities\InvUtil.java
@@ -56,6 +57,8 @@ C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\ITouchHandler
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\MySQLHelper.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\IButton.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Interfaces\CustomInv.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Enums\KNOWN_PLUGIN_NAMES.java
+C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Managers\Manager_CommandSender.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\Other\MySQL.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\ImusLootTable.java
 C:\MinecraftPlugins\Java\ImusAPI\src\main\java\imu\iAPI\LootTables\LootTableItemStack.java

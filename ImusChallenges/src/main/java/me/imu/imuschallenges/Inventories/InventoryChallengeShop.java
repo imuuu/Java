@@ -5,16 +5,21 @@ import imu.iAPI.Buttons.GridButton;
 import imu.iAPI.Enums.INVENTORY_AREA;
 import imu.iAPI.Interfaces.IBUTTONN;
 import imu.iAPI.InvUtil.CustomInventory;
+import imu.iAPI.Managers.Manager_CommandSender;
 import imu.iAPI.Managers.Manager_Vault;
 import imu.iAPI.Other.Metods;
 import imu.iAPI.Utilities.InvUtil;
 import imu.iAPI.Utilities.ItemUtils;
 import me.imu.imuschallenges.CONSTANTS;
 import me.imu.imuschallenges.Database.Tables.TablePlayerShopStats;
+import me.imu.imuschallenges.Enums.POINT_TYPE;
 import me.imu.imuschallenges.ImusChallenges;
 import me.imu.imuschallenges.Managers.ManagerChallengeShop;
+import me.imu.imuschallenges.Managers.ManagerPlayerPoints;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 
@@ -24,6 +29,8 @@ public class InventoryChallengeShop extends CustomInventory
 
     private final int _normalOffset = 3 + 9 + 9;
     private final int _specialOffset = 1 + 9;
+
+    private double _playerPoints = -1;
     public InventoryChallengeShop()
     {
         super(ImusChallenges.getInstance(), "&6Challenge Shop", 6 * 9);
@@ -41,7 +48,9 @@ public class InventoryChallengeShop extends CustomInventory
     {
         super.onOpen();
         ManagerChallengeShop.getInstance().addPlayerToShop(getPlayer());
+        getPlayerPointsAsync();
         InitButtons();
+
     }
 
     @Override
@@ -51,6 +60,24 @@ public class InventoryChallengeShop extends CustomInventory
         ManagerChallengeShop.getInstance().removePlayerFromShop(getPlayer());
     }
 
+    private void getPlayerPointsAsync()
+    {
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                   _playerPoints = ManagerPlayerPoints.getInstance().getPoints(POINT_TYPE.CHALLENGE_POINT.toString(),getPlayer());
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }.runTaskAsynchronously(ImusChallenges.getInstance());
+    }
     private void setNormalShopClose()
     {
         ArrayList<IBUTTONN> buttons = new ArrayList<>();
@@ -182,15 +209,15 @@ public class InventoryChallengeShop extends CustomInventory
 
     private void InitNormalAndSpecialSlots()
     {
-        if (_managerChallengeShop.hasPlayerBuyNormal(getPlayer().getUniqueId()))
-        {
-            setNormalShopClose();
-            return;
-        }
-
         _managerChallengeShop.getShopStatsAsync(getPlayer(), shopStats ->
         {
             InitSpecialSlots(shopStats);
+
+            if (_managerChallengeShop.hasPlayerBuyNormal(getPlayer().getUniqueId()))
+            {
+                setNormalShopClose();
+                return;
+            }
 
             if (shopStats == null)
             {
@@ -256,9 +283,19 @@ public class InventoryChallengeShop extends CustomInventory
 
     private void OnButtonBuyNormalItem(int index)
     {
+        if(_playerPoints < _managerChallengeShop.getItemCostsNormal().get(index))
+        {
+            getPlayer().sendMessage(Metods.msgC("&cYou don't have enough points!"));
+            return;
+        }
+
+
+
         getPlayer().sendMessage(Metods.msgC("&9You bought an item(s) with &2" + _managerChallengeShop.getItemCostsNormal().get(index) + " &6challenge points!"));
         _managerChallengeShop.setPlayerBuyNormal(getPlayer().getUniqueId(), true);
-        InvUtil.AddItemToInventoryOrDrop(getPlayer(), ManagerChallengeShop.getInstance().getGeneratedItems().get(index).clone());
+
+        _managerChallengeShop.onGiveItemStack(getPlayer(), ManagerChallengeShop.getInstance().getGeneratedItems().get(index).clone());
+        ManagerPlayerPoints.getInstance().addPointsAsync(getPlayer(), POINT_TYPE.CHALLENGE_POINT, -_managerChallengeShop.getItemCostsNormal().get(index));
         getPlayer().closeInventory();
     }
 
@@ -295,9 +332,16 @@ public class InventoryChallengeShop extends CustomInventory
 
     private void OnButtonBuySpecialItem(int index)
     {
+        if(_playerPoints < _managerChallengeShop.getItemCostsSpecial().get(index))
+        {
+            getPlayer().sendMessage(Metods.msgC("&cYou don't have enough points!"));
+            return;
+        }
+
         getPlayer().sendMessage(Metods.msgC("&9You bought an item(s) with &2" + _managerChallengeShop.getItemCostsSpecial().get(index) + " &6challenge points!"));
         _managerChallengeShop.setPlayerBuySpecial(getPlayer().getUniqueId(), true);
-        InvUtil.AddItemToInventoryOrDrop(getPlayer(), ManagerChallengeShop.getInstance().getGeneratedSpecialItems().get(index).clone());
+        _managerChallengeShop.onGiveItemStack(getPlayer(), ManagerChallengeShop.getInstance().getGeneratedSpecialItems().get(index).clone());
+        ManagerPlayerPoints.getInstance().addPointsAsync(getPlayer(), POINT_TYPE.CHALLENGE_POINT, -_managerChallengeShop.getItemCostsSpecial().get(index));
         getPlayer().closeInventory();
     }
 

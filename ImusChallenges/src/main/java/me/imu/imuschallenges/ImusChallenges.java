@@ -9,9 +9,7 @@ import imu.iAPI.Other.ImusTabCompleter;
 import imu.iAPI.Other.MySQL;
 import me.imu.imuschallenges.Commands.ExampleCmd;
 import me.imu.imuschallenges.Managers.*;
-import me.imu.imuschallenges.SubCommands.SubStatsAdvancements;
-import me.imu.imuschallenges.SubCommands.SubOpenInvCollectionMaterial;
-import me.imu.imuschallenges.SubCommands.SubOpenShopCmd;
+import me.imu.imuschallenges.SubCommands.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.permissions.Permission;
@@ -19,6 +17,7 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ImusChallenges extends JavaPlugin
@@ -88,6 +87,10 @@ public class ImusChallenges extends JavaPlugin
         permissionNode = CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE_BROADCAST;
         permission = new Permission(permissionNode, "Allows hear other achievement findings", PermissionDefault.FALSE);
         Bukkit.getPluginManager().addPermission(permission);
+
+        permissionNode = CONSTANTS.PERM_BROADCAST_CHALLENGE_SHOP_UPDATE;
+        permission = new Permission(permissionNode, "Allows broadcast challenge shop update", PermissionDefault.OP);
+        Bukkit.getPluginManager().addPermission(permission);
     }
     private boolean connectDataBase()
     {
@@ -118,17 +121,17 @@ public class ImusChallenges extends JavaPlugin
         String cmd1 = "imuschallenges";
         handler.registerCmd(cmd1, new ExampleCmd());
 
-        String cmd1_sub1 = "stats_advancements";
+        String cmd1_sub1 = "view advancements";
         String full_sub1 = cmd1 + " " + cmd1_sub1;
         _cmdHelper.setCmd(full_sub1, "Open Enchant Inv", full_sub1);
         handler.registerSubCmd(cmd1, cmd1_sub1, new SubStatsAdvancements(_cmdHelper.getCmdData(full_sub1)));
-        handler.setPermissionOnLastCmd("ic.stats_advancements");
+        handler.setPermissionOnLastCmd("ic.view.advancements");
 
-        String cmd1_sub2 = "collect_materials";
+        String cmd1_sub2 = "view materials";
         String full_sub2 = cmd1 + " " + cmd1_sub2;
         _cmdHelper.setCmd(full_sub2, "Open collected challenge inv", full_sub2);
         handler.registerSubCmd(cmd1, cmd1_sub2, new SubOpenInvCollectionMaterial(_cmdHelper.getCmdData(full_sub2)));
-        handler.setPermissionOnLastCmd("ic.collect_materials");
+        handler.setPermissionOnLastCmd("ic.view.materials");
 
         String cmd1_sub3 = "shop";
         String full_sub3 = cmd1 + " " + cmd1_sub3;
@@ -136,8 +139,17 @@ public class ImusChallenges extends JavaPlugin
         handler.registerSubCmd(cmd1, cmd1_sub3, new SubOpenShopCmd());
         handler.setPermissionOnLastCmd("ic.shop");
 
-        cmd1AndArguments.put(cmd1, new String[] { "stats_advancements", "collect_materials", "shop" });
+        String cmd1_sub4 = "add points";
+        handler.registerSubCmd(cmd1, cmd1_sub4, new SubAddPointsCmd());
+        handler.setPermissionOnLastCmd("ic.add.points");
 
+        String cmd1_sub6 = "view points";
+        handler.registerSubCmd(cmd1, cmd1_sub6, new SubGetPointsCmd());
+        handler.setPermissionOnLastCmd("ic.view.points");
+
+        cmd1AndArguments.put(cmd1, new String[] { "view", "shop", "add" });
+        cmd1AndArguments.put("view", new String[] { "points","materials","advancements"});
+        cmd1AndArguments.put("add", new String[] { "points" });
 
         // register cmds
         getCommand(cmd1).setExecutor(handler);
@@ -147,4 +159,12 @@ public class ImusChallenges extends JavaPlugin
         getCommand(cmd1).setTabCompleter(_tab_cmd1);
 
     }
+
+    public void UpdateTapCompleterRules()
+    {
+       _tab_cmd1.SetRule("/ic add points", 3, _managerPointType.getPointTypeNames());
+       _tab_cmd1.SetRule("/ic add points", 4, Arrays.asList("1", "5", "10", "20", "50", "100"));
+    }
+
+
 }

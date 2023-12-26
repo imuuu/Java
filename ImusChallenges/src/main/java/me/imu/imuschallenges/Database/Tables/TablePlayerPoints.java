@@ -9,10 +9,10 @@ public class TablePlayerPoints
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(canBeNull = false, foreign = true, columnName = "player_id")
+    @DatabaseField(canBeNull = false, foreign = true, columnName = "player_id", foreignAutoRefresh = true)
     private TablePlayers player;
 
-    @DatabaseField(canBeNull = false, foreign = true, columnName = "point_type_id")
+    @DatabaseField(canBeNull = false, foreign = true, columnName = "point_type_id", foreignAutoRefresh = true)
     private TablePointType point_type;
 
     @DatabaseField(canBeNull = false)
@@ -50,6 +50,9 @@ public class TablePlayerPoints
 
     public void setPoints(double points)
     {
+        if(points < 0)
+            this.points = 0;
+
         this.points = points;
     }
     public void addPoints(int pointsToAdd) {

@@ -10,7 +10,7 @@ public class TablePlayerShopStats
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField(canBeNull = false, foreign = true, columnName = "player_id")
+    @DatabaseField(canBeNull = false, foreign = true, columnName = "player_id", foreignAutoRefresh = true)
     private TablePlayers player;
 
     @DatabaseField(canBeNull = false, defaultValue = "2")

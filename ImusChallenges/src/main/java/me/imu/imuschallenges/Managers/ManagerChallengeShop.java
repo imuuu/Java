@@ -4,14 +4,18 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.table.TableUtils;
 import imu.iAPI.LootTables.LootTableItemStack;
+import imu.iAPI.Main.ImusAPI;
+import imu.iAPI.Managers.Manager_CommandSender;
 import imu.iAPI.Other.Cooldowns;
 import imu.iAPI.Other.Metods;
+import imu.iAPI.Utilities.InvUtil;
 import me.imu.imuschallenges.CONSTANTS;
 import me.imu.imuschallenges.Database.Tables.TablePlayerShopStats;
 import me.imu.imuschallenges.Database.Tables.TablePlayers;
 import me.imu.imuschallenges.ImusChallenges;
 import me.imu.imuschallenges.Interfaces.ShopStatsCallback;
 import me.imu.imuschallenges.Inventories.InventoryChallengeShop;
+import me.imu.imuschallenges.Factories.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -48,12 +52,14 @@ public class ManagerChallengeShop
     private Dao<TablePlayerShopStats, Integer> playerShopStatsDao;
 
     //private final int TIME_BETWEEN_GENERATIONS = 3 * 60 * 60 * 20; // 3 hours in server ticks (20 ticks = 1 second)
-    private final int TIME_BETWEEN_NORMAL_GENERATIONS = 30;
-    private final int TIME_BETWEEN_SPECIAL_GENERATIONS = 30;
+    private final int TIME_BETWEEN_NORMAL_GENERATIONS = 60 * 60 * 2 + 40 * 60; //2h 40min
+    private final int TIME_BETWEEN_SPECIAL_GENERATIONS = 60 * 60 * 13; //13h
 
     private HashSet<Material> _excludedMaterials = new HashSet<>();
 
     private Cooldowns _cooldowns = new Cooldowns();
+
+    private boolean _isGadgedMenuPluginEnabled = false;
 
     public ManagerChallengeShop()
     {
@@ -66,6 +72,8 @@ public class ManagerChallengeShop
         {
             e.printStackTrace();
         }
+        _isGadgedMenuPluginEnabled = ImusAPI.isPluginEnabled("GadgedMenu");
+        Bukkit.getLogger().info("GadgedMenu plugin enabled: " + _isGadgedMenuPluginEnabled);
         InitExcludedMaterials();
         initLoot();
         _generatedNormalItems = new ArrayList<>();
@@ -120,9 +128,10 @@ public class ManagerChallengeShop
 
     private void initLoot()
     {
+
         _tier_normal_lootTable = new LootTableItemStack();
 
-        _tier_normal_lootTable.Add(new ItemStack(Material.STONE), 200, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.STONE), 250, 64);
         _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
         _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 16);
         _tier_normal_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
@@ -136,10 +145,12 @@ public class ManagerChallengeShop
         _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_INGOT), 40, 64);
         _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_LAZULI), 37, 64);
         _tier_normal_lootTable.Add(new ItemStack(Material.COAL), 70, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.COAL_BLOCK), 28, 33);
-        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_BLOCK), 28, 33);
-        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 33);
-        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 30);
+        _tier_normal_lootTable.Add(new ItemStack(Material.COAL_BLOCK), 22, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_BLOCK), 25, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 23, 64);
+        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 16, 30);
+        _tier_normal_lootTable.Add(ItemFactory.createMysteryDust(), 3, 1);
+        _tier_normal_lootTable.Add(ItemFactory.createMysteryBox(), 1, 1);
 
         _tier_special_lootTable = new LootTableItemStack();
         //_tier_special_lootTable.Add(new ItemStack(Material.STONE), 10, 64);
@@ -152,12 +163,15 @@ public class ManagerChallengeShop
         _tier_special_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 1);
         _tier_special_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 64);
         _tier_special_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 64);
+        _tier_special_lootTable.Add(new ItemStack(Material.TOTEM_OF_UNDYING), 2, 1);
+        _tier_special_lootTable.Add(ItemFactory.createMysteryDust(), 4, 1);
+        _tier_special_lootTable.Add(ItemFactory.createMysteryBox(), 2, 1);
 
     }
 
     private int getRandomCost()
     {
-        return ThreadLocalRandom.current().nextInt(CONSTANTS.MIN_CHALLENGE_POINTS_NORMAL, CONSTANTS.MAX_CHALLENGE_POINTS_NORMAL);
+        return ThreadLocalRandom.current().nextInt(CONSTANTS.SHOP_COST_MIN_CHALLENGE_POINTS_NORMAL, CONSTANTS.SHOP_COST_MAX_CHALLENGE_POINTS_NORMAL);
     }
 
     public ArrayList<ItemStack> getGeneratedItems()
@@ -182,12 +196,12 @@ public class ManagerChallengeShop
 
     public int getNormalSlotPrice(int slotNumber)
     {
-        return (int) (CONSTANTS.FIRST_NORMAL_SLOT_PRICE * Math.pow(CONSTANTS.FIRST_NORMAL_SLOT_PRICE_POW, slotNumber));
+        return (int) (CONSTANTS.SHOP_COST_FIRST_NORMAL_SLOT_PRICE * Math.pow(CONSTANTS.SHOP_COST_FIRST_NORMAL_SLOT_PRICE_POW, slotNumber));
     }
 
     public int getSpecialSlotPrice(int slotNumber)
     {
-        return (int) (CONSTANTS.FIRST_SPECIAL_SLOT_PRICE * Math.pow(CONSTANTS.FIRST_SPECIAL_SLOT_PRICE_POW, slotNumber));
+        return (int) (CONSTANTS.SHOP_COST_FIRST_SPECIAL_SLOT_PRICE * Math.pow(CONSTANTS.SHOP_COST_FIRST_SPECIAL_SLOT_PRICE_POW, slotNumber));
     }
 
     private void generateSpecialItems()
@@ -215,7 +229,7 @@ public class ManagerChallengeShop
             }
 
             _generatedSpecialItems.add(item);
-            _itemCostsSpecial.add(getRandomCost()+CONSTANTS.SPECIAL_BASE_ITEM_COST);
+            _itemCostsSpecial.add(getRandomCost() + CONSTANTS.SHOP_COST_SPECIAL_BASE_ITEM_COST);
         }
     }
 
@@ -342,6 +356,7 @@ public class ManagerChallengeShop
             {
                 if (_cooldowns.isCooldownReady("special"))
                 {
+                    broadcastShopUpdate(true);
                     closeShops(true);
                     generateSpecialItems();
                     _cooldowns.addCooldownInSeconds("special", TIME_BETWEEN_SPECIAL_GENERATIONS);
@@ -350,6 +365,7 @@ public class ManagerChallengeShop
 
                 if (_cooldowns.isCooldownReady("normal"))
                 {
+                    broadcastShopUpdate(false);
                     closeShops(false);
                     generateNormalItems();
                     _cooldowns.addCooldownInSeconds("normal", TIME_BETWEEN_NORMAL_GENERATIONS);
@@ -357,25 +373,65 @@ public class ManagerChallengeShop
                 }
             }
 
+            private void broadcastShopUpdate(boolean special)
+            {
+                for (Player player : Bukkit.getServer().getOnlinePlayers())
+                {
+                    if(!player.hasPermission(CONSTANTS.PERM_BROADCAST_CHALLENGE_SHOP_UPDATE)) continue;
+
+                    if (special)
+                    {
+                        player.sendMessage(Metods.msgC("&6Special &9Challenge shop has been updated!"));
+                    }
+                    else
+                    {
+                        player.sendMessage(Metods.msgC("&2Normal &9Challenge shop has been updated!"));
+                    }
+                }
+            }
             private void closeShops(boolean special)
             {
                 ArrayList<Player> players = closeAllShops();
                 for (Player player : players)
                 {
-                    if (special)
+                    if(!player.hasPermission(CONSTANTS.PERM_BROADCAST_CHALLENGE_SHOP_UPDATE))
                     {
                         player.sendMessage(Metods.msgC("&9Challenge shop has been updated!"));
+                    }
+                    if (special)
+                    {
                         player.sendMessage(Metods.msgC("&9You can now buy &2new &6special &9items!"));
                     }
                     else
                     {
-                        player.sendMessage(Metods.msgC("&9Challenge shop has been updated!"));
                         player.sendMessage(Metods.msgC("&9You can now buy &2new &9items!"));
                     }
                 }
             }
 
         }, 0L, 20);
+    }
+
+    public void onGiveItemStack(Player player, ItemStack itemStack)
+    {
+        if (itemStack == null)
+            return;
+
+        if (ItemFactory.isMysteryBox(itemStack))
+        {
+            int quality = ItemFactory.getMysteryBoxQuality(itemStack);
+            final String cmd = "gmysterybox give " + player.getName() + " " + itemStack.getAmount() + " " + quality;
+            Manager_CommandSender.getInstance().executeCommandAsConsole(cmd);
+            return;
+        }
+
+        if (ItemFactory.isMysteryDust(itemStack))
+        {
+            final String cmd = "mysterydust add " + player.getName() + " " + ItemFactory.getMysteryDustAmount(itemStack);
+            Manager_CommandSender.getInstance().executeCommandAsConsole(cmd);
+            return;
+        }
+        InvUtil.AddItemToInventoryOrDrop(player, itemStack);
     }
 
     // SQL ============================================================================================================

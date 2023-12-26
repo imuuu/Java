@@ -4,6 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.table.TableUtils;
 import me.imu.imuschallenges.Database.Tables.TablePointType;
+import me.imu.imuschallenges.Enums.CHALLENGE_TYPE;
 import me.imu.imuschallenges.Enums.POINT_TYPE;
 import me.imu.imuschallenges.ImusChallenges;
 import org.bukkit.Bukkit;
@@ -34,6 +35,7 @@ public class ManagerPointType
     {
         _main = main;
         _instance = this;
+        pointTypeList = new ArrayList<>();
         try
         {
             pointTypeDao = DaoManager.createDao(_main.getSource(), TablePointType.class);
@@ -55,6 +57,15 @@ public class ManagerPointType
             {
                 ensureDefaultPointTypes();
                 loadPointTypes();
+
+                new BukkitRunnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ImusChallenges.getInstance().UpdateTapCompleterRules();
+                    }
+                }.runTask(_main);
             }
         }.runTaskAsynchronously(_main);
     }
@@ -93,6 +104,26 @@ public class ManagerPointType
         return pointTypeList;
     }
 
+    public List<String> getPointTypeNames()
+    {
+        List<String> pointTypeNames = new ArrayList<>();
+        for (TablePointType pointType : pointTypeList)
+        {
+            pointTypeNames.add(pointType.getPointTypeName());
+        }
+
+        if(pointTypeNames.isEmpty())
+        {
+            Bukkit.getLogger().warning("[ImusChallenges] No point types found");
+            pointTypeNames.add(POINT_TYPE.CHALLENGE_POINT.toString());
+        }
+        return pointTypeNames;
+    }
+
+    public boolean hasPointType(String pointTypeName)
+    {
+        return getPointTypeByName(pointTypeName) != null;
+    }
     public TablePointType getPointTypeByName(String pointTypeName)
     {
         for (TablePointType pointType : pointTypeList)
@@ -111,11 +142,25 @@ public class ManagerPointType
         TablePointType pointType = getPointTypeByName(pointTypeName);
         if (pointType == null)
         {
-            addPointType(pointTypeName);
+            addPointTypeAsync(pointTypeName);
             pointType = getPointTypeByName(pointTypeName);
         }
         return pointType;
     }
+    public void addPointTypeAsync(String pointTypeName)
+    {
+
+        new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                addPointType(pointTypeName);
+            }
+        }.runTaskAsynchronously(_main);
+
+    }
+
     private void addPointType(String pointTypeName)
     {
         Bukkit.getLogger().info("[ImusChallenges] Creating point type: " + pointTypeName);
@@ -125,6 +170,15 @@ public class ManagerPointType
         {
             pointTypeDao.create(pointType);
             pointTypeList.add(pointType);
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
+                {
+                    ImusChallenges.getInstance().UpdateTapCompleterRules();
+                }
+            }.runTask(_main);
+
         } catch (SQLException e)
         {
             e.printStackTrace();

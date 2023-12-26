@@ -57,5 +57,28 @@ public class ManagerAdvancement
         return data;
     }
 
+    public DataPlayerAdvancements getPoints(Player player, Advancement advancement)
+    {
+        DataPlayerAdvancements data = checkPlayerAchievements(player);
+        AdvancementDisplay display = advancement.getDisplay();
+        if (display != null)
+        {
+            String type = display.getType().toString();
+            switch (type)
+            {
+                case "CHALLENGE":
+                    data.incrementCompletedChallenges();
+                    break;
+                case "GOAL":
+                    data.incrementCompletedGoals();
+                    break;
+                case "TASK":
+                    data.incrementCompletedTasks();
+                    break;
+            }
+        }
+        return data;
+    }
+
 
 }

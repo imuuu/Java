@@ -8,6 +8,7 @@ import imu.iAPI.Other.Metods;
 import me.imu.imuschallenges.CONSTANTS;
 import me.imu.imuschallenges.Database.Tables.TablePlayerAchievements;
 import me.imu.imuschallenges.Database.Tables.TablePlayers;
+import me.imu.imuschallenges.Enums.POINT_TYPE;
 import me.imu.imuschallenges.ImusChallenges;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
@@ -177,12 +178,6 @@ public class ManagerAchievementChallenges implements Listener
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event)
     {
         Player player = event.getPlayer();
-
-        if(!player.hasPermission(CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE))
-        {
-            return;
-        }
-
         Advancement advancement = event.getAdvancement();
 
         if (advancement.getDisplay() == null)
@@ -191,10 +186,21 @@ public class ManagerAchievementChallenges implements Listener
         }
 
         String advancementKey = advancement.getDisplay().getTitle();
-
+        int points = ManagerAdvancement.getInstance().getPoints(player, advancement).getPoints();
         if (!_globalCompletedAdvancements.contains(advancementKey))
         {
+            if(!player.hasPermission(CONSTANTS.PERM_SERVER_WIDE_ACHIEVEMENT_CHALLENGE))
+            {
+                return;
+            }
+
+            points += CONSTANTS.FIRST_ADVANCEMENT_COMPLITION;
+            ManagerPlayerPoints.getInstance().addPointsAsync(player, POINT_TYPE.CHALLENGE_POINT, points);
             buffer.offer(new PlayerAdvancementPair(player, advancementKey));
+        }
+        else
+        {
+            ManagerPlayerPoints.getInstance().addPointsAsync(player, POINT_TYPE.CHALLENGE_POINT, points);
         }
     }
 

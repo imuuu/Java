@@ -110,16 +110,31 @@ public class ManagerPlayerPoints
         }.runTaskAsynchronously(_main);
     }
 
-    private List<TablePlayerPoints> getPointsForPlayer(TablePlayers player)
+
+    private List<TablePlayerPoints> getPoints(TablePlayers player) throws SQLException
     {
-        try
+        return playerPointsDao.queryForEq("player_id", player.getId());
+    }
+
+    public List<TablePlayerPoints> getPoints(Player player) throws SQLException {
+
+        TablePlayers tablePlayer = _managerTablePlayers.findOrCreatePlayer(player);
+
+        return getPoints(tablePlayer);
+    }
+
+    public double getPoints(String pointType, Player player) throws SQLException
+    {
+        List<TablePlayerPoints> pointsList = getPoints(player);
+
+        for (TablePlayerPoints points : pointsList)
         {
-            return playerPointsDao.queryForEq("player_id", player.getId());
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-            return null;
+            if (points.getPoint_type().getPointTypeName().equalsIgnoreCase(pointType))
+            {
+                return points.getPoints();
+            }
         }
+        return 0;
     }
 
 }

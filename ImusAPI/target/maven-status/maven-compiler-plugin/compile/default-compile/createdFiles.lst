@@ -1,3 +1,4 @@
+imu\iAPI\Managers\Manager_CommandSender.class
 imu\iAPI\Other\ProtocolLibUtil$1.class
 imu\iAPI\Handelers\CommandHandler.class
 imu\iAPI\Other\Cooldowns.class
@@ -82,8 +83,10 @@ imu\iAPI\Other\ParticleAnimations$1.class
 imu\iAPI\Enums\ITEM_CATEGORY.class
 imu\iAPI\Enums\DEFAULT_FONT_INFO.class
 imu\iAPI\LootTables\LootTableItemStack.class
+imu\iAPI\Enums\KNOWN_PLUGIN_NAMES.class
 imu\iAPI\Interfaces\IModDataInv.class
 imu\iAPI\Enums\LINE_DIRECTION.class
 imu\iAPI\Other\Metods$2.class
 imu\iAPI\Other\PlayerDataCard.class
 imu\iAPI\Other\CustomInvLayout.class
+imu\iAPI\ProtocolLib\Listeners\ChatPacketListener.class
