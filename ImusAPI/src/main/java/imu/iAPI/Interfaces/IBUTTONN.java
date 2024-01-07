@@ -33,4 +33,9 @@ public interface IBUTTONN
 	
 	public void setLastClickType(ClickType clickType);
 	public ClickType getLastClickType();
+
+	public boolean onClick(InventoryClickEvent event);
+
+	public void setButtonHandler(IButtonHandler buttonHandler);
+	public IButtonHandler getButtonHandler();
 }

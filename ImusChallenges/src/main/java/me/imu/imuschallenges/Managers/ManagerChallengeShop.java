@@ -131,41 +131,41 @@ public class ManagerChallengeShop
 
         _tier_normal_lootTable = new LootTableItemStack();
 
-        _tier_normal_lootTable.Add(new ItemStack(Material.STONE), 250, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 16);
-        _tier_normal_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
-        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_BLOCK), 1, 1);
-        _tier_normal_lootTable.Add(new ItemStack(Material.NETHERITE_INGOT), 4, 12);
-        _tier_normal_lootTable.Add(new ItemStack(Material.EMERALD_BLOCK), 30, 33);
-        _tier_normal_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 1);
-        _tier_normal_lootTable.Add(new ItemStack(Material.EMERALD_ORE), 35, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_INGOT), 40, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_INGOT), 40, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_LAZULI), 37, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.COAL), 70, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.COAL_BLOCK), 22, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.IRON_BLOCK), 25, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 23, 64);
-        _tier_normal_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 16, 30);
-        _tier_normal_lootTable.Add(ItemFactory.createMysteryDust(), 3, 1);
-        _tier_normal_lootTable.Add(ItemFactory.createMysteryBox(), 1, 1);
+        _tier_normal_lootTable.add(new ItemStack(Material.STONE), 250, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.DIAMOND), 22, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.DIAMOND_BLOCK), 10, 16);
+        _tier_normal_lootTable.add(new ItemStack(Material.NETHER_STAR), 1, 1);
+        _tier_normal_lootTable.add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.NETHERITE_BLOCK), 1, 1);
+        _tier_normal_lootTable.add(new ItemStack(Material.NETHERITE_INGOT), 4, 12);
+        _tier_normal_lootTable.add(new ItemStack(Material.EMERALD_BLOCK), 30, 33);
+        _tier_normal_lootTable.add(new ItemStack(Material.ELYTRA), 1, 1);
+        _tier_normal_lootTable.add(new ItemStack(Material.EMERALD_ORE), 35, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.IRON_INGOT), 40, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.GOLD_INGOT), 40, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.LAPIS_LAZULI), 37, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.COAL), 70, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.COAL_BLOCK), 22, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.IRON_BLOCK), 25, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.GOLD_BLOCK), 23, 64);
+        _tier_normal_lootTable.add(new ItemStack(Material.LAPIS_BLOCK), 16, 30);
+        _tier_normal_lootTable.add(ItemFactory.createMysteryDust(), 3, 1);
+        _tier_normal_lootTable.add(ItemFactory.createMysteryBox(), 1, 1);
 
         _tier_special_lootTable = new LootTableItemStack();
         //_tier_special_lootTable.Add(new ItemStack(Material.STONE), 10, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.DIAMOND), 22, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.DIAMOND_BLOCK), 10, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.NETHER_STAR), 1, 1);
-        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_BLOCK), 1, 3);
-        _tier_special_lootTable.Add(new ItemStack(Material.NETHERITE_INGOT), 4, 22);
-        _tier_special_lootTable.Add(new ItemStack(Material.ELYTRA), 1, 1);
-        _tier_special_lootTable.Add(new ItemStack(Material.GOLD_BLOCK), 28, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.LAPIS_BLOCK), 20, 64);
-        _tier_special_lootTable.Add(new ItemStack(Material.TOTEM_OF_UNDYING), 2, 1);
-        _tier_special_lootTable.Add(ItemFactory.createMysteryDust(), 4, 1);
-        _tier_special_lootTable.Add(ItemFactory.createMysteryBox(), 2, 1);
+        _tier_special_lootTable.add(new ItemStack(Material.DIAMOND), 22, 64);
+        _tier_special_lootTable.add(new ItemStack(Material.DIAMOND_BLOCK), 10, 64);
+        _tier_special_lootTable.add(new ItemStack(Material.NETHER_STAR), 1, 1);
+        _tier_special_lootTable.add(new ItemStack(Material.NETHERITE_SCRAP), 15, 64);
+        _tier_special_lootTable.add(new ItemStack(Material.NETHERITE_BLOCK), 1, 3);
+        _tier_special_lootTable.add(new ItemStack(Material.NETHERITE_INGOT), 4, 22);
+        _tier_special_lootTable.add(new ItemStack(Material.ELYTRA), 1, 1);
+        _tier_special_lootTable.add(new ItemStack(Material.GOLD_BLOCK), 28, 64);
+        _tier_special_lootTable.add(new ItemStack(Material.LAPIS_BLOCK), 20, 64);
+        _tier_special_lootTable.add(new ItemStack(Material.TOTEM_OF_UNDYING), 2, 1);
+        _tier_special_lootTable.add(ItemFactory.createMysteryDust(), 4, 1);
+        _tier_special_lootTable.add(ItemFactory.createMysteryBox(), 2, 1);
 
     }
 
@@ -211,7 +211,7 @@ public class ManagerChallengeShop
 
         for (int i = 0; i < (CONSTANTS.SPECIAL_SLOTS); i++)
         {
-            ItemStack item = _tier_special_lootTable.GetLoot();
+            ItemStack item = _tier_special_lootTable.getLoot();
 
             if (item == null)
                 continue;
@@ -241,7 +241,7 @@ public class ManagerChallengeShop
 
         for (int i = 0; i < (CONSTANTS.NORMAL_SLOT_COLUMNS * CONSTANTS.NORMAL_SLOT_ROWS); i++)
         {
-            ItemStack item = _tier_normal_lootTable.GetLoot();
+            ItemStack item = _tier_normal_lootTable.getLoot();
 
             if (item == null)
                 continue;

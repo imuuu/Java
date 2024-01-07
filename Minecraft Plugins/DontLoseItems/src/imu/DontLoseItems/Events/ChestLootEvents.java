@@ -101,12 +101,12 @@ public class ChestLootEvents implements Listener
 		_lootTable_enchants_armor = new ImusLootTable<>();
 		_lootTable_enchants_tool = new ImusLootTable<>();
 		
-		_lootTable_stackMaxAmounts.Add(5, 90);
-		_lootTable_stackMaxAmounts.Add(10, 70);
-		_lootTable_stackMaxAmounts.Add(13, 50);
-		_lootTable_stackMaxAmounts.Add(30, 15);
-		_lootTable_stackMaxAmounts.Add(40, 7);
-		_lootTable_stackMaxAmounts.Add(64, 5);
+		_lootTable_stackMaxAmounts.add(5, 90);
+		_lootTable_stackMaxAmounts.add(10, 70);
+		_lootTable_stackMaxAmounts.add(13, 50);
+		_lootTable_stackMaxAmounts.add(30, 15);
+		_lootTable_stackMaxAmounts.add(40, 7);
+		_lootTable_stackMaxAmounts.add(64, 5);
 		
 		
 		
@@ -117,157 +117,157 @@ public class ChestLootEvents implements Listener
 		int mythic = 32;
 		int lege = 14; //20
 		
-		_lootTable_hellArmor.Add(new ItemStack(Material.GREEN_WOOL), common);
-		_lootTable_hellArmor.Add(new ItemStack(Material.LIME_WOOL), unCommon);
+		_lootTable_hellArmor.add(new ItemStack(Material.GREEN_WOOL), common);
+		_lootTable_hellArmor.add(new ItemStack(Material.LIME_WOOL), unCommon);
 		
-		_lootTable_hellArmor.Add(new ItemStack(Material.LAPIS_ORE), common);
-		_lootTable_hellArmor.Add(new ItemStack(Material.BLACK_WOOL), unCommon);
+		_lootTable_hellArmor.add(new ItemStack(Material.LAPIS_ORE), common);
+		_lootTable_hellArmor.add(new ItemStack(Material.BLACK_WOOL), unCommon);
 		
-		_lootTable_hellArmor.Add(new ItemStack(Material.BLUE_WOOL), common);
-		_lootTable_hellArmor.Add(new ItemStack(Material.CYAN_WOOL), unCommon);
+		_lootTable_hellArmor.add(new ItemStack(Material.BLUE_WOOL), common);
+		_lootTable_hellArmor.add(new ItemStack(Material.CYAN_WOOL), unCommon);
 		
-		_lootTable_hellArmor.Add(new ItemStack(Material.BROWN_WOOL), common);
-		_lootTable_hellArmor.Add(new ItemStack(Material.CYAN_WOOL), unCommon);
+		_lootTable_hellArmor.add(new ItemStack(Material.BROWN_WOOL), common);
+		_lootTable_hellArmor.add(new ItemStack(Material.CYAN_WOOL), unCommon);
 		
-		//_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
-		//_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Rare), rare);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Epic), epic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Legendary), lege);
+		//_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Common), common);
+		//_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellBoots(ITEM_RARITY.Legendary), lege);
 		
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Common), common);
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Uncommon), unCommon);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Rare), rare);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Epic), epic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Legendary), lege);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellLeggins(ITEM_RARITY.Legendary), lege);
 		
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Common), common);
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Uncommon), unCommon);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Rare), rare);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Epic), epic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Legendary), lege);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellChestplate(ITEM_RARITY.Legendary), lege);
 		
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Common), common);
-//		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Uncommon), unCommon);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Rare), rare);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Epic), epic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellArmor.Add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Legendary), lege);
-		
-		
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellTorch(), 85);
-		_lootTable_hellArrows.Add(new ItemStack(Material.ARROW), 80);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Common), 60);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Uncommon), 60);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Rare), 40);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Epic), 28);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Mythic), 18);
-		_lootTable_hellArrows.Add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Legendary), 8);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Common), common);
+//		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Uncommon), unCommon);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Rare), rare);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Epic), epic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellArmor.add(Manager_HellArmor.Instance.CreateHellHelmet(ITEM_RARITY.Legendary), lege);
 		
 		
-		//_lootTable_hellTools.Add(new ItemStack(Material.SHIELD), rare);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
-		
-		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_PICKAXE), rare);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Legendary), lege);
-		
-		//_lootTable_hellTools.Add(new ItemStack(Material.GOLDEN_SWORD), rare);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Legendary), lege);
-		
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Legendary), lege);
-		
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Epic), epic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Mythic), mythic);
-		_lootTable_hellTools.Add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Legendary), lege);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellTorch(), 85);
+		_lootTable_hellArrows.add(new ItemStack(Material.ARROW), 80);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Common), 60);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Uncommon), 60);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Rare), 40);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Epic), 28);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Mythic), 18);
+		_lootTable_hellArrows.add(Manager_HellArmor.Instance.CreateHellArrow(ITEM_RARITY.Legendary), 8);
 		
 		
-		//_lootTable_hellTools.Add(null, lege);
-		// _lootTable.Add(new ItemStack(Material.DIAMOND), 1);
-		// _lootTable.Add(new ItemStack(Material.GOLD_INGOT), 10);
-		// _lootTable.Add(new ItemStack(Material.IRON_INGOT), 20);
+		//_lootTable_hellTools.add(new ItemStack(Material.SHIELD), rare);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellReflectShield(ITEM_RARITY.Legendary), lege);
+		
+		//_lootTable_hellTools.add(new ItemStack(Material.GOLDEN_PICKAXE), rare);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellPickaxe(ITEM_RARITY.Legendary), lege);
+		
+		//_lootTable_hellTools.add(new ItemStack(Material.GOLDEN_SWORD), rare);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellTripleSword(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellDoubleAxe(ITEM_RARITY.Legendary), lege);
+		
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Epic), epic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Mythic), mythic);
+		_lootTable_hellTools.add(Manager_HellTools.Instance.CreateHellHoe(ITEM_RARITY.Legendary), lege);
 		
 		
-		_lootTable_blocks.Add(new ItemStack(Material.STONE), 160);
-		_lootTable_blocks.Add(new ItemStack(Material.NETHER_BRICK), 160);
-		_lootTable_blocks.Add(new ItemStack(Material.GRAVEL), 130);
-		_lootTable_blocks.Add(new ItemStack(Material.GLOWSTONE), 80);
-		_lootTable_blocks.Add(new ItemStack(Material.SHROOMLIGHT), 60);
-		_lootTable_blocks.Add(new ItemStack(Material.BASALT), 160);
-		_lootTable_blocks.Add(new ItemStack(Material.BLACK_STAINED_GLASS), 150);
-		_lootTable_blocks.Add(new ItemStack(Material.SOUL_SAND), 150);
-		_lootTable_blocks.Add(new ItemStack(Material.MAGMA_BLOCK), 120);
-		_lootTable_blocks.Add(new ItemStack(Material.OBSIDIAN), 110);
-		_lootTable_blocks.Add(new ItemStack(Material.CRYING_OBSIDIAN), 40);
-		_lootTable_blocks.Add(new ItemStack(Material.GILDED_BLACKSTONE), 40);
-		_lootTable_blocks.Add(new ItemStack(Material.CRIMSON_STEM), 130);
-		_lootTable_blocks.Add(new ItemStack(Material.WARPED_STEM), 130);
-		//_lootTable_blocks.Add(new ItemStack(Material.), 120);
+		//_lootTable_hellTools.add(null, lege);
+		// _lootTable.add(new ItemStack(Material.DIAMOND), 1);
+		// _lootTable.add(new ItemStack(Material.GOLD_INGOT), 10);
+		// _lootTable.add(new ItemStack(Material.IRON_INGOT), 20);
 		
 		
-		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND), 33);
-		_lootTable_valuables.Add(new ItemStack(Material.GOLD_INGOT), 80);
-		_lootTable_valuables.Add(new ItemStack(Material.IRON_INGOT), 90);
-		//_lootTable_valuables.Add(new ItemStack(Material.EMERALD), 10);
-		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_LAZULI), 100);
-		_lootTable_valuables.Add(new ItemStack(Material.MAGMA_CREAM), 90);
-		_lootTable_valuables.Add(new ItemStack(Material.GUNPOWDER), 70);
-		_lootTable_valuables.Add(new ItemStack(Material.REDSTONE), 110);
-		_lootTable_valuables.Add(new ItemStack(Material.IRON_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.GOLD_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.EMERALD_BLOCK), 45);
-		_lootTable_valuables.Add(new ItemStack(Material.LAPIS_BLOCK), 40);
-		_lootTable_valuables.Add(new ItemStack(Material.DIAMOND_BLOCK), 4);
-		_lootTable_valuables.Add(new ItemStack(Material.ENDER_PEARL), 60);
-		_lootTable_valuables.Add(new ItemStack(Material.BLAZE_ROD), 40);
-		_lootTable_valuables.Add(new ItemStack(Material.GHAST_TEAR), 14);
-		//_lootTable_valuables.Add(new ItemStack(Material.NETHER_STAR), 2);
-		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_INGOT), 1);
-		//_lootTable_valuables.Add(new ItemStack(Material.NETHERITE_SCRAP), 18);
-		
-		//_lootTable_valuables.Add(new ItemStack(Material.TNT), 120);
+		_lootTable_blocks.add(new ItemStack(Material.STONE), 160);
+		_lootTable_blocks.add(new ItemStack(Material.NETHER_BRICK), 160);
+		_lootTable_blocks.add(new ItemStack(Material.GRAVEL), 130);
+		_lootTable_blocks.add(new ItemStack(Material.GLOWSTONE), 80);
+		_lootTable_blocks.add(new ItemStack(Material.SHROOMLIGHT), 60);
+		_lootTable_blocks.add(new ItemStack(Material.BASALT), 160);
+		_lootTable_blocks.add(new ItemStack(Material.BLACK_STAINED_GLASS), 150);
+		_lootTable_blocks.add(new ItemStack(Material.SOUL_SAND), 150);
+		_lootTable_blocks.add(new ItemStack(Material.MAGMA_BLOCK), 120);
+		_lootTable_blocks.add(new ItemStack(Material.OBSIDIAN), 110);
+		_lootTable_blocks.add(new ItemStack(Material.CRYING_OBSIDIAN), 40);
+		_lootTable_blocks.add(new ItemStack(Material.GILDED_BLACKSTONE), 40);
+		_lootTable_blocks.add(new ItemStack(Material.CRIMSON_STEM), 130);
+		_lootTable_blocks.add(new ItemStack(Material.WARPED_STEM), 130);
+		//_lootTable_blocks.add(new ItemStack(Material.), 120);
 		
 		
-		_lootTable_food.Add(new ItemStack(Material.APPLE), 20);
-		_lootTable_food.Add(new ItemStack(Material.COOKED_PORKCHOP), 13);
-		_lootTable_food.Add(new ItemStack(Material.BAKED_POTATO), 8);
-		_lootTable_food.Add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1);
-		_lootTable_food.Add(new ItemStack(Material.GOLDEN_APPLE), 3);
-		//_lootTable_food.Add(Manager_HellArmor.Instance.CreateHellReflectShield(), 100);
+		_lootTable_valuables.add(new ItemStack(Material.DIAMOND), 33);
+		_lootTable_valuables.add(new ItemStack(Material.GOLD_INGOT), 80);
+		_lootTable_valuables.add(new ItemStack(Material.IRON_INGOT), 90);
+		//_lootTable_valuables.add(new ItemStack(Material.EMERALD), 10);
+		_lootTable_valuables.add(new ItemStack(Material.LAPIS_LAZULI), 100);
+		_lootTable_valuables.add(new ItemStack(Material.MAGMA_CREAM), 90);
+		_lootTable_valuables.add(new ItemStack(Material.GUNPOWDER), 70);
+		_lootTable_valuables.add(new ItemStack(Material.REDSTONE), 110);
+		_lootTable_valuables.add(new ItemStack(Material.IRON_BLOCK), 45);
+		_lootTable_valuables.add(new ItemStack(Material.GOLD_BLOCK), 45);
+		_lootTable_valuables.add(new ItemStack(Material.EMERALD_BLOCK), 45);
+		_lootTable_valuables.add(new ItemStack(Material.LAPIS_BLOCK), 40);
+		_lootTable_valuables.add(new ItemStack(Material.DIAMOND_BLOCK), 4);
+		_lootTable_valuables.add(new ItemStack(Material.ENDER_PEARL), 60);
+		_lootTable_valuables.add(new ItemStack(Material.BLAZE_ROD), 40);
+		_lootTable_valuables.add(new ItemStack(Material.GHAST_TEAR), 14);
+		//_lootTable_valuables.add(new ItemStack(Material.NETHER_STAR), 2);
+		//_lootTable_valuables.add(new ItemStack(Material.NETHERITE_INGOT), 1);
+		//_lootTable_valuables.add(new ItemStack(Material.NETHERITE_SCRAP), 18);
+		
+		//_lootTable_valuables.add(new ItemStack(Material.TNT), 120);
+		
+		
+		_lootTable_food.add(new ItemStack(Material.APPLE), 20);
+		_lootTable_food.add(new ItemStack(Material.COOKED_PORKCHOP), 13);
+		_lootTable_food.add(new ItemStack(Material.BAKED_POTATO), 8);
+		_lootTable_food.add(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE), 1);
+		_lootTable_food.add(new ItemStack(Material.GOLDEN_APPLE), 3);
+		//_lootTable_food.add(Manager_HellArmor.Instance.CreateHellReflectShield(), 100);
 		
 		
 		
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("protection")), 8);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("fire_protection")), 9);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("blast_protection")), 11);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("projectile_protection")), 10);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("respiration")), 8);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("aqua_affinity")), 8);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("thorns")), 5);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 7);
-		_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 3);
-		//_lootTable_enchants_armor.Add(Enchantment.getByKey(NamespacedKey.minecraft("binding_curse")), 1);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("protection")), 8);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("fire_protection")), 9);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("blast_protection")), 11);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("projectile_protection")), 10);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("respiration")), 8);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("aqua_affinity")), 8);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("thorns")), 5);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 7);
+		_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 3);
+		//_lootTable_enchants_armor.add(Enchantment.getByKey(NamespacedKey.minecraft("binding_curse")), 1);
 		
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("efficiency")), 10);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 10);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("silk_touch")), 2);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("fortune")), 3);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("power")), 4);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("punch")), 7);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("flame")), 5);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("looting")), 3);
-		_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 1);
-		//_lootTable_enchants_tool.Add(Enchantment.getByKey(NamespacedKey.minecraft("vanishing_curse")), 1);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("efficiency")), 10);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")), 10);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("silk_touch")), 2);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("fortune")), 3);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("power")), 4);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("punch")), 7);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("flame")), 5);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("looting")), 3);
+		_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("mending")), 1);
+		//_lootTable_enchants_tool.add(Enchantment.getByKey(NamespacedKey.minecraft("vanishing_curse")), 1);
 
 	}
 
@@ -333,37 +333,38 @@ public class ChestLootEvents implements Listener
 			enchantedBook = 80;
 			toolGear = 80; //4
 		}
-		boolean hasHellItem = false;
+		boolean hasHellTool = false;
+		boolean hasHellArmor = false;
 		for(int i = 0; i < totalRolls; i++)
 		{
 			ItemStack stack;
 			if(ThreadLocalRandom.current().nextInt(100) < blockLootChance)
 			{
-				stack = GetValidAmountStack(_lootTable_blocks.GetLoot().clone());
+				stack = GetValidAmountStack(_lootTable_blocks.getLoot().clone());
 				stacks.add(stack);				
 			}
 			if(ThreadLocalRandom.current().nextInt(100) < valuableChance)
 			{
-				stack = GetValidAmountStack(_lootTable_valuables.GetLoot().clone());
+				stack = GetValidAmountStack(_lootTable_valuables.getLoot().clone());
 				stacks.add(stack);				
 			}
 			
 			if(ThreadLocalRandom.current().nextInt(100) < hellArrowChance)
 			{
-				stack = GetValidAmountStack(_lootTable_hellArrows.GetLoot().clone());
+				stack = GetValidAmountStack(_lootTable_hellArrows.getLoot().clone());
 				stacks.add(stack);
 			}
 			
 			if(ThreadLocalRandom.current().nextInt(100) < foodChance)
 			{
-				stack = GetValidAmountStack(_lootTable_food.GetLoot().clone());
+				stack = GetValidAmountStack(_lootTable_food.getLoot().clone());
 				stacks.add(stack);
 			}
 			
-			if(!hasHellItem && ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
+			if(!hasHellArmor && ThreadLocalRandom.current().nextInt(100) < hellArmorChance)
 			{
-				hasHellItem = true;
-				stack = GetValidAmountStack(_lootTable_hellArmor.GetLoot().clone());
+				hasHellArmor = true;
+				stack = GetValidAmountStack(_lootTable_hellArmor.getLoot().clone());
 				stacks.add(stack);
 			}
 			
@@ -373,10 +374,10 @@ public class ChestLootEvents implements Listener
 				stacks.add(stack);
 			}
 			
-			if(!hasHellItem && ThreadLocalRandom.current().nextInt(100) < toolGear)
+			if(!hasHellTool && ThreadLocalRandom.current().nextInt(100) < toolGear)
 			{
-				hasHellItem = true;
-				stack = GetValidAmountStack(_lootTable_hellTools.GetLoot().clone());
+				hasHellTool = true;
+				stack = GetValidAmountStack(_lootTable_hellTools.getLoot().clone());
 				stacks.add(stack);
 			}
 		}
@@ -385,7 +386,7 @@ public class ChestLootEvents implements Listener
 	
 	private ItemStack GetValidAmountStack(ItemStack stack)
 	{
-		stack.setAmount(ThreadLocalRandom.current().nextInt((_lootTable_stackMaxAmounts.GetLoot())+1));
+		stack.setAmount(ThreadLocalRandom.current().nextInt((_lootTable_stackMaxAmounts.getLoot())+1));
 		
 		if(stack.getType() == Material.NETHER_STAR) 
 		{
@@ -463,7 +464,7 @@ public class ChestLootEvents implements Listener
 		{
 			if(ThreadLocalRandom.current().nextInt(100) > 50) break;
 			
-			Enchantment ench = _lootTable_enchants_tool.GetLoot();
+			Enchantment ench = _lootTable_enchants_tool.getLoot();
 			int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+miniumLevel;
 			
 			if(level == 0) level = 1;
@@ -499,7 +500,7 @@ public class ChestLootEvents implements Listener
 			
 			if(ThreadLocalRandom.current().nextInt(100) > 55) break;
 			
-			Enchantment ench = _lootTable_enchants_armor.GetLoot();
+			Enchantment ench = _lootTable_enchants_armor.getLoot();
 			int level = ThreadLocalRandom.current().nextInt(ench.getMaxLevel())+miniumLevel;
 			
 			if(level == 0) level = 1;

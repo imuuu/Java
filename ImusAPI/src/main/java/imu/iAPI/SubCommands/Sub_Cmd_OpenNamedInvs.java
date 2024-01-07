@@ -30,8 +30,9 @@ public class Sub_Cmd_OpenNamedInvs implements CommandInterface
     	
 		String invName = StringUtils.join(Arrays.copyOfRange(args, 1, args.length)," ");
 
-		if(invName == null || invName.isBlank()) return false;
-		
+		//if(invName == null || invName.isBlank()) return false;
+		if(invName == null || invName.isEmpty()) return false;
+
 		Manager_FastInventories.Instance.OpenFastInv(invName, (Player)sender);
 		
 		

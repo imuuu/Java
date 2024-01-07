@@ -26,6 +26,7 @@ public class MySQL
     private Cooldowns _cds;
 
     private int _poolSize = 1;
+    private int _minimumIdle = -1;
     private HikariDataSource dataSource;
 
     @SuppressWarnings("unused")
@@ -40,8 +41,22 @@ public class MySQL
         LoadConfig();
         setupDataSource();
         RunnableAsync();
+    }
+
+    public MySQL(Plugin plugin, int poolSize, int minimumIdle, String dataBaseName)
+    {
+        _plugin = plugin;
+        _dataBase = dataBaseName;
+        _cds = new Cooldowns();
+        _poolSize = poolSize;
+        _minimumIdle = minimumIdle;
+        LoadConfig();
+        setupDataSource();
+        RunnableAsync();
 
     }
+
+
 
    /* private void setupDataSource()
     {
@@ -86,6 +101,11 @@ public class MySQL
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
             config.setMaximumPoolSize(_poolSize);
             config.setConnectionTimeout(30000);
+
+            if(_minimumIdle != -1)
+            {
+            	config.setMinimumIdle(_minimumIdle);
+            }
 
             this.dataSource = new HikariDataSource(config);
             ImusAPI._instance.RegisterSQL(this);

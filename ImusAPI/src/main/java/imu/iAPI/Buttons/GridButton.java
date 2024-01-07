@@ -18,7 +18,7 @@ public class GridButton implements IGrid
 {
     private int _startPosition;
     private final int _lineLenght;
-    private List<GridButtonPart> _parts;
+    private List<IBUTTONN> _parts;
     private List<ItemStack> _items;
     private List<IBUTTONN> _buttons;
     private int _pageID = 0;
@@ -150,9 +150,10 @@ public class GridButton implements IGrid
     private void loadButton(int column, int row, IBUTTONN button)
     {
         int slot = _startPosition + (row * 9) + column;
-        GridButtonPart buttonPart = new GridButtonPart(button, this);
-        buttonPart.setPosition(slot);
-        _parts.add(buttonPart);
+        //GridButtonPart buttonPart = new GridButtonPart(button, this);
+        //buttonPart.setPosition(slot);
+        button.setPosition(slot);
+        _parts.add(button);
     }
 
    /* private void loadItem(int column, int row, ItemStack item)
@@ -164,7 +165,8 @@ public class GridButton implements IGrid
 
     private IBUTTONN createPlaceholderButton(int slot)
     {
-        return new GridButtonPart(slot,getEmptyStack(), this);
+        //return new GridButtonPart(slot,getEmptyStack(), this);
+        return new Button(slot, getEmptyStack());
     }
 
     private int calculateNewPosition(int indexInList)
@@ -220,20 +222,20 @@ public class GridButton implements IGrid
         if (offset == 1)
         {
             // Shift left - move the last item to the front
-            GridButtonPart lastPart = _parts.remove(_parts.size() - 1);
+            IBUTTONN lastPart = _parts.remove(_parts.size() - 1);
             _parts.add(0, lastPart);
         }
         else if (offset == -1)
         {
             // Shift right - move the first item to the end
-            GridButtonPart firstPart = _parts.remove(0);
+            IBUTTONN firstPart = _parts.remove(0);
             _parts.add(firstPart);
         }
 
         // Update positions of parts considering _startPosition
         for (int i = 0; i < _parts.size(); i++)
         {
-            GridButtonPart part = _parts.get(i);
+            IBUTTONN part = _parts.get(i);
             int newPosition = calculateNewPosition(i); // calculateNewPosition accounts for _startPosition
             part.setPosition(newPosition);
         }
@@ -291,7 +293,7 @@ public class GridButton implements IGrid
                 break;
             }
 
-            GridButtonPart buttonPart = _parts.get(index);
+            IBUTTONN buttonPart = _parts.get(index);
             int slot = buttonPart.getPosition();
 
             if (slot < 0 || slot > 53)

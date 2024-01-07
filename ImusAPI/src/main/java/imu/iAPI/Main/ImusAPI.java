@@ -2,27 +2,35 @@ package imu.iAPI.Main;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.j256.ormlite.jdbc.DataSourceConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.zaxxer.hikari.HikariDataSource;
 import imu.iAPI.CmdUtil.CmdHelper;
 import imu.iAPI.Commands.ExampleCmd;
 import imu.iAPI.FastInventory.Manager_FastInventories;
 import imu.iAPI.Handelers.CommandHandler;
 import imu.iAPI.Interfaces.ICustomInventory;
+import imu.iAPI.Interfaces.IHasSql;
+import imu.iAPI.Interfaces.IHasSqlSource;
 import imu.iAPI.LootTables.Manager_ImusLootTable;
 import imu.iAPI.Managers.Manager_CommandSender;
+import imu.iAPI.Managers.Manager_Database;
 import imu.iAPI.Managers.Manager_Vault;
 import imu.iAPI.Other.*;
-import imu.iAPI.ProtocolLib.Listeners.ChatPacketListener;
+import imu.iAPI.SubCommands.Sub_Cmd_OpenLootTablesInvs;
 import imu.iAPI.SubCommands.Sub_Cmd_OpenNamedInvs;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
 import java.util.*;
 
-public class ImusAPI extends JavaPlugin
+public class ImusAPI extends JavaPlugin implements IHasSql, IHasSqlSource
 {
     public static ImusAPI _instance;
     public static Metods _metods;
@@ -30,7 +38,10 @@ public class ImusAPI extends JavaPlugin
     private Manager_FastInventories _fastInvs;
     private Manager_ImusLootTable _lootTableManager;
     private Manager_Vault _vaultManager;
+    private Manager_Database _databaseManager;
     private Manager_CommandSender _commandSenderManager;
+
+    private MySQL _SQL;
 
     //depricated
     private HashMap<UUID, CustomInvLayout> _openedInvs = new HashMap<>();
@@ -61,6 +72,9 @@ public class ImusAPI extends JavaPlugin
     public void onEnable()
     {
         _instance = this;
+        connectDataBase();
+        InitilizeDataBases();
+
         _vaultManager = new Manager_Vault(this);
         _commandSenderManager = new Manager_CommandSender();
         Manager_Vault.setupEconomy();
@@ -68,7 +82,7 @@ public class ImusAPI extends JavaPlugin
         _metods = new Metods(this);
         _sqlHelper = new MySQLHelper();
         _fastInvs = new Manager_FastInventories();
-        _lootTableManager = new Manager_ImusLootTable();
+        _lootTableManager = new Manager_ImusLootTable(this, _databaseManager);
 
         InitiliazeProtocolLib();
 
@@ -115,6 +129,18 @@ public class ImusAPI extends JavaPlugin
         //_protocolManager.addPacketListener(new ChatPacketListener(this));
 
     }
+
+    private void InitilizeDataBases()
+    {
+        try
+        {
+            _databaseManager = new Manager_Database(this);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
     public void RegisterCommands()
     {
         _cmdHelper = new CmdHelper(_pluginName);
@@ -135,12 +161,15 @@ public class ImusAPI extends JavaPlugin
         _cmdHelper.setCmd(full_sub1, "Open Custom Invs", full_sub1);
         handler.registerSubCmd(cmd1, cmd1_sub1, new Sub_Cmd_OpenNamedInvs(_cmdHelper.getCmdData(full_sub1)));
         handler.setPermissionOnLastCmd("ia.inv");
-        _fastInvs.SetBaseID(cmd1_sub1); // this needs bc it adds tabcomplete things for it
+        _fastInvs.SetBaseID(cmd1_sub1);
 
+        String cmd1_sub2 = "lootTables";
+        String full_sub2 = cmd1 + " " + cmd1_sub2;
+        _cmdHelper.setCmd(full_sub2, "Open LootTable", full_sub2);
+        handler.registerSubCmd(cmd1, cmd1_sub2, new Sub_Cmd_OpenLootTablesInvs(_cmdHelper.getCmdData(full_sub2)));
+        handler.setPermissionOnLastCmd("ia.lootTables");
 
-        //cmd1AndArguments.put(cmd1, new String[] { "inv", "follow" });
-        cmd1AndArguments.put(cmd1, new String[]{"inv"});
-        //cmd1AndArguments.put("inv", new String[] {"test123"});
+        cmd1AndArguments.put(cmd1, new String[]{"inv", "lootTables"});
 
         // register cmds
         getCommand(cmd1).setExecutor(handler);
@@ -149,8 +178,6 @@ public class ImusAPI extends JavaPlugin
         _tab_cmd1 = new ImusTabCompleter(cmd1, cmd1AndArguments, "ia.tabcompleter");
 
         getCommand(cmd1).setTabCompleter(_tab_cmd1);
-
-        //_fastInvs.AddFastInventory(new Fast_Inventory("tamaPerkl"));
 
     }
 
@@ -264,6 +291,40 @@ public class ImusAPI extends JavaPlugin
         _pluginCheckCache.put(pluginName, isEnabled);
         return isEnabled;
     }
+
+
+    @Override
+    public boolean connectDataBase()
+    {
+        Bukkit.getLogger().info(ChatColor.DARK_PURPLE + "[imusAPI] Connecting to database...");
+        try
+        {
+            _SQL = new MySQL(this, 20, 2, "imusAPI");
+        }
+        catch (Exception e)
+        {
+            Bukkit.getLogger().info(ChatColor.DARK_PURPLE + "[imusAPI] Connecting to database FAILED");
+            Bukkit.getLogger().info("Pls check your config.yml and restart the server");
+            e.printStackTrace();
+            _SQL = null;
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public MySQL getSQL()
+    {
+        return _SQL;
+    }
+
+    @Override
+    public ConnectionSource getSource() throws SQLException
+    {
+        HikariDataSource dataSource = getSQL().getDataSource();
+        return new DataSourceConnectionSource(dataSource, dataSource.getJdbcUrl());
+    }
+
 //	boolean setup()
 //	{
 //		if(Bukkit.getPluginManager().getPlugin("imusAPI") != null)

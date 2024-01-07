@@ -3,6 +3,7 @@ package imu.iAPI.Buttons;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import imu.iAPI.Interfaces.IButtonHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +13,8 @@ import imu.iAPI.Interfaces.IBUTTONN;
 public class Button implements IBUTTONN
 {
 	private UUID _uuid = UUID.randomUUID();
+
+	private IButtonHandler _buttonHandler;
 	private ItemStack _stack;
 	private int _position;
 	private boolean _lockPosition = true;
@@ -172,10 +175,23 @@ public class Button implements IBUTTONN
 		return _lastClickType;
 	}
 
-	
+	@Override
+	public boolean onClick(InventoryClickEvent event)
+	{
+		return true;
+	}
 
-	
-	
-	
+	@Override
+	public void setButtonHandler(IButtonHandler buttonHandler)
+	{
+		_buttonHandler = buttonHandler;
+	}
+
+	@Override
+	public IButtonHandler getButtonHandler()
+	{
+		return _buttonHandler;
+	}
+
 
 }

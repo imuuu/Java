@@ -200,7 +200,7 @@ public class ItemUtils
 		return stack;
 	}
 	
-	public static  ItemStack SetLore(ItemStack stack, String lore, boolean removeEmpty)
+	public static ItemStack SetLore(ItemStack stack, String lore, boolean removeEmpty)
 	{
 		return SetLores(stack, Arrays.asList(lore), removeEmpty);
 	}
@@ -240,8 +240,35 @@ public class ItemUtils
     	
 		return stack;
 	}
-	
-	public static ItemStack ReSetLore(ItemStack stack, String lore, int index)
+	public static ItemStack setLore(ItemStack stack,int index, String lore)
+	{
+		if (!IsValid(stack))  return stack;
+
+		if(stack.getItemMeta() == null) return stack;
+
+		ItemMeta meta = stack.getItemMeta();
+		ArrayList<String> metaLores = new ArrayList<>();
+		if(meta.hasLore())
+		{
+			metaLores.addAll(meta.getLore());
+		}
+
+		if(metaLores.size() <= index)
+		{
+			while(metaLores.size() < index+1)
+			{
+				metaLores.add(" ");
+			}
+		}
+		metaLores.set(index, Metods.msgC(lore));
+		meta.setLore(metaLores);
+
+		stack.setItemMeta(meta);
+
+		return stack;
+	}
+
+	public static ItemStack reSetLore(ItemStack stack, String lore, int index)
 	{
 
 		ItemMeta meta = stack.getItemMeta();

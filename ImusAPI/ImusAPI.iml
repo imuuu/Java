@@ -96,5 +96,6 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.MilkBowl:VaultAPI:1.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.bukkit:bukkit:1.13.1-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.comphenix.protocol:ProtocolLib:5.1.0" level="project" />
+    <orderEntry type="library" name="Maven: com.j256.ormlite:ormlite-jdbc:6.1" level="project" />
   </component>
 </module>

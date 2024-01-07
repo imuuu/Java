@@ -4,9 +4,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class LootTableItemStack extends ImusLootTable<ItemStack>
+public class LootTableItemStack extends ImusLootTable
 {
-    private ImusLootTable<Integer> _dropAmounts;
+    private ImusLootTable _dropAmounts;
 
     public LootTableItemStack()
     {
@@ -15,37 +15,33 @@ public class LootTableItemStack extends ImusLootTable<ItemStack>
 
     private void InitDropAmounts()
     {
-        _dropAmounts = new ImusLootTable<>();
-        _dropAmounts.Add(5, 100);
-        _dropAmounts.Add(18, 90);
-        _dropAmounts.Add(19, 60);
-        _dropAmounts.Add(28, 45);
-        _dropAmounts.Add(44, 28);
-        _dropAmounts.Add(64, 9);
+        _dropAmounts = new ImusLootTable();
+        _dropAmounts.add(5, 100);
+        _dropAmounts.add(18, 90);
+        _dropAmounts.add(19, 60);
+        _dropAmounts.add(28, 45);
+        _dropAmounts.add(44, 28);
+        _dropAmounts.add(64, 9);
     }
 
-    public void SetDropAmounts(ImusLootTable<Integer> dropAmounts)
-    {
-        _dropAmounts = dropAmounts;
-    }
 
     @Override
-    public ItemStack GetLoot()
+    public ItemStack getLoot()
     {
-        int randomIndex = ThreadLocalRandom.current().nextInt(GetTotalWeight());
+        int randomIndex = ThreadLocalRandom.current().nextInt(getTotalWeight());
 
-        for (LootTableItem<ItemStack> item : items)
+        for (ILootTableItem<?> item : items)
         {
-            if (randomIndex < item.weight)
+            if (randomIndex < item.get_weight())
             {
-                ItemStack stack  = item.value;
-                if(item.maxAmount != -1)
+                ItemStack stack  = (ItemStack)item.get_value();
+                if(item.get_maxAmount() != -1)
                 {
-                    stack.setAmount(Math.min(item.maxAmount,getRandomAmountWithinDropRange(item.maxAmount)));
+                    stack.setAmount(Math.min(item.get_maxAmount(),getRandomAmountWithinDropRange(item.get_maxAmount())));
                 }
                 else
                 {
-                    stack.setAmount(getRandomAmountWithinDropRange(item.maxAmount));
+                    stack.setAmount(getRandomAmountWithinDropRange(item.get_maxAmount()));
                 }
 
                 if(stack.getAmount() > stack.getMaxStackSize())
@@ -55,15 +51,15 @@ public class LootTableItemStack extends ImusLootTable<ItemStack>
 
                 return stack.clone();
             }
-            randomIndex -= item.weight;
+            randomIndex -= item.get_weight();
         }
         return null;
     }
 
     private int getRandomAmountWithinDropRange(int maxAmount)
     {
-        int amount1 = _dropAmounts.GetLoot();
-        int amount2 = _dropAmounts.GetLoot();
+        int amount1 = (int)_dropAmounts.getLoot();
+        int amount2 = (int)_dropAmounts.getLoot();
 
         if(maxAmount != -1 && amount1 > maxAmount)
         {

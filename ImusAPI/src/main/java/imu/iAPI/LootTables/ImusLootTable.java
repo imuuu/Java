@@ -1,78 +1,82 @@
 package imu.iAPI.LootTables;
 
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-
-public class ImusLootTable<T>
+public class ImusLootTable
 {
-	protected List<LootTableItem<T>> items = new ArrayList<>();
+	protected List<ILootTableItem<?>> items = new ArrayList<>();
 	private int totalWeight = 0;
-	//private Random random = new Random();
 
-	public int GetTotalWeight()
-	{
+	public int getTotalWeight() {
 		return totalWeight;
 	}
 
-	public void Add(T value, int weight)
-	{
+	public void add(ILootTableItem<?> item) {
+		items.add(item);
+		totalWeight += item.get_weight();
+	}
+
+	public <T> void add(T value, int weight) {
 		totalWeight += weight;
 		items.add(new LootTableItem<>(value, weight));
 	}
 
-	public void Add(T value, int weight, int maxAmount)
-	{
+	public <T> void add(T value, int weight, int maxAmount) {
 		totalWeight += weight;
 		items.add(new LootTableItem<>(value, weight, maxAmount));
 	}
 
-	public T GetLoot()
-	{
-//		int randomIndex = random.nextInt(totalWeight);
+	public Object getLoot() {
 		int randomIndex = ThreadLocalRandom.current().nextInt(totalWeight);
-		
-		for (LootTableItem<T> item : items)
-		{
-			if (randomIndex < item.weight)
-			{
-				return item.value;
+
+		for (ILootTableItem<?> item : items) {
+			if (randomIndex < item.get_weight()) {
+				return item.get_value();
 			}
-			randomIndex -= item.weight;
+			randomIndex -= item.get_weight();
 		}
 		return null;
 	}
 
+	public LinkedList<Object> getLoot(int rolls) {
+		LinkedList<Object> _items = new LinkedList<>();
 
-	
-	public LinkedList<T> GetLoot(int rolls)
-	{
-		LinkedList<T> _items = new LinkedList<>();
-		
-		for(int i = 0; i < rolls; i++)
-		{
-			_items.add(GetLoot());
+		for (int i = 0; i < rolls; i++) {
+			_items.add(getLoot());
 		}
-		
+
 		return _items;
 	}
-	
-	public void AddLootAsItemStack(Inventory inv, int rolls)
+
+	public void addLootAsItemStack(Inventory inv, int rolls) {
+		List<Object> loots = getLoot(rolls);
+
+		for (Object loot : loots) {
+			if (loot instanceof ItemStack) {
+				ItemStack stack = (ItemStack) loot;
+				if (stack != null) {
+					inv.addItem(stack);
+				}
+			}
+			// Handle other types if needed
+		}
+	}
+
+	public List<ILootTableItem<?>> getItems() {
+		return Collections.unmodifiableList(items);
+	}
+
+	public void printLoot()
 	{
-		List<T> loots = GetLoot(rolls);
-		
-		for(T loot : loots)
+		for(ILootTableItem<?> item : items)
 		{
-			ItemStack stack = (ItemStack)loot;
-			
-			if(stack == null) continue;
-			
-			inv.addItem(stack);
-			//System.out.println("loot: "+(ItemStack)loot);
+			System.out.println(item.get_value() + " " + item.get_weight());
 		}
 	}
 }

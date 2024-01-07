@@ -67,11 +67,12 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
 
     public void addButton(IBUTTONN button)
     {
-        _buttons.put(button.getPosition(), button);
+        addButton(button.getPosition(), button);
     }
 
     public void addButton(int position, IBUTTONN button)
     {
+        button.setButtonHandler(this);
         _buttons.put(position, button);
     }
 
@@ -275,6 +276,13 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
 
         _lastClickTime = currentTime;
 
+
+
+        if(!button.onClick(event))
+        {
+        	return;
+        }
+
         button.action(event);
 
     }
@@ -438,10 +446,11 @@ public class ButtonHandler implements Listener, IButtonHandler, ISnapshotHandler
 
     public void updateButton(IBUTTONN button)
     {
+        button.onUpdate();
         _customInventory.
                 getInventory().
                 setItem(button.getPosition(), button.getItemStack());
-        button.onUpdate();
+
     }
 
     public void updateButton(int position)
