@@ -31,10 +31,16 @@ public class Inventory_LootTables extends CustomInventory
     }
 
     @Override
+    public void onAwake()
+    {
+        initButtons();
+    }
+
+    @Override
     public void onOpen()
     {
         super.onOpen();
-        initButtons();
+        System.out.println("open loot tables inventory");
     }
 
     @Override
@@ -46,7 +52,6 @@ public class Inventory_LootTables extends CustomInventory
     private void initButtons()
     {
         loadLootTables();
-
     }
 
     private void loadLootTables()
@@ -126,7 +131,7 @@ public class Inventory_LootTables extends CustomInventory
             ItemUtils.SetDisplayName(stack, "Not ItemStack");
 
         }
-        ButtonWithSelector buttonSelector = new ButtonWithSelector(0, stack);
+        ButtonWithSelector buttonSelector = new ButtonWithSelector(0, stack, this);
         buttonSelector.addLores(new SelectorString("&9Weight: &e%value%", weight));
         buttonSelector.addLores(new SelectorString("&9MinAmount: &e%value%", minAmount));
         buttonSelector.addLores(new SelectorString("&9MaxAmount: &e%value%", maxAmount));

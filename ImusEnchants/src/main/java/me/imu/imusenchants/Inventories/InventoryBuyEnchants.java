@@ -43,7 +43,13 @@ public class InventoryBuyEnchants extends CustomInventory
 		return null;
 	}
 
-	
+
+	@Override
+	public void onAwake()
+	{
+
+	}
+
 	@Override
 	public void onOpen()
 	{

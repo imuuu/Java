@@ -28,6 +28,7 @@ public abstract class CustomInventory implements ICustomInventory
     private int _size;
 
     private ButtonHandler _buttonHandler;
+    private boolean _awaken = false;
 
     public CustomInventory(Plugin main, String name, int size)
     {
@@ -39,12 +40,18 @@ public abstract class CustomInventory implements ICustomInventory
         _inv = _plugin.getServer().createInventory(null, _size, _name);
     }
 
+
     @Override
     public void onOpen()
     {
         _buttonHandler.setInventoryLock(setInventoryLock());
         _buttonHandler.onHandlerOpen();
         ImusAPI._instance.RegisterCustomInventory(this);
+        if (!_awaken)
+        {
+            onAwake();
+            _awaken = true;
+        }
     }
 
     @Override
@@ -56,6 +63,7 @@ public abstract class CustomInventory implements ICustomInventory
 
     public abstract INVENTORY_AREA setInventoryLock();
 
+    @Override
     public ButtonHandler getButtonHandler()
     {
         return _buttonHandler;
@@ -64,7 +72,6 @@ public abstract class CustomInventory implements ICustomInventory
     @Override
     public Inventory getInventory()
     {
-
         return _inv;
     }
 

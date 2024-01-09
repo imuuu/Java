@@ -44,6 +44,12 @@ public class InventoryChallengeShop extends CustomInventory
     }
 
     @Override
+    public void onAwake()
+    {
+
+    }
+
+    @Override
     public void onOpen()
     {
         super.onOpen();

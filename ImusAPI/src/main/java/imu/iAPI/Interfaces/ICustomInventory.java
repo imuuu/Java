@@ -8,12 +8,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 public interface ICustomInventory
-{	
+{
+	public void onAwake();
 	public void onOpen();
 	
 	public void onClose();
 	
 	public Inventory getInventory();
+
+	public IButtonHandler getButtonHandler();
 	
 	public int getSize();
 	

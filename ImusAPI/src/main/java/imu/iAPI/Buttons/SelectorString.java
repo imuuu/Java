@@ -1,6 +1,9 @@
 package imu.iAPI.Buttons;
 
 import imu.iAPI.Enums.VALUE_TYPE;
+import org.bukkit.event.inventory.InventoryClickEvent;
+
+import java.util.function.Consumer;
 
 public class SelectorString
 {
@@ -8,11 +11,20 @@ public class SelectorString
     private VALUE_TYPE _type;
     private String _value;
 
+    private Consumer<InventoryClickEvent> _onAction;
     public SelectorString(String string, String value, VALUE_TYPE type)
     {
         _string = string;
         _type = type;
         _value = value;
+    }
+
+    public SelectorString(String string, String value, VALUE_TYPE type, Consumer<InventoryClickEvent> onAction)
+    {
+        _string = string;
+        _type = type;
+        _value = value;
+        _onAction = onAction;
     }
 
     public SelectorString(String string, int value)
@@ -36,13 +48,30 @@ public class SelectorString
         _value = String.valueOf(value);
     }
 
-
     public String getStringWithValue()
     {
         if(_type == VALUE_TYPE.NONE)
             return _string;
 
         return _string.replace("%value%", _value);
+    }
+
+    public void setOnAction(Consumer<InventoryClickEvent> onAction)
+    {
+    	_onAction = onAction;
+    }
+
+    public Consumer<InventoryClickEvent> getOnAction()
+    {
+    	return _onAction;
+    }
+
+    public void triggerAction(InventoryClickEvent event)
+    {
+    	if(_onAction != null)
+    	{
+    		_onAction.accept(event);
+    	}
     }
 
     public String get_string()
@@ -65,13 +94,24 @@ public class SelectorString
         this._type = _type;
     }
 
-    public String get_value()
-    {
-        return _value;
-    }
-
     public void set_value(String _value)
     {
         this._value = _value;
+    }
+
+    public Object getValue()
+    {
+    	switch(_type)
+    	{
+    		case INT:
+    			return Integer.parseInt(_value);
+    		case DOUBLE:
+    			return Double.parseDouble(_value);
+    		case BOOLEAN:
+    			return Boolean.parseBoolean(_value);
+    		case NONE:
+    			return null;
+    	}
+    	return null;
     }
 }

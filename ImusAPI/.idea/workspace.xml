@@ -5,65 +5,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="01d73cac-db16-4389-a04f-65099b18f831" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_j256_ormlite_ormlite_jdbc_6_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/ButtonWithSelector.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/SelectorString.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Enums/VALUE_TYPE.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/ICallBackBoolean.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/IHasSql.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/IHasSqlSource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Controller_ImusLootTableSQL.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/ILootTableItem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Interfaces/ICallBackLootTable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Inventory_LootTables.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LOOT_TYPE.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LootItemStack.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Managers/Manager_Database.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/SqlTables/LootTableSystem/TableItemStack.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/SqlTables/LootTableSystem/TableLootItems.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/SqlTables/LootTableSystem/TableLootTable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/SubCommands/Sub_Cmd_OpenLootTablesInvs.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Inventories/Inventory_ValueSetter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ImusAPI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ImusAPI.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/Button.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/Button.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/GridButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/GridButton.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Handelers/ButtonHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Handelers/ButtonHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/IBUTTONN.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/IBUTTONN.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/ImusLootTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/ImusLootTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LootTableItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LootTableItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LootTableItemStack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/LootTableItemStack.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Manager_ImusLootTable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Manager_ImusLootTable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Main/ImusAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Main/ImusAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Other/MySQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Other/MySQL.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/SubCommands/Sub_Cmd_OpenNamedInvs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/SubCommands/Sub_Cmd_OpenNamedInvs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Utilities/ItemUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Utilities/ItemUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/Button.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/Button.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/GridButton.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/GridButton.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Handelers/ButtonHandler$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Handelers/ButtonHandler$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Handelers/ButtonHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Handelers/ButtonHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Interfaces/IBUTTONN.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Interfaces/IBUTTONN.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/ImusLootTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/ImusLootTable.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/LootTableItem.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/LootTableItem.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/LootTableItemStack.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/LootTableItemStack.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/Manager_ImusLootTable.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/Manager_ImusLootTable.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Main/ImusAPI.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Main/ImusAPI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Other/MySQL.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/SubCommands/Sub_Cmd_OpenNamedInvs.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/SubCommands/Sub_Cmd_OpenNamedInvs.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils$DisplayNamePosition.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils$DisplayNamePosition.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Utilities/ItemUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/ButtonWithSelector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/ButtonWithSelector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/SelectorString.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Buttons/SelectorString.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/ICustomInventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/Interfaces/ICustomInventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/InvUtil/CustomInventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/InvUtil/CustomInventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Inventory_LootTables.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/imu/iAPI/LootTables/Inventory_LootTables.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/ImusAPI-1.0-SNAPSHOT-shaded.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/ImusAPI-1.0-SNAPSHOT-shaded.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/ButtonWithSelector.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/ButtonWithSelector.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/SelectorString.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Buttons/SelectorString.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/Interfaces/ICustomInventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/Interfaces/ICustomInventory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/InvUtil/CustomInventory.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/InvUtil/CustomInventory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/Inventory_LootTables.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imu/iAPI/LootTables/Inventory_LootTables.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/original-ImusAPI.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/original-ImusAPI.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Managers/ManagerChallengeShop.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Managers/ManagerChallengeShop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/InventoryCCollectMaterial.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/InventoryCCollectMaterial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/InventoryChallengeShop.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/InventoryChallengeShop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/TestInventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusChallenges/src/main/java/me/imu/imuschallenges/Inventories/TestInventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/InventoryBuyEnchants.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/InventoryBuyEnchants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/InventoryEnchanting.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/InventoryEnchanting.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/TestINv.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/src/main/java/me/imu/imusenchants/Inventories/TestINv.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryBuyEnchants$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryBuyEnchants$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryBuyEnchants.class" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryBuyEnchants.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryEnchanting.class" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/InventoryEnchanting.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/TestINv.class" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/target/classes/me/imu/imusenchants/Inventories/TestINv.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ImusEnchants/target/original-ImusEnchants.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../ImusEnchants/target/original-ImusEnchants.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/bin/imu/DontLoseItems/Events/ChestLootEvents.class" beforeDir="false" afterPath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/bin/imu/DontLoseItems/Events/ChestLootEvents.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/bin/imu/DontLoseItems/Events/EndChestLootEvents.class" beforeDir="false" afterPath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/bin/imu/DontLoseItems/Events/EndChestLootEvents.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/src/imu/DontLoseItems/Events/ChestLootEvents.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/src/imu/DontLoseItems/Events/ChestLootEvents.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/src/imu/DontLoseItems/Events/EndChestLootEvents.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Minecraft Plugins/DontLoseItems/src/imu/DontLoseItems/Events/EndChestLootEvents.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Minecraft Plugins/imusGS/bin/.gitignore" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

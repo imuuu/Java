@@ -22,7 +22,13 @@ public class TestINv extends CustomInventory
 	{
 		return INVENTORY_AREA.UPPER_INV;
 	}
-	
+
+	@Override
+	public void onAwake()
+	{
+
+	}
+
 	@Override
 	public void onOpen()
 	{
