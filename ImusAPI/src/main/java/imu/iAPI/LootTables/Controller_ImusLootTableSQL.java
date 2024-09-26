@@ -4,8 +4,8 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
 import imu.iAPI.Interfaces.ICallBackBoolean;
+import imu.iAPI.LootTables.Interfaces.ICallBack;
 import imu.iAPI.LootTables.Interfaces.ICallBackLootTable;
 import imu.iAPI.Main.ImusAPI;
 import imu.iAPI.Managers.Manager_Database;
@@ -59,9 +59,6 @@ public class Controller_ImusLootTableSQL
 
     private void addOrUpdateLootTable(TableLootTable lootTable) throws SQLException
     {
-
-
-
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("name", lootTable.getName());
         List<TableLootTable> existing = _tableLootTableDao.queryForFieldValues(queryMap);
@@ -105,6 +102,7 @@ public class Controller_ImusLootTableSQL
             }
         });
     }
+
     private void addLootTableAsync(TableLootTable lootTable, Runnable callback)
     {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
@@ -228,6 +226,121 @@ public class Controller_ImusLootTableSQL
         }
     }
 
+    private boolean updateItemStackDetails(ItemStack stack, Integer minAmount, Integer maxAmount, Integer weight, ICallBack callback) throws SQLException
+    {
+        String serializedItemStack = ItemUtils.EncodeItemStack(stack);
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("item", serializedItemStack);
+        List<TableItemStack> existingItemStacks = _tableItemStackDao.queryForFieldValues(queryMap);
+
+        // Check if the item stack exists
+        if (!existingItemStacks.isEmpty())
+        {
+            TableItemStack existingItemStack = existingItemStacks.get(0);
+
+            // Update the TableLootItems associated with this item stack
+            Map<String, Object> lootItemsQueryMap = new HashMap<>();
+            lootItemsQueryMap.put("loot_item_id", existingItemStack.getId());
+            List<TableLootItems> relatedLootItems = _tableLootItemsDao.queryForFieldValues(lootItemsQueryMap);
+
+            for (TableLootItems lootItem : relatedLootItems)
+            {
+                if (minAmount != null)
+                {
+                    lootItem.setMinAmount(minAmount);
+                }
+                if (maxAmount != null)
+                {
+                    lootItem.setMaxAmount(maxAmount);
+                }
+                if (weight != null)
+                {
+                    lootItem.setWeight(weight);
+                }
+                _tableLootItemsDao.update(lootItem);
+            }
+
+
+            return true;
+        }
+        else
+        {
+            Bukkit.getLogger().info("[imusAPI/Lootables]ItemStack not found in the database");
+            //Bukkit.getScheduler().runTask(plugin, () -> callback.onComplete(false));
+            return false;
+        }
+    }
+
+    public void updateItemStackDetailsAsync(ItemStack stack, Integer minAmount, Integer maxAmount, Integer weight, ICallBack callback)
+    {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            boolean success;
+            try
+            {
+                success = updateItemStackDetails(stack, minAmount, maxAmount, weight, callback);
+
+            } catch (SQLException e)
+            {
+                e.printStackTrace();
+                success = false;
+
+            }
+
+            final boolean finalSuccess = success;
+            Bukkit.getScheduler().runTask(plugin, () -> callback.onComplete(finalSuccess));
+        });
+    }
+
+    private boolean removeItemStackIfExists(ItemStack stack) throws SQLException
+    {
+        String serializedItemStack = ItemUtils.EncodeItemStack(stack);
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("item", serializedItemStack);
+        List<TableItemStack> existingItemStacks = _tableItemStackDao.queryForFieldValues(queryMap);
+
+        if (!existingItemStacks.isEmpty())
+        {
+            TableItemStack existingItemStack = existingItemStacks.get(0);
+
+            // Remove related loot items
+            Map<String, Object> lootItemsQueryMap = new HashMap<>();
+            lootItemsQueryMap.put("loot_item_id", existingItemStack.getId());
+            List<TableLootItems> relatedLootItems = _tableLootItemsDao.queryForFieldValues(lootItemsQueryMap);
+
+            for (TableLootItems lootItem : relatedLootItems)
+            {
+                _tableLootItemsDao.delete(lootItem);
+            }
+
+            _tableItemStackDao.delete(existingItemStack);
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void removeItemStackIfExistsAsync(ItemStack stack, ICallBack callback)
+    {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            boolean success;
+            try
+            {
+                success = removeItemStackIfExists(stack);
+            } catch (SQLException e)
+            {
+                e.printStackTrace();
+                success = false;
+            }
+
+            final boolean finalSuccess = success;
+            Bukkit.getScheduler().runTask(plugin, () -> callback.onComplete(finalSuccess));
+        });
+    }
+
+
     public void removeLootTableByName(String lootTableName) throws SQLException
     {
         ConnectionSource connectionSource = ImusAPI._instance.getSource();
@@ -297,7 +410,8 @@ public class Controller_ImusLootTableSQL
 
         // Find the loot table by name
         List<TableLootTable> lootTables = lootTableDao.queryForEq("name", lootTableName);
-        if (lootTables.isEmpty()) {
+        if (lootTables.isEmpty())
+        {
             Bukkit.getLogger().info("Loot table with name " + lootTableName + " not found.");
             return null;
         }

@@ -12,6 +12,7 @@ public class SelectorString
     private String _value;
 
     private Consumer<InventoryClickEvent> _onAction;
+    private Consumer<ButtonWithSelector> _onConfirm;
     public SelectorString(String string, String value, VALUE_TYPE type)
     {
         _string = string;
@@ -74,6 +75,24 @@ public class SelectorString
     	}
     }
 
+    public void setOnConfirm(Consumer<ButtonWithSelector> onActionConfirm)
+    {
+        _onConfirm = onActionConfirm;
+    }
+
+    public Consumer<ButtonWithSelector> getOnConfirm()
+    {
+        return _onConfirm;
+    }
+
+    public void triggerActionConfirm(ButtonWithSelector customInventory)
+    {
+        if(_onConfirm != null)
+        {
+            _onConfirm.accept(customInventory);
+        }
+    }
+
     public String get_string()
     {
         return _string;
@@ -98,6 +117,7 @@ public class SelectorString
     {
         this._value = _value;
     }
+
 
     public Object getValue()
     {

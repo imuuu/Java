@@ -79,6 +79,7 @@ imu\iAPI\SubCommands\Sub_Cmd_FollowPlayer.class
 imu\iAPI\Interfaces\IHasSql.class
 imu\iAPI\Utilities\ItemUtilToolsArmors$1.class
 imu\iAPI\SubCommands\Sub_Cmd_FollowPlayer$FollowPlayer.class
+imu\iAPI\LootTables\Interfaces\ICallBack.class
 imu\iAPI\LootTables\Manager_ImusLootTable$2.class
 imu\iAPI\LootTables\ImusLootTable.class
 imu\iAPI\Utilities\ItemUtils$1.class

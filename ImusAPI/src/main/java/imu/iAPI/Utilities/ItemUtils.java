@@ -344,12 +344,21 @@ public class ItemUtils
 		stack.setItemMeta(meta);
 		return stack;
 	}
+
+	public static ItemStack setDisplayName(ItemStack stack, String name)
+	{
+		return SetDisplayName(stack, name);
+	}
 	
 	public static ItemStack SetDisplayNameEmpty(ItemStack stack)
 	{
 		return SetDisplayName(stack, " ");
 	}
-	
+
+	public static ItemStack setDisplayNameEmpty(ItemStack stack)
+	{
+		return SetDisplayNameEmpty(stack);
+	}
 	
 	public enum DisplayNamePosition 
 	{

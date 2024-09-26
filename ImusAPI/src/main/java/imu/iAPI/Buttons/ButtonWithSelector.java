@@ -97,25 +97,22 @@ public class ButtonWithSelector extends Button
 
     private void createLores(ItemStack stack)
     {
-        // Initialize _selectorStartIndex if it hasn't been set
         if (_selectorStartIndex == -1)
         {
             _selectorStartIndex = getLoreAmount(stack);
-            _selectorIndex = _selectorStartIndex + _firstLores.length; // Set starting index after _firstLores
+            _selectorIndex = _selectorStartIndex + _firstLores.length;
         }
 
-        // Add _firstLores to the stack
         for (int i = 0; i < _firstLores.length; i++)
         {
             ItemUtils.setLore(stack, _selectorStartIndex + i, _firstLores[i]);
         }
 
-        // Add lores from the lores ArrayList
         for (int i = 0; i < _lores.size(); i++)
         {
             SelectorString selectorString = _lores.get(i);
             String lore = selectorString.getStringWithValue();
-            if (i + _selectorStartIndex + _firstLores.length == _selectorIndex) // Adjust index for selection
+            if (i + _selectorStartIndex + _firstLores.length == _selectorIndex)
             {
                 lore = "§e=>§r" + lore;
             }

@@ -1,8 +1,10 @@
 package imu.iAPI.LootTables;
 
+import imu.iAPI.LootTables.Interfaces.ICallBack;
 import imu.iAPI.Managers.Manager_Database;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -123,6 +125,16 @@ public class Manager_ImusLootTable
 
     }
 
+
+    public void updateItemStackAsync(ItemStack stack,Integer minAmount, Integer maxAmount, Integer weight, ICallBack callback)
+    {
+        controller.updateItemStackDetailsAsync(stack, minAmount, maxAmount, weight, callback);
+    }
+
+    public void removeItemStackAsync(ItemStack stack, ICallBack callback)
+    {
+        controller.removeItemStackIfExistsAsync(stack, callback);
+    }
     public HashMap<String, ImusLootTable> get_lootTables()
     {
         return _lootTables;
